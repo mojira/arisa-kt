@@ -19,6 +19,8 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.2.3")
     implementation("ch.qos.logback", "logback-core", "1.2.3")
     implementation("io.arrow-kt", "arrow-core", "0.10.4")
+    implementation("io.arrow-kt", "arrow-syntax", "0.10.4")
+    implementation("io.arrow-kt", "arrow-fx", "0.10.4")
 }
 
 tasks {

@@ -1,13 +1,15 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
 import com.uchuhimo.konf.Config
 import net.rcarz.jiraclient.JiraClient
 
-abstract class Module<REQUEST>(val jiraClient: JiraClient, val config: Config) {
-    abstract operator fun invoke(request: REQUEST): ModuleResponse
+interface Module<REQUEST> {
+    operator fun invoke(request: REQUEST): Either<ModuleError, ModuleResponse>
 }
 
-sealed class ModuleResponse
-object SucessfulModuleResponse: ModuleResponse()
-object OperationNotNeededModuleResponse: ModuleResponse()
-data class FailedModuleResponse(val exceptions: List<Exception>): ModuleResponse()
+typealias ModuleResponse = Unit
+
+sealed class ModuleError
+object OperationNotNeededModuleResponse: ModuleError()
+data class FailedModuleResponse(val exceptions: List<Throwable>): ModuleError()

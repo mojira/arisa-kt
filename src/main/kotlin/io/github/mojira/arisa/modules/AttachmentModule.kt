@@ -1,38 +1,40 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
-import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.Arisa
+import arrow.core.extensions.fx
+import arrow.core.left
+import arrow.core.right
 import net.rcarz.jiraclient.Attachment
-import net.rcarz.jiraclient.JiraClient
 
-class AttachmentModule(jiraClient: JiraClient, config: Config) : Module<AttachmentModuleRequest>(jiraClient, config) {
-    override fun invoke(request: AttachmentModuleRequest): ModuleResponse {
-        val failedRequests = request
-            .attachments
-            .filter(::endsWithBlacklistedExtensions)
-            .map { deleteAttachment(it) }
-            .filterIsInstance<Either.Left<Exception>>()
-            .map { it.a }
 
-        return when {
-            request.attachments.isEmpty() -> OperationNotNeededModuleResponse
-            failedRequests.isNotEmpty() -> FailedModuleResponse(failedRequests)
-            else -> SucessfulModuleResponse
-        }
-    }
+data class AttachmentModuleRequest(val attachments: List<Attachment>)
 
-    private fun deleteAttachment(attachment: Attachment) = try {
-        jiraClient.restClient.delete(Attachment.getBaseUri() + attachment.id)
-        Either.right(Unit)
-    } catch (e: java.lang.Exception) {
-        Either.left(e)
+class AttachmentModule(
+    val deleteAttachment: (Attachment) -> Either<Throwable, Unit>,
+    val extensionBlackList: List<String>
+) : Module<AttachmentModuleRequest> {
+
+    override fun invoke(request: AttachmentModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
+        val blackListedAttachments = request.attachments.filter(::endsWithBlacklistedExtensions)
+        assertNotEmpty(blackListedAttachments).bind()
+        deleteAttachmentsAdapter(deleteAttachment, blackListedAttachments).bind()
     }
 
     private fun endsWithBlacklistedExtensions(attachment: Attachment) =
-        config[Arisa.Modules.Attachment.extensionBlacklist]
-            .split(",")
-            .any { attachment.contentUrl.endsWith(it) }
-}
+        extensionBlackList.any { attachment.contentUrl.endsWith(it) }
 
-data class AttachmentModuleRequest(val attachments: List<Attachment>)
+    private fun deleteAttachmentsAdapter(
+        deleteAttachment: (Attachment) -> Either<Throwable, Unit>,
+        blackListedAttachments: List<Attachment>
+    ) = if (blackListedAttachments.map(deleteAttachment).any { it.isLeft() }) {
+        FailedModuleResponse(listOf()).left()
+    } else {
+        Unit.right()
+    }
+
+    private fun assertNotEmpty(blackListedAttachments: List<Attachment>) = if (blackListedAttachments.isEmpty()) {
+        OperationNotNeededModuleResponse.left()
+    } else {
+        Unit.right()
+    }
+}

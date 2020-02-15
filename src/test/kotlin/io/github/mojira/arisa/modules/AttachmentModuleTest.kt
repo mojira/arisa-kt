@@ -56,7 +56,7 @@ class AttachmentModuleTest : StringSpec({
     }
 
     "should return ModuleResponse when something is deleted succesfully" {
-        val module = AttachmentModule({ ModuleResponse.right() }, listOf(".test"))
+        val module = AttachmentModule({ Unit.right() }, listOf(".test"))
         val attachment = mockAttachment("testfile.test")
         val request = AttachmentModuleRequest(listOf(attachment))
 

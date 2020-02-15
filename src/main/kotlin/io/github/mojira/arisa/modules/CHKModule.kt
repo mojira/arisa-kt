@@ -12,7 +12,7 @@ data class CHKModuleRequest(val issueId: String, val chkField: String?, val conf
 class CHKModule(val updateCHK: (IssueId) -> Either<Throwable, Unit>) : Module<CHKModuleRequest> {
     override fun invoke(request: CHKModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
         assertIsValid(request).bind()
-        updateCHKAdapter(updateCHK, request.issueId)
+        updateCHKAdapter(updateCHK, request.issueId).bind()
     }
 }
 

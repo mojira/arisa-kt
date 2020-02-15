@@ -80,7 +80,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                     issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
                 )
             ),
-            reopenAwaitingModule(ReopenAwaitingModuleRequest())
+            reopenAwaitingModule(ReopenAwaitingModuleRequest(issue.resolution))
         )
     }
 }

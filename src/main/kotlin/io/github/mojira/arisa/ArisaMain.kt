@@ -5,7 +5,13 @@ import arrow.syntax.function.curried
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
-import io.github.mojira.arisa.modules.*
+import io.github.mojira.arisa.modules.AttachmentModule
+import io.github.mojira.arisa.modules.AttachmentModuleRequest
+import io.github.mojira.arisa.modules.CHKModule
+import io.github.mojira.arisa.modules.CHKModuleRequest
+import io.github.mojira.arisa.modules.FailedModuleResponse
+import io.github.mojira.arisa.modules.ModuleError
+import io.github.mojira.arisa.modules.ModuleResponse
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
@@ -37,7 +43,6 @@ fun main() {
                 .filterIsInstance<FailedModuleResponse>()
                 .flatMap { it.exceptions }
                 .forEach { log.error("Error executing module", it) }
-
         } catch (e: Exception) {
             log.error("Failed to get issues", e)
             continue
@@ -45,7 +50,6 @@ fun main() {
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
     }
-
 }
 
 fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<ModuleError, ModuleResponse>> {

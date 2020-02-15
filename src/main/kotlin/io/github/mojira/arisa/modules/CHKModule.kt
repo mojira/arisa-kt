@@ -29,5 +29,3 @@ private fun updateCHKAdapter(updateCHK: (IssueId) -> Either<Throwable, Unit>, is
         { ModuleResponse }
     )
 }
-
-

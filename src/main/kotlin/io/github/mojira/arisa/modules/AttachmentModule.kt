@@ -7,7 +7,6 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import net.rcarz.jiraclient.Attachment
 
-
 data class AttachmentModuleRequest(val attachments: List<Attachment>)
 
 class AttachmentModule(

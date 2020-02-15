@@ -10,7 +10,7 @@ data class ReopenAwaitingModuleRequest(val resolution: Resolution?, val created:
 class ReopenAwaitingModule : Module<ReopenAwaitingModuleRequest> {
     override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> {
         with(request) {
-            if (resolution == null || resolution.name != "Awaiting Response" || (updated.time - created.time) > 2000) {
+            if (resolution == null || resolution.name != "Awaiting Response" || (updated.time - created.time) < 2000) {
                 return OperationNotNeededModuleResponse.left()
             }
         }

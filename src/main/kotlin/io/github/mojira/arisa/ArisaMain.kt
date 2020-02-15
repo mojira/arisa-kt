@@ -16,6 +16,8 @@ import io.github.mojira.arisa.modules.CHKModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.ReopenAwaitingModule
+import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
@@ -66,6 +68,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
         config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
     )
     val chkModule = CHKModule(::updateCHK.curried()(config)(jiraClient))
+    val reopenAwaitingModule = ReopenAwaitingModule()
 
     return { issue: Issue ->
         listOf(
@@ -76,7 +79,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                     issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
                     issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
                 )
-            )
+            ),
+            reopenAwaitingModule(ReopenAwaitingModuleRequest())
         )
     }
 }

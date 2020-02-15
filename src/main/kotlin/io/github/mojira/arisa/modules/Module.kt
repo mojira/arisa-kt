@@ -10,4 +10,4 @@ typealias ModuleResponse = Unit
 
 sealed class ModuleError
 object OperationNotNeededModuleResponse : ModuleError()
-data class FailedModuleResponse(val exceptions: List<Throwable>) : ModuleError()
+data class FailedModuleResponse(val exceptions: List<Throwable> = emptyList()) : ModuleError()

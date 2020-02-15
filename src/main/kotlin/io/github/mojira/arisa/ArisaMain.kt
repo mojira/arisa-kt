@@ -21,6 +21,7 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 val log = LoggerFactory.getLogger("Arisa")
@@ -80,7 +81,13 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                     issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
                 )
             ),
-            reopenAwaitingModule(ReopenAwaitingModuleRequest(issue.resolution))
+            reopenAwaitingModule(
+                ReopenAwaitingModuleRequest(
+                    issue.resolution,
+                    issue.getField("created") as Date,
+                    issue.getField("updated") as Date
+                )
+            )
         )
     }
 }

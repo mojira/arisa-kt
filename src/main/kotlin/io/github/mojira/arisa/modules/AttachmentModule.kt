@@ -28,10 +28,17 @@ private fun endsWithBlacklistedExtensions(extensionBlackList: List<String>, atta
 private fun deleteAttachmentsAdapter(
     deleteAttachment: (Attachment) -> Either<Throwable, Unit>,
     blackListedAttachments: List<Attachment>
-) = if (blackListedAttachments.map(deleteAttachment).any { it.isLeft() }) {
-    FailedModuleResponse(listOf()).left()
-} else {
-    Unit.right()
+): Either<FailedModuleResponse, ModuleResponse> {
+    val exceptions = blackListedAttachments
+        .map(deleteAttachment)
+        .filter { it.isLeft() }
+        .map { (it as Either.Left).a }
+
+    return if (exceptions.isEmpty()) {
+        ModuleResponse.right()
+    } else {
+        FailedModuleResponse(exceptions).left()
+    }
 }
 
 private fun assertNotEmpty(blackListedAttachments: List<Attachment>) = if (blackListedAttachments.isEmpty()) {

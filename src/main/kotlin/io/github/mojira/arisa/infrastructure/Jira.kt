@@ -6,6 +6,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.BasicCredentials
+import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
 
@@ -30,3 +31,9 @@ fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Thr
 
 fun connectToJira(username: String, password: String, url: String) =
     JiraClient(url, BasicCredentials(username, password))
+
+fun reopenIssue(issue: Issue) = runBlocking {
+    Either.catch {
+        issue.transition().execute("Reopen Issue")
+    }
+}

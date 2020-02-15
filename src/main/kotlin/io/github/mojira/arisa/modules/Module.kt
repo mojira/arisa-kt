@@ -11,3 +11,8 @@ typealias ModuleResponse = Unit
 sealed class ModuleError
 object OperationNotNeededModuleResponse : ModuleError()
 data class FailedModuleResponse(val exceptions: List<Throwable> = emptyList()) : ModuleError()
+
+fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
+    { FailedModuleResponse(listOf(it)) },
+    { ModuleResponse }
+)

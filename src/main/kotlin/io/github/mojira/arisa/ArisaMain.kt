@@ -8,6 +8,7 @@ import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
+import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
@@ -69,7 +70,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
         config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
     )
     val chkModule = CHKModule(::updateCHK.curried()(config)(jiraClient))
-    val reopenAwaitingModule = ReopenAwaitingModule()
+    val reopenAwaitingModule = ReopenAwaitingModule(::reopenIssue)
 
     return { issue: Issue ->
         listOf(
@@ -86,7 +87,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                     issue.resolution,
                     issue.getField("created") as Date,
                     issue.getField("updated") as Date,
-                    issue.comments
+                    issue.comments,
+                    issue
                 )
             )
         )

@@ -15,7 +15,14 @@ val arrowVersion = "0.10.4"
 val kotlinTestVersion = "3.4.2"
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8") as String) {
+        isForce = true
+        isChanging = true
+    }
+    implementation(kotlin("reflect") as String) {
+        isForce = true
+        isChanging = true
+    }
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("net.rcarz", "jira-client", "0.5")

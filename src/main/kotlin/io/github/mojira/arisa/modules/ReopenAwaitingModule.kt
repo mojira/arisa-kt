@@ -9,8 +9,10 @@ data class ReopenAwaitingModuleRequest(val resolution: Resolution?, val created:
 
 class ReopenAwaitingModule : Module<ReopenAwaitingModuleRequest> {
     override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> {
-        if (request.resolution == null || request.resolution.name != "Awaiting Response") {
-            return OperationNotNeededModuleResponse.left()
+        with(request) {
+            if (resolution == null || resolution.name != "Awaiting Response" || (updated.time - created.time) > 2000) {
+                return OperationNotNeededModuleResponse.left()
+            }
         }
 
         TODO("not implemented") // To change body of created functions use File | Settings | File Templates.

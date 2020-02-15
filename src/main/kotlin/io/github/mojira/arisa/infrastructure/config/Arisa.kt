@@ -1,4 +1,4 @@
-package io.github.mojira.arisa
+package io.github.mojira.arisa.infrastructure.config
 
 import com.uchuhimo.konf.ConfigSpec
 

@@ -5,6 +5,10 @@ import arrow.syntax.function.curried
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.connectToJira
+import io.github.mojira.arisa.infrastructure.deleteAttachment
+import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
@@ -26,7 +30,11 @@ fun main() {
         .from.systemProperties()
 
     val jiraClient =
-        connectToJira(config[Arisa.Credentials.username], config[Arisa.Credentials.password], config[Arisa.Issues.url])
+        connectToJira(
+            config[Arisa.Credentials.username],
+            config[Arisa.Credentials.password],
+            config[Arisa.Issues.url]
+        )
 
     val executeModules = initModules(config, jiraClient)
     while (true) {

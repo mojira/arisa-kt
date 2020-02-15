@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.IssueId
+import io.github.mojira.arisa.infrastructure.IssueId
 import kotlinx.coroutines.runBlocking
 
 data class CHKModuleRequest(val issueId: String, val chkField: String?, val confirmationField: String?)

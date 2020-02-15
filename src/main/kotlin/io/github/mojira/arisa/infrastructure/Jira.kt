@@ -1,7 +1,8 @@
-package io.github.mojira.arisa
+package io.github.mojira.arisa.infrastructure
 
 import arrow.core.Either
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.BasicCredentials

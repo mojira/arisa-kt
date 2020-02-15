@@ -16,7 +16,7 @@ data class ReopenAwaitingModuleRequest(
 class ReopenAwaitingModule : Module<ReopenAwaitingModuleRequest> {
     override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> {
         with(request) {
-            if (resolution == null || resolution.name != "Awaiting Response" || (updated.time - created.time) < 2000) {
+            if (resolution == null || resolution.name != "Awaiting Response" || (updated.time - created.time) < 2000 || comments.isEmpty()) {
                 return OperationNotNeededModuleResponse.left()
             }
         }

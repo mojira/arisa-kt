@@ -4,18 +4,22 @@ import io.kotlintest.assertions.arrow.either.shouldBeLeft
 import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import io.mockk.mockk
+import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Resolution
+import net.rcarz.jiraclient.User
 import java.time.Instant
 import java.util.Date
 
 val CREATED = Date()
-val UPDATED = Date(Instant.now().plusSeconds(3).toEpochMilli());
-val AWAITINGRESPONSE = "Awaiting Response"
+val UPDATED = Date(Instant.now().plusSeconds(3).toEpochMilli())
+val AWAITINGRESPONSE = mockResolution("Awaiting Response")
+val REPORTER = "Test"
+val COMMENTLIST = listOf(mockComment(REPORTER))
 
 class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val module = ReopenAwaitingModule()
-        val request = ReopenAwaitingModuleRequest(null, CREATED, UPDATED)
+        val request = ReopenAwaitingModuleRequest(null, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -24,7 +28,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val module = ReopenAwaitingModule()
-        val request = ReopenAwaitingModuleRequest(mockResolution("Test"), CREATED, UPDATED)
+        val request = ReopenAwaitingModuleRequest(mockResolution("Test"), CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -34,8 +38,17 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when ticket is less than 2 seconds old" {
         val module = ReopenAwaitingModule()
         val created = Date()
-        val updated = Date(Instant.now().plusSeconds(1).toEpochMilli());
-        val request = ReopenAwaitingModuleRequest(mockResolution(AWAITINGRESPONSE), created, updated)
+        val updated = Date(Instant.now().plusSeconds(1).toEpochMilli())
+        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, created, updated, COMMENTLIST)
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when there are no comments" {
+        val module = ReopenAwaitingModule()
+        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf())
 
         val result = module(request)
 
@@ -48,4 +61,14 @@ fun mockResolution(name: String): Resolution {
     every { resolution.name } returns name
 
     return resolution
+}
+
+fun mockComment(reporter: String): Comment {
+    val comment = mockk<Comment>()
+    val user = mockk<User>()
+
+    every { user.name } returns reporter
+    every { comment.author } returns user
+
+    return comment
 }

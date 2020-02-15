@@ -85,7 +85,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                 ReopenAwaitingModuleRequest(
                     issue.resolution,
                     issue.getField("created") as Date,
-                    issue.getField("updated") as Date
+                    issue.getField("updated") as Date,
+                    issue.comments
                 )
             )
         )

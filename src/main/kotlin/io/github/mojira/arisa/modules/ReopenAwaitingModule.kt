@@ -2,10 +2,16 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.left
+import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Resolution
 import java.util.Date
 
-data class ReopenAwaitingModuleRequest(val resolution: Resolution?, val created: Date, val updated: Date)
+data class ReopenAwaitingModuleRequest(
+    val resolution: Resolution?,
+    val created: Date,
+    val updated: Date,
+    val comments: List<Comment>
+)
 
 class ReopenAwaitingModule : Module<ReopenAwaitingModuleRequest> {
     override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> {

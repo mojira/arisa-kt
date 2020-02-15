@@ -27,6 +27,5 @@ fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Thr
     }
 }
 
-
 fun connectToJira(username: String, password: String, url: String) =
     JiraClient(url, BasicCredentials(username, password))

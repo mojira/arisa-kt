@@ -64,6 +64,18 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
+
+    "should grab the last comment" {
+        val module = ReopenAwaitingModule()
+        val commentFail = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
+        val commentSuccess = mockComment(REPORTER)
+        val request =
+            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(commentSuccess, commentFail))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
 })
 
 fun mockResolution(name: String): Resolution {

@@ -19,6 +19,10 @@ class ReopenAwaitingModule : Module<ReopenAwaitingModuleRequest> {
             if (resolution == null || resolution.name != "Awaiting Response" || (updated.time - created.time) < 2000 || comments.isEmpty()) {
                 return OperationNotNeededModuleResponse.left()
             }
+            val lastComment = comments.last()
+            if (updated.time - lastComment.updatedDate.time < 2000 && (lastComment.updatedDate.time - lastComment.createdDate.time) > 2000) {
+                return OperationNotNeededModuleResponse.left()
+            }
         }
 
         TODO("not implemented") // To change body of created functions use File | Settings | File Templates.

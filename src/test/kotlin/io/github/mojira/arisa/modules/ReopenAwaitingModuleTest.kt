@@ -54,6 +54,16 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
+
+    "should return OperationNotNeededModuleResponse when just the comment was updated" {
+        val module = ReopenAwaitingModule()
+        val comment = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
+        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
 })
 
 fun mockResolution(name: String): Resolution {
@@ -63,12 +73,14 @@ fun mockResolution(name: String): Resolution {
     return resolution
 }
 
-fun mockComment(reporter: String): Comment {
+fun mockComment(reporter: String, updatedDate: Date = Date(Instant.now().plusSeconds(5).toEpochMilli())): Comment {
     val comment = mockk<Comment>()
     val user = mockk<User>()
 
     every { user.name } returns reporter
     every { comment.author } returns user
+    every { comment.updatedDate } returns updatedDate
+    every { comment.createdDate } returns Date(Instant.now().plusSeconds(5).toEpochMilli())
 
     return comment
 }

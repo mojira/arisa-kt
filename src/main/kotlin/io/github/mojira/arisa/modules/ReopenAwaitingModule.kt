@@ -11,7 +11,7 @@ class ReopenAwaitingModule : Module<ReopenAwaitingModuleRequest> {
         if (request.resolution == null) {
             return OperationNotNeededModuleResponse.left()
         }
-        
+
         TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
     }
 }

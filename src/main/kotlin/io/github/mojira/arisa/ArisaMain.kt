@@ -17,6 +17,8 @@ import io.github.mojira.arisa.modules.CHKModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.PiracyModule
+import io.github.mojira.arisa.modules.PiracyModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
 import net.rcarz.jiraclient.Issue
@@ -71,6 +73,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
     )
     val chkModule = CHKModule(::updateCHK.curried()(config)(jiraClient))
     val reopenAwaitingModule = ReopenAwaitingModule(::reopenIssue)
+    val piracyModule = PiracyModule()
 
     return { issue: Issue ->
         listOf(
@@ -90,6 +93,9 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                     issue.comments,
                     issue
                 )
+            ),
+            piracyModule(
+                PiracyModuleRequest(issue, issue.getField("environment") as String?, issue.description)
             )
         )
     }

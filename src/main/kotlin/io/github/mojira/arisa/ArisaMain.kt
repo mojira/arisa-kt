@@ -1,14 +1,15 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
-import arrow.syntax.function.curried
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.reopenIssue
+import io.github.mojira.arisa.infrastructure.resolveAsInvalid
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
@@ -67,15 +68,23 @@ fun main() {
 }
 
 fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<ModuleError, ModuleResponse>> {
-    val attachmentModule = AttachmentModule(
-        ::deleteAttachment.partially1(jiraClient),
-        config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
-    )
-    val chkModule = CHKModule(::updateCHK.curried()(config)(jiraClient))
-    val reopenAwaitingModule = ReopenAwaitingModule(::reopenIssue)
-    val piracyModule = PiracyModule()
 
     return { issue: Issue ->
+        val attachmentModule = AttachmentModule(
+            ::deleteAttachment.partially1(jiraClient),
+            config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
+        )
+        val chkModule = CHKModule(
+            ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
+        )
+        val reopenAwaitingModule = ReopenAwaitingModule(
+            ::reopenIssue.partially1(issue)
+        )
+        val piracyModule = PiracyModule(
+            ::resolveAsInvalid.partially1(issue),
+            ::addComment.partially1(issue)
+        )
+
         listOf(
             attachmentModule(AttachmentModuleRequest(issue.attachments)),
             chkModule(
@@ -90,12 +99,11 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                     issue.resolution,
                     issue.getField("created") as Date,
                     issue.getField("updated") as Date,
-                    issue.comments,
-                    issue
+                    issue.comments
                 )
             ),
             piracyModule(
-                PiracyModuleRequest(issue, issue.getField("environment") as String?, issue.summary, issue.description)
+                PiracyModuleRequest(issue.getField("environment") as String?, issue.summary, issue.description)
             )
         )
     }

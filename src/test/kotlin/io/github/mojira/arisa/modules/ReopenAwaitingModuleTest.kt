@@ -21,11 +21,10 @@ class ReopenAwaitingModuleTest : StringSpec({
     val AWAITINGRESPONSE = mockResolution("Awaiting Response")
     val REPORTER = "Test"
     val COMMENTLIST = listOf(mockComment(REPORTER))
-    val ISSUE = mockIssue()
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val request = ReopenAwaitingModuleRequest(null, CREATED, UPDATED, COMMENTLIST, ISSUE)
+        val request = ReopenAwaitingModuleRequest(null, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -34,7 +33,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val request = ReopenAwaitingModuleRequest(mockResolution("Test"), CREATED, UPDATED, COMMENTLIST, ISSUE)
+        val request = ReopenAwaitingModuleRequest(mockResolution("Test"), CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -45,7 +44,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val module = ReopenAwaitingModule { Unit.right() }
         val created = Date()
         val updated = Date(Instant.now().plusSeconds(1).toEpochMilli())
-        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, created, updated, COMMENTLIST, ISSUE)
+        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, created, updated, COMMENTLIST)
 
         val result = module(request)
 
@@ -54,7 +53,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there are no comments" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(), ISSUE)
+        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf())
 
         val result = module(request)
 
@@ -64,7 +63,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
         val module = ReopenAwaitingModule { Unit.right() }
         val comment = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
-        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(comment), ISSUE)
+        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(comment))
 
         val result = module(request)
 
@@ -76,7 +75,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val commentFail = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
         val commentSuccess = mockComment(REPORTER)
         val request =
-            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(commentSuccess, commentFail), ISSUE)
+            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(commentSuccess, commentFail))
 
         val result = module(request)
 
@@ -86,7 +85,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return FailedModuleResponse with all exceptions when reopening fails" {
         val module = ReopenAwaitingModule { RuntimeException().left() }
         val request =
-            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST, ISSUE)
+            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -98,7 +97,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return ModuleResponse when ticket is reopened" {
         val module = ReopenAwaitingModule { Unit.right() }
         val request =
-            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST, ISSUE)
+            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 

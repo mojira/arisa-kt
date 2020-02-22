@@ -17,9 +17,6 @@ class PiracyModule(
 ) : Module<PiracyModuleRequest> {
 
     override fun invoke(request: PiracyModuleRequest): Either<ModuleError, ModuleResponse> {
-        if (request.description.isNullOrEmpty() && request.environment.isNullOrEmpty() && request.summary.isNullOrEmpty()) {
-            return OperationNotNeededModuleResponse.left()
-        }
         if (piracySignatures.any {
                 request.description?.contains(it) == true ||
                     request.environment?.contains(it) == true ||

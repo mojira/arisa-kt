@@ -4,12 +4,17 @@ import arrow.core.Either
 import arrow.core.left
 import net.rcarz.jiraclient.Issue
 
-data class PiracyModuleRequest(val issue: Issue, val environment: String?, val description: String?)
+data class PiracyModuleRequest(
+    val issue: Issue,
+    val environment: String?,
+    val summary: String?,
+    val description: String?
+)
 
 class PiracyModule : Module<PiracyModuleRequest> {
 
     override fun invoke(request: PiracyModuleRequest): Either<ModuleError, ModuleResponse> {
-        if (request.description.isNullOrEmpty() && request.environment.isNullOrEmpty()) {
+        if (request.description.isNullOrEmpty() && request.environment.isNullOrEmpty() && request.summary.isNullOrEmpty()) {
             return OperationNotNeededModuleResponse.left()
         }
         TODO()

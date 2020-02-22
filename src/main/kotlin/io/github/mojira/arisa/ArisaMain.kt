@@ -95,7 +95,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
                 )
             ),
             piracyModule(
-                PiracyModuleRequest(issue, issue.getField("environment") as String?, issue.description)
+                PiracyModuleRequest(issue, issue.getField("environment") as String?, issue.summary, issue.description)
             )
         )
     }

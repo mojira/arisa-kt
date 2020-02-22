@@ -82,7 +82,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
         )
         val piracyModule = PiracyModule(
             ::resolveAsInvalid.partially1(issue),
-            ::addComment.partially1(issue)
+            ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage]),
+            config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
 
         listOf(

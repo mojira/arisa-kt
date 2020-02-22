@@ -23,4 +23,5 @@ class PiracyModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
+
 })

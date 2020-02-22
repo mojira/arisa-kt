@@ -10,20 +10,19 @@ import io.kotlintest.specs.StringSpec
 import io.mockk.every
 import io.mockk.mockk
 import net.rcarz.jiraclient.Comment
-import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.Resolution
 import net.rcarz.jiraclient.User
 import java.time.Instant
 import java.util.Date
 
-val CREATED = Date()
-val UPDATED = Date(Instant.now().plusSeconds(3).toEpochMilli())
-val AWAITINGRESPONSE = mockResolution("Awaiting Response")
-val REPORTER = "Test"
-val COMMENTLIST = listOf(mockComment(REPORTER))
-val ISSUE = mockIssue()
-
 class ReopenAwaitingModuleTest : StringSpec({
+    val CREATED = Date()
+    val UPDATED = Date(Instant.now().plusSeconds(3).toEpochMilli())
+    val AWAITINGRESPONSE = mockResolution("Awaiting Response")
+    val REPORTER = "Test"
+    val COMMENTLIST = listOf(mockComment(REPORTER))
+    val ISSUE = mockIssue()
+
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val module = ReopenAwaitingModule { Unit.right() }
         val request = ReopenAwaitingModuleRequest(null, CREATED, UPDATED, COMMENTLIST, ISSUE)
@@ -113,8 +112,6 @@ fun mockResolution(name: String): Resolution {
 
     return resolution
 }
-
-fun mockIssue() = mockk<Issue>()
 
 fun mockComment(reporter: String, updatedDate: Date = Date(Instant.now().plusSeconds(5).toEpochMilli())): Comment {
     val comment = mockk<Comment>()

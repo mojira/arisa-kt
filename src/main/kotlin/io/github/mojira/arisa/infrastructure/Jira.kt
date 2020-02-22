@@ -1,23 +1,21 @@
 package io.github.mojira.arisa.infrastructure
 
 import arrow.core.Either
-import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.infrastructure.config.Arisa
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.BasicCredentials
+import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
 
 typealias IssueId = String
 
-fun updateCHK(config: Config, jiraClient: JiraClient, issueId: IssueId): Either<Throwable, Unit> = runBlocking {
+fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBlocking {
     Either.catch {
-        jiraClient
-            .getIssue(issueId)
+        issue
             .update()
-            .field(config[Arisa.CustomFields.chkField], Instant.now().toString())
+            .field(chkField, Instant.now().toString())
             .execute()
     }
 }
@@ -35,5 +33,19 @@ fun connectToJira(username: String, password: String, url: String) =
 fun reopenIssue(issue: Issue) = runBlocking {
     Either.catch {
         issue.transition().execute("Reopen Issue")
+    }
+}
+
+fun addComment(issue: Issue, comment: String) = runBlocking {
+    Either.catch {
+        issue.addComment(comment)
+    }
+}
+
+fun resolveAsInvalid(issue: Issue) = runBlocking {
+    Either.catch {
+        issue.transition()
+            .field(Field.RESOLUTION, "Invalid")
+            .execute("Resolve Issue")
     }
 }

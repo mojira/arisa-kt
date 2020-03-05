@@ -138,3 +138,5 @@ private fun <T : (Attachment) -> Either<Throwable, Unit>> runIfShadowAttachment(
 } else {
     log1AndReturnUnit(method)
 }
+
+fun isWhitelisted(projects: String, issue: Issue) =  projects.contains(issue.project.key)

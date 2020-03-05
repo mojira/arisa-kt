@@ -1,6 +1,7 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
+import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
@@ -71,18 +72,18 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
 
     return { issue: Issue ->
         val attachmentModule = AttachmentModule(
-            ::deleteAttachment.partially1(jiraClient),
+            if (!config[Arisa.shadow]) ::deleteAttachment.partially1(jiraClient) else { a -> Unit.right() },
             config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
         )
         val chkModule = CHKModule(
-            ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
+            if (!config[Arisa.shadow]) ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField]) else ({ Unit.right() })
         )
         val reopenAwaitingModule = ReopenAwaitingModule(
-            ::reopenIssue.partially1(issue)
+            if (!config[Arisa.shadow]) ::reopenIssue.partially1(issue) else ({ Unit.right() })
         )
         val piracyModule = PiracyModule(
-            ::resolveAsInvalid.partially1(issue),
-            ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage]),
+            if (!config[Arisa.shadow]) ::resolveAsInvalid.partially1(issue) else ({ Unit.right() }),
+            if (!config[Arisa.shadow]) ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage]) else ({ Unit.right() }),
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
 

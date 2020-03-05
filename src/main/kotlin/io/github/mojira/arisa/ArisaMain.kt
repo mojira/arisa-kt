@@ -87,26 +87,44 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
 
-        listOf(
-            attachmentModule(AttachmentModuleRequest(issue.attachments)),
-            chkModule(
-                CHKModuleRequest(
-                    issue.key,
-                    issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
-                    issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
+        val modules = mutableListOf<Either<ModuleError, ModuleResponse>>()
+        if (isWhitelisted(config[Arisa.Modules.Attachment.whitelist], issue)) {
+            modules.add(attachmentModule(AttachmentModuleRequest(issue.attachments)))
+        }
+        if (isWhitelisted(config[Arisa.Modules.CHK.whitelist], issue)) {
+            modules.add(
+                chkModule(
+                    CHKModuleRequest(
+                        issue.key,
+                        issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
+                        issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
+                    )
                 )
-            ),
-            reopenAwaitingModule(
-                ReopenAwaitingModuleRequest(
-                    issue.resolution,
-                    issue.getField("created") as Date,
-                    issue.getField("updated") as Date,
-                    issue.comments
-                )
-            ),
-            piracyModule(
-                PiracyModuleRequest(issue.getField("environment") as String?, issue.summary, issue.description)
             )
-        )
+        }
+        if (isWhitelisted(config[Arisa.Modules.ReopenAwaiting.whitelist], issue)) {
+            modules.add(
+                reopenAwaitingModule(
+                    ReopenAwaitingModuleRequest(
+                        issue.resolution,
+                        issue.getField("created") as Date,
+                        issue.getField("updated") as Date,
+                        issue.comments
+                    )
+                )
+            )
+        }
+        if (isWhitelisted(config[Arisa.Modules.ReopenAwaiting.whitelist], issue)) {
+            modules.add(
+                piracyModule(
+                    PiracyModuleRequest(issue.getField("environment") as String?, issue.summary, issue.description)
+                )
+            )
+        }
+        modules
     }
+}
+
+fun isWhitelisted(projects: String, issue: Issue): Boolean {
+    return projects.contains(issue.project.key)
 }

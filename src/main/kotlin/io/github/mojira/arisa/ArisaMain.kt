@@ -1,6 +1,7 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
@@ -19,6 +20,7 @@ import io.github.mojira.arisa.modules.CHKModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PiracyModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
@@ -27,7 +29,7 @@ import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
-import java.util.Date
+import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 
 val log = LoggerFactory.getLogger("Arisa")
@@ -55,11 +57,22 @@ fun main() {
             jiraClient
                 .searchIssues(jql)
                 .issues
-                .flatMap(executeModules)
-                .filter(Either<ModuleError, ModuleResponse>::isLeft)
-                .filterIsInstance<FailedModuleResponse>()
-                .flatMap { it.exceptions }
-                .forEach { log.error("Error executing module", it) }
+                .map { it.key to executeModules(it) }
+                .forEach { (issue, responses) ->
+                    responses.forEach { (module, response) ->
+                        when (response) {
+                            is Either.Right -> log.info("[RESPONSE] [$issue] [$module] Successful")
+                            is Either.Left -> {
+                                when (response.a) {
+                                    is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
+                                    is FailedModuleResponse -> for (exception in (response.a as FailedModuleResponse).exceptions) {
+                                        log.error("[RESPONSE] [$issue] [$module] Failed", exception)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
         } catch (e: Exception) {
             log.error("Failed to get issues", e)
             continue
@@ -69,9 +82,8 @@ fun main() {
     }
 }
 
-fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<ModuleError, ModuleResponse>> {
-
-    return { issue: Issue ->
+fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, Either<ModuleError, ModuleResponse>> =
+    { issue: Issue ->
         val attachmentModule = AttachmentModule(
             runIfShadowAttachment(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
             config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
@@ -96,29 +108,58 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
 
-        listOf(
-            attachmentModule(AttachmentModuleRequest(issue.attachments)),
-            chkModule(
-                CHKModuleRequest(
-                    issue.key,
-                    issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
-                    issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
+        mapOf(
+            "Attachment" to runIfWhitelisted(issue, config[Arisa.Modules.Attachment.whitelist]) {
+                attachmentModule(AttachmentModuleRequest(issue.attachments))
+            },
+            "CHK" to runIfWhitelisted(issue, config[Arisa.Modules.CHK.whitelist]) {
+                chkModule(
+                    CHKModuleRequest(
+                        issue.key,
+                        issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
+                        issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
+                    )
                 )
-            ),
-            reopenAwaitingModule(
-                ReopenAwaitingModuleRequest(
-                    issue.resolution,
-                    issue.getField("created") as Date,
-                    issue.getField("updated") as Date,
-                    issue.comments
+            },
+            "ReopenAwaiting" to runIfWhitelisted(issue, config[Arisa.Modules.ReopenAwaiting.whitelist]) {
+                reopenAwaitingModule(
+                    ReopenAwaitingModuleRequest(
+                        issue.resolution,
+                        (issue.getField("created") as String).toInstant(),
+                        (issue.getField("updated") as String).toInstant(),
+                        issue.comments
+                    )
                 )
-            ),
-            piracyModule(
-                PiracyModuleRequest(issue.getField("environment") as String?, issue.summary, issue.description)
-            )
+            },
+            "Piracy" to runIfWhitelisted(issue, config[Arisa.Modules.Piracy.whitelist]) {
+                piracyModule(
+                    PiracyModuleRequest(
+                        issue.getField("environment").toNullableString(),
+                        issue.summary,
+                        issue.description
+                    )
+                )
+            }
         )
+
     }
+
+private fun Any.toNullableString(): String? = if (this is String) {
+    this
+} else {
+    null
 }
+
+val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+private fun String.toInstant() = isoFormat.parse(this).toInstant()
+
+private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<ModuleError, ModuleResponse>) =
+    if (isWhitelisted(projects, issue)) {
+        body()
+    } else {
+        OperationNotNeededModuleResponse.left()
+    }
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
 private fun log1AndReturnUnit(method: String) = { a: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
@@ -139,4 +180,4 @@ private fun <T : (Attachment) -> Either<Throwable, Unit>> runIfShadowAttachment(
     log1AndReturnUnit(method)
 }
 
-fun isWhitelisted(projects: String, issue: Issue) =  projects.contains(issue.project.key)
+fun isWhitelisted(projects: String, issue: Issue) = projects.contains(issue.project.key)

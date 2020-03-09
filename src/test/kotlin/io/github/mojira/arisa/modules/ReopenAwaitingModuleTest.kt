@@ -16,8 +16,8 @@ import java.time.Instant
 import java.util.Date
 
 class ReopenAwaitingModuleTest : StringSpec({
-    val CREATED = Date()
-    val UPDATED = Date(Instant.now().plusSeconds(3).toEpochMilli())
+    val CREATED = Instant.now()
+    val UPDATED = Instant.now().plusSeconds(3)
     val AWAITINGRESPONSE = mockResolution("Awaiting Response")
     val REPORTER = "Test"
     val COMMENTLIST = listOf(mockComment(REPORTER))
@@ -42,8 +42,8 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is less than 2 seconds old" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val created = Date()
-        val updated = Date(Instant.now().plusSeconds(1).toEpochMilli())
+        val created = Instant.now()
+        val updated = Instant.now().plusSeconds(1)
         val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, created, updated, COMMENTLIST)
 
         val result = module(request)

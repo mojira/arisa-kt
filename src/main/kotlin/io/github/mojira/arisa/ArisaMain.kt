@@ -47,6 +47,8 @@ fun main() {
             config[Arisa.Issues.url]
         )
 
+    log.info("Connected to jira")
+
     val executeModules = initModules(config, jiraClient)
     while (true) {
         val resolutions = listOf("Unresolved", "\"Awaiting Response\"").joinToString(", ")
@@ -144,7 +146,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
 
     }
 
-private fun Any.toNullableString(): String? = if (this is String) {
+private fun Any?.toNullableString(): String? = if (this is String) {
     this
 } else {
     null

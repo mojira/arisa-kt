@@ -1,7 +1,7 @@
 <!-- shields -->
 [![](https://img.shields.io/github/issues/mojira/arisa-kt)](https://github.com/mojira/arisa-kt/issues)
 [![](https://img.shields.io/github/stars/mojira/arisa-kt)](https://github.com/mojira/arisa-kt/stargazers)
-[![](https://img.shields.io/github/license/mojira/arisa-kt)](https://github.com/mojira/arisa-kt/blob/master/LICENSE.md)
+[![](https://img.shields.io/github/license/mojira/arisa-kt)](https://github.com/mojira/arisa-kt/blob/master/LICENSE)
 
 # Mojira Discord Bot
 

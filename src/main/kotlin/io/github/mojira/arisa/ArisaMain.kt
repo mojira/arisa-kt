@@ -166,7 +166,7 @@ private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
 private fun log1AndReturnUnit(method: String) = { a: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
 private fun <T : () -> Either<Throwable, Unit>> runIfShadow(isShadow: Boolean, method: String, func: T) =
-    if (isShadow) {
+    if (!isShadow) {
         func
     } else {
         log0AndReturnUnit(method)
@@ -176,7 +176,7 @@ private fun <T : (Attachment) -> Either<Throwable, Unit>> runIfShadowAttachment(
     isShadow: Boolean,
     method: String,
     func: T
-) = if (isShadow) {
+) = if (!isShadow) {
     func
 } else {
     log1AndReturnUnit(method)

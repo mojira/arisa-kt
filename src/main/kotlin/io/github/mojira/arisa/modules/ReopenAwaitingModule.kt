@@ -6,12 +6,12 @@ import arrow.core.left
 import arrow.core.right
 import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Resolution
-import java.util.Date
+import java.time.Instant
 
 data class ReopenAwaitingModuleRequest(
     val resolution: Resolution?,
-    val created: Date,
-    val updated: Date,
+    val created: Instant,
+    val updated: Instant,
     val comments: List<Comment>
 )
 
@@ -20,10 +20,10 @@ class ReopenAwaitingModule(val reopen: () -> Either<Throwable, Unit>) : Module<R
         Either.fx {
             assertResolutionIs(resolution, "Awaiting Response").bind()
             assertCommentsNotEmpty(comments).bind()
-            assertCreationIsNotRecent(updated.time, created.time).bind()
+            assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
             val lastComment = comments.last()
             assertUpdateWasNotCausedByEditingComment(
-                updated.time, lastComment.updatedDate.time, lastComment.createdDate.time
+                updated.toEpochMilli(), lastComment.updatedDate.time, lastComment.createdDate.time
             ).bind()
             reopen().toFailedModuleEither().bind()
         }

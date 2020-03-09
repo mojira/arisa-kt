@@ -143,7 +143,6 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                 )
             }
         )
-
     }
 
 private fun Any?.toNullableString(): String? = if (this is String) {
@@ -152,8 +151,7 @@ private fun Any?.toNullableString(): String? = if (this is String) {
     null
 }
 
-val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
+val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 private fun String.toInstant() = isoFormat.parse(this).toInstant()
 
 private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<ModuleError, ModuleResponse>) =
@@ -164,7 +162,7 @@ private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<
     }
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
-private fun log1AndReturnUnit(method: String) = { a: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+private fun log1AndReturnUnit(method: String) = { _: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
 private fun <T : () -> Either<Throwable, Unit>> runIfShadow(isShadow: Boolean, method: String, func: T) =
     if (!isShadow) {
         func

@@ -38,7 +38,6 @@ class PiracyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-
     "should return OperationNotNeededModuleResponse when no signature matches" {
         val module = PiracyModule({ Unit.right() }, { Unit.right() }, listOf())
         val request = PiracyModuleRequest("else", "nope", "something")

@@ -40,7 +40,8 @@ git clone https://github.com/mojira/arisa-kt.git
 
 To run the bot, you need to run the following command and it will use the default configuration:
 ```
-./gradlew run
+./gradlew build installDist
+./build/install/arisa-kt/bin/arisa-kt  (add .bat in windows)
 ```
 
 ## Built with

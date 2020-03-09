@@ -23,6 +23,7 @@ import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PiracyModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
+import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
@@ -72,18 +73,26 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
 
     return { issue: Issue ->
         val attachmentModule = AttachmentModule(
-            if (!config[Arisa.shadow]) ::deleteAttachment.partially1(jiraClient) else { a -> Unit.right() },
+            runIfShadowAttachment(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
             config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
         )
         val chkModule = CHKModule(
-            if (!config[Arisa.shadow]) ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField]) else ({ Unit.right() })
+            runIfShadow(
+                config[Arisa.shadow],
+                "UpdateCHK",
+                ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
+            )
         )
         val reopenAwaitingModule = ReopenAwaitingModule(
-            if (!config[Arisa.shadow]) ::reopenIssue.partially1(issue) else ({ Unit.right() })
+            runIfShadow(config[Arisa.shadow], "ReopenIssue", ::reopenIssue.partially1(issue))
         )
         val piracyModule = PiracyModule(
-            if (!config[Arisa.shadow]) ::resolveAsInvalid.partially1(issue) else ({ Unit.right() }),
-            if (!config[Arisa.shadow]) ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage]) else ({ Unit.right() }),
+            runIfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAsInvalid.partially1(issue)),
+            runIfShadow(
+                config[Arisa.shadow],
+                "AddComment",
+                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage])
+            ),
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
 
@@ -125,6 +134,22 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> List<Either<
     }
 }
 
-fun isWhitelisted(projects: String, issue: Issue): Boolean {
-    return projects.contains(issue.project.key)
+fun isWhitelisted(projects: String, issue: Issue) = projects.contains(issue.project.key)
+private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
+private fun log1AndReturnUnit(method: String) = { a: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+private fun <T : () -> Either<Throwable, Unit>> runIfShadow(isShadow: Boolean, method: String, func: T) =
+    if (isShadow) {
+        func
+    } else {
+        log0AndReturnUnit(method)
+    }
+
+private fun <T : (Attachment) -> Either<Throwable, Unit>> runIfShadowAttachment(
+    isShadow: Boolean,
+    method: String,
+    func: T
+) = if (isShadow) {
+    func
+} else {
+    log1AndReturnUnit(method)
 }

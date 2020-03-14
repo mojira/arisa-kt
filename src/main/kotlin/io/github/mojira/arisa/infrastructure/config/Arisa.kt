@@ -10,7 +10,7 @@ object Arisa : ConfigSpec() {
     }
 
     object Issues : ConfigSpec() {
-        val projects by optional("MC,MCTEST,MCPE,MCAPI,MCL,MC")
+        val projects by optional("MC,MCTEST,MCPE,MCAPI,MCL,MC,MCE")
         val url by optional("https://bugs.mojang.com/")
         val checkInterval by optional(10L)
     }

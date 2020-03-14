@@ -85,7 +85,8 @@ fun main() {
 }
 
 fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, Either<ModuleError, ModuleResponse>> =
-    { issue: Issue ->
+    { updateIssue: Issue ->
+        val issue = jiraClient.getIssue(updateIssue.key) // Get issue again to retrieve all fields
         val attachmentModule = AttachmentModule(
             runIfShadowAttachment(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
             config[Arisa.Modules.Attachment.extensionBlacklist].split(",")

@@ -66,7 +66,7 @@ fun main() {
                             is Either.Right -> log.info("[RESPONSE] [$issue] [$module] Successful")
                             is Either.Left -> {
                                 when (response.a) {
-                                    is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
+                                    // is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
                                     is FailedModuleResponse -> for (exception in (response.a as FailedModuleResponse).exceptions) {
                                         log.error("[RESPONSE] [$issue] [$module] Failed", exception)
                                     }
@@ -89,7 +89,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         // Get issue again to retrieve all fields
         val issue = jiraClient.getIssue(updateIssue.key, "*all", "changelog")
         // Ignore issues where last action was a resolve
-        if (issue.changeLog.entries.last().items.any { it.field == "resolution" }) {
+        if (issue.changeLog.entries.size > 0 && issue.changeLog.entries.last().items.any { it.field == "resolution" }) {
             return@lambda emptyMap()
         }
         val attachmentModule = AttachmentModule(

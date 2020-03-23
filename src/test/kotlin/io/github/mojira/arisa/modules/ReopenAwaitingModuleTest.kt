@@ -73,7 +73,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should grab the last comment" {
         val module = ReopenAwaitingModule { Unit.right() }
         val commentFail = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
-        val commentSuccess = mockComment(REPORTER)
+        val commentSuccess = mockComment(reporter = REPORTER)
         val request =
             ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(commentSuccess, commentFail))
 
@@ -105,14 +105,17 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 })
 
-fun mockResolution(name: String): Resolution {
+private fun mockResolution(name: String): Resolution {
     val resolution = mockk<Resolution>()
     every { resolution.name } returns name
 
     return resolution
 }
 
-fun mockComment(reporter: String, updatedDate: Date = Date(Instant.now().plusSeconds(5).toEpochMilli())): Comment {
+private fun mockComment(
+    reporter: String,
+    updatedDate: Date = Date(Instant.now().plusSeconds(5).toEpochMilli())
+): Comment {
     val comment = mockk<Comment>()
     val user = mockk<User>()
 

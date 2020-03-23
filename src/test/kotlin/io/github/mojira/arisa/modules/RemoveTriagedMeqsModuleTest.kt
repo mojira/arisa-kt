@@ -118,7 +118,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 })
 
-fun mockComment(body: String): Comment {
+private fun mockComment(body: String): Comment {
     val comment = mockk<Comment>()
     every { comment.body } returns body
     return comment

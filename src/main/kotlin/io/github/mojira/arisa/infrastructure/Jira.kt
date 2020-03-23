@@ -9,6 +9,7 @@ import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
+import java.net.URI
 import java.time.Instant
 
 typealias IssueId = String
@@ -24,7 +25,7 @@ fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBloc
 
 fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Throwable, Unit> = runBlocking {
     Either.catch {
-        jiraClient.restClient.delete(Attachment.getBaseUri() + attachment.id)
+        jiraClient.restClient.delete(URI(attachment.self))
         Unit
     }
 }
@@ -54,7 +55,7 @@ fun resolveAsInvalid(issue: Issue) = runBlocking {
 
 fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String) = runBlocking {
     Either.catch {
-        jiraClient.restClient.put(comment.self, JSONObject().element("body", newValue))
+        jiraClient.restClient.put(URI(comment.self), JSONObject().element("body", newValue))
         Unit
     }
 }

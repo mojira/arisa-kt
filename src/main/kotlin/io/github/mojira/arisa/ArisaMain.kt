@@ -13,6 +13,7 @@ import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
 import io.github.mojira.arisa.infrastructure.updateCHK
+import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
@@ -23,9 +24,12 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PiracyModuleRequest
+import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
+import io.github.mojira.arisa.modules.RemoveTriagedMeqsModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
 import net.rcarz.jiraclient.Attachment
+import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
@@ -115,6 +119,10 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             ),
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
+        val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
+            runIfShadowComment(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody.partially1(jiraClient)),
+            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags].split(",")
+        )
 
         mapOf(
             "Attachment" to runIfWhitelisted(issue, config[Arisa.Modules.Attachment.whitelist]) {
@@ -147,6 +155,15 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         issue.description
                     )
                 )
+            },
+            "RemoveTriagedMeqs" to runIfWhitelisted(issue, config[Arisa.Modules.ReopenAwaiting.whitelist]) {
+                removeTriagedMeqsModule(
+                    RemoveTriagedMeqsModuleRequest(
+                        issue.getField(config[Arisa.CustomFields.mojangPriorityField]) as? String?,
+                        issue.getField(config[Arisa.CustomFields.triagedTimeField]) as? String?,
+                        issue.comments
+                    )
+                )
             }
         )
     }
@@ -169,6 +186,7 @@ private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
 private fun log1AndReturnUnit(method: String) = { _: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+private fun log2AndReturnUnit(method: String) = {_: Any, _:Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
 private fun <T : () -> Either<Throwable, Unit>> runIfShadow(isShadow: Boolean, method: String, func: T) =
     if (!isShadow) {
         func
@@ -184,6 +202,16 @@ private fun <T : (Attachment) -> Either<Throwable, Unit>> runIfShadowAttachment(
     func
 } else {
     log1AndReturnUnit(method)
+}
+
+private fun <T : (Comment, String) -> Either<Throwable, Unit>> runIfShadowComment(
+    isShadow: Boolean,
+    method: String,
+    func: T
+) = if (!isShadow) {
+    func
+} else {
+    log2AndReturnUnit(method)
 }
 
 fun isWhitelisted(projects: String, issue: Issue) = projects.contains(issue.project.key)

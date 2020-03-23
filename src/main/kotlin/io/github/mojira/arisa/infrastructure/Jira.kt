@@ -4,9 +4,11 @@ import arrow.core.Either
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.BasicCredentials
+import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
+import net.sf.json.JSONObject
 import java.time.Instant
 
 typealias IssueId = String
@@ -47,5 +49,12 @@ fun resolveAsInvalid(issue: Issue) = runBlocking {
         issue.transition()
             .field(Field.RESOLUTION, "Invalid")
             .execute("Resolve Issue")
+    }
+}
+
+fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String) = runBlocking {
+    Either.catch {
+        jiraClient.restClient.put(comment.self, JSONObject().element("body", newValue))
+        Unit
     }
 }

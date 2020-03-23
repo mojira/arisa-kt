@@ -7,7 +7,7 @@ import arrow.core.right
 import arrow.syntax.function.partially2
 import net.rcarz.jiraclient.Comment
 
-data class RemoveTriagedMeqsModuleRequest (
+data class RemoveTriagedMeqsModuleRequest(
     val priority: String?,
     val triagedTime: String?,
     val comments: List<Comment>
@@ -34,7 +34,7 @@ class RemoveTriagedMeqsModule(
         meqsComments: List<Comment>
     ): Either<FailedModuleResponse, ModuleResponse> {
         val exceptions = meqsComments
-            .map{ updateComment(it, removeMeqsTags(it)) }
+            .map { updateComment(it, removeMeqsTags(it)) }
             .filter { it.isLeft() }
             .map { (it as Either.Left).a }
 

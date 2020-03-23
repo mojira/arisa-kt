@@ -66,7 +66,7 @@ class AttachmentModuleTest : StringSpec({
     }
 })
 
-fun mockAttachment(name: String): Attachment {
+private fun mockAttachment(name: String): Attachment {
     val attachment = mockk<Attachment>()
     every { attachment.contentUrl } returns name
     return attachment

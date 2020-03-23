@@ -46,8 +46,12 @@ class RemoveTriagedMeqsModule(
     }
 
     private fun removeMeqsTags(comment: Comment, meqsTags: List<String>): String {
-        val regex = meqsTags.joinToString("|") { it.replace("MEQS_", "MEQS_(") + ")" }.toRegex()
-        return regex.replace(comment.body) { it.groupValues[0] }
+        val regex = (
+            "MEQS(" +
+            meqsTags.joinToString("|") { it.replace("MEQS", "") } +
+            ")"
+        ).toRegex()
+        return regex.replace(comment.body) { it.groupValues[1] }
     }
 
     private fun assertTriaged(priority: String?, triagedTime: String?) = when {

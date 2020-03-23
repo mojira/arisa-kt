@@ -83,6 +83,39 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
     }
+
+    "should replace only MEQS of a tag" {
+        val module = RemoveTriagedMeqsModule({ _, body -> body.shouldBe("_WAI I like QC.").right() }, listOf("MEQS_WAI"))
+        val comment = mockComment("MEQS_WAI I like QC.")
+        val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should not replace MEQS of tags that aren't configured" {
+        val module = RemoveTriagedMeqsModule({ _, body -> body.shouldBe("_WAI I like QC.\nMEQS_TRIVIAL").right() }, listOf("MEQS_WAI"))
+        val comment = mockComment("MEQS_WAI I like QC.\nMEQS_TRIVIAL")
+        val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should replace MEQS of all configured tags" {
+        val module = RemoveTriagedMeqsModule(
+            { _, body -> body.shouldBe("_WAI\n_WONT_FIX\nI like QC.").right() },
+            listOf("MEQS_WAI", "MEQS_WONT_FIX")
+        )
+        val comment = mockComment("MEQS_WAI\nMEQS_WONT_FIX\nI like QC.")
+        val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
 })
 
 fun mockComment(body: String): Comment {

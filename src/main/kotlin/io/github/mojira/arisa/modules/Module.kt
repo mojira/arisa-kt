@@ -1,6 +1,8 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 
 interface Module<REQUEST> {
     operator fun invoke(request: REQUEST): Either<ModuleError, ModuleResponse>
@@ -16,3 +18,24 @@ fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
     { FailedModuleResponse(listOf(it)) },
     { ModuleResponse }
 )
+
+fun <T> assertNotEmpty(c: Collection<T>) = when {
+    c.isEmpty() -> OperationNotNeededModuleResponse.left()
+    else -> Unit.right()
+}
+
+fun <T> tryRunAll(
+    func: (T) -> Either<Throwable, Unit>,
+    elements: Collection<T>
+): Either<FailedModuleResponse, ModuleResponse> {
+    val exceptions = elements
+        .map(func)
+        .filter { it.isLeft() }
+        .map { (it as Either.Left).a }
+
+    return if (exceptions.isEmpty()) {
+        ModuleResponse.right()
+    } else {
+        FailedModuleResponse(exceptions).left()
+    }
+}

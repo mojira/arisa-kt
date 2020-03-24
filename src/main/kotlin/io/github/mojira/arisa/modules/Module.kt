@@ -24,6 +24,11 @@ fun <T> assertNotEmpty(c: Collection<T>) = when {
     else -> Unit.right()
 }
 
+fun <T> assertNotNull(e: T?) = when (e) {
+    null -> OperationNotNeededModuleResponse.left()
+    else -> Unit.right()
+}
+
 fun <T> tryRunAll(
     func: (T) -> Either<Throwable, Unit>,
     elements: Collection<T>

@@ -11,7 +11,6 @@ import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
-import io.github.mojira.arisa.infrastructure.getLatestReleasedVersion
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
@@ -128,19 +127,21 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val futureVersionModule = FutureVersionModule(
             run1IfShadow(config[Arisa.shadow], "RemoveAffectedVersion", ::removeAffectedVersion.partially1(issue)),
-            run0IfShadow(config[Arisa.shadow],
-                "AddAffectedVersion"
-            ) {
-                val latestVersion = getLatestReleasedVersion(jiraClient.getProject(issue.project.key))
-                if (latestVersion.isLeft()) (latestVersion as Either.Left).a.left()
-                else addAffectedVersion(issue, (latestVersion as Either.Right).b)
-            },
+            run1IfShadow(config[Arisa.shadow], "AddAffectedVersion", ::addAffectedVersion.partially1(issue)),
             run0IfShadow(
                 config[Arisa.shadow],
                 "AddComment",
                 ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.futureVersionMessage])
             )
         )
+
+        // issue.project doesn't contain full project, which is needed for some modules.
+        val project = try {
+            jiraClient.getProject(issue.project.key)
+        } catch (e: Exception) {
+            log.error("Failed to get project of issue", e)
+            null
+        }
 
         mapOf(
             "Attachment" to runIfWhitelisted(issue, config[Arisa.Modules.Attachment.whitelist]) {
@@ -185,7 +186,10 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             },
             "FutureVersion" to runIfWhitelisted(issue, config[Arisa.Modules.FutureVersion.whitelist]) {
                 futureVersionModule(
-                    FutureVersionModuleRequest(issue.versions)
+                    FutureVersionModuleRequest(
+                        issue.versions,
+                        project?.versions
+                    )
                 )
             }
         )

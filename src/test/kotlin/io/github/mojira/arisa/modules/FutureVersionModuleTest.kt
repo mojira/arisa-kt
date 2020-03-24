@@ -12,29 +12,61 @@ import io.mockk.mockk
 import net.rcarz.jiraclient.Version
 
 class FutureVersionModuleTest : StringSpec({
-    "should return OperationNotNeededModuleResponse when versions are empty" {
+    "should return OperationNotNeededModuleResponse when affected versions are empty" {
         val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
-        val request = FutureVersionModuleRequest(emptyList())
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(emptyList(), listOf(releasedVersion))
 
         val result = module(request)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse for released versions" {
+    "should return OperationNotNeededModuleResponse when project versions are empty" {
         val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
-        val version = mockVersion(true, false)
-        val request = FutureVersionModuleRequest(listOf(version))
+        val futureVersion = mockVersion(false, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), emptyList())
 
         val result = module(request)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse for archived versions" {
+    "should return OperationNotNeededModuleResponse when project versions are null" {
         val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
-        val version = mockVersion(false, true)
-        val request = FutureVersionModuleRequest(listOf(version))
+        val futureVersion = mockVersion(false, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), null)
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when project versions do not contain released versions" {
+        val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
+        val futureVersion = mockVersion(false, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), listOf(futureVersion))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse if no future version is marked affected" {
+        val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(releasedVersion), listOf(releasedVersion))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse if only an archived version is marked affected" {
+        val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
+        val archivedVersion = mockVersion(false, true)
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(archivedVersion), listOf(releasedVersion))
 
         val result = module(request)
 
@@ -43,8 +75,9 @@ class FutureVersionModuleTest : StringSpec({
 
     "should remove future versions" {
         val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { Unit.right() })
-        val version = mockVersion(false, false)
-        val request = FutureVersionModuleRequest(listOf(version))
+        val futureVersion = mockVersion(false, false)
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), listOf(releasedVersion))
 
         val result = module(request)
 
@@ -53,8 +86,9 @@ class FutureVersionModuleTest : StringSpec({
 
     "should return FailedModuleResponse when removing a version fails" {
         val module = FutureVersionModule({ RuntimeException().left() }, { Unit.right() }, { Unit.right() })
-        val version = mockVersion(false, false)
-        val request = FutureVersionModuleRequest(listOf(version))
+        val futureVersion = mockVersion(false, false)
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), listOf(releasedVersion))
 
         val result = module(request)
 
@@ -65,8 +99,9 @@ class FutureVersionModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all exceptions when removing versions fails" {
         val module = FutureVersionModule({ RuntimeException().left() }, { Unit.right() }, { Unit.right() })
-        val version = mockVersion(false, false)
-        val request = FutureVersionModuleRequest(listOf(version, version))
+        val futureVersion = mockVersion(false, false)
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion, futureVersion), listOf(releasedVersion))
 
         val result = module(request)
 
@@ -77,8 +112,9 @@ class FutureVersionModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding the latest version fails" {
         val module = FutureVersionModule({ Unit.right() }, { RuntimeException().left() }, { Unit.right() })
-        val version = mockVersion(false, false)
-        val request = FutureVersionModuleRequest(listOf(version))
+        val futureVersion = mockVersion(false, false)
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), listOf(releasedVersion))
 
         val result = module(request)
 
@@ -89,8 +125,9 @@ class FutureVersionModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding the comment fails" {
         val module = FutureVersionModule({ Unit.right() }, { Unit.right() }, { RuntimeException().left() })
-        val version = mockVersion(false, false)
-        val request = FutureVersionModuleRequest(listOf(version))
+        val futureVersion = mockVersion(false, false)
+        val releasedVersion = mockVersion(true, false)
+        val request = FutureVersionModuleRequest(listOf(futureVersion), listOf(releasedVersion))
 
         val result = module(request)
 

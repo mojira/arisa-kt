@@ -8,7 +8,6 @@ import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
-import net.rcarz.jiraclient.Project
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import java.net.URI
@@ -59,12 +58,6 @@ fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String
     Either.catch {
         jiraClient.restClient.put(URI(comment.self), JSONObject().element("body", newValue))
         Unit
-    }
-}
-
-fun getLatestReleasedVersion(project: Project) = runBlocking {
-    Either.catch {
-        project.versions.last { it.isReleased && !it.isArchived }
     }
 }
 

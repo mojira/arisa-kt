@@ -22,28 +22,11 @@ class RemoveTriagedMeqsModule(
         assertTriaged(request.priority, request.triagedTime).bind()
         assertNotEmpty(meqsComments).bind()
 
-        updateComments(updateComment, ::removeMeqsTags.partially2(meqsTags), meqsComments).bind()
+        tryRunAll({ updateComment(it, removeMeqsTags(it, meqsTags)) }, meqsComments).bind()
     }
 
     private fun hasMeqsTag(comment: Comment, meqsTags: List<String>) =
         meqsTags.any { comment.body.contains(it) }
-
-    private fun updateComments(
-        updateComment: (comment: Comment, body: String) -> Either<Throwable, Unit>,
-        removeMeqsTags: (comment: Comment) -> String,
-        meqsComments: List<Comment>
-    ): Either<FailedModuleResponse, ModuleResponse> {
-        val exceptions = meqsComments
-            .map { updateComment(it, removeMeqsTags(it)) }
-            .filter { it.isLeft() }
-            .map { (it as Either.Left).a }
-
-        return if (exceptions.isEmpty()) {
-            ModuleResponse.right()
-        } else {
-            FailedModuleResponse(exceptions).left()
-        }
-    }
 
     private fun removeMeqsTags(comment: Comment, meqsTags: List<String>): String {
         val regex = (
@@ -56,11 +39,6 @@ class RemoveTriagedMeqsModule(
 
     private fun assertTriaged(priority: String?, triagedTime: String?) = when {
         priority == null && triagedTime == null -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
-    }
-
-    private fun assertNotEmpty(comments: List<Comment>) = when {
-        comments.isEmpty() -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
 }

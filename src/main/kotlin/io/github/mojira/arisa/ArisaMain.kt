@@ -6,10 +6,12 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
+import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
 import io.github.mojira.arisa.infrastructure.updateCHK
@@ -19,6 +21,8 @@ import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CHKModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
+import io.github.mojira.arisa.modules.FutureVersionModule
+import io.github.mojira.arisa.modules.FutureVersionModuleRequest
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
@@ -28,8 +32,6 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
-import net.rcarz.jiraclient.Attachment
-import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
@@ -97,22 +99,22 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             return@lambda emptyMap()
         }
         val attachmentModule = AttachmentModule(
-            runIfShadowAttachment(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
+            run1IfShadow(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
             config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
         )
         val chkModule = CHKModule(
-            runIfShadow(
+            run0IfShadow(
                 config[Arisa.shadow],
                 "UpdateCHK",
                 ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
             )
         )
         val reopenAwaitingModule = ReopenAwaitingModule(
-            runIfShadow(config[Arisa.shadow], "ReopenIssue", ::reopenIssue.partially1(issue))
+            run0IfShadow(config[Arisa.shadow], "ReopenIssue", ::reopenIssue.partially1(issue))
         )
         val piracyModule = PiracyModule(
-            runIfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAsInvalid.partially1(issue)),
-            runIfShadow(
+            run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAsInvalid.partially1(issue)),
+            run0IfShadow(
                 config[Arisa.shadow],
                 "AddComment",
                 ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage])
@@ -120,9 +122,26 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
-            runIfShadowComment(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody.partially1(jiraClient)),
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody.partially1(jiraClient)),
             config[Arisa.Modules.RemoveTriagedMeqs.meqsTags].split(",")
         )
+        val futureVersionModule = FutureVersionModule(
+            run1IfShadow(config[Arisa.shadow], "RemoveAffectedVersion", ::removeAffectedVersion.partially1(issue)),
+            run1IfShadow(config[Arisa.shadow], "AddAffectedVersion", ::addAffectedVersion.partially1(issue)),
+            run0IfShadow(
+                config[Arisa.shadow],
+                "AddComment",
+                ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.futureVersionMessage])
+            )
+        )
+
+        // issue.project doesn't contain full project, which is needed for some modules.
+        val project = try {
+            jiraClient.getProject(issue.project.key)
+        } catch (e: Exception) {
+            log.error("Failed to get project of issue", e)
+            null
+        }
 
         mapOf(
             "Attachment" to runIfWhitelisted(issue, config[Arisa.Modules.Attachment.whitelist]) {
@@ -164,6 +183,14 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         issue.comments
                     )
                 )
+            },
+            "FutureVersion" to runIfWhitelisted(issue, config[Arisa.Modules.FutureVersion.whitelist]) {
+                futureVersionModule(
+                    FutureVersionModuleRequest(
+                        issue.versions,
+                        project?.versions
+                    )
+                )
             }
         )
     }
@@ -185,29 +212,30 @@ private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<
     }
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
-private fun log1AndReturnUnit(method: String) = { _: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
-private fun log2AndReturnUnit(method: String) = { _: Any, _: Any -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
-private fun <T : () -> Either<Throwable, Unit>> runIfShadow(isShadow: Boolean, method: String, func: T) =
+private fun <T> log1AndReturnUnit(method: String) = { _: T -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+private fun <T, U> log2AndReturnUnit(method: String) = { _: T, _: U -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+
+private fun run0IfShadow(isShadow: Boolean, method: String, func: () -> Either<Throwable, Unit>) =
     if (!isShadow) {
         func
     } else {
         log0AndReturnUnit(method)
     }
 
-private fun <T : (Attachment) -> Either<Throwable, Unit>> runIfShadowAttachment(
+private fun <T> run1IfShadow(
     isShadow: Boolean,
     method: String,
-    func: T
+    func: (T) -> Either<Throwable, Unit>
 ) = if (!isShadow) {
     func
 } else {
     log1AndReturnUnit(method)
 }
 
-private fun <T : (Comment, String) -> Either<Throwable, Unit>> runIfShadowComment(
+private fun <T, U> run2IfShadow(
     isShadow: Boolean,
     method: String,
-    func: T
+    func: (T, U) -> Either<Throwable, Unit>
 ) = if (!isShadow) {
     func
 } else {

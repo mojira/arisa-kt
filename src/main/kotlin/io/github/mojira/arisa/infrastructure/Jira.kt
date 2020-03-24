@@ -8,6 +8,7 @@ import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import java.net.URI
 import java.time.Instant
@@ -57,5 +58,23 @@ fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String
     Either.catch {
         jiraClient.restClient.put(URI(comment.self), JSONObject().element("body", newValue))
         Unit
+    }
+}
+
+fun removeAffectedVersion(issue: Issue, version: Version) = runBlocking {
+    Either.catch {
+        issue
+            .update()
+            .fieldRemove("versions", version)
+            .execute()
+    }
+}
+
+fun addAffectedVersion(issue: Issue, version: Version) = runBlocking {
+    Either.catch {
+        issue
+            .update()
+            .fieldAdd("versions", version)
+            .execute()
     }
 }

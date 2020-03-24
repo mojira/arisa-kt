@@ -44,6 +44,12 @@ object Arisa : ConfigSpec() {
             val meqsTags by optional("MEQS_WAI,MEQS_WONT_FIX")
         }
 
+        object FutureVersion : ModuleConfigSpec() {
+            val futureVersionMessage by optional(
+                "Please *do not* mark _unreleased versions_ as affected.\r\nYou don't have access to them yet."
+            )
+        }
+
         object CHK : ModuleConfigSpec()
 
         object ReopenAwaiting : ModuleConfigSpec()

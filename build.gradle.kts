@@ -13,7 +13,7 @@ repositories {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val kotlinTestVersion = "3.4.2"
+val kotestVersion = "4.0.1"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {
@@ -34,11 +34,11 @@ dependencies {
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
 
-    testImplementation("io.kotlintest", "kotlintest-runner-junit5", kotlinTestVersion) {
-        exclude("io.arrow-kt") // Need to manually exclude until https://github.com/kotlintest/kotlintest/issues/1026 is fixed in 3.4.3
+    testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion) {
+        exclude("io.arrow-kt") // Need to manually exclude until https://github.com/kotest/kotest/issues/1026 is fixed in 3.4.3
     }
-    implementation("io.kotlintest", "kotlintest-assertions-arrow", kotlinTestVersion) {
-        exclude("io.arrow-kt") // Need to manually exclude until https://github.com/kotlintest/kotlintest/issues/1026 is fixed in 3.4.3
+    implementation("io.kotest", "kotest-assertions-arrow", kotestVersion) {
+        exclude("io.arrow-kt") // Need to manually exclude until https://github.com/kotest/kotest/issues/1026 is fixed in 3.4.3
     }
     testImplementation("io.mockk", "mockk", "1.9.3")
 }

@@ -2,11 +2,11 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.kotlintest.assertions.arrow.either.shouldBeLeft
-import io.kotlintest.assertions.arrow.either.shouldBeRight
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.arrow.either.shouldBeLeft
+import io.kotest.assertions.arrow.either.shouldBeRight
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.rcarz.jiraclient.Comment

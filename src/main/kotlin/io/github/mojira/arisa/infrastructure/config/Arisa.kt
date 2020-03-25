@@ -53,5 +53,7 @@ object Arisa : ConfigSpec() {
         object CHK : ModuleConfigSpec()
 
         object ReopenAwaiting : ModuleConfigSpec()
+
+        object RemoveNonStaffMeqs : ModuleConfigSpec()
     }
 }

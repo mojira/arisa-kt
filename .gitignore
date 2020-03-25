@@ -3,5 +3,5 @@
 /build/
 .idea/
 arisa.yml
-/.kotlintest
+/.kotest
 /out/

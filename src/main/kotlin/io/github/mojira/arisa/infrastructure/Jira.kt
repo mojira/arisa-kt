@@ -9,7 +9,6 @@ import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.Version
-import net.sf.json.JSONObject
 import java.net.URI
 import java.time.Instant
 
@@ -66,17 +65,6 @@ fun restrictCommentToGroup(comment: Comment, group: String, body: String? = comm
     Either.catch {
         comment.update(body, "group", group)
         Unit
-    }
-}
-
-// The used library doesn't include visibility information in comments for whatever reason
-fun isCommentRestrictedTo(jiraClient: JiraClient, comment: Comment, group: String) = runBlocking {
-    Either.catch {
-        val commentJson = jiraClient.restClient.get(URI(comment.self)) as JSONObject
-        if (commentJson.contains("visibility")) {
-            val visibility = commentJson.getJSONObject("visibility")
-            visibility.get("type") == "group" && visibility.get("value") == group
-        } else false
     }
 }
 

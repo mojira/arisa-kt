@@ -12,7 +12,6 @@ import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
-import io.github.mojira.arisa.infrastructure.isCommentRestrictedTo
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
@@ -140,8 +139,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             )
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff")),
-            ::isCommentRestrictedTo.partially1(jiraClient).partially2("staff")
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff"))
         )
 
         // issue.project doesn't contain full project, which is needed for some modules.

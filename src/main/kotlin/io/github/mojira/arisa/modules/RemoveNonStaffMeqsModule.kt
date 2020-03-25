@@ -7,8 +7,7 @@ import net.rcarz.jiraclient.Comment
 data class RemoveNonStaffMeqsModuleRequest(val comments: List<Comment>)
 
 class RemoveNonStaffMeqsModule(
-    val updateComment: (comment: Comment, body: String) -> Either<Throwable, Unit>,
-    val isStaffRestricted: (comment: Comment) -> Either<Throwable, Boolean>
+    val updateComment: (comment: Comment, body: String) -> Either<Throwable, Unit>
 ) : Module<RemoveNonStaffMeqsModuleRequest> {
     override fun invoke(request: RemoveNonStaffMeqsModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
         val meqsComments = request.comments
@@ -22,10 +21,8 @@ class RemoveNonStaffMeqsModule(
     private fun hasMeqsTag(comment: Comment) =
         comment.body.contains("""MEQS_[A-Z_]+""".toRegex())
 
-    private fun isNotStaffRestricted(comment: Comment): Boolean {
-        val result = isStaffRestricted(comment)
-        return result.isRight() && !(result as Either.Right).b
-    }
+    private fun isNotStaffRestricted(comment: Comment) =
+        comment.visibility == null || comment.visibility.type != "group" || comment.visibility.value != "staff"
 
     private fun removeMeqsTags(comment: Comment): String {
         val regex = """MEQS(_[A-Z_]+)""".toRegex()

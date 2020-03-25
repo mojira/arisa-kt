@@ -141,7 +141,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
             run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictComment.partially1(jiraClient).partially2("staff")),
-            run1IfShadowBool(config[Arisa.shadow], "GetCommentVisibility", ::isCommentRestrictedTo.partially1(jiraClient).partially2("staff"))
+            ::isCommentRestrictedTo.partially1(jiraClient).partially2("staff")
         )
 
         // issue.project doesn't contain full project, which is needed for some modules.
@@ -227,7 +227,6 @@ private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
 private fun <T> log1AndReturnUnit(method: String) = { _: T -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
-private fun <T> log1AndReturnFalse(method: String) = { _: T -> false.right() }.also { log.info("[SHADOW] $method ran") }
 private fun <T, U> log2AndReturnUnit(method: String) = { _: T, _: U -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
 
 private fun run0IfShadow(isShadow: Boolean, method: String, func: () -> Either<Throwable, Unit>) =
@@ -245,16 +244,6 @@ private fun <T> run1IfShadow(
     func
 } else {
     log1AndReturnUnit(method)
-}
-
-private fun <T> run1IfShadowBool(
-    isShadow: Boolean,
-    method: String,
-    func: (T) -> Either<Throwable, Boolean>
-) = if (!isShadow) {
-    func
-} else {
-    log1AndReturnFalse(method)
 }
 
 private fun <T, U> run2IfShadow(

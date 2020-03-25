@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
-import arrow.syntax.function.partially3
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
@@ -17,7 +16,7 @@ import io.github.mojira.arisa.infrastructure.isCommentRestrictedTo
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
-import io.github.mojira.arisa.infrastructure.updateAndRestrictCommentToGroup
+import io.github.mojira.arisa.infrastructure.restrictComment
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -141,7 +140,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             )
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateAndRestrictCommentToGroup.partially1(jiraClient).partially3("helper")),
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictComment.partially1(jiraClient).partially2("staff")),
             run1IfShadowBool(config[Arisa.shadow], "GetCommentVisibility", ::isCommentRestrictedTo.partially1(jiraClient).partially2("staff"))
         )
 

@@ -9,7 +9,6 @@ import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.Version
-import net.sf.json.JSONObject
 import java.net.URI
 import java.time.Instant
 
@@ -43,6 +42,7 @@ fun reopenIssue(issue: Issue) = runBlocking {
 fun addComment(issue: Issue, comment: String) = runBlocking {
     Either.catch {
         issue.addComment(comment)
+        Unit
     }
 }
 
@@ -54,9 +54,16 @@ fun resolveAsInvalid(issue: Issue) = runBlocking {
     }
 }
 
-fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String) = runBlocking {
+fun updateCommentBody(comment: Comment, body: String) = runBlocking {
     Either.catch {
-        jiraClient.restClient.put(URI(comment.self), JSONObject().element("body", newValue))
+        comment.update(body)
+        Unit
+    }
+}
+
+fun restrictCommentToGroup(comment: Comment, group: String, body: String? = comment.body) = runBlocking {
+    Either.catch {
+        comment.update(body, "group", group)
         Unit
     }
 }

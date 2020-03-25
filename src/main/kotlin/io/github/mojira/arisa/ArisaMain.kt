@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
+import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
@@ -14,6 +15,7 @@ import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
+import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -28,6 +30,8 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PiracyModuleRequest
+import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModuleRequest
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
@@ -122,7 +126,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody.partially1(jiraClient)),
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody),
             config[Arisa.Modules.RemoveTriagedMeqs.meqsTags].split(",")
         )
         val futureVersionModule = FutureVersionModule(
@@ -133,6 +137,9 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                 "AddComment",
                 ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.futureVersionMessage])
             )
+        )
+        val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff"))
         )
 
         // issue.project doesn't contain full project, which is needed for some modules.
@@ -190,6 +197,11 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         issue.versions,
                         project?.versions
                     )
+                )
+            },
+            "RemoveNonStaffMeqs" to runIfWhitelisted(issue, config[Arisa.Modules.RemoveNonStaffMeqs.whitelist]) {
+                removeNonStaffMeqsModule(
+                    RemoveNonStaffMeqsModuleRequest(issue.comments)
                 )
             }
         )

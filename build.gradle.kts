@@ -9,6 +9,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://maven.ihtsdotools.org/content/repositories/releases/")
 }
 
 val logBackVersion = "1.2.3"
@@ -26,7 +27,7 @@ dependencies {
     }
 
     implementation("com.uchuhimo", "konf", "0.22.1")
-    implementation("net.rcarz", "jira-client", "0.5")
+    implementation("net.rcarz", "jira-client", "0.6.3-IHTSDO")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)
     implementation("ch.qos.logback", "logback-core", logBackVersion)

@@ -43,17 +43,7 @@ fun reopenIssue(issue: Issue) = runBlocking {
 fun addComment(issue: Issue, comment: String) = runBlocking {
     Either.catch {
         issue.addComment(comment)
-    }
-}
-
-// The used library doesn't include visibility information in comments for whatever reason
-fun isCommentRestrictedTo(jiraClient: JiraClient, comment: Comment, group: String) = runBlocking {
-    Either.catch {
-        val commentJson = jiraClient.restClient.get(URI(comment.self)) as JSONObject
-        if (commentJson.contains("visibility")) {
-            val visibility = commentJson.getJSONObject("visibility")
-            visibility.get("type") == "group" && visibility.get("value") == group
-        } else false
+        Unit
     }
 }
 
@@ -65,26 +55,28 @@ fun resolveAsInvalid(issue: Issue) = runBlocking {
     }
 }
 
-fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String) = runBlocking {
+fun updateCommentBody(comment: Comment, body: String) = runBlocking {
     Either.catch {
-        jiraClient.restClient.put(URI(comment.self), JSONObject().element("body", newValue))
+        comment.update(body)
         Unit
     }
 }
 
-fun restrictComment(jiraClient: JiraClient, comment: Comment, group: String, body: String? = comment.body) = runBlocking {
+fun restrictCommentToGroup(comment: Comment, group: String, body: String? = comment.body) = runBlocking {
     Either.catch {
-        jiraClient.restClient.put(
-            URI(comment.self),
-            JSONObject()
-                .element("body", body)
-                .element("visibility",
-                    JSONObject()
-                        .element("type", "group")
-                        .element("value", group)
-                )
-        )
+        comment.update(body, "group", group)
         Unit
+    }
+}
+
+// The used library doesn't include visibility information in comments for whatever reason
+fun isCommentRestrictedTo(jiraClient: JiraClient, comment: Comment, group: String) = runBlocking {
+    Either.catch {
+        val commentJson = jiraClient.restClient.get(URI(comment.self)) as JSONObject
+        if (commentJson.contains("visibility")) {
+            val visibility = commentJson.getJSONObject("visibility")
+            visibility.get("type") == "group" && visibility.get("value") == group
+        } else false
     }
 }
 

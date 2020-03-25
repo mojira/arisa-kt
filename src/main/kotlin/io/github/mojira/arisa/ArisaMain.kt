@@ -16,7 +16,7 @@ import io.github.mojira.arisa.infrastructure.isCommentRestrictedTo
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
-import io.github.mojira.arisa.infrastructure.restrictComment
+import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -127,7 +127,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             config[Arisa.Modules.Piracy.piracySignatures].split(",")
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody.partially1(jiraClient)),
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody),
             config[Arisa.Modules.RemoveTriagedMeqs.meqsTags].split(",")
         )
         val futureVersionModule = FutureVersionModule(
@@ -140,7 +140,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             )
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictComment.partially1(jiraClient).partially2("staff")),
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff")),
             ::isCommentRestrictedTo.partially1(jiraClient).partially2("staff")
         )
 

@@ -46,6 +46,17 @@ fun addComment(issue: Issue, comment: String) = runBlocking {
     }
 }
 
+// The used library doesn't include visibility information in comments for whatever reason
+fun isCommentRestrictedTo(jiraClient: JiraClient, comment: Comment, group: String) = runBlocking {
+    Either.catch {
+        val commentJson = jiraClient.restClient.get(URI(comment.self)) as JSONObject
+        if (commentJson.contains("visibility")) {
+            val visibility = commentJson.getJSONObject("visibility")
+            visibility.get("type") == "group" && visibility.get("value") == group
+        } else false
+    }
+}
+
 fun resolveAsInvalid(issue: Issue) = runBlocking {
     Either.catch {
         issue.transition()
@@ -57,6 +68,21 @@ fun resolveAsInvalid(issue: Issue) = runBlocking {
 fun updateCommentBody(jiraClient: JiraClient, comment: Comment, newValue: String) = runBlocking {
     Either.catch {
         jiraClient.restClient.put(URI(comment.self), JSONObject().element("body", newValue))
+        Unit
+    }
+}
+
+fun restrictCommentToGroup(jiraClient: JiraClient, comment: Comment, group: String) = runBlocking {
+    Either.catch {
+        jiraClient.restClient.put(
+            URI(comment.self),
+            JSONObject()
+                .element("visibility",
+                    JSONObject()
+                        .element("type", "group")
+                        .element("value", group)
+                )
+        )
         Unit
     }
 }

@@ -8,8 +8,7 @@ data class RemoveNonStaffMeqsModuleRequest(val comments: List<Comment>)
 
 class RemoveNonStaffMeqsModule(
     val updateComment: (comment: Comment, body: String) -> Either<Throwable, Unit>,
-    val isStaffRestricted: (comment: Comment) -> Either<Throwable, Boolean>,
-    val restrictToHelper: (comment: Comment) -> Either<Throwable, Unit>
+    val isStaffRestricted: (comment: Comment) -> Either<Throwable, Boolean>
 ) : Module<RemoveNonStaffMeqsModuleRequest> {
     override fun invoke(request: RemoveNonStaffMeqsModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
         val meqsComments = request.comments
@@ -18,7 +17,6 @@ class RemoveNonStaffMeqsModule(
         assertNotEmpty(meqsComments).bind()
 
         tryRunAll({ updateComment(it, removeMeqsTags(it)) }, meqsComments).bind()
-        tryRunAll(restrictToHelper, meqsComments).bind()
     }
 
     private fun hasMeqsTag(comment: Comment) =

@@ -77,6 +77,23 @@ fun restrictCommentToGroup(jiraClient: JiraClient, comment: Comment, group: Stri
         jiraClient.restClient.put(
             URI(comment.self),
             JSONObject()
+                .element("body", comment.body)
+                .element("visibility",
+                    JSONObject()
+                        .element("type", "group")
+                        .element("value", group)
+                )
+        )
+        Unit
+    }
+}
+
+fun updateAndRestrictCommentToGroup(jiraClient: JiraClient, comment: Comment, body: String, group: String) = runBlocking {
+    Either.catch {
+        jiraClient.restClient.put(
+            URI(comment.self),
+            JSONObject()
+                .element("body", body)
                 .element("visibility",
                     JSONObject()
                         .element("type", "group")

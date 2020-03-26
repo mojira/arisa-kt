@@ -54,6 +54,14 @@ fun resolveAsInvalid(issue: Issue) = runBlocking {
     }
 }
 
+fun resolveAsIncomplete(issue: Issue) = runBlocking {
+    Either.catch {
+        issue.transition()
+            .field(Field.RESOLUTION, "Incomplete")
+            .execute("Resolve Issue")
+    }
+}
+
 fun updateCommentBody(comment: Comment, body: String) = runBlocking {
     Either.catch {
         comment.update(body)

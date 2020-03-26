@@ -14,6 +14,7 @@ import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
+import io.github.mojira.arisa.infrastructure.resolveAsIncomplete
 import io.github.mojira.arisa.infrastructure.resolveAsInvalid
 import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
@@ -22,6 +23,8 @@ import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CHKModuleRequest
+import io.github.mojira.arisa.modules.EmptyModule
+import io.github.mojira.arisa.modules.EmptyModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.FutureVersionModuleRequest
@@ -141,6 +144,14 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
             run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff"))
         )
+        val emptyModule = EmptyModule(
+            run0IfShadow(config[Arisa.shadow], "ResolveAsIncomplete", ::resolveAsIncomplete.partially1(issue)),
+            run0IfShadow(
+                config[Arisa.shadow],
+                "AddComment",
+                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.emptyMessage])
+            )
+        )
 
         // issue.project doesn't contain full project, which is needed for some modules.
         val project = try {
@@ -203,6 +214,15 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                 removeNonStaffMeqsModule(
                     RemoveNonStaffMeqsModuleRequest(issue.comments)
                 )
+            },
+            "Empty" to runIfWhitelisted(issue, config[Arisa.Modules.Empty.whitelist]) {
+                emptyModule(
+                    EmptyModuleRequest(
+                        issue.attachments.size,
+                        issue.description,
+                        issue.getField("environment") as? String?
+                    )
+                )
             }
         )
     }
@@ -225,7 +245,8 @@ private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
 private fun <T> log1AndReturnUnit(method: String) = { _: T -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
-private fun <T, U> log2AndReturnUnit(method: String) = { _: T, _: U -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+private fun <T, U> log2AndReturnUnit(method: String) = { _: T, _: U -> Unit.right() }
+    .also { log.info("[SHADOW] $method ran") }
 
 private fun run0IfShadow(isShadow: Boolean, method: String, func: () -> Either<Throwable, Unit>) =
     if (!isShadow) {

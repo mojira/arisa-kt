@@ -14,8 +14,7 @@ import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
-import io.github.mojira.arisa.infrastructure.resolveAsIncomplete
-import io.github.mojira.arisa.infrastructure.resolveAsInvalid
+import io.github.mojira.arisa.infrastructure.resolveAs
 import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
@@ -120,7 +119,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             run0IfShadow(config[Arisa.shadow], "ReopenIssue", ::reopenIssue.partially1(issue))
         )
         val piracyModule = PiracyModule(
-            run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAsInvalid.partially1(issue)),
+            run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAs.partially1(issue).partially1("Invalid")),
             run0IfShadow(
                 config[Arisa.shadow],
                 "AddComment",
@@ -145,7 +144,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff"))
         )
         val emptyModule = EmptyModule(
-            run0IfShadow(config[Arisa.shadow], "ResolveAsIncomplete", ::resolveAsIncomplete.partially1(issue)),
+            run0IfShadow(config[Arisa.shadow], "ResolveAsIncomplete", ::resolveAs.partially1(issue).partially1("Incomplete")),
             run0IfShadow(
                 config[Arisa.shadow],
                 "AddComment",

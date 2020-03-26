@@ -10,7 +10,7 @@ object Arisa : ConfigSpec() {
     }
 
     object Issues : ConfigSpec() {
-        val projects by optional("MC,MCTEST,MCPE,MCAPI,MCL,MC,MCE")
+        val projects by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MC", "MCE"))
         val url by optional("https://bugs.mojang.com/")
         val checkInterval by optional(10L)
     }
@@ -24,11 +24,11 @@ object Arisa : ConfigSpec() {
 
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
-            val whitelist by optional("MC,MCTEST,MCPE,MCAPI,MCL,MC")
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL"))
         }
 
         object Attachment : ModuleConfigSpec() {
-            val extensionBlacklist by optional("jar,exe,com,bat,msi,run,lnk,dmg")
+            val extensionBlacklist by optional(listOf("jar", "exe", "com", "bat", "msi", "run", "lnk", "dmg"))
         }
 
         object Piracy : ModuleConfigSpec() {
@@ -37,11 +37,43 @@ object Arisa : ConfigSpec() {
                     " If you wish to purchase the full game, please visit the [Minecraft Store|https://minecraft.net/store].\r\n" +
                     "We will not provide support for pirated versions of the game, these versions are modified and may contain malware."
             )
-            val piracySignatures by optional("Minecraft Launcher null,Bootstrap 0,Launcher: 1.0.10  (bootstrap 4),Launcher: 1.0.10  (bootstrap 5),Launcher 3.0.0,Launcher: 3.1.0,Launcher: 3.1.1,Launcher: 3.1.4,1.0.8,uuid sessionId,auth_access_token,windows-\${arch},keicraft,keinett,nodus,iridium,mcdonalds,uranium,nova,divinity,gemini,mineshafter,Team-NeO,DarkLBP,Launcher X,PHVL,Pre-Launcher v6,LauncherFEnix,TLauncher")
+            val piracySignatures by optional(
+                listOf(
+                    "Minecraft Launcher null",
+                    "Bootstrap 0",
+                    "Launcher: 1.0.10  (bootstrap 4)",
+                    "Launcher: 1.0.10  (bootstrap 5)",
+                    "Launcher 3.0.0",
+                    "Launcher: 3.1.0",
+                    "Launcher: 3.1.1",
+                    "Launcher: 3.1.4",
+                    "1.0.8",
+                    "uuid sessionId",
+                    "auth_access_token",
+                    "windows-\${arch}",
+                    "keicraft",
+                    "keinett",
+                    "nodus",
+                    "iridium",
+                    "mcdonalds",
+                    "uranium",
+                    "nova",
+                    "divinity",
+                    "gemini",
+                    "mineshafter",
+                    "Team-NeO",
+                    "DarkLBP",
+                    "Launcher X",
+                    "PHVL",
+                    "Pre-Launcher v6",
+                    "LauncherFEnix",
+                    "TLauncher"
+                )
+            )
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
-            val meqsTags by optional("MEQS_WAI,MEQS_WONT_FIX")
+            val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONT_FIX"))
         }
 
         object FutureVersion : ModuleConfigSpec() {
@@ -57,7 +89,11 @@ object Arisa : ConfigSpec() {
         object RemoveNonStaffMeqs : ModuleConfigSpec()
 
         object Empty : ModuleConfigSpec() {
-            val emptyMessage by optional("We are unable to diagnose your issue due to the lack of proper debug information. Please review the [guidelines|http://help.mojang.com/customer/portal/articles/801354-writing-helpful-bug-reports-for-minecraft] before reporting issues.\\r\\nIn case of a game crash, please also attach the crash log from {{[minecraft/crash-reports/crash-<DATE>-client.txt|http://hopper.minecraft.net/help/guides/finding-minecraft-data-folder/]}}.")
+            val emptyMessage by optional("We are unable to diagnose your issue due to the lack of proper debug information." +
+                    "Please review the [guidelines|http://help.mojang.com/customer/portal/articles/801354-writing-helpful-bug-reports-for-minecraft] before reporting issues.\r\n" +
+                    "In case of a game crash, please also attach the crash log from" +
+                    "{{[minecraft/crash-reports/crash-<DATE>-client.txt|http://hopper.minecraft.net/help/guides/finding-minecraft-data-folder/]}}."
+            )
         }
     }
 }

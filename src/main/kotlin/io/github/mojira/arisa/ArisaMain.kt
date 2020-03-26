@@ -6,7 +6,6 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
-import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -48,7 +47,7 @@ val log = LoggerFactory.getLogger("Arisa")
 
 fun main() {
     val config = Config { addSpec(Arisa) }
-        .from.yaml.watchFile("arisa.yml")
+        .from.json.watchFile("arisa.json")
         .from.env()
         .from.systemProperties()
 
@@ -106,7 +105,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         }
         val attachmentModule = AttachmentModule(
             run1IfShadow(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
-            config[Arisa.Modules.Attachment.extensionBlacklist].split(",")
+            config[Arisa.Modules.Attachment.extensionBlacklist]
         )
         val chkModule = CHKModule(
             run0IfShadow(
@@ -125,11 +124,11 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                 "AddComment",
                 ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage])
             ),
-            config[Arisa.Modules.Piracy.piracySignatures].split(",")
+            config[Arisa.Modules.Piracy.piracySignatures]
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
             run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody),
-            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags].split(",")
+            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags]
         )
         val futureVersionModule = FutureVersionModule(
             run1IfShadow(config[Arisa.shadow], "RemoveAffectedVersion", ::removeAffectedVersion.partially1(issue)),
@@ -235,7 +234,7 @@ private fun Any?.toNullableString(): String? = if (this is String) {
 val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 private fun String.toInstant() = isoFormat.parse(this).toInstant()
 
-private fun runIfWhitelisted(issue: Issue, projects: String, body: () -> Either<ModuleError, ModuleResponse>) =
+private fun runIfWhitelisted(issue: Issue, projects: List<String>, body: () -> Either<ModuleError, ModuleResponse>) =
     if (isWhitelisted(projects, issue)) {
         body()
     } else {
@@ -274,4 +273,4 @@ private fun <T, U> run2IfShadow(
     log2AndReturnUnit(method)
 }
 
-fun isWhitelisted(projects: String, issue: Issue) = projects.contains(issue.project.key)
+fun isWhitelisted(projects: List<String>, issue: Issue) = projects.contains(issue.project.key)

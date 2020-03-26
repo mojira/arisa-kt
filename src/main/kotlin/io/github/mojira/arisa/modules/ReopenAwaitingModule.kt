@@ -19,7 +19,7 @@ class ReopenAwaitingModule(val reopen: () -> Either<Throwable, Unit>) : Module<R
     override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
             assertResolutionIs(resolution, "Awaiting Response").bind()
-            assertCommentsNotEmpty(comments).bind()
+            assertNotEmpty(comments).bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
             val lastComment = comments.last()
             assertUpdateWasNotCausedByEditingComment(
@@ -47,10 +47,4 @@ class ReopenAwaitingModule(val reopen: () -> Either<Throwable, Unit>) : Module<R
         } else {
             Unit.right()
         }
-
-    fun assertCommentsNotEmpty(comments: List<Comment>) = if (comments.isEmpty()) {
-        OperationNotNeededModuleResponse.left()
-    } else {
-        Unit.right()
-    }
 }

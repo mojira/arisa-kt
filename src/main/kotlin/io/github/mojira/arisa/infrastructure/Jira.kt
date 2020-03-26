@@ -46,10 +46,10 @@ fun addComment(issue: Issue, comment: String) = runBlocking {
     }
 }
 
-fun resolveAsInvalid(issue: Issue) = runBlocking {
+fun resolveAs(issue: Issue, resolution: String) = runBlocking {
     Either.catch {
         issue.transition()
-            .field(Field.RESOLUTION, "Invalid")
+            .field(Field.RESOLUTION, resolution)
             .execute("Resolve Issue")
     }
 }

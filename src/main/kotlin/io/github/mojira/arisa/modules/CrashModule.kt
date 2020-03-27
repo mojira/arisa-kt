@@ -4,7 +4,8 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import net.rcarz.jiraclient.Attachment
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import kotlin.text.RegexOption.IGNORE_CASE
 
 data class CrashModuleRequest(

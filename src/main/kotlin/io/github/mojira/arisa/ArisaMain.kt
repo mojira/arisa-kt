@@ -11,6 +11,7 @@ import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
+import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAs
@@ -21,6 +22,8 @@ import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CHKModuleRequest
+import io.github.mojira.arisa.modules.CrashModule
+import io.github.mojira.arisa.modules.CrashModuleRequest
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.EmptyModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -41,7 +44,7 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 val log = LoggerFactory.getLogger("Arisa")
 
@@ -63,7 +66,7 @@ fun main() {
     val executeModules = initModules(config, jiraClient)
     while (true) {
         val resolutions = listOf("Unresolved", "\"Awaiting Response\"").joinToString(", ")
-        val projects = config[Arisa.Issues.projects]
+        val projects = config[Arisa.Issues.projects].joinToString(", ")
         val jql = "project in ($projects) AND resolution in ($resolutions) AND updated >= -5m"
 
         try {
@@ -150,7 +153,16 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                 ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.emptyMessage])
             )
         )
-
+        val crashModule = CrashModule(
+            run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAs.partially1(issue).partially1("Invalid")),
+            run0IfShadow(config[Arisa.shadow], "ResolveAsDuplicae", ::resolveAs.partially1(issue).partially1("Duplicate")),
+            run1IfShadow(config[Arisa.shadow], "AddDuplicatesLink", ::link.partially1(issue).partially1("Duplicate")),
+            run0IfShadow(config[Arisa.shadow], "AddModdedComment", ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage])),
+            run1IfShadow(config[Arisa.shadow], "AddDuplicateComment") { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key) ) },
+            config[Arisa.Modules.Crash.crashExtensions],
+            config[Arisa.Modules.Crash.duplicates],
+            config[Arisa.Modules.Crash.maxAttachmentAge]
+        )
         // issue.project doesn't contain full project, which is needed for some modules.
         val project = try {
             jiraClient.getProject(issue.project.key)
@@ -219,6 +231,15 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         issue.attachments.size,
                         issue.description,
                         issue.getField("environment") as? String?
+                    )
+                )
+            },
+            "Crash" to runIfWhitelisted(issue, config[Arisa.Modules.Empty.whitelist]) {
+                crashModule(
+                    CrashModuleRequest(
+                        issue.attachments,
+                        issue.description,
+                        issue.createdDate
                     )
                 )
             }

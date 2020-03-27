@@ -54,6 +54,12 @@ fun resolveAs(issue: Issue, resolution: String) = runBlocking {
     }
 }
 
+fun link(issue: Issue, linkType: String, linkKey: String) = runBlocking {
+    Either.catch {
+        issue.link(linkKey, linkType)
+    }
+}
+
 fun updateCommentBody(comment: Comment, body: String) = runBlocking {
     Either.catch {
         comment.update(body)

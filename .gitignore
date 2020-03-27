@@ -6,3 +6,4 @@ arisa.yml
 arisa.json
 /.kotest
 /out/
+/log/

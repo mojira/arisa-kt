@@ -41,7 +41,7 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
-import java.util.concurrent.*
+import java.util.concurrent.TimeUnit
 
 val log = LoggerFactory.getLogger("Arisa")
 

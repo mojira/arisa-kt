@@ -41,7 +41,7 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 val log = LoggerFactory.getLogger("Arisa")
 
@@ -63,7 +63,7 @@ fun main() {
     val executeModules = initModules(config, jiraClient)
     while (true) {
         val resolutions = listOf("Unresolved", "\"Awaiting Response\"").joinToString(", ")
-        val projects = config[Arisa.Issues.projects]
+        val projects = config[Arisa.Issues.projects].joinToString(", ")
         val jql = "project in ($projects) AND resolution in ($resolutions) AND updated >= -5m"
 
         try {

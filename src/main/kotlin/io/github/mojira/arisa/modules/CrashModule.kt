@@ -14,7 +14,6 @@ data class CrashModuleRequest(
     val created: Date
 )
 
-
 const val MINECRAFT_CRASH_HEADER = "---- Minecraft Crash Report ----"
 const val JAVA_CRASH_HEADER = "#  EXCEPTION_ACCESS_VIOLATION"
 
@@ -45,8 +44,7 @@ class CrashModule(
         if (mostRelevantInfo.modded) {
             addModdedComment().toFailedModuleEither().bind()
             resolveAsInvalid().toFailedModuleEither().bind()
-        }
-        else {
+        } else {
             val configs = crashDupeConfigs.filter(::isConfigValid)
             val key = getDuplicateKey(mostRelevantInfo, configs)
             assertNotNull(key).bind()
@@ -55,7 +53,6 @@ class CrashModule(
             resolveAsDuplicate().toFailedModuleEither().bind()
             linkDuplicate(key).toFailedModuleEither().bind()
         }
-
     }
 
     private fun isCrashAttachment(attachment: Attachment) =
@@ -81,9 +78,9 @@ class CrashModule(
     }
 
     private fun getDuplicateKey(info: CrashInfo, configs: List<CrashDupeConfig>) =
-        configs.firstOrNull{
-            CrashInfoType.valueOf(it.type.toUpperCase()) == info.type
-                    && it.exceptionDesc.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
+        configs.firstOrNull {
+            CrashInfoType.valueOf(it.type.toUpperCase()) == info.type &&
+                    it.exceptionDesc.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
         }?.duplicates
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
@@ -102,20 +99,19 @@ class CrashModule(
             var modded = false
 
             lines.forEach {
-                if(it.contains("Minecraft Version: ", true))
+                if (it.contains("Minecraft Version: ", true))
                     minecraftVersion = it.replace("Minecraft Version: ", "", true)
 
-                if(it.contains("Java Version: ", true))
+                if (it.contains("Java Version: ", true))
                     javaVersion = it.replace("Java Version: ", "", true)
 
-                if(it.contains("Is Modded", true))
+                if (it.contains("Is Modded", true))
                     modded = !it.contains("Probably Not", true)
             }
 
-            if(minecraftVersion != null && javaVersion != null && lines.size >= 7)
+            if (minecraftVersion != null && javaVersion != null && lines.size >= 7)
                 CrashInfo(CrashInfoType.MINECRAFT, exception.trim(), minecraftVersion!!.trim(), javaVersion!!.trim(), modded, file.created)
             else null
-
         }
         file.content.contains(JAVA_CRASH_HEADER, true) -> {
             val lines = file.content.split("\n")
@@ -123,10 +119,10 @@ class CrashModule(
             var javaVersion: String? = null
 
             lines.forEach {
-                if(it.contains("# C  ", true))
+                if (it.contains("# C  ", true))
                     error = it.substring(it.indexOf('[') + 1, it.indexOf('+'))
 
-                if(it.contains("# JRE version: ", true))
+                if (it.contains("# JRE version: ", true))
                     javaVersion = it.replace("# JRE version: ", "", true)
             }
 
@@ -136,7 +132,6 @@ class CrashModule(
         }
         else -> null
     }
-
 
     data class TextDocument(
         val content: String,

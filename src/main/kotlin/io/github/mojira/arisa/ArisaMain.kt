@@ -44,7 +44,7 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
-import java.util.concurrent.*
+import java.util.concurrent.TimeUnit
 
 val log = LoggerFactory.getLogger("Arisa")
 
@@ -158,7 +158,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             run0IfShadow(config[Arisa.shadow], "ResolveAsDuplicae", ::resolveAs.partially1(issue).partially1("Duplicate")),
             run1IfShadow(config[Arisa.shadow], "AddDuplicatesLink", ::link.partially1(issue).partially1("Duplicate")),
             run0IfShadow(config[Arisa.shadow], "AddModdedComment", ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage])),
-            run1IfShadow(config[Arisa.shadow], "AddDuplicateComment") { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key) ) },
+            run1IfShadow(config[Arisa.shadow], "AddDuplicateComment") { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key)) },
             config[Arisa.Modules.Crash.crashExtensions],
             config[Arisa.Modules.Crash.duplicates],
             config[Arisa.Modules.Crash.maxAttachmentAge]

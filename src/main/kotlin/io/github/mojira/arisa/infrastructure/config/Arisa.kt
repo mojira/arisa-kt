@@ -132,7 +132,6 @@ object Arisa : ConfigSpec() {
     }
 }
 
-
 data class CrashDupeConfig(
     val type: String,
     val exceptionDesc: String,

@@ -12,8 +12,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.rcarz.jiraclient.Attachment
-import java.util.*
+import java.util.Calendar
 import java.util.Calendar.DAY_OF_YEAR
+import java.util.Date
 
 const val EXAMPLE_CRASH = "---- Minecraft Crash Report ----\n" +
         "// Daisy, daisy...\n" +
@@ -88,7 +89,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val request = CrashModuleRequest(emptyList(), "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!", Calendar.getInstance().time)
@@ -106,7 +107,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
 
@@ -186,7 +187,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
 
@@ -229,7 +230,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
 
@@ -295,7 +296,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val request = CrashModuleRequest(emptyList(), EXAMPLE_CRASH, Calendar.getInstance().time)
@@ -316,7 +317,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val attachment = mockAttachment("crash.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
@@ -378,7 +379,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val request = CrashModuleRequest(emptyList(), EXAMPLE_CRASH, Calendar.getInstance().time)
@@ -398,7 +399,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val modded = mockAttachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
@@ -421,7 +422,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val modded = mockAttachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
@@ -536,7 +537,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val request = CrashModuleRequest(emptyList(), EXAMPLE_CRASH, Calendar.getInstance().time)
@@ -556,7 +557,7 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val request = CrashModuleRequest(emptyList(), EXAMPLE_CRASH, Calendar.getInstance().time)
@@ -574,9 +575,9 @@ class CrashModuleTest : StringSpec({
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
-            { RuntimeException().left()  },
+            { RuntimeException().left() },
             listOf("txt"),
-            listOf( CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             10
         )
         val request = CrashModuleRequest(emptyList(), EXAMPLE_CRASH, Calendar.getInstance().time)

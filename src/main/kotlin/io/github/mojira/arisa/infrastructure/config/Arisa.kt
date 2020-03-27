@@ -24,7 +24,7 @@ object Arisa : ConfigSpec() {
 
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL"))
+            open val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL"))
         }
 
         object Attachment : ModuleConfigSpec() {
@@ -98,6 +98,7 @@ object Arisa : ConfigSpec() {
         }
 
         object Crash : ModuleConfigSpec() {
+            override val whitelist by optional(listOf("MC"))
             val maxAttachmentAge by optional(30)
             val crashExtensions by optional("txt,log")
             val closeReasonDupe by optional("Duplicate of {DUPLICATE} -- " +
@@ -114,17 +115,18 @@ object Arisa : ConfigSpec() {
                     "Additionally, if you have problems on large-scale modded servers, please report it to their site. It's probably not a bug in Minecraft."
             )
 
-            val game by optional(
+            val duplicates by optional(
                 listOf(
-                    CrashDupeConfig("Pixel format not accelerated", "MC-297"),
-                    CrashDupeConfig("No OpenGL context found in the current thread", "MC-297"),
-                    CrashDupeConfig("Could not create context", "MC-297"),
-                    CrashDupeConfig("WGL: The driver does not appear to support OpenGL", "MC-297"),
-                    CrashDupeConfig("failed to create a child event loop", "MC-34749"),
-                    CrashDupeConfig("Failed to check session lock, aborting", "MC-10167"),
-                    CrashDupeConfig("Maybe try a lowerresolution texturepack", "MC-29565"),
-                    CrashDupeConfig("java\\.lang\\.OutOfMemoryError\\: Java heap space", "MC-12949"),
-                    CrashDupeConfig("try a lowerresolution", "MC-29565")
+                    CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
+                    CrashDupeConfig("minecraft", "No OpenGL context found in the current thread", "MC-297"),
+                    CrashDupeConfig("minecraft", "Could not create context", "MC-297"),
+                    CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302"),
+                    CrashDupeConfig("minecraft", "failed to create a child event loop", "MC-34749"),
+                    CrashDupeConfig("minecraft", "Failed to check session lock, aborting", "MC-10167"),
+                    CrashDupeConfig("minecraft", "Maybe try a lowerresolution texturepack", "MC-29565"),
+                    CrashDupeConfig("minecraft", "java\\.lang\\.OutOfMemoryError\\: Java heap space", "MC-12949"),
+                    CrashDupeConfig("minecraft", "try a lowerresolution", "MC-29565"),
+                    CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")
                 )
             )
         }
@@ -133,6 +135,7 @@ object Arisa : ConfigSpec() {
 
 
 data class CrashDupeConfig(
+    val type: String,
     val exceptionDesc: String,
     val duplicates: String
 )

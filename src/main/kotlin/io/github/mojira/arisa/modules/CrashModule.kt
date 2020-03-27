@@ -5,6 +5,7 @@ import arrow.core.extensions.fx
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import net.rcarz.jiraclient.Attachment
 import java.util.*
+import kotlin.text.RegexOption.IGNORE_CASE
 
 data class CrashModuleRequest(
     val attachments: List<Attachment>,
@@ -22,7 +23,7 @@ class CrashModule(
     private val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
     private val addModdedComment: () -> Either<Throwable, Unit>,
     private val addDuplicateComment: (key: String) -> Either<Throwable, Unit>,
-    private val crashExtensions: List<String>,
+    private val crashReportExtensions: List<String>,
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val maxAttachmentAge: Int
 ) : Module<CrashModuleRequest> {
@@ -45,10 +46,11 @@ class CrashModule(
             resolveAsInvalid().toFailedModuleEither().bind()
         }
         else {
-            val key = getDuplicateKey(mostRelevantInfo)
+            val configs = crashDupeConfigs.filter(::isConfigValid)
+            val key = getDuplicateKey(mostRelevantInfo, configs)
             assertNotNull(key).bind()
 
-            addDuplicateComment(key!!)
+            addDuplicateComment(key!!).toFailedModuleEither().bind()
             resolveAsDuplicate().toFailedModuleEither().bind()
             linkDuplicate(key).toFailedModuleEither().bind()
         }
@@ -56,7 +58,7 @@ class CrashModule(
     }
 
     private fun isCrashAttachment(attachment: Attachment) =
-        crashExtensions.any { it == attachment.mimeType }
+        crashReportExtensions.any { it == attachment.mimeType }
 
     private fun isTextDocumentRecent(textDocument: TextDocument): Boolean {
         val calendar = Calendar.getInstance()
@@ -64,6 +66,9 @@ class CrashModule(
 
         return textDocument.created.after(calendar.time)
     }
+
+    private fun isConfigValid(config: CrashDupeConfig) =
+        CrashInfoType.values().any { it.name == config.type.toUpperCase() }
 
     private fun getMoreRelevantInfo(info1: CrashInfo, info2: CrashInfo) = when {
         info1.exception.isNotBlank() && info2.exception.isBlank() -> info1
@@ -74,8 +79,11 @@ class CrashModule(
         else -> info1
     }
 
-    private fun getDuplicateKey(info: CrashInfo) =
-        crashDupeConfigs.firstOrNull{ info.exception.contains(it.exceptionDesc, true) }?.duplicates
+    private fun getDuplicateKey(info: CrashInfo, configs: List<CrashDupeConfig>) =
+        configs.firstOrNull{
+            CrashInfoType.valueOf(it.type.toUpperCase()) == info.type
+                    && it.exceptionDesc.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
+        }?.duplicates
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val data = attachment.download()
@@ -104,7 +112,7 @@ class CrashModule(
             }
 
             if(minecraftVersion != null && javaVersion != null && lines.size >= 7)
-                CrashInfo(CrashInfoType.MINECRAFT, exception, minecraftVersion!!, javaVersion!!, modded, file.created)
+                CrashInfo(CrashInfoType.MINECRAFT, exception.trim(), minecraftVersion!!.trim(), javaVersion!!.trim(), modded, file.created)
             else null
 
         }
@@ -122,7 +130,7 @@ class CrashModule(
             }
 
             if (error != null && javaVersion != null)
-                CrashInfo(CrashInfoType.JAVA, lines[6], null, javaVersion!!, false, file.created)
+                CrashInfo(CrashInfoType.JAVA, error!!.trim(), null, javaVersion!!.trim(), false, file.created)
             else null
         }
         else -> null

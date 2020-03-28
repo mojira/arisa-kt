@@ -35,12 +35,9 @@ dependencies {
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
 
-    testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion) {
-        exclude("io.arrow-kt") // Need to manually exclude until https://github.com/kotest/kotest/issues/1026 is fixed in 3.4.3
-    }
-    implementation("io.kotest", "kotest-assertions-arrow", kotestVersion) {
-        exclude("io.arrow-kt") // Need to manually exclude until https://github.com/kotest/kotest/issues/1026 is fixed in 3.4.3
-    }
+    testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
+    testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
+    implementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
     testImplementation("io.mockk", "mockk", "1.9.3")
 }
 

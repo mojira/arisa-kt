@@ -89,11 +89,51 @@ object Arisa : ConfigSpec() {
         object RemoveNonStaffMeqs : ModuleConfigSpec()
 
         object Empty : ModuleConfigSpec() {
-            val emptyMessage by optional("We are unable to diagnose your issue due to the lack of proper debug information." +
-                    "Please review the [guidelines|http://help.mojang.com/customer/portal/articles/801354-writing-helpful-bug-reports-for-minecraft] before reporting issues.\r\n" +
-                    "In case of a game crash, please also attach the crash log from" +
-                    "{{[minecraft/crash-reports/crash-<DATE>-client.txt|http://hopper.minecraft.net/help/guides/finding-minecraft-data-folder/]}}."
+            val emptyMessage by Crash.optional(
+                "We are unable to diagnose your issue due to the lack of proper debug information." +
+                        "Please review the [guidelines|http://help.mojang.com/customer/portal/articles/801354-writing-helpful-bug-reports-for-minecraft] before reporting issues.\r\n" +
+                        "In case of a game crash, please also attach the crash log from" +
+                        "{{[minecraft/crash-reports/crash-<DATE>-client.txt|http://hopper.minecraft.net/help/guides/finding-minecraft-data-folder/]}}."
+            )
+        }
+
+        object Crash : ModuleConfigSpec() {
+            val maxAttachmentAge by optional(30)
+            val crashExtensions by optional(listOf("txt", "log"))
+            val duplicateMessage by optional("Duplicate of {DUPLICATE} -- " +
+                    "If you have not, please use the [search function|https://bugs.mojang.com/issues/] in the future, " +
+                    "to see if your bug has already been submitted.\r\n" +
+                    "For technical support, please use the " +
+                    "[Mojang Support Center|http://help.mojang.com/customer/portal/articles/364794-where-can-i-find-more-help-and-technical-support-]."
+            )
+            val moddedMessage by optional("This ticket is _invalid_ as it relates to a modified or third-party client, server, or launcher.\r\n" +
+                    "* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\r\n" +
+                    "* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\r\n" +
+                    "* This site is for addressing issues related to the *base unmodded Minecraft*; " +
+                    "any modded system _invalidates_ your ticket, unless the behavior can be reproduced without mods.\r\n* " +
+                    "Additionally, if you have problems on large-scale modded servers, please report it to their site. It's probably not a bug in Minecraft."
+            )
+
+            val duplicates by optional(
+                listOf(
+                    CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
+                    CrashDupeConfig("minecraft", "No OpenGL context found in the current thread", "MC-297"),
+                    CrashDupeConfig("minecraft", "Could not create context", "MC-297"),
+                    CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302"),
+                    CrashDupeConfig("minecraft", "failed to create a child event loop", "MC-34749"),
+                    CrashDupeConfig("minecraft", "Failed to check session lock, aborting", "MC-10167"),
+                    CrashDupeConfig("minecraft", "Maybe try a lowerresolution texturepack", "MC-29565"),
+                    CrashDupeConfig("minecraft", "java\\.lang\\.OutOfMemoryError\\: Java heap space", "MC-12949"),
+                    CrashDupeConfig("minecraft", "try a lowerresolution", "MC-29565"),
+                    CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")
+                )
             )
         }
     }
 }
+
+data class CrashDupeConfig(
+    val type: String,
+    val exceptionDesc: String,
+    val duplicates: String
+)

@@ -56,7 +56,7 @@ class CrashModule(
     }
 
     private fun isCrashAttachment(attachment: Attachment) =
-        crashReportExtensions.any { it == attachment.mimeType }
+        crashReportExtensions.any { it == attachment.fileName.substring(attachment.fileName.lastIndexOf(".") + 1) }
 
     private fun isTextDocumentRecent(textDocument: TextDocument): Boolean {
         val calendar = Calendar.getInstance()

@@ -592,9 +592,8 @@ class CrashModuleTest : StringSpec({
 
 private fun mockAttachment(name: String, created: Date, content: ByteArray): Attachment {
     val attachment = mockk<Attachment>()
-    every { attachment.contentUrl } returns name
+    every { attachment.fileName } returns name
     every { attachment.createdDate } returns created
-    every { attachment.mimeType } returns name.substring(name.lastIndexOf('.') + 1)
     every { attachment.download() } returns content
     return attachment
 }

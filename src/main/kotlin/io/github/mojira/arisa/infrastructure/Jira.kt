@@ -9,6 +9,7 @@ import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.Version
+import net.sf.json.JSONObject
 import java.net.URI
 import java.time.Instant
 
@@ -48,8 +49,11 @@ fun addComment(issue: Issue, comment: String) = runBlocking {
 
 fun resolveAs(issue: Issue, resolution: String) = runBlocking {
     Either.catch {
+        val resolutionJson = JSONObject()
+        resolutionJson["name"] = resolution
+
         issue.transition()
-            .field(Field.RESOLUTION, resolution)
+            .field(Field.RESOLUTION, resolutionJson)
             .execute("Resolve Issue")
     }
 }

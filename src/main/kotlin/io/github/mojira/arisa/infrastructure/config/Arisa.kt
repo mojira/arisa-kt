@@ -73,7 +73,7 @@ object Arisa : ConfigSpec() {
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
-            val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONT_FIX"))
+            val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONTFIX"))
         }
 
         object FutureVersion : ModuleConfigSpec() {

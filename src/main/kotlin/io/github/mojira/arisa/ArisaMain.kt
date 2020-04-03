@@ -42,10 +42,10 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
+import net.sf.json.JSONObject
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
-import net.sf.json.JSONObject
 
 val log = LoggerFactory.getLogger("Arisa")
 
@@ -206,10 +206,10 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                     )
                 )
             },
-            "RemoveTriagedMeqs" to runIfWhitelisted(issue, config[Arisa.Modules.ReopenAwaiting.whitelist]) {
+            "RemoveTriagedMeqs" to runIfWhitelisted(issue, config[Arisa.Modules.RemoveTriagedMeqs.whitelist]) {
                 removeTriagedMeqsModule(
                     RemoveTriagedMeqsModuleRequest(
-                        issue.getField(config[Arisa.CustomFields.mojangPriorityField]) as? String?,
+                        ((issue.getField(config[Arisa.CustomFields.mojangPriorityField])) as? JSONObject)?.get("value") as? String?,
                         issue.getField(config[Arisa.CustomFields.triagedTimeField]) as? String?,
                         issue.comments
                     )

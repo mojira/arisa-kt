@@ -16,7 +16,10 @@ class CHKModule(val updateCHK: () -> Either<Throwable, Unit>) : Module<CHKModule
 
 private fun assertIsValid(request: CHKModuleRequest): Either<OperationNotNeededModuleResponse, Unit> = with(request) {
     when {
-        confirmationField == null || confirmationField == "Undefined" || chkField != null -> OperationNotNeededModuleResponse.left()
+        confirmationField == null ||
+            confirmationField == "Undefined" ||
+            confirmationField.toLowerCase() == "unconfirmed" ||
+            chkField != null -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
 }

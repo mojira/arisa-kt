@@ -12,6 +12,7 @@ import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import java.net.URI
 import java.time.Instant
+import java.time.temporal.ChronoField
 
 typealias IssueId = String
 
@@ -19,7 +20,15 @@ fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBloc
     Either.catch {
         issue
             .transition()
-            .field(chkField, Instant.now().toString().replace("Z", "-0000"))
+            .field(
+                chkField,
+                Instant
+                    .now()
+                    .with(ChronoField.NANO_OF_SECOND, 0)
+                    .with(ChronoField.MILLI_OF_SECOND, 123)
+                    .toString()
+                    .replace("Z", "-0000")
+            )
             .execute("Update Issue")
     }
 }

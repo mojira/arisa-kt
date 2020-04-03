@@ -45,6 +45,7 @@ import net.rcarz.jiraclient.JiraClient
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
+import net.sf.json.JSONObject
 
 val log = LoggerFactory.getLogger("Arisa")
 
@@ -80,7 +81,7 @@ fun main() {
                             is Either.Right -> log.info("[RESPONSE] [$issue] [$module] Successful")
                             is Either.Left -> {
                                 when (response.a) {
-                                    // is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
+                                    is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
                                     is FailedModuleResponse -> for (exception in (response.a as FailedModuleResponse).exceptions) {
                                         log.error("[RESPONSE] [$issue] [$module] Failed", exception)
                                     }
@@ -182,7 +183,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                     CHKModuleRequest(
                         issue.key,
                         issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
-                        issue.getField(config[Arisa.CustomFields.confirmationField]) as? String?
+                        ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String?
                     )
                 )
             },

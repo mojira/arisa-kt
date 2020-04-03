@@ -91,9 +91,9 @@ object Arisa : ConfigSpec() {
 
         object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(
-                "We are unable to diagnose your issue due to the lack of proper debug information." +
+                "We are unable to diagnose your issue due to the lack of proper debug information. " +
                         "Please review the [guidelines|http://help.mojang.com/customer/portal/articles/801354-writing-helpful-bug-reports-for-minecraft] before reporting issues.\r\n" +
-                        "In case of a game crash, please also attach the crash log from" +
+                        "In case of a game crash, please also attach the crash log from " +
                         "{{[minecraft/crash-reports/crash-<DATE>-client.txt|http://hopper.minecraft.net/help/guides/finding-minecraft-data-folder/]}}."
             )
         }

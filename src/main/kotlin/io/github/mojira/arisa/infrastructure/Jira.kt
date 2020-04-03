@@ -18,9 +18,9 @@ typealias IssueId = String
 fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBlocking {
     Either.catch {
         issue
-            .update()
-            .field(chkField, Instant.now().toString())
-            .execute()
+            .transition()
+            .field(chkField, Instant.now().toString().replace("Z", "-0000"))
+            .execute("Update Issue")
     }
 }
 

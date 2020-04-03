@@ -82,7 +82,7 @@ object Arisa : ConfigSpec() {
                 "Please *do not* mark _unreleased versions_ as affected.\r\nYou don't have access to them yet."
             )
         }
-        
+
         object CHK : ModuleConfigSpec()
 
         object ReopenAwaiting : ModuleConfigSpec()

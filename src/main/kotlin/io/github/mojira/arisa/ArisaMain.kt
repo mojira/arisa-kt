@@ -103,7 +103,10 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         // Get issue again to retrieve all fields
         val issue = jiraClient.getIssue(updateIssue.key, "*all", "changelog")
         // Ignore issues where last action was a resolve
-        if (issue.changeLog.entries.size > 0 && issue.changeLog.entries.last().items.any { it.field == "resolution" }) {
+        if (issue.changeLog.entries.size > 0
+            && issue.changeLog.entries.last().items.any { it.field == "resolution" }
+            && issue.changeLog.entries.last().created.time + 2000 > issue.updatedDate.time
+        ) {
             return@lambda emptyMap()
         }
         val attachmentModule = AttachmentModule(

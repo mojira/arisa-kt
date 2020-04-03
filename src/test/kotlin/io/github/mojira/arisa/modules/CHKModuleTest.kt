@@ -27,6 +27,15 @@ class CHKModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should not process tickets with a Unconfirmed confirmation status" {
+        val module = CHKModule { Unit.right() }
+        val request = CHKModuleRequest("issue", null, "Unconfirmed")
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should not process tickets with CHK already set" {
         val module = CHKModule { Unit.right() }
         val request = CHKModuleRequest("issue", "chkField", "Confirmed")

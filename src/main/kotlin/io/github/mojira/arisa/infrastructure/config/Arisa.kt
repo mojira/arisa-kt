@@ -58,7 +58,6 @@ object Arisa : ConfigSpec() {
                     "iridium",
                     "mcdonalds",
                     "uranium",
-                    "nova",
                     "divinity",
                     "gemini",
                     "mineshafter",

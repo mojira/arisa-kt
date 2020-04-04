@@ -18,13 +18,16 @@ class PiracyModule(
 ) : Module<PiracyModuleRequest> {
 
     override fun invoke(request: PiracyModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertContainsSignatures(piracySignatures, request.description + request.environment + request.summary).bind()
+        assertContainsSignatures(
+            piracySignatures,
+            "${request.description} ${request.environment} ${request.summary}"
+        ).bind()
         addPiracyComment().toFailedModuleEither().bind()
         resolveAsInvalid().toFailedModuleEither().bind()
     }
 
     private fun assertContainsSignatures(piracySignatures: List<String>, matcher: String) = when {
-        piracySignatures.any { matcher.contains(it) } -> Unit.right()
+        piracySignatures.any { matcher.split("\\s+".toRegex()).contains(it) } -> Unit.right()
         else -> OperationNotNeededModuleResponse.left()
     }
 }

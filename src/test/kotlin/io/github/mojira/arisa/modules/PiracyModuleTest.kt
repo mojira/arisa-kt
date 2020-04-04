@@ -56,6 +56,15 @@ class PiracyModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse if description contains a piracy signature but not as a full word" {
+        val module = PiracyModule({ Unit.right() }, { Unit.right() }, PIRACYSIGNATURES)
+        val request = PiracyModuleRequest("", "", "testusername")
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should resolve as invalid if summary contains a piracy signature" {
         val module = PiracyModule({ Unit.right() }, { Unit.right() }, PIRACYSIGNATURES)
         val request = PiracyModuleRequest("", "test", "")

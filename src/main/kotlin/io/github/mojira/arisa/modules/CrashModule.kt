@@ -69,8 +69,8 @@ class CrashModule(
         CrashInfoType.values().any { it.name == config.type.toUpperCase() }
 
     private fun getMoreRelevantInfo(info1: CrashInfo, info2: CrashInfo) = when {
-        info1.exception.isNotBlank() && info2.exception.isBlank() -> info1
-        info1.exception.isBlank() && info2.exception.isNotBlank() -> info2
+        !info1.exception.isNullOrBlank() && info2.exception.isNullOrBlank() -> info1
+        info1.exception.isNullOrBlank() && !info2.exception.isNullOrBlank() -> info2
         info1.modded && !info2.modded -> info2
         !info1.modded && info2.modded -> info1
         info2.created.after(info1.created) -> info2
@@ -80,6 +80,7 @@ class CrashModule(
     private fun getDuplicateKey(info: CrashInfo, configs: List<CrashDupeConfig>) =
         configs.firstOrNull {
             CrashInfoType.valueOf(it.type.toUpperCase()) == info.type &&
+                    info.exception != null &&
                     it.exceptionDesc.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
         }?.duplicates
 
@@ -93,7 +94,7 @@ class CrashModule(
     private fun fetchInfo(file: TextDocument) = when {
         file.content.contains(MINECRAFT_CRASH_HEADER, true) -> {
             val lines = file.content.split("\n")
-            val exception = lines[6]
+            val exception = lines.getOrNull(6)
             var minecraftVersion: String? = null
             var javaVersion: String? = null
             var modded = false
@@ -110,7 +111,14 @@ class CrashModule(
             }
 
             if (minecraftVersion != null && javaVersion != null && lines.size >= 7)
-                CrashInfo(CrashInfoType.MINECRAFT, exception.trim(), minecraftVersion!!.trim(), javaVersion!!.trim(), modded, file.created)
+                CrashInfo(
+                    CrashInfoType.MINECRAFT,
+                    exception?.trim(),
+                    minecraftVersion!!.trim(),
+                    javaVersion!!.trim(),
+                    modded,
+                    file.created
+                )
             else null
         }
         file.content.contains(JAVA_CRASH_HEADER, true) -> {
@@ -140,7 +148,7 @@ class CrashModule(
 
     data class CrashInfo(
         val type: CrashInfoType,
-        val exception: String,
+        val exception: String?,
         val minecraftVersion: String?,
         val javaVersion: String,
         val modded: Boolean,

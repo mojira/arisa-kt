@@ -21,9 +21,9 @@ class FutureVersionModule(
         assertNotEmpty(futureVersions).bind()
         assertNotNull(latestVersion).bind()
 
-        addFutureVersionComment().toFailedModuleEither().bind()
-        tryRunAll(removeVersion, futureVersions).bind()
         addVersion(latestVersion!!).toFailedModuleEither().bind()
+        tryRunAll(removeVersion, futureVersions).bind()
+        addFutureVersionComment().toFailedModuleEither().bind()
     }
 
     private fun isFutureVersion(version: Version) =

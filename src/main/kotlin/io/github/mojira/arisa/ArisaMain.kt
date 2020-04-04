@@ -110,9 +110,9 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             lastEntry != null && // There is actually a entry
             lastEntry.created.time <= issue.updatedDate.time && // The action was before or at the same time as the update in the ticket
             lastEntry.created.time + 20000 > issue.updatedDate.time && // No more than 20 seconds have passed since action (as comments dont show)
-            lastEntry.items.any { it.field == "resolution" }
-        ) { // And it was a resolution
-            return@lambda emptyMap()
+            lastEntry.items.any { it.field == "resolution" } // And it was a resolution
+        ) {
+            return@lambda emptyMap() // Ignore ticket
         }
 
         val attachmentModule = AttachmentModule(

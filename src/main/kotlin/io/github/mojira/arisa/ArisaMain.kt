@@ -105,12 +105,12 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         val issue = jiraClient.getIssue(updateIssue.key, "*all", "changelog")
 
         // Ignore issues where last action was a resolve
-        val lastEntry = issue.changeLog.entries.lastOrNull()
+        val latestChange = issue.changeLog.entries.lastOrNull()
         if (
-            lastEntry != null && // There is actually a entry
-            lastEntry.created.time <= issue.updatedDate.time && // The action was before or at the same time as the update in the ticket
-            lastEntry.created.time + 20000 > issue.updatedDate.time && // No more than 20 seconds have passed since action (as comments dont show)
-            lastEntry.items.any { it.field == "resolution" } // And it was a resolution
+            latestChange != null && // There is actually a entry
+            latestChange.items.any { it.field == "resolution" } && // It was a transition
+            latestChange.author.name != config[Arisa.Credentials.username] && // The transition was not done by the bot
+            (issue.comments.isEmpty() || issue.comments.last().updatedDate < latestChange.created) // And there is no comment posted after that
         ) {
             return@lambda emptyMap() // Ignore ticket
         }

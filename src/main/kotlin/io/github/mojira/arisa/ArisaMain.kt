@@ -110,7 +110,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             latestChange != null && // There is actually a entry
             latestChange.items.any { it.field == "resolution" } && // It was a transition
             latestChange.author.name != config[Arisa.Credentials.username] && // The transition was not done by the bot
-            (issue.comments.isEmpty() || issue.comments.last().createdDate < latestChange.created) // And there is no comment posted after that
+            (issue.comments.isEmpty() || issue.comments.last().updatedDate < latestChange.created) // And there is no comment posted after that
         ) {
             return@lambda emptyMap() // Ignore ticket
         }

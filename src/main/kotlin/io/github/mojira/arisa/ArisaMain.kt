@@ -243,7 +243,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                     )
                 )
             },
-            "Crash" to runIfWhitelisted(issue, config[Arisa.Modules.Empty.whitelist]) {
+            "Crash" to runIfWhitelisted(issue, config[Arisa.Modules.Crash.whitelist]) {
                 crashModule(
                     CrashModuleRequest(
                         issue.attachments,

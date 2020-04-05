@@ -29,6 +29,19 @@ const val EXAMPLE_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tJava Version: 1.8.0_131, Oracle Corporation\n" +
         "Is Modded: Probably not. Jar signature remains and client brand is untouched.\n"
 
+const val SERVER_UNMODDED_CRASH = "---- Minecraft Crash Report ----\n" +
+        "// Daisy, daisy...\n" +
+        "\n" +
+        "Time: 6/28/17 11:44 AM\n" +
+        "Description: Initializing game\n" +
+        "\n" +
+        "org.lwjgl.LWJGLException: Pixel format not accelerated\n" +
+        "-- System Details --\n" +
+        "Details:\n" +
+        "\tMinecraft Version: 1.8.9\n" +
+        "\tJava Version: 1.8.0_131, Oracle Corporation\n" +
+        "Is Modded: Unknown\n"
+
 const val EXAMPLE_CRASH_2 = "---- Minecraft Crash Report ----\n" +
         "// I feel sad now :(\n" +
         "\n" +
@@ -235,6 +248,26 @@ class CrashModuleTest : StringSpec({
         )
 
         val attachment = mockAttachment("crash.png", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val request = CrashModuleRequest(listOf(attachment), "", Calendar.getInstance().time)
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when attached crash is not modded (Unknown)" {
+        val module = CrashModule(
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            listOf("txt"),
+            listOf(),
+            10
+        )
+
+        val attachment = mockAttachment("crash.txt", Calendar.getInstance().time, SERVER_UNMODDED_CRASH.toByteArray())
         val request = CrashModuleRequest(listOf(attachment), "", Calendar.getInstance().time)
 
         val result = module(request)

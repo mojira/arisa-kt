@@ -107,7 +107,7 @@ class CrashModule(
                     javaVersion = it.replace("Java Version: ", "", true)
 
                 if (it.contains("Is Modded", true))
-                    modded = !it.contains("Probably Not", true)
+                    modded = !it.contains("Probably Not", true) && !it.contains("Unknown", true)
             }
 
             if (minecraftVersion != null && javaVersion != null && lines.size >= 7)

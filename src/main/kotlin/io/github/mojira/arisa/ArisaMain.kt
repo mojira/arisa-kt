@@ -164,7 +164,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val crashModule = CrashModule(
             run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAs.partially1(issue).partially1("Invalid")),
-            run0IfShadow(config[Arisa.shadow], "ResolveAsDuplicae", ::resolveAs.partially1(issue).partially1("Duplicate")),
+            run0IfShadow(config[Arisa.shadow], "ResolveAsDuplicate", ::resolveAs.partially1(issue).partially1("Duplicate")),
             run1IfShadow(config[Arisa.shadow], "AddDuplicatesLink", ::link.partially1(issue).partially1("Duplicate")),
             run0IfShadow(config[Arisa.shadow], "AddModdedComment", ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage])),
             run1IfShadow(config[Arisa.shadow], "AddDuplicateComment") { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key)) },

@@ -30,17 +30,48 @@ const val EXAMPLE_CRASH = "---- Minecraft Crash Report ----\n" +
         "Is Modded: Probably not. Jar signature remains and client brand is untouched.\n"
 
 const val SERVER_UNMODDED_CRASH = "---- Minecraft Crash Report ----\n" +
-        "// Daisy, daisy...\n" +
+        "// Oh - I know what I did wrong!\n" +
         "\n" +
-        "Time: 6/28/17 11:44 AM\n" +
-        "Description: Initializing game\n" +
+        "Time: 6/5/18 9:20 PM\n" +
+        "Description: Exception generating new chunk\n" +
         "\n" +
-        "org.lwjgl.LWJGLException: Pixel format not accelerated\n" +
+        "java.util.concurrent.ExecutionException: java.lang.RuntimeException: We are asking a region for a chunk out of bound | -174 8\n" +
+        "\n" +
         "-- System Details --\n" +
         "Details:\n" +
-        "\tMinecraft Version: 1.8.9\n" +
-        "\tJava Version: 1.8.0_131, Oracle Corporation\n" +
-        "Is Modded: Unknown\n"
+        "\tMinecraft Version: 1.13-pre1\n" +
+        "\tOperating System: Linux (amd64) version 4.4.0-98-generic\n" +
+        "\tJava Version: 1.8.0_151, Oracle Corporation\n" +
+        "\tJava VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation\n" +
+        "\tMemory: 614132352 bytes (585 MB) / 988282880 bytes (942 MB) up to 3340763136 bytes (3186 MB)\n" +
+        "\tJVM Flags: 2 total; -Xmx3584M -XX:MaxPermSize=256M\n" +
+        "\tProfiler Position: N/A (disabled)\n" +
+        "\tPlayer Count: 1 / 20; [so['KawaiiMutton'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
+        "\tData Packs: vanilla\n" +
+        "\tIs Modded: Unknown (can't tell)\n" +
+        "\tType: Dedicated Server (map_server.txt)\n"
+
+const val SERVER_MODDED_CRASH = "---- Minecraft Crash Report ----\n" +
+        "// Oh - I know what I did wrong!\n" +
+        "\n" +
+        "Time: 6/5/18 9:20 PM\n" +
+        "Description: Exception generating new chunk\n" +
+        "\n" +
+        "java.util.concurrent.ExecutionException: java.lang.RuntimeException: We are asking a region for a chunk out of bound | -174 8\n" +
+        "\n" +
+        "-- System Details --\n" +
+        "Details:\n" +
+        "\tMinecraft Version: 1.13-pre1\n" +
+        "\tOperating System: Linux (amd64) version 4.4.0-98-generic\n" +
+        "\tJava Version: 1.8.0_151, Oracle Corporation\n" +
+        "\tJava VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation\n" +
+        "\tMemory: 614132352 bytes (585 MB) / 988282880 bytes (942 MB) up to 3340763136 bytes (3186 MB)\n" +
+        "\tJVM Flags: 2 total; -Xmx3584M -XX:MaxPermSize=256M\n" +
+        "\tProfiler Position: N/A (disabled)\n" +
+        "\tPlayer Count: 1 / 20; [so['KawaiiMutton'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
+        "\tData Packs: vanilla\n" +
+        "\tIs Modded: Definitely; Client brand changed to 'fabric'\n" +
+        "\tType: Dedicated Server (map_server.txt)\n"
 
 const val EXAMPLE_CRASH_2 = "---- Minecraft Crash Report ----\n" +
         "// I feel sad now :(\n" +
@@ -273,6 +304,27 @@ class CrashModuleTest : StringSpec({
         val result = module(request)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should resolve as invalid when reported server crash is modded" {
+        var resolvedAsInvalid = false
+
+        val module = CrashModule(
+            { resolvedAsInvalid = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            listOf("txt"),
+            emptyList(),
+            10
+        )
+        val request = CrashModuleRequest(emptyList(), SERVER_MODDED_CRASH, Calendar.getInstance().time)
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsInvalid.shouldBeTrue()
     }
 
     "should resolve as invalid when reported crash is modded" {

@@ -46,7 +46,7 @@ const val SERVER_UNMODDED_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tMemory: 614132352 bytes (585 MB) / 988282880 bytes (942 MB) up to 3340763136 bytes (3186 MB)\n" +
         "\tJVM Flags: 2 total; -Xmx3584M -XX:MaxPermSize=256M\n" +
         "\tProfiler Position: N/A (disabled)\n" +
-        "\tPlayer Count: 1 / 20; [so['KawaiiMutton'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
+        "\tPlayer Count: 1 / 20; [so['CENSORED'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
         "\tData Packs: vanilla\n" +
         "\tIs Modded: Unknown (can't tell)\n" +
         "\tType: Dedicated Server (map_server.txt)\n"
@@ -68,7 +68,7 @@ const val SERVER_MODDED_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tMemory: 614132352 bytes (585 MB) / 988282880 bytes (942 MB) up to 3340763136 bytes (3186 MB)\n" +
         "\tJVM Flags: 2 total; -Xmx3584M -XX:MaxPermSize=256M\n" +
         "\tProfiler Position: N/A (disabled)\n" +
-        "\tPlayer Count: 1 / 20; [so['KawaiiMutton'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
+        "\tPlayer Count: 1 / 20; [so['CENSORED'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
         "\tData Packs: vanilla\n" +
         "\tIs Modded: Definitely; Client brand changed to 'fabric'\n" +
         "\tType: Dedicated Server (map_server.txt)\n"

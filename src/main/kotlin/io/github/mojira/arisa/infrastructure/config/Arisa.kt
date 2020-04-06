@@ -109,12 +109,7 @@ object Arisa : ConfigSpec() {
                         "[Minecraft Support Discord|https://discord.gg/58Sxm23]."
             )
             val moddedMessage by optional(
-                "This ticket has been marked as _invalid_ as it relates to a modified or third-party client, server, or launcher.\r\n" +
-                        "* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\r\n" +
-                        "* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\r\n" +
-                        "* This site is for addressing issues related to the *base unmodded Minecraft*; " +
-                        "any modded system _invalidates_ your ticket, unless the behavior can be reproduced without mods.\r\n* " +
-                        "Additionally, if you have problems on large-scale modded servers, please report it to their site. It's probably not a bug in Minecraft."
+                "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nYour game, launcher or server is modified.\nIf you can reproduce the issue in a vanilla environment, please recreate the issue.\n\n* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\n* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n\n\n%quick_links%"
             )
 
             val duplicates by optional(

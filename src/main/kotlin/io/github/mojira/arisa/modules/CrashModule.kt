@@ -95,27 +95,18 @@ class CrashModule(
         file.content.contains(MINECRAFT_CRASH_HEADER, true) -> {
             val lines = file.content.split("\n")
             val exception = lines.getOrNull(6)
-            var minecraftVersion: String? = null
-            var javaVersion: String? = null
             var modded = false
 
             lines.forEach {
-                if (it.contains("Minecraft Version: ", true))
-                    minecraftVersion = it.replace("Minecraft Version: ", "", true)
-
-                if (it.contains("Java Version: ", true))
-                    javaVersion = it.replace("Java Version: ", "", true)
-
-                if (it.contains("Is Modded", true))
-                    modded = !it.contains("Probably Not", true)
+                if (it.contains("Is Modded", true)) {
+                    modded = !it.contains("Probably Not", true) && !it.contains("Unknown", true)
+                }
             }
 
-            if (minecraftVersion != null && javaVersion != null && lines.size >= 7)
+            if (lines.size >= 7)
                 CrashInfo(
                     CrashInfoType.MINECRAFT,
                     exception?.trim(),
-                    minecraftVersion!!.trim(),
-                    javaVersion!!.trim(),
                     modded,
                     file.created
                 )
@@ -124,19 +115,18 @@ class CrashModule(
         file.content.contains(JAVA_CRASH_HEADER, true) -> {
             val lines = file.content.split("\n")
             var error: String? = null
-            var javaVersion: String? = null
 
             lines.forEach {
-                if (it.contains("# C  ", true))
+                if (it.contains("# C  ", true)) {
                     error = it.substring(it.indexOf('[') + 1, it.indexOf('+'))
-
-                if (it.contains("# JRE version: ", true))
-                    javaVersion = it.replace("# JRE version: ", "", true)
+                }
             }
 
-            if (error != null && javaVersion != null)
-                CrashInfo(CrashInfoType.JAVA, error!!.trim(), null, javaVersion!!.trim(), false, file.created)
-            else null
+            if (error == null) {
+                null
+            } else {
+                CrashInfo(CrashInfoType.JAVA, error!!.trim(), false, file.created)
+            }
         }
         else -> null
     }
@@ -149,8 +139,6 @@ class CrashModule(
     data class CrashInfo(
         val type: CrashInfoType,
         val exception: String?,
-        val minecraftVersion: String?,
-        val javaVersion: String,
         val modded: Boolean,
         val created: Date
     )

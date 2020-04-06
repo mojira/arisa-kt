@@ -73,7 +73,6 @@ const val SERVER_MODDED_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tIs Modded: Definitely; Server brand changed to 'fabric'\n" +
         "\tType: Dedicated Server (map_server.txt)\n"
 
-
 const val SERVER_MODDED_CRASH_2 = "---- Minecraft Crash Report ----\n" +
         "// Surprise! Haha. Well, this is awkward.\n" +
         "\n" +

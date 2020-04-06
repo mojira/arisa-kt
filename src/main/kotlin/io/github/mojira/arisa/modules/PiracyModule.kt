@@ -27,7 +27,7 @@ class PiracyModule(
     }
 
     private fun assertContainsSignatures(piracySignatures: List<String>, matcher: String) = when {
-        piracySignatures.any { matcher.split("\\s+".toRegex()).contains(it) } -> Unit.right()
+        piracySignatures.any { """(?:\s|^)${Regex.escape(it)}(?:\s|$)""".toRegex().containsMatchIn(matcher) } -> Unit.right()
         else -> OperationNotNeededModuleResponse.left()
     }
 }

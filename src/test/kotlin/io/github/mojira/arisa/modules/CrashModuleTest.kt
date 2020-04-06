@@ -73,6 +73,30 @@ const val SERVER_MODDED_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tIs Modded: Definitely; Server brand changed to 'fabric'\n" +
         "\tType: Dedicated Server (map_server.txt)\n"
 
+
+const val SERVER_MODDED_CRASH_2 = "---- Minecraft Crash Report ----\n" +
+        "// Surprise! Haha. Well, this is awkward.\n" +
+        "\n" +
+        "Time: 04.10.19 17:39\n" +
+        "Description: Exception ticking world\n" +
+        "\n" +
+        "java.lang.NoSuchFieldError: DO_DAYLIGHT_CYCLE\n" +
+        "\n" +
+        "-- System Details --\n" +
+        "Details:\n" +
+        "\tMinecraft Version: 1.14.4\n" +
+        "\tMinecraft Version ID: 1.14.4\n" +
+        "\tOperating System: Windows 10 (amd64) version 10.0\n" +
+        "\tJava Version: 1.8.0_51, Oracle Corporation\n" +
+        "\tJava VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation\n" +
+        "\tMemory: 1192941208 bytes (1137 MB) / 1845493760 bytes (1760 MB) up to 2147483648 bytes (2048 MB)\n" +
+        "\tCPUs: 4\n" +
+        "\tJVM Flags: 9 total; -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xss1M -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M\n" +
+        "\tPlayer Count: 0 / 8; []\n" +
+        "\tData Packs: vanilla\n" +
+        "\tType: Integrated Server (map_client.txt)\n" +
+        "\tIs Modded: Very likely; Jar signature invalidated\n"
+
 const val EXAMPLE_CRASH_2 = "---- Minecraft Crash Report ----\n" +
         "// I feel sad now :(\n" +
         "\n" +
@@ -320,6 +344,27 @@ class CrashModuleTest : StringSpec({
             10
         )
         val request = CrashModuleRequest(emptyList(), SERVER_MODDED_CRASH, Calendar.getInstance().time)
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsInvalid.shouldBeTrue()
+    }
+
+    "should resolve as invalid when reported server crash is very likely modded" {
+        var resolvedAsInvalid = false
+
+        val module = CrashModule(
+            { resolvedAsInvalid = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            listOf("txt"),
+            emptyList(),
+            10
+        )
+        val request = CrashModuleRequest(emptyList(), SERVER_MODDED_CRASH_2, Calendar.getInstance().time)
 
         val result = module(request)
 

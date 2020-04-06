@@ -140,7 +140,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
             run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody),
-            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags]
+            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
+            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
         )
         val futureVersionModule = FutureVersionModule(
             run1IfShadow(config[Arisa.shadow], "RemoveAffectedVersion", ::removeAffectedVersion.partially1(issue)),
@@ -152,7 +153,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             )
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff"))
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff")),
+            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
         )
         val emptyModule = EmptyModule(
             run0IfShadow(config[Arisa.shadow], "ResolveAsIncomplete", ::resolveAs.partially1(issue).partially1("Incomplete")),

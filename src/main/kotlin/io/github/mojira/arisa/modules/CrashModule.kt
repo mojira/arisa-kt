@@ -114,8 +114,6 @@ class CrashModule(
                 CrashInfo(
                     CrashInfoType.MINECRAFT,
                     exception?.trim(),
-                    minecraftVersion!!.trim(),
-                    javaVersion!!.trim(),
                     modded,
                     file.created
                 )
@@ -135,7 +133,7 @@ class CrashModule(
             }
 
             if (error != null && javaVersion != null)
-                CrashInfo(CrashInfoType.JAVA, error!!.trim(), null, javaVersion!!.trim(), false, file.created)
+                CrashInfo(CrashInfoType.JAVA, error!!.trim(), false, file.created)
             else null
         }
         else -> null
@@ -149,8 +147,6 @@ class CrashModule(
     data class CrashInfo(
         val type: CrashInfoType,
         val exception: String?,
-        val minecraftVersion: String?,
-        val javaVersion: String,
         val modded: Boolean,
         val created: Date
     )

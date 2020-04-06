@@ -70,7 +70,7 @@ const val SERVER_MODDED_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tProfiler Position: N/A (disabled)\n" +
         "\tPlayer Count: 1 / 20; [so['CENSORED'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
         "\tData Packs: vanilla\n" +
-        "\tIs Modded: Definitely; Client brand changed to 'fabric'\n" +
+        "\tIs Modded: Definitely; Server brand changed to 'fabric'\n" +
         "\tType: Dedicated Server (map_server.txt)\n"
 
 const val EXAMPLE_CRASH_2 = "---- Minecraft Crash Report ----\n" +

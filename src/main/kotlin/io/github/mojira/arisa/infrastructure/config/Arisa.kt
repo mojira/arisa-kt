@@ -67,7 +67,7 @@ object Arisa : ConfigSpec() {
                     "PHVL",
                     "Pre-Launcher v6",
                     "LauncherFEnix",
-                    "TLauncher"
+                    "TLauncher",
                     "Titan"
                 )
             )
@@ -109,8 +109,20 @@ object Arisa : ConfigSpec() {
                         "[Minecraft Support Discord|https://discord.gg/58Sxm23]."
             )
             val moddedMessage by optional(
-                "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nYour game, launcher or server is modified.\nIf you can reproduce the issue in a vanilla environment, please recreate the issue.\n\n* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\n* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n\n\n%quick_links%"
-                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in https://discordapp.com/invite/rpCyfKV) or https://www.reddit.com/r/Mojira/{color}
+                "*Thank you for your report!*\n" +
+                        "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
+                        "\n" +
+                        "Your game, launcher or server is modified.\n" +
+                        "If you can reproduce the issue in a vanilla environment, please recreate the issue.\n" +
+                        "\n" +
+                        "* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\n" +
+                        "* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n" +
+                        "* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n" +
+                        "\n" +
+                        "\n" +
+                        "*Quick Links*:
+                        "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\"
+                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in https://discordapp.com/invite/rpCyfKV or https://www.reddit.com/r/Mojira/{color}"
                 )
 
             val duplicates by optional(

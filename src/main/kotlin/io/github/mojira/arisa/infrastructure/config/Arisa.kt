@@ -110,7 +110,7 @@ object Arisa : ConfigSpec() {
             )
             val moddedMessage by optional(
                 "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nYour game, launcher or server is modified.\nIf you can reproduce the issue in a vanilla environment, please recreate the issue.\n\n* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\n* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n\n\n%quick_links%"
-                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in  [our discord](https://discordapp.com/invite/rpCyfKV) or https://www.reddit.com/r/Mojira/{color}
+                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in https://discordapp.com/invite/rpCyfKV) or https://www.reddit.com/r/Mojira/{color}
                 )
 
             val duplicates by optional(

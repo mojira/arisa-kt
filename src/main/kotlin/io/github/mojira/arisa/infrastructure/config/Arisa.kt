@@ -131,6 +131,8 @@ object Arisa : ConfigSpec() {
                 )
             )
         }
+
+        object RevokeConfirmation : ModuleConfigSpec()
     }
 }
 

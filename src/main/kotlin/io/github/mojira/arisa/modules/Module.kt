@@ -44,3 +44,8 @@ fun <T> tryRunAll(
         FailedModuleResponse(exceptions).left()
     }
 }
+
+fun <T> assertNotEquals(o1: T, o2: T) = when (o1) {
+    o2 -> OperationNotNeededModuleResponse.left()
+    else -> Unit.right()
+}

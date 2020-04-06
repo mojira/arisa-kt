@@ -11,6 +11,7 @@ import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import io.github.mojira.arisa.infrastructure.deleteAttachment
+import io.github.mojira.arisa.infrastructure.getGroups
 import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
@@ -18,6 +19,7 @@ import io.github.mojira.arisa.infrastructure.resolveAs
 import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
+import io.github.mojira.arisa.infrastructure.updateConfirmation
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
@@ -40,6 +42,8 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModuleRequest
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModuleRequest
+import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.RevokeConfirmationModuleRequest
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
@@ -172,6 +176,12 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             config[Arisa.Modules.Crash.duplicates],
             config[Arisa.Modules.Crash.maxAttachmentAge]
         )
+        val revokeConfirmationModule = RevokeConfirmationModule(
+            run1ListIfShadow(config[Arisa.shadow], "GetGroups", ::getGroups.partially1(jiraClient)),
+            run1IfShadow(config[Arisa.shadow], "UpdateConfirmation", ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])),
+            config[Arisa.CustomFields.confirmationField]
+        )
+
         // issue.project doesn't contain full project, which is needed for some modules.
         val project = try {
             jiraClient.getProject(issue.project.key)
@@ -251,6 +261,14 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         issue.createdDate
                     )
                 )
+            },
+            "RevokeConfirmation" to runIfWhitelisted(issue, config[Arisa.Modules.RevokeConfirmation.whitelist]) {
+                revokeConfirmationModule(
+                    RevokeConfirmationModuleRequest(
+                        ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String? ?: "Unconfirmed",
+                        issue.changeLog.entries
+                    )
+                )
             }
         )
     }
@@ -273,6 +291,7 @@ private fun runIfWhitelisted(issue: Issue, projects: List<String>, body: () -> E
 
 private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
 private fun <T> log1AndReturnUnit(method: String) = { _: T -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
+private fun <T, R> log1AndReturnList(method: String) = { _: T -> emptyList<R>().right() }.also { log.info("[SHADOW] $method ran") }
 private fun <T, U> log2AndReturnUnit(method: String) = { _: T, _: U -> Unit.right() }
     .also { log.info("[SHADOW] $method ran") }
 
@@ -291,6 +310,16 @@ private fun <T> run1IfShadow(
     func
 } else {
     log1AndReturnUnit(method)
+}
+
+private fun <T, R> run1ListIfShadow(
+    isShadow: Boolean,
+    method: String,
+    func: (T) -> Either<Throwable, List<R>>
+) = if (!isShadow) {
+    func
+} else {
+    log1AndReturnList(method)
 }
 
 private fun <T, U> run2IfShadow(

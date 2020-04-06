@@ -34,9 +34,15 @@ object Arisa : ConfigSpec() {
 
         object Piracy : ModuleConfigSpec() {
             val piracyMessage by optional(
-                "You are currently using a *pirated* version of Minecraft." +
-                        " If you wish to purchase the full game, please visit the [Minecraft Store|https://minecraft.net/store].\r\n" +
-                        "We will not provide support for pirated versions of the game, these versions are modified and may contain malware."
+                "*Thank you for your report!*\n" +
+                        "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
+                        "\n" +
+                        "You are currently using a *non-authorized* version of Minecraft. If you wish to purchase the full game, please visit the [Minecraft Store|https://www.minecraft.net/store/minecraft-java-edition].\n" +
+                        "We will not provide support for pirated versions of the game, these versions are modified and may contain malware.\n" +
+                        "\n" +
+                        "\n" +
+                        "*Quick Links*:\n" +
+                        "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
             )
             val piracySignatures by optional(
                 listOf(
@@ -91,10 +97,16 @@ object Arisa : ConfigSpec() {
 
         object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(
-                "We are unable to diagnose your issue due to the lack of proper debug information. " +
-                        "Please review the [guidelines|https://help.minecraft.net/hc/en-us/articles/360039268071] before reporting issues.\r\n" +
-                        "In case of a game crash, please also attach the crash log from " +
-                        "{{[minecraft/crash-reports/crash-<DATE>-client.txt|https://minecrafthopper.net/help/guides/finding-minecraft-data-folder/]}}."
+                "*Thank you for your report!*\n" +
+                        "However, this issue is {color:#FF5722}*Incomplete*{color}.\n" +
+                        "\n" +
+                        "Your report does not contain enough information. As such, we're unable to understand or reproduce the problem.\n" +
+                        "Please review the guidelines linked below before making further reports.\n" +
+                        "\n" +
+                        "In case of a game crash, be sure to attach the crashlog from {{[minecraft/crash-reports/crash-<DATE>-client.txt|https://minecrafthopper.net/help/guides/finding-minecraft-data-folder/]}}.\n" +
+                        "\n" +
+                        "*Quick Links*:\n" +
+                        "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
             )
         }
 
@@ -102,11 +114,15 @@ object Arisa : ConfigSpec() {
             val maxAttachmentAge by optional(30)
             val crashExtensions by optional(listOf("txt", "log"))
             val duplicateMessage by optional(
-                "Thank you for reporting this issue, however your report is a duplicate of {DUPLICATE} -- " +
-                        "If you have not, please use the [search function|https://bugs.mojang.com/issues/] in the future, " +
-                        "to see if your bug has already been submitted.\r\n" +
-                        "For technical support, please use the " +
-                        "[Minecraft Support Discord|https://discord.gg/58Sxm23]."
+                "*Thank you for your report!*\n" +
+                        "We're actually already tracking this issue in *{DUPLICATE}*, so I've resolved and linked this ticket as a duplicate.\n" +
+                        "\n" +
+                        "If you would like to add a vote and any extra information to the main ticket it would be appreciated.\n" +
+                        "\n" +
+                        "If you haven't already, you might like to make use of the [*+search feature+*|https://bugs.mojang.com/issues/?jql=project=MC] to see if the issue has already been mentioned.\n" +
+                        "\n" +
+                        "*Quick Links*:\n" +
+                        "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
             )
             val moddedMessage by optional(
                 "*Thank you for your report!*\n" +

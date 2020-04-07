@@ -48,11 +48,15 @@ import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
+import java.util.Timer
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.schedule
 
 val log = LoggerFactory.getLogger("Arisa")
 
 fun main() {
+    val cachedTickets = mutableSetOf<String>()
+    val cacheTimer = Timer("RemoveCachedTicket", true)
     val config = Config { addSpec(Arisa) }
         .from.json.watchFile("arisa.json")
         .from.env()
@@ -77,11 +81,16 @@ fun main() {
             jiraClient
                 .searchIssues(jql)
                 .issues
+                .filter { !cachedTickets.contains(it.key) }
                 .map { it.key to executeModules(it) }
                 .forEach { (issue, responses) ->
+                    var successfulModule = false
                     responses.forEach { (module, response) ->
                         when (response) {
-                            is Either.Right -> log.info("[RESPONSE] [$issue] [$module] Successful")
+                            is Either.Right -> {
+                                successfulModule = true
+                                log.info("[RESPONSE] [$issue] [$module] Successful")
+                            }
                             is Either.Left -> {
                                 when (response.a) {
                                     is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
@@ -91,6 +100,11 @@ fun main() {
                                 }
                             }
                         }
+                    }
+                    if (!successfulModule) {
+                        // cache
+                        cachedTickets.add(issue)
+                        cacheTimer.schedule(290_000) { cachedTickets.remove(issue) }
                     }
                 }
         } catch (e: Exception) {

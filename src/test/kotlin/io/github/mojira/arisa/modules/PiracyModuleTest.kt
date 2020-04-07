@@ -9,7 +9,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class PiracyModuleTest : StringSpec({
-    val PIRACYSIGNATURES = listOf("test")
+    val PIRACYSIGNATURES = listOf("test", "signature with whitespaces")
 
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
         val module = PiracyModule({ Unit.right() }, { Unit.right() }, PIRACYSIGNATURES)
@@ -77,6 +77,15 @@ class PiracyModuleTest : StringSpec({
     "should resolve as invalid if environment contains a piracy signature" {
         val module = PiracyModule({ Unit.right() }, { Unit.right() }, PIRACYSIGNATURES)
         val request = PiracyModuleRequest("test", "", "")
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should resolve as invalid if environment contains a piracy signature using whitespaces" {
+        val module = PiracyModule({ Unit.right() }, { Unit.right() }, PIRACYSIGNATURES)
+        val request = PiracyModuleRequest("signature with whitespaces", "", "")
 
         val result = module(request)
 

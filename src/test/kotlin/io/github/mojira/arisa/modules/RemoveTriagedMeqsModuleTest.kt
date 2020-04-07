@@ -13,7 +13,7 @@ import net.rcarz.jiraclient.Comment
 
 class RemoveTriagedMeqsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no priority and no triaged time" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, emptyList())
+        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, emptyList(), "")
         val request = RemoveTriagedMeqsModuleRequest(null, null, emptyList())
 
         val result = module(request)
@@ -22,7 +22,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there is no comments" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, emptyList())
+        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, emptyList(), "")
         val request = RemoveTriagedMeqsModuleRequest("Important", "triaged", emptyList())
 
         val result = module(request)
@@ -31,7 +31,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there is no comments with an MEQS tag" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, listOf("MEQS_WAI"))
+        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, listOf("MEQS_WAI"), "")
         val comment = mockComment("I like QC.")
         val request = RemoveTriagedMeqsModuleRequest("Important", "triaged", listOf(comment, comment))
 
@@ -41,7 +41,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse when updating fails" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> RuntimeException().left() }, listOf("MEQS_WAI"))
+        val module = RemoveTriagedMeqsModule({ _, _ -> RuntimeException().left() }, listOf("MEQS_WAI"), "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveTriagedMeqsModuleRequest("Important", "triaged", listOf(comment))
 
@@ -53,7 +53,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse with all exceptions when updating fails" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> RuntimeException().left() }, listOf("MEQS_WAI"))
+        val module = RemoveTriagedMeqsModule({ _, _ -> RuntimeException().left() }, listOf("MEQS_WAI"), "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveTriagedMeqsModuleRequest("Important", "triaged", listOf(comment, comment))
 
@@ -65,7 +65,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should process tickets with Mojang Priority" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, listOf("MEQS_WAI"))
+        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, listOf("MEQS_WAI"), "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveTriagedMeqsModuleRequest("Important", null, listOf(comment))
 
@@ -75,7 +75,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should process tickets with triaged time" {
-        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, listOf("MEQS_WAI"))
+        val module = RemoveTriagedMeqsModule({ _, _ -> Unit.right() }, listOf("MEQS_WAI"), "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
 
@@ -85,8 +85,12 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should replace only MEQS of a tag" {
-        val module = RemoveTriagedMeqsModule({ _, body -> body.shouldBe("_WAI I like QC.").right() }, listOf("MEQS_WAI"))
-        val comment = mockComment("MEQS_WAI I like QC.")
+        val module = RemoveTriagedMeqsModule(
+            { _, body -> body.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() },
+            listOf("MEQS_WAI"),
+            "Test."
+        )
+        val comment = mockComment("MEQS_WAI\nI like QC.")
         val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
 
         val result = module(request)
@@ -95,8 +99,11 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should not replace MEQS of tags that aren't configured" {
-        val module = RemoveTriagedMeqsModule({ _, body -> body.shouldBe("_WAI I like QC.\nMEQS_TRIVIAL").right() }, listOf("MEQS_WAI"))
-        val comment = mockComment("MEQS_WAI I like QC.\nMEQS_TRIVIAL")
+        val module = RemoveTriagedMeqsModule(
+            { _, body -> body.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC.").right() },
+            listOf("MEQS_WAI"),
+            "Test.")
+        val comment = mockComment("MEQS_WAI\nMEQS_TRIVIAL\nI like QC.")
         val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
 
         val result = module(request)
@@ -106,10 +113,11 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
 
     "should replace MEQS of all configured tags" {
         val module = RemoveTriagedMeqsModule(
-            { _, body -> body.shouldBe("_WAI\n_WONT_FIX\nI like QC.").right() },
-            listOf("MEQS_WAI", "MEQS_WONT_FIX")
+            { _, body -> body.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_ARISA_REMOVED_WONTFIX Removal Reason: Test.\nI like QC.").right() },
+            listOf("MEQS_WAI", "MEQS_WONTFIX"),
+            "Test."
         )
-        val comment = mockComment("MEQS_WAI\nMEQS_WONT_FIX\nI like QC.")
+        val comment = mockComment("MEQS_WAI\nMEQS_WONTFIX\nI like QC.")
         val request = RemoveTriagedMeqsModuleRequest(null, "triaged", listOf(comment))
 
         val result = module(request)

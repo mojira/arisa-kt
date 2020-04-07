@@ -15,7 +15,7 @@ import net.rcarz.jiraclient.Visibility
 class RemoveNonStaffMeqsModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no comments" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val request = RemoveNonStaffMeqsModuleRequest(emptyList())
 
         val result = module(request)
@@ -24,7 +24,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there is no comments with an MEQS tag" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val comment = mockComment("I like QC.")
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
 
@@ -34,7 +34,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse for a staff restricted comment" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val visibility = mockVisibility("group", "staff")
         val comment = mockComment("MEQS_WAI I like QC.", visibility)
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
@@ -45,7 +45,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse if MEQS is not part of a tag" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val comment = mockComment("My server has 1 MEQS of RAM and it's crashing. Also I don't know how to spell MEGS")
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
 
@@ -55,7 +55,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse when updating fails" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> RuntimeException().left() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> RuntimeException().left() }, "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
 
@@ -67,7 +67,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse with all exceptions when updating fails" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> RuntimeException().left() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> RuntimeException().left() }, "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment, comment))
 
@@ -79,7 +79,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should update comment when there is an unrestricted MEQS comment" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val comment = mockComment("MEQS_WAI I like QC.")
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
 
@@ -89,7 +89,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should update comment when there is a MEQS comment restricted to a group other than staff" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val visibility = mockVisibility("group", "users")
         val comment = mockComment("MEQS_WAI I like QC.", visibility)
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
@@ -100,7 +100,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should update comment when there is a MEQS comment restricted to something that is not a group" {
-        val module = RemoveNonStaffMeqsModule { _, _ -> Unit.right() }
+        val module = RemoveNonStaffMeqsModule({ _, _ -> Unit.right() }, "")
         val visibility = mockVisibility("user", "staff")
         val comment = mockComment("MEQS_WAI I like QC.", visibility)
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
@@ -111,8 +111,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should only remove MEQS of the comment" {
-        val module = RemoveNonStaffMeqsModule { _, body -> body.shouldBe("_WAI I like QC.").right() }
-        val comment = mockComment("MEQS_WAI I like QC.")
+        val module = RemoveNonStaffMeqsModule({ _, body -> body.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }, "Test.")
+        val comment = mockComment("MEQS_WAI\nI like QC.")
         val request = RemoveNonStaffMeqsModuleRequest(listOf(comment))
 
         val result = module(request)

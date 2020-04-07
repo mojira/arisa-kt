@@ -29,6 +29,73 @@ const val EXAMPLE_CRASH = "---- Minecraft Crash Report ----\n" +
         "\tJava Version: 1.8.0_131, Oracle Corporation\n" +
         "Is Modded: Probably not. Jar signature remains and client brand is untouched.\n"
 
+const val SERVER_UNMODDED_CRASH = "---- Minecraft Crash Report ----\n" +
+        "// Oh - I know what I did wrong!\n" +
+        "\n" +
+        "Time: 6/5/18 9:20 PM\n" +
+        "Description: Exception generating new chunk\n" +
+        "\n" +
+        "java.util.concurrent.ExecutionException: java.lang.RuntimeException: We are asking a region for a chunk out of bound | -174 8\n" +
+        "\n" +
+        "-- System Details --\n" +
+        "Details:\n" +
+        "\tMinecraft Version: 1.13-pre1\n" +
+        "\tOperating System: Linux (amd64) version 4.4.0-98-generic\n" +
+        "\tJava Version: 1.8.0_151, Oracle Corporation\n" +
+        "\tJava VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation\n" +
+        "\tMemory: 614132352 bytes (585 MB) / 988282880 bytes (942 MB) up to 3340763136 bytes (3186 MB)\n" +
+        "\tJVM Flags: 2 total; -Xmx3584M -XX:MaxPermSize=256M\n" +
+        "\tProfiler Position: N/A (disabled)\n" +
+        "\tPlayer Count: 1 / 20; [so['CENSORED'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
+        "\tData Packs: vanilla\n" +
+        "\tIs Modded: Unknown (can't tell)\n" +
+        "\tType: Dedicated Server (map_server.txt)\n"
+
+const val SERVER_MODDED_CRASH = "---- Minecraft Crash Report ----\n" +
+        "// Oh - I know what I did wrong!\n" +
+        "\n" +
+        "Time: 6/5/18 9:20 PM\n" +
+        "Description: Exception generating new chunk\n" +
+        "\n" +
+        "java.util.concurrent.ExecutionException: java.lang.RuntimeException: We are asking a region for a chunk out of bound | -174 8\n" +
+        "\n" +
+        "-- System Details --\n" +
+        "Details:\n" +
+        "\tMinecraft Version: 1.13-pre1\n" +
+        "\tOperating System: Linux (amd64) version 4.4.0-98-generic\n" +
+        "\tJava Version: 1.8.0_151, Oracle Corporation\n" +
+        "\tJava VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation\n" +
+        "\tMemory: 614132352 bytes (585 MB) / 988282880 bytes (942 MB) up to 3340763136 bytes (3186 MB)\n" +
+        "\tJVM Flags: 2 total; -Xmx3584M -XX:MaxPermSize=256M\n" +
+        "\tProfiler Position: N/A (disabled)\n" +
+        "\tPlayer Count: 1 / 20; [so['CENSORED'/351, l='Vanilla', x=8.50, y=72.00, z=121.50]]\n" +
+        "\tData Packs: vanilla\n" +
+        "\tIs Modded: Definitely; Server brand changed to 'fabric'\n" +
+        "\tType: Dedicated Server (map_server.txt)\n"
+
+const val SERVER_MODDED_CRASH_2 = "---- Minecraft Crash Report ----\n" +
+        "// Surprise! Haha. Well, this is awkward.\n" +
+        "\n" +
+        "Time: 04.10.19 17:39\n" +
+        "Description: Exception ticking world\n" +
+        "\n" +
+        "java.lang.NoSuchFieldError: DO_DAYLIGHT_CYCLE\n" +
+        "\n" +
+        "-- System Details --\n" +
+        "Details:\n" +
+        "\tMinecraft Version: 1.14.4\n" +
+        "\tMinecraft Version ID: 1.14.4\n" +
+        "\tOperating System: Windows 10 (amd64) version 10.0\n" +
+        "\tJava Version: 1.8.0_51, Oracle Corporation\n" +
+        "\tJava VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation\n" +
+        "\tMemory: 1192941208 bytes (1137 MB) / 1845493760 bytes (1760 MB) up to 2147483648 bytes (2048 MB)\n" +
+        "\tCPUs: 4\n" +
+        "\tJVM Flags: 9 total; -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xss1M -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M\n" +
+        "\tPlayer Count: 0 / 8; []\n" +
+        "\tData Packs: vanilla\n" +
+        "\tType: Integrated Server (map_client.txt)\n" +
+        "\tIs Modded: Very likely; Jar signature invalidated\n"
+
 const val EXAMPLE_CRASH_2 = "---- Minecraft Crash Report ----\n" +
         "// I feel sad now :(\n" +
         "\n" +
@@ -240,6 +307,68 @@ class CrashModuleTest : StringSpec({
         val result = module(request)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when attached crash is not modded (Unknown)" {
+        val module = CrashModule(
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            listOf("txt"),
+            listOf(),
+            10
+        )
+
+        val attachment = mockAttachment("crash.txt", Calendar.getInstance().time, SERVER_UNMODDED_CRASH.toByteArray())
+        val request = CrashModuleRequest(listOf(attachment), "", Calendar.getInstance().time)
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should resolve as invalid when reported server crash is modded" {
+        var resolvedAsInvalid = false
+
+        val module = CrashModule(
+            { resolvedAsInvalid = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            listOf("txt"),
+            emptyList(),
+            10
+        )
+        val request = CrashModuleRequest(emptyList(), SERVER_MODDED_CRASH, Calendar.getInstance().time)
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsInvalid.shouldBeTrue()
+    }
+
+    "should resolve as invalid when reported server crash is very likely modded" {
+        var resolvedAsInvalid = false
+
+        val module = CrashModule(
+            { resolvedAsInvalid = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            listOf("txt"),
+            emptyList(),
+            10
+        )
+        val request = CrashModuleRequest(emptyList(), SERVER_MODDED_CRASH_2, Calendar.getInstance().time)
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsInvalid.shouldBeTrue()
     }
 
     "should resolve as invalid when reported crash is modded" {

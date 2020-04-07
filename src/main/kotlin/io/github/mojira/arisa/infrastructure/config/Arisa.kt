@@ -3,8 +3,6 @@ package io.github.mojira.arisa.infrastructure.config
 import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
-    val shadow by optional(false)
-
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
@@ -21,6 +19,14 @@ object Arisa : ConfigSpec() {
         val confirmationField by optional("customfield_10500")
         val mojangPriorityField by optional("customfield_12200")
         val triagedTimeField by optional("customfield_12201")
+    }
+
+    object PrivateSecurityLevel : ConfigSpec() {
+        val default by optional("10318")
+        val special by optional(mapOf(
+            Pair("MCL", "10502"),
+            Pair("MCAPI", "10313")
+        ))
     }
 
     object Modules : ConfigSpec() {
@@ -81,6 +87,7 @@ object Arisa : ConfigSpec() {
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
             val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONTFIX"))
+            val removalReason by optional("Ticket has been triaged.")
         }
 
         object FutureVersion : ModuleConfigSpec() {
@@ -93,7 +100,9 @@ object Arisa : ConfigSpec() {
 
         object ReopenAwaiting : ModuleConfigSpec()
 
-        object RemoveNonStaffMeqs : ModuleConfigSpec()
+        object RemoveNonStaffMeqs : ModuleConfigSpec() {
+            val removalReason by optional("Comment was not properly staff-restricted.")
+        }
 
         object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(
@@ -155,6 +164,13 @@ object Arisa : ConfigSpec() {
                     CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")
                 )
             )
+        }
+
+        object RevokeConfirmation : ModuleConfigSpec()
+
+        object KeepPrivate : ModuleConfigSpec() {
+            val tag by optional("MEQS_KEEP_PRIVATE")
+            val keepPrivateMessage by optional("Please *do not* remove the _security level_ from issues containing private information or describing exploits.")
         }
     }
 }

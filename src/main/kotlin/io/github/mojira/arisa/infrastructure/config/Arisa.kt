@@ -93,7 +93,7 @@ object Arisa : ConfigSpec() {
 
         object FutureVersion : ModuleConfigSpec() {
             val futureVersionMessage by optional(
-                "Please *do not* mark _unreleased versions_ as affected.\r\nYou don't have access to them yet."
+                "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}"
                 {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
                 )
         }
@@ -174,7 +174,8 @@ object Arisa : ConfigSpec() {
 
         object KeepPrivate : ModuleConfigSpec() {
             val tag by optional("MEQS_KEEP_PRIVATE")
-            val keepPrivateMessage by optional("Please *do not* remove the _security level_ from issues containing private information or describing exploits.")
+            val keepPrivateMessage by optional("{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel})
+            {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
         }
     }
 }

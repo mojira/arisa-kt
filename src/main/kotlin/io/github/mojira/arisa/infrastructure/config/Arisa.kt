@@ -129,13 +129,13 @@ object Arisa : ConfigSpec() {
                 "*Thank you for your report!*\n" +
                         "We're actually already tracking this issue in *{DUPLICATE}*, so I've resolved and linked this ticket as a duplicate.\n" +
                         "\n" +
-                        "If you would like to add a vote and any extra information to the main ticket it would be appreciated.\n" +
+                        "Please take a look at the linked ticket and see if there is any fix available.\n" +
                         "\n" +
-                        "If you haven't already, you might like to make use of the [*+search feature+*|https://bugs.mojang.com/issues/?jql=project=MC] to see if the issue has already been mentioned.\n" +
+                        "If you need additional help with a technical problem, please visit [Community Support|https://discord.gg/58Sxm23].\n" +
                         "\n" +
                         "*Quick Links*:\n" +
-                        "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
-                "{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
+                        "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]" +
+                        "{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
                 )
             val moddedMessage by optional(
                 "*Thank you for your report!*\n" +

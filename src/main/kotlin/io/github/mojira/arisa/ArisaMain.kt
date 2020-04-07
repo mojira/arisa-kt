@@ -51,7 +51,7 @@ import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Timer
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
 

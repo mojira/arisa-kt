@@ -294,7 +294,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
 
                     )
                 )
-            }
+            },
             "KeepPrivate" to runIfWhitelisted(issue, config[Arisa.Modules.KeepPrivate.whitelist]) {
                 keepPrivateModule(
                     KeepPrivateModuleRequest(

@@ -15,7 +15,8 @@ data class RemoveTriagedMeqsModuleRequest(
 
 class RemoveTriagedMeqsModule(
     val updateComment: (comment: Comment, body: String) -> Either<Throwable, Unit>,
-    val meqsTags: List<String>
+    val meqsTags: List<String>,
+    val removalReason: String
 ) : Module<RemoveTriagedMeqsModuleRequest> {
     override fun invoke(request: RemoveTriagedMeqsModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
         val meqsComments = request.comments.filter(::hasMeqsTag.partially2(meqsTags))
@@ -34,7 +35,7 @@ class RemoveTriagedMeqsModule(
             meqsTags.joinToString("|") { it.replace("MEQS", "") } +
             ")"
         ).toRegex()
-        return regex.replace(comment.body) { it.groupValues[1] }
+        return regex.replace(comment.body) { "MEQS_ARISA_REMOVED${it.groupValues[1]} Removal Reason: $removalReason" }
     }
 
     private fun assertTriaged(priority: String?, triagedTime: String?) = when {

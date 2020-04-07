@@ -74,6 +74,7 @@ object Arisa : ConfigSpec() {
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
             val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONTFIX"))
+            val removalReason by optional("Ticket has been triaged.")
         }
 
         object FutureVersion : ModuleConfigSpec() {
@@ -86,7 +87,9 @@ object Arisa : ConfigSpec() {
 
         object ReopenAwaiting : ModuleConfigSpec()
 
-        object RemoveNonStaffMeqs : ModuleConfigSpec()
+        object RemoveNonStaffMeqs : ModuleConfigSpec() {
+            val removalReason by optional("Comment was not properly staff-restricted.")
+        }
 
         object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(

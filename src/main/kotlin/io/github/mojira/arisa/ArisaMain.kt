@@ -2,7 +2,6 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import arrow.core.left
-import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
@@ -52,7 +51,7 @@ import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
-import java.util.Timer
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
 
@@ -137,72 +136,56 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         }
 
         val attachmentModule = AttachmentModule(
-            run1IfShadow(config[Arisa.shadow], "DeleteAttachment", ::deleteAttachment.partially1(jiraClient)),
+            ::deleteAttachment.partially1(jiraClient),
             config[Arisa.Modules.Attachment.extensionBlacklist]
         )
         val chkModule = CHKModule(
-            run0IfShadow(
-                config[Arisa.shadow],
-                "UpdateCHK",
-                ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
-            )
+            ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
         )
         val reopenAwaitingModule = ReopenAwaitingModule(
-            run0IfShadow(config[Arisa.shadow], "ReopenIssue", ::reopenIssue.partially1(issue))
+            ::reopenIssue.partially1(issue)
         )
         val piracyModule = PiracyModule(
-            run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAs.partially1(issue).partially1("Invalid")),
-            run0IfShadow(
-                config[Arisa.shadow],
-                "AddComment",
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage])
-            ),
+            ::resolveAs.partially1(issue).partially1("Invalid"),
+            ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.piracyMessage]),
             config[Arisa.Modules.Piracy.piracySignatures]
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody),
+            ::updateCommentBody,
             config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
             config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
         )
         val futureVersionModule = FutureVersionModule(
-            run1IfShadow(config[Arisa.shadow], "RemoveAffectedVersion", ::removeAffectedVersion.partially1(issue)),
-            run1IfShadow(config[Arisa.shadow], "AddAffectedVersion", ::addAffectedVersion.partially1(issue)),
-            run0IfShadow(
-                config[Arisa.shadow],
-                "AddComment",
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.futureVersionMessage])
-            )
+            ::removeAffectedVersion.partially1(issue),
+            ::addAffectedVersion.partially1(issue),
+            ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.futureVersionMessage])
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff")),
+            ::restrictCommentToGroup.partially2("staff"),
             config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
         )
         val emptyModule = EmptyModule(
-            run0IfShadow(config[Arisa.shadow], "ResolveAsIncomplete", ::resolveAs.partially1(issue).partially1("Incomplete")),
-            run0IfShadow(
-                config[Arisa.shadow],
-                "AddComment",
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.emptyMessage])
-            )
+            ::resolveAs.partially1(issue).partially1("Incomplete"),
+            ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.emptyMessage])
         )
         val crashModule = CrashModule(
-            run0IfShadow(config[Arisa.shadow], "ResolveAsInvalid", ::resolveAs.partially1(issue).partially1("Invalid")),
-            run0IfShadow(config[Arisa.shadow], "ResolveAsDuplicate", ::resolveAs.partially1(issue).partially1("Duplicate")),
-            run1IfShadow(config[Arisa.shadow], "AddDuplicatesLink", ::link.partially1(issue).partially1("Duplicate")),
-            run0IfShadow(config[Arisa.shadow], "AddModdedComment", ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage])),
-            run1IfShadow(config[Arisa.shadow], "AddDuplicateComment") { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key)) },
+            ::resolveAs.partially1(issue).partially1("Invalid"),
+            ::resolveAs.partially1(issue).partially1("Duplicate"),
+            ::link.partially1(issue).partially1("Duplicate"),
+            ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage]),
+            { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key)) },
             config[Arisa.Modules.Crash.crashExtensions],
             config[Arisa.Modules.Crash.duplicates],
             config[Arisa.Modules.Crash.maxAttachmentAge]
         )
         val revokeConfirmationModule = RevokeConfirmationModule(
-            run1ListIfShadow(config[Arisa.shadow], "GetGroups", ::getGroups.partially1(jiraClient)),
-            run1IfShadow(config[Arisa.shadow], "UpdateConfirmation", ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])),
+            ::getGroups.partially1(jiraClient),
+            ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField]),
             config[Arisa.CustomFields.confirmationField]
         )
         val keepPrivateModule = KeepPrivateModule(
-            run1IfShadow(config[Arisa.shadow], "UpdateSecurity", ::updateSecurity.partially1(issue)),
-            run0IfShadow(config[Arisa.shadow], "UpdateSecurity", ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.keepPrivateMessage])),
+            ::updateSecurity.partially1(issue),
+            ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.keepPrivateMessage]),
             config[Arisa.Modules.KeepPrivate.tag]
         )
 
@@ -289,7 +272,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             "RevokeConfirmation" to runIfWhitelisted(issue, config[Arisa.Modules.RevokeConfirmation.whitelist]) {
                 revokeConfirmationModule(
                     RevokeConfirmationModuleRequest(
-                        ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String? ?: "Unconfirmed",
+                        ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String?
+                            ?: "Unconfirmed",
                         issue.changeLog.entries
 
                     )
@@ -299,7 +283,10 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                 keepPrivateModule(
                     KeepPrivateModuleRequest(
                         issue.security?.id,
-                        config[Arisa.PrivateSecurityLevel.special].getOrDefault(project?.key, config[Arisa.PrivateSecurityLevel.default]),
+                        config[Arisa.PrivateSecurityLevel.special].getOrDefault(
+                            project?.key,
+                            config[Arisa.PrivateSecurityLevel.default]
+                        ),
                         issue.comments
                     )
                 )
@@ -322,48 +309,5 @@ private fun runIfWhitelisted(issue: Issue, projects: List<String>, body: () -> E
     } else {
         OperationNotNeededModuleResponse.left()
     }
-
-private fun log0AndReturnUnit(method: String) = ({ Unit.right() }).also { log.info("[SHADOW] $method ran") }
-private fun <T> log1AndReturnUnit(method: String) = { _: T -> Unit.right() }.also { log.info("[SHADOW] $method ran") }
-private fun <T, R> log1AndReturnList(method: String) = { _: T -> emptyList<R>().right() }.also { log.info("[SHADOW] $method ran") }
-private fun <T, U> log2AndReturnUnit(method: String) = { _: T, _: U -> Unit.right() }
-    .also { log.info("[SHADOW] $method ran") }
-
-private fun run0IfShadow(isShadow: Boolean, method: String, func: () -> Either<Throwable, Unit>) =
-    if (!isShadow) {
-        func
-    } else {
-        log0AndReturnUnit(method)
-    }
-
-private fun <T> run1IfShadow(
-    isShadow: Boolean,
-    method: String,
-    func: (T) -> Either<Throwable, Unit>
-) = if (!isShadow) {
-    func
-} else {
-    log1AndReturnUnit(method)
-}
-
-private fun <T, R> run1ListIfShadow(
-    isShadow: Boolean,
-    method: String,
-    func: (T) -> Either<Throwable, List<R>>
-) = if (!isShadow) {
-    func
-} else {
-    log1AndReturnList(method)
-}
-
-private fun <T, U> run2IfShadow(
-    isShadow: Boolean,
-    method: String,
-    func: (T, U) -> Either<Throwable, Unit>
-) = if (!isShadow) {
-    func
-} else {
-    log2AndReturnUnit(method)
-}
 
 fun isWhitelisted(projects: List<String>, issue: Issue) = projects.contains(issue.project.key)

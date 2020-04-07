@@ -3,8 +3,6 @@ package io.github.mojira.arisa.infrastructure.config
 import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
-    val shadow by optional(false)
-
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()

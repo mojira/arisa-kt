@@ -148,7 +148,8 @@ object Arisa : ConfigSpec() {
                         "* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n" +
                         "* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n" +
                         "\n" +
-                        "*Quick Links*:
+                        "\n" +
+                        "*Quick Links*:\n" +
                         "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\"
                 {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
                 )

@@ -23,6 +23,14 @@ object Arisa : ConfigSpec() {
         val triagedTimeField by optional("customfield_12201")
     }
 
+    object PrivateSecurityLevel : ConfigSpec() {
+        val default by optional("10318")
+        val special by optional(mapOf(
+            Pair("MCL", "10502"),
+            Pair("MCAPI", "10313")
+        ))
+    }
+
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
             val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
@@ -133,6 +141,11 @@ object Arisa : ConfigSpec() {
                     CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")
                 )
             )
+        }
+
+        object KeepPrivate : ModuleConfigSpec() {
+            val tag by optional("MEQS_KEEP_PRIVATE")
+            val keepPrivateMessage by optional("Please *do not* remove the _security level_ from issues containing private information or describing exploits.")
         }
     }
 }

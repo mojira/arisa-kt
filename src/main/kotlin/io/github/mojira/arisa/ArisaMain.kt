@@ -18,6 +18,7 @@ import io.github.mojira.arisa.infrastructure.resolveAs
 import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
+import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
@@ -29,6 +30,8 @@ import io.github.mojira.arisa.modules.EmptyModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.FutureVersionModuleRequest
+import io.github.mojira.arisa.modules.KeepPrivateModule
+import io.github.mojira.arisa.modules.KeepPrivateModuleRequest
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
@@ -172,6 +175,13 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             config[Arisa.Modules.Crash.duplicates],
             config[Arisa.Modules.Crash.maxAttachmentAge]
         )
+
+        val keepPrivateModule = KeepPrivateModule(
+            run1IfShadow(config[Arisa.shadow], "UpdateSecurity", ::updateSecurity.partially1(issue)),
+            run0IfShadow(config[Arisa.shadow], "UpdateSecurity", ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.keepPrivateMessage])),
+            config[Arisa.Modules.KeepPrivate.tag]
+        )
+
         // issue.project doesn't contain full project, which is needed for some modules.
         val project = try {
             jiraClient.getProject(issue.project.key)
@@ -249,6 +259,15 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         issue.attachments,
                         issue.description,
                         issue.createdDate
+                    )
+                )
+            },
+            "KeepPrivate" to runIfWhitelisted(issue, config[Arisa.Modules.KeepPrivate.whitelist]) {
+                keepPrivateModule(
+                    KeepPrivateModuleRequest(
+                        issue.security?.id,
+                        config[Arisa.PrivateSecurityLevel.special].getOrDefault(project?.key, config[Arisa.PrivateSecurityLevel.default]),
+                        issue.comments
                     )
                 )
             }

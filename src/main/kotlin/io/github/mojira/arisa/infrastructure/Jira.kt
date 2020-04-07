@@ -104,3 +104,15 @@ fun addAffectedVersion(issue: Issue, version: Version) = runBlocking {
             .execute()
     }
 }
+
+fun updateSecurity(issue: Issue, levelId: String) = runBlocking {
+    Either.catch {
+        val securityJson = JSONObject()
+        securityJson["id"] = levelId
+
+        issue
+            .update()
+            .field("security", securityJson)
+            .execute()
+    }
+}

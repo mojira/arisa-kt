@@ -143,6 +143,8 @@ object Arisa : ConfigSpec() {
             )
         }
 
+        object RevokeConfirmation : ModuleConfigSpec()
+
         object KeepPrivate : ModuleConfigSpec() {
             val tag by optional("MEQS_KEEP_PRIVATE")
             val keepPrivateMessage by optional("Please *do not* remove the _security level_ from issues containing private information or describing exploits.")

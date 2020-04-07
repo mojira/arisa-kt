@@ -23,6 +23,14 @@ object Arisa : ConfigSpec() {
         val triagedTimeField by optional("customfield_12201")
     }
 
+    object PrivateSecurityLevel : ConfigSpec() {
+        val default by optional("10318")
+        val special by optional(mapOf(
+            Pair("MCL", "10502"),
+            Pair("MCAPI", "10313")
+        ))
+    }
+
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
             val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
@@ -74,6 +82,7 @@ object Arisa : ConfigSpec() {
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
             val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONTFIX"))
+            val removalReason by optional("Ticket has been triaged.")
         }
 
         object FutureVersion : ModuleConfigSpec() {
@@ -86,7 +95,9 @@ object Arisa : ConfigSpec() {
 
         object ReopenAwaiting : ModuleConfigSpec()
 
-        object RemoveNonStaffMeqs : ModuleConfigSpec()
+        object RemoveNonStaffMeqs : ModuleConfigSpec() {
+            val removalReason by optional("Comment was not properly staff-restricted.")
+        }
 
         object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(
@@ -133,6 +144,11 @@ object Arisa : ConfigSpec() {
         }
 
         object RevokeConfirmation : ModuleConfigSpec()
+      
+        object KeepPrivate : ModuleConfigSpec() {
+            val tag by optional("MEQS_KEEP_PRIVATE")
+            val keepPrivateMessage by optional("Please *do not* remove the _security level_ from issues containing private information or describing exploits.")
+        }
     }
 }
 

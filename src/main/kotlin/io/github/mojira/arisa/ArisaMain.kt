@@ -20,6 +20,7 @@ import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.infrastructure.updateConfirmation
+import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.AttachmentModuleRequest
 import io.github.mojira.arisa.modules.CHKModule
@@ -31,6 +32,8 @@ import io.github.mojira.arisa.modules.EmptyModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.FutureVersionModuleRequest
+import io.github.mojira.arisa.modules.KeepPrivateModule
+import io.github.mojira.arisa.modules.KeepPrivateModuleRequest
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
@@ -49,11 +52,15 @@ import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import org.slf4j.LoggerFactory
 import java.text.SimpleDateFormat
+import java.util.Timer
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.schedule
 
 val log = LoggerFactory.getLogger("Arisa")
 
 fun main() {
+    val cachedTickets = mutableSetOf<String>()
+    val cacheTimer = Timer("RemoveCachedTicket", true)
     val config = Config { addSpec(Arisa) }
         .from.json.watchFile("arisa.json")
         .from.env()
@@ -78,11 +85,16 @@ fun main() {
             jiraClient
                 .searchIssues(jql)
                 .issues
+                .filter { !cachedTickets.contains(it.key) }
                 .map { it.key to executeModules(it) }
                 .forEach { (issue, responses) ->
+                    var successfulModule = false
                     responses.forEach { (module, response) ->
                         when (response) {
-                            is Either.Right -> log.info("[RESPONSE] [$issue] [$module] Successful")
+                            is Either.Right -> {
+                                successfulModule = true
+                                log.info("[RESPONSE] [$issue] [$module] Successful")
+                            }
                             is Either.Left -> {
                                 when (response.a) {
                                     is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [$module] Operation not needed")
@@ -92,6 +104,11 @@ fun main() {
                                 }
                             }
                         }
+                    }
+                    if (!successfulModule) {
+                        // cache
+                        cachedTickets.add(issue)
+                        cacheTimer.schedule(290_000) { cachedTickets.remove(issue) }
                     }
                 }
         } catch (e: Exception) {
@@ -144,7 +161,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
             run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::updateCommentBody),
-            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags]
+            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
+            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
         )
         val futureVersionModule = FutureVersionModule(
             run1IfShadow(config[Arisa.shadow], "RemoveAffectedVersion", ::removeAffectedVersion.partially1(issue)),
@@ -156,7 +174,8 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             )
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
-            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff"))
+            run2IfShadow(config[Arisa.shadow], "UpdateCommentBody", ::restrictCommentToGroup.partially2("staff")),
+            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
         )
         val emptyModule = EmptyModule(
             run0IfShadow(config[Arisa.shadow], "ResolveAsIncomplete", ::resolveAs.partially1(issue).partially1("Incomplete")),
@@ -180,6 +199,11 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             run1ListIfShadow(config[Arisa.shadow], "GetGroups", ::getGroups.partially1(jiraClient)),
             run1IfShadow(config[Arisa.shadow], "UpdateConfirmation", ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])),
             config[Arisa.CustomFields.confirmationField]
+        )
+        val keepPrivateModule = KeepPrivateModule(
+            run1IfShadow(config[Arisa.shadow], "UpdateSecurity", ::updateSecurity.partially1(issue)),
+            run0IfShadow(config[Arisa.shadow], "UpdateSecurity", ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.keepPrivateMessage])),
+            config[Arisa.Modules.KeepPrivate.tag]
         )
 
         // issue.project doesn't contain full project, which is needed for some modules.
@@ -267,6 +291,16 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                     RevokeConfirmationModuleRequest(
                         ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String? ?: "Unconfirmed",
                         issue.changeLog.entries
+
+                    )
+                )
+            }
+            "KeepPrivate" to runIfWhitelisted(issue, config[Arisa.Modules.KeepPrivate.whitelist]) {
+                keepPrivateModule(
+                    KeepPrivateModuleRequest(
+                        issue.security?.id,
+                        config[Arisa.PrivateSecurityLevel.special].getOrDefault(project?.key, config[Arisa.PrivateSecurityLevel.default]),
+                        issue.comments
                     )
                 )
             }

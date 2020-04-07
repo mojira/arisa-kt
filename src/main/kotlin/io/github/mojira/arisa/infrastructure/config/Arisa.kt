@@ -93,7 +93,7 @@ object Arisa : ConfigSpec() {
 
         object FutureVersion : ModuleConfigSpec() {
             val futureVersionMessage by optional(
-                "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}"
+                "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n" +
                 "{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
                 )
         }

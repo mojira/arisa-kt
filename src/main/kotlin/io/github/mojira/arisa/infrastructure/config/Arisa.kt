@@ -43,7 +43,8 @@ object Arisa : ConfigSpec() {
                         "\n" +
                         "*Quick Links*:\n" +
                         "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
-            )
+                        {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
+                        )
             val piracySignatures by optional(
                 listOf(
                     "Minecraft Launcher null",
@@ -86,7 +87,8 @@ object Arisa : ConfigSpec() {
         object FutureVersion : ModuleConfigSpec() {
             val futureVersionMessage by optional(
                 "Please *do not* mark _unreleased versions_ as affected.\r\nYou don't have access to them yet."
-            )
+                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
+                )
         }
 
         object CHK : ModuleConfigSpec()
@@ -107,7 +109,8 @@ object Arisa : ConfigSpec() {
                         "\n" +
                         "*Quick Links*:\n" +
                         "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
-            )
+                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
+                )
         }
 
         object Crash : ModuleConfigSpec() {
@@ -123,7 +126,8 @@ object Arisa : ConfigSpec() {
                         "\n" +
                         "*Quick Links*:\n" +
                         "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
-            )
+                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
+                )
             val moddedMessage by optional(
                 "*Thank you for your report!*\n" +
                         "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
@@ -135,10 +139,9 @@ object Arisa : ConfigSpec() {
                         "* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n" +
                         "* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n" +
                         "\n" +
-                        "\n" +
                         "*Quick Links*:
                         "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\"
-                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in https://discordapp.com/invite/rpCyfKV or https://www.reddit.com/r/Mojira/{color}"
+                {color:#bbb}-- "I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
                 )
 
             val duplicates by optional(

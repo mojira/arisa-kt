@@ -30,14 +30,15 @@ object Arisa : ConfigSpec() {
     }
 
     object Modules : ConfigSpec() {
-
-        object Attachment : ConfigSpec() {
+        open class ModuleConfigSpec : ConfigSpec() {
             val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        }
+
+        object Attachment : ModuleConfigSpec() {
             val extensionBlacklist by optional(listOf("jar", "exe", "com", "bat", "msi", "run", "lnk", "dmg"))
         }
 
-        object Piracy : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object Piracy : ModuleConfigSpec() {
             val piracyMessage by optional(
         "*Thank you for your report!*\n" +
                 "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
@@ -85,35 +86,27 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object RemoveTriagedMeqs : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object RemoveTriagedMeqs : ModuleConfigSpec() {
             val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONTFIX"))
             val removalReason by optional("Ticket has been triaged.")
         }
 
-        object FutureVersion : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object FutureVersion : ModuleConfigSpec() {
             val futureVersionMessage by optional(
                 "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n" +
                 "{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
             )
         }
 
-        object CHK : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
-        }
+        object CHK : ModuleConfigSpec()
 
-        object ReopenAwaiting : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
-        }
+        object ReopenAwaiting : ModuleConfigSpec()
 
-        object RemoveNonStaffMeqs : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object RemoveNonStaffMeqs : ModuleConfigSpec() {
             val removalReason by optional("Comment was not properly staff-restricted.")
         }
 
-        object Empty : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(
         "*Thank you for your report!*\n" +
                 "However, this issue is {color:#FF5722}*Incomplete*{color}.\n" +
@@ -129,8 +122,7 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object Crash : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object Crash : ModuleConfigSpec() {
             val maxAttachmentAge by optional(30)
             val crashExtensions by optional(listOf("txt", "log"))
             val duplicateMessage by optional(
@@ -178,12 +170,9 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object RevokeConfirmation : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
-        }
+        object RevokeConfirmation : ModuleConfigSpec()
 
-        object KeepPrivate : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        object KeepPrivate : ModuleConfigSpec() {
             val tag by optional("MEQS_KEEP_PRIVATE")
             val keepPrivateMessage by optional(
             "{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}\n" +

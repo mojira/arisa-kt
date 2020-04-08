@@ -180,8 +180,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val revokeConfirmationModule = RevokeConfirmationModule(
             ::getGroups.partially1(jiraClient),
-            ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField]),
-            config[Arisa.CustomFields.confirmationField]
+            ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])
         )
         val keepPrivateModule = KeepPrivateModule(
             ::updateSecurity.partially1(issue),

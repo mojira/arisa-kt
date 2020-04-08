@@ -162,7 +162,7 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
         )
         val removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(
             ::restrictCommentToGroup.partially2("staff"),
-            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
+            config[Arisa.Modules.RemoveNonStaffMeqs.removalReason]
         )
         val emptyModule = EmptyModule(
             ::resolveAs.partially1(issue).partially1("Incomplete"),

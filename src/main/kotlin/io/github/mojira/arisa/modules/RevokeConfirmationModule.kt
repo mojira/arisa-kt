@@ -11,8 +11,7 @@ data class RevokeConfirmationModuleRequest(
 
 class RevokeConfirmationModule(
     private val getGroups: (String) -> Either<Throwable, List<String>>,
-    private val setConfirmationStatus: (String) -> Either<Throwable, Unit>,
-    private val confirmationFiledId: String
+    private val setConfirmationStatus: (String) -> Either<Throwable, Unit>
 ) : Module<RevokeConfirmationModuleRequest> {
     override fun invoke(request: RevokeConfirmationModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
@@ -28,10 +27,10 @@ class RevokeConfirmationModule(
     }
 
     private fun isConfirmationChange(entry: ChangeLogEntry) =
-        entry.items.any { it.field == confirmationFiledId }
+        entry.items.any { it.field == "Confirmation Status" }
 
     private fun getConfirmation(entry: ChangeLogEntry) =
-        entry.items.lastOrNull { it.field == confirmationFiledId }?.toString
+        entry.items.lastOrNull { it.field == "Confirmation Status" }?.toString
 
     private fun changedByVolunteer(entry: ChangeLogEntry): Boolean {
         val groups = getGroups(entry.author.name)

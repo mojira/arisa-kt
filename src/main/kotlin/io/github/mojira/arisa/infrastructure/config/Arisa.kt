@@ -30,15 +30,14 @@ object Arisa : ConfigSpec() {
     }
 
     object Modules : ConfigSpec() {
-        open class ModuleConfigSpec : ConfigSpec() {
-            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
-        }
 
-        object Attachment : ModuleConfigSpec() {
+        object Attachment : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val extensionBlacklist by optional(listOf("jar", "exe", "com", "bat", "msi", "run", "lnk", "dmg"))
         }
 
-        object Piracy : ModuleConfigSpec() {
+        object Piracy : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val piracyMessage by optional(
         "*Thank you for your report!*\n" +
                 "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
@@ -86,27 +85,35 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object RemoveTriagedMeqs : ModuleConfigSpec() {
+        object RemoveTriagedMeqs : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val meqsTags by optional(listOf("MEQS_WAI", "MEQS_WONTFIX"))
             val removalReason by optional("Ticket has been triaged.")
         }
 
-        object FutureVersion : ModuleConfigSpec() {
+        object FutureVersion : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val futureVersionMessage by optional(
                 "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n" +
                 "{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
             )
         }
 
-        object CHK : ModuleConfigSpec()
+        object CHK : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        }
 
-        object ReopenAwaiting : ModuleConfigSpec()
+        object ReopenAwaiting : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        }
 
-        object RemoveNonStaffMeqs : ModuleConfigSpec() {
+        object RemoveNonStaffMeqs : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val removalReason by optional("Comment was not properly staff-restricted.")
         }
 
-        object Empty : ModuleConfigSpec() {
+        object Empty : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val emptyMessage by Crash.optional(
         "*Thank you for your report!*\n" +
                 "However, this issue is {color:#FF5722}*Incomplete*{color}.\n" +
@@ -122,7 +129,8 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object Crash : ModuleConfigSpec() {
+        object Crash : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val maxAttachmentAge by optional(30)
             val crashExtensions by optional(listOf("txt", "log"))
             val duplicateMessage by optional(
@@ -170,9 +178,12 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object RevokeConfirmation : ModuleConfigSpec()
+        object RevokeConfirmation : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
+        }
 
-        object KeepPrivate : ModuleConfigSpec() {
+        object KeepPrivate : ConfigSpec() {
+            val whitelist by optional(listOf("MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"))
             val tag by optional("MEQS_KEEP_PRIVATE")
             val keepPrivateMessage by optional(
             "{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}\n" +

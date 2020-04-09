@@ -3,6 +3,8 @@
 name: Build and push
 
 on:
+  pull_request:
+    branches: [ master ]
   push:
     branches: [ master ]
 
@@ -42,9 +44,9 @@ jobs:
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Run internal deploy script
-      uses: appleboy/ssh-action@master
+      uses: garygrossgarten/github-action-ssh@release
       with:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: /home/ubuntu/arisa-kt/deploy.sh
+        privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+        command: /home/ubuntu/arisa-kt/deploy.sh

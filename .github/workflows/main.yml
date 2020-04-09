@@ -48,5 +48,5 @@ jobs:
       with:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: ./home/ubuntu/arisa-kt/deploy.sh

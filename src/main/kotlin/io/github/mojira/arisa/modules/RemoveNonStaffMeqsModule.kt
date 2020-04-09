@@ -27,6 +27,6 @@ class RemoveNonStaffMeqsModule(
 
     private fun removeMeqsTags(comment: Comment): String {
         val regex = """MEQS(_[A-Z_]+)""".toRegex()
-        return regex.replace(comment.body) { "MEQS_ARISA_REMOVED${it.groupValues[1]}${ if(removalReason != null) " Removal Reason: $removalReason" else "" }" }
+        return regex.replace(comment.body) { "MEQS_ARISA_REMOVED${it.groupValues[1]}${ if (removalReason != null) " Removal Reason: $removalReason" else "" }" }
     }
 }

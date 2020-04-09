@@ -35,7 +35,7 @@ class RemoveTriagedMeqsModule(
             meqsTags.joinToString("|") { it.replace("MEQS", "") } +
             ")"
         ).toRegex()
-        return regex.replace(comment.body) { "MEQS_ARISA_REMOVED${it.groupValues[1]}${ if(removalReason != null) " Removal Reason: $removalReason" else "" }" }
+        return regex.replace(comment.body) { "MEQS_ARISA_REMOVED${it.groupValues[1]}${ if (removalReason != null) " Removal Reason: $removalReason" else "" }" }
     }
 
     private fun assertTriaged(priority: String?, triagedTime: String?) = when {

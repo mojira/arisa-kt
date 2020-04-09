@@ -5,14 +5,11 @@ import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import org.slf4j.LoggerFactory
-import java.util.Timer
 import java.util.concurrent.TimeUnit
 
 val log = LoggerFactory.getLogger("Arisa")
 
 fun main() {
-    val cachedTickets = mutableSetOf<String>()
-    val cacheTimer = Timer("RemoveCachedTicket", true)
     val config = Config { addSpec(Arisa) }
         .from.yaml.watchFile("arisa.yml")
         .from.json.watchFile("arisa.json")

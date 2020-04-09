@@ -23,7 +23,7 @@ class PiracyModule(
         Either.fx {
             assertContainsSignatures(
                 piracySignatures,
-                "${description} ${environment} ${summary}"
+                "$description $environment $summary"
             ).bind()
             addPiracyComment(issue).toFailedModuleEither().bind()
             resolveAsInvalid(issue).toFailedModuleEither().bind()

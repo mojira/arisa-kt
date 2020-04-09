@@ -200,7 +200,7 @@ class ModuleExecutor(
             .searchIssues(combinedJql)
             .issues
             .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
-            .filter {issue ->
+            .filter { issue ->
                 // Ignore issues where last action was a resolve
                 val latestChange = issue.changeLog.entries.lastOrNull()
 

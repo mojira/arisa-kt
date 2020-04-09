@@ -51,6 +51,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
           /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
-          /usr/bin/screen -d -m /home/ubuntu/arisa-kt/bin/arisa-kt
+          sleep 1
+          /usr/bin/screen -d -m bash -c '/home/ubuntu/arisa-kt/bin/arisa-kt; exec sh'
           
         args: "-tt"

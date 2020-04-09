@@ -61,6 +61,7 @@ fun main() {
     val cachedTickets = mutableSetOf<String>()
     val cacheTimer = Timer("RemoveCachedTicket", true)
     val config = Config { addSpec(Arisa) }
+        .from.yaml.watchFile("arisa.yml")
         .from.json.watchFile("arisa.json")
         .from.env()
         .from.systemProperties()

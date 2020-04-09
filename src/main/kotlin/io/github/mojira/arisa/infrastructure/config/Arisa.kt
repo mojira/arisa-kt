@@ -77,6 +77,8 @@ object Arisa : ConfigSpec() {
             val message by optional("", description = "The message that is posted when this module succeeds.")
             val tag by optional<String?>(null)
         }
+
+        object HideImpostors : ModuleConfigSpec()
     }
 }
 

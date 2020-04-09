@@ -29,6 +29,8 @@ import io.github.mojira.arisa.modules.EmptyModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.FutureVersionModuleRequest
+import io.github.mojira.arisa.modules.HideImpostorsModule
+import io.github.mojira.arisa.modules.HideImpostorsModuleRequest
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.KeepPrivateModuleRequest
 import io.github.mojira.arisa.modules.ModuleError
@@ -61,6 +63,7 @@ class ModuleExecutor(
     private val emptyModule: EmptyModule
     private val keepPrivateModule: KeepPrivateModule
     private val futureVersionModule: FutureVersionModule
+    private val hideImpostorsModule: HideImpostorsModule
     private val piracyModule: PiracyModule
     private val removeNonStaffMeqsModule: RemoveNonStaffMeqsModule
     private val removeTriagedMeqsModule: RemoveTriagedMeqsModule
@@ -122,6 +125,11 @@ class ModuleExecutor(
                     it.versions,
                     project?.versions
                 )
+            )
+        }
+        exec(Arisa.Modules.HideImpostors) {
+            "HideImpostors" to hideImpostorsModule(
+                HideImpostorsModuleRequest(it.comments)
             )
         }
         exec(Arisa.Modules.KeepPrivate) {
@@ -265,6 +273,11 @@ class ModuleExecutor(
             ::removeAffectedVersion,
             ::addAffectedVersion,
             ::addComment.partially2(config[Arisa.Modules.FutureVersion.message])
+        )
+
+        hideImpostorsModule = HideImpostorsModule(
+            ::getGroups.partially1(jiraClient),
+            ::restrictCommentToGroup.partially2("staff")
         )
 
         keepPrivateModule = KeepPrivateModule(

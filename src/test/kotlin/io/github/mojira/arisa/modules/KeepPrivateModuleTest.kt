@@ -10,11 +10,24 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.rcarz.jiraclient.Comment
+import net.rcarz.jiraclient.Issue
 
 class KeepPrivateModuleTest : StringSpec({
+    val ISSUE = mockk<Issue>()
+
+    "should return OperationNotNeededModuleResponse when keep private tag is null" {
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { Unit.right() }, null)
+        val comment = mockComment("MEQS_KEEP_PRIVATE")
+        val request = KeepPrivateModuleRequest(ISSUE, "private", "private", listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when comments are empty" {
-        val module = KeepPrivateModule({ Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModuleRequest(null, "private", emptyList())
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
+        val request = KeepPrivateModuleRequest(ISSUE, null, "private", emptyList())
 
         val result = module(request)
 
@@ -22,9 +35,9 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when no comment contains private tag" {
-        val module = KeepPrivateModule({ Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
         val comment = mockComment("Hello world!")
-        val request = KeepPrivateModuleRequest(null, "private", listOf(comment))
+        val request = KeepPrivateModuleRequest(ISSUE, null, "private", listOf(comment))
 
         val result = module(request)
 
@@ -32,9 +45,9 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when security level is set to private" {
-        val module = KeepPrivateModule({ Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
         val comment = mockComment("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModuleRequest("private", "private", listOf(comment))
+        val request = KeepPrivateModuleRequest(ISSUE, "private", "private", listOf(comment))
 
         val result = module(request)
 
@@ -42,9 +55,9 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should set to private when security level is null" {
-        val module = KeepPrivateModule({ Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
         val comment = mockComment("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModuleRequest(null, "private", listOf(comment))
+        val request = KeepPrivateModuleRequest(ISSUE, null, "private", listOf(comment))
 
         val result = module(request)
 
@@ -52,9 +65,9 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should set to private when security level is not private" {
-        val module = KeepPrivateModule({ Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
         val comment = mockComment("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModuleRequest("not private", "private", listOf(comment))
+        val request = KeepPrivateModuleRequest(ISSUE, "not private", "private", listOf(comment))
 
         val result = module(request)
 
@@ -62,9 +75,9 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse when setting security level fails" {
-        val module = KeepPrivateModule({ RuntimeException().left() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
+        val module = KeepPrivateModule({ _, _ -> RuntimeException().left() }, { Unit.right() }, "MEQS_KEEP_PRIVATE")
         val comment = mockComment("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModuleRequest(null, "private", listOf(comment))
+        val request = KeepPrivateModuleRequest(ISSUE, null, "private", listOf(comment))
 
         val result = module(request)
 
@@ -74,9 +87,9 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse when posting comment" {
-        val module = KeepPrivateModule({ Unit.right() }, { RuntimeException().left() }, "MEQS_KEEP_PRIVATE")
+        val module = KeepPrivateModule({ _, _ -> Unit.right() }, { RuntimeException().left() }, "MEQS_KEEP_PRIVATE")
         val comment = mockComment("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModuleRequest(null, "private", listOf(comment))
+        val request = KeepPrivateModuleRequest(ISSUE, null, "private", listOf(comment))
 
         val result = module(request)
 

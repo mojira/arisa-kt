@@ -10,12 +10,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import net.rcarz.jiraclient.Comment
+import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.Resolution
 import net.rcarz.jiraclient.User
 import java.time.Instant
 import java.util.Date
 
 class ReopenAwaitingModuleTest : StringSpec({
+    val ISSUE = mockk<Issue>()
     val CREATED = Instant.now()
     val UPDATED = Instant.now().plusSeconds(3)
     val AWAITINGRESPONSE = mockResolution("Awaiting Response")
@@ -24,7 +26,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val request = ReopenAwaitingModuleRequest(null, CREATED, UPDATED, COMMENTLIST)
+        val request = ReopenAwaitingModuleRequest(ISSUE, null, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -33,7 +35,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val request = ReopenAwaitingModuleRequest(mockResolution("Test"), CREATED, UPDATED, COMMENTLIST)
+        val request = ReopenAwaitingModuleRequest(ISSUE, mockResolution("Test"), CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -44,7 +46,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val module = ReopenAwaitingModule { Unit.right() }
         val created = Instant.now()
         val updated = Instant.now().plusSeconds(1)
-        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, created, updated, COMMENTLIST)
+        val request = ReopenAwaitingModuleRequest(ISSUE, AWAITINGRESPONSE, created, updated, COMMENTLIST)
 
         val result = module(request)
 
@@ -53,7 +55,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there are no comments" {
         val module = ReopenAwaitingModule { Unit.right() }
-        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf())
+        val request = ReopenAwaitingModuleRequest(ISSUE, AWAITINGRESPONSE, CREATED, UPDATED, listOf())
 
         val result = module(request)
 
@@ -63,7 +65,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
         val module = ReopenAwaitingModule { Unit.right() }
         val comment = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
-        val request = ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(comment))
+        val request = ReopenAwaitingModuleRequest(ISSUE, AWAITINGRESPONSE, CREATED, UPDATED, listOf(comment))
 
         val result = module(request)
 
@@ -75,7 +77,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val commentFail = mockComment(REPORTER, Date(Instant.now().plusSeconds(8).toEpochMilli()))
         val commentSuccess = mockComment(reporter = REPORTER)
         val request =
-            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, listOf(commentSuccess, commentFail))
+            ReopenAwaitingModuleRequest(ISSUE, AWAITINGRESPONSE, CREATED, UPDATED, listOf(commentSuccess, commentFail))
 
         val result = module(request)
 
@@ -85,7 +87,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return FailedModuleResponse with all exceptions when reopening fails" {
         val module = ReopenAwaitingModule { RuntimeException().left() }
         val request =
-            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST)
+            ReopenAwaitingModuleRequest(ISSUE, AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 
@@ -97,7 +99,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return ModuleResponse when ticket is reopened" {
         val module = ReopenAwaitingModule { Unit.right() }
         val request =
-            ReopenAwaitingModuleRequest(AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST)
+            ReopenAwaitingModuleRequest(ISSUE, AWAITINGRESPONSE, CREATED, UPDATED, COMMENTLIST)
 
         val result = module(request)
 

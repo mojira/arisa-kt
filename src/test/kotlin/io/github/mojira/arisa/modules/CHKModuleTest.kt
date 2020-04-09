@@ -7,11 +7,15 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import net.rcarz.jiraclient.Issue
 
 class CHKModuleTest : StringSpec({
+    val ISSUE = mockk<Issue>()
+
     "should not process tickets without a confirmation status" {
         val module = CHKModule { Unit.right() }
-        val request = CHKModuleRequest("issue", null, null)
+        val request = CHKModuleRequest(ISSUE, null, null)
 
         val result = module(request)
 
@@ -20,7 +24,7 @@ class CHKModuleTest : StringSpec({
 
     "should not process tickets with a Undefined confirmation status" {
         val module = CHKModule { Unit.right() }
-        val request = CHKModuleRequest("issue", null, "Undefined")
+        val request = CHKModuleRequest(ISSUE, null, "Undefined")
 
         val result = module(request)
 
@@ -29,7 +33,7 @@ class CHKModuleTest : StringSpec({
 
     "should not process tickets with a Unconfirmed confirmation status" {
         val module = CHKModule { Unit.right() }
-        val request = CHKModuleRequest("issue", null, "Unconfirmed")
+        val request = CHKModuleRequest(ISSUE, null, "Unconfirmed")
 
         val result = module(request)
 
@@ -38,7 +42,7 @@ class CHKModuleTest : StringSpec({
 
     "should not process tickets with CHK already set" {
         val module = CHKModule { Unit.right() }
-        val request = CHKModuleRequest("issue", "chkField", "Confirmed")
+        val request = CHKModuleRequest(ISSUE, "chkField", "Confirmed")
 
         val result = module(request)
 
@@ -47,7 +51,7 @@ class CHKModuleTest : StringSpec({
 
     "should process confirmed tickets" {
         val module = CHKModule { Unit.right() }
-        val request = CHKModuleRequest("issue", null, "Confirmed")
+        val request = CHKModuleRequest(ISSUE, null, "Confirmed")
 
         val result = module(request)
 
@@ -56,7 +60,7 @@ class CHKModuleTest : StringSpec({
 
     "should return FailedModuleResponse when update fails" {
         val module = CHKModule { RuntimeException().left() }
-        val request = CHKModuleRequest("issue", null, "Confirmed")
+        val request = CHKModuleRequest(ISSUE, null, "Confirmed")
 
         val result = module(request)
 

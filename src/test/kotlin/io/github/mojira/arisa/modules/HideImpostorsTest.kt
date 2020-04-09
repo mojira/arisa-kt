@@ -11,6 +11,9 @@ import net.rcarz.jiraclient.ChangeLogItem
 import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Visibility
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.Date
 
 class HideImpostorsTest : StringSpec({
 
@@ -64,6 +67,16 @@ class HideImpostorsTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when user contains [] but is not staff and comment is more than a day old" {
+        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
+        val comment = mockComment("[test] test", date = Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
+        val request = HideImpostorsModuleRequest(listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should hide comment when user contains [] but is not staff" {
         val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
         val comment = mockComment("[test] test")
@@ -75,7 +88,7 @@ class HideImpostorsTest : StringSpec({
     }
 })
 
-private fun mockComment(author: String, visibility: Visibility? = null): Comment {
+private fun mockComment(author: String, visibility: Visibility? = null, date: Date = Date()): Comment {
     val comment = mockk<Comment>()
     val user = mockk<User>()
     every { user.displayName } returns author
@@ -83,6 +96,7 @@ private fun mockComment(author: String, visibility: Visibility? = null): Comment
     every { comment.author } returns user
     every { comment.body } returns "Test"
     every { comment.visibility } returns visibility
+    every { comment.updatedDate } returns date
     return comment
 }
 

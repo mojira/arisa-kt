@@ -24,25 +24,25 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean installDist
     - name: Upload new libraries
-      uses: easingthemes/ssh-deploy@v2.0.7
+      uses: AEnterprise/rsync-deploy@v1.0
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        DEPLOY_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        SERVER_PORT: 22
+        FOLDER: "build/install/arisa-kt/lib"
         ARGS: "-avh --delete"
-        SOURCE: "build/install/lib"
-        REMOTE_PORT: 22
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        TARGET: /home/ubuntu/arisa-kt
+        SERVER_IP: ${{ secrets.REMOTE_HOST }}
+        USERNAME: ${{ secrets.REMOTE_USER }}
+        SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Upload new binaries
-      uses: easingthemes/ssh-deploy@v2.0.7
+      uses: AEnterprise/rsync-deploy@v1.0
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        DEPLOY_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        SERVER_PORT: 22
+        FOLDER: "build/install/arisa-kt/bin"
         ARGS: "-avh --delete"
-        SOURCE: "build/install/bin"
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        REMOTE_PORT: 22
-        TARGET: ${{ secrets.REMOTE_TARGET }}
+        SERVER_IP: ${{ secrets.REMOTE_HOST }}
+        USERNAME: ${{ secrets.REMOTE_USER }}
+        SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Run internal deploy script
       uses: appleboy/ssh-action@master
       with:

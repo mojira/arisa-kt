@@ -3,15 +3,17 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import net.rcarz.jiraclient.ChangeLogEntry
+import net.rcarz.jiraclient.Issue
 
 data class RevokeConfirmationModuleRequest(
-    val confirmationStatus: String,
+    val issue: Issue,
+    val confirmationStatus: String?,
     val changeLog: List<ChangeLogEntry>
 )
 
 class RevokeConfirmationModule(
     private val getGroups: (String) -> Either<Throwable, List<String>>,
-    private val setConfirmationStatus: (String) -> Either<Throwable, Unit>
+    private val setConfirmationStatus: (Issue, String) -> Either<Throwable, Unit>
 ) : Module<RevokeConfirmationModuleRequest> {
     override fun invoke(request: RevokeConfirmationModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
@@ -22,7 +24,7 @@ class RevokeConfirmationModule(
 
             assertNotEquals(confirmationStatus, volunteerConfirmation).bind()
 
-            setConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
+            setConfirmationStatus(issue, volunteerConfirmation).toFailedModuleEither().bind()
         }
     }
 

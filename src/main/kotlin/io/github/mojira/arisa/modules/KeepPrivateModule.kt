@@ -5,31 +5,34 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import net.rcarz.jiraclient.Comment
+import net.rcarz.jiraclient.Issue
 
 data class KeepPrivateModuleRequest(
+    val issue: Issue,
     val securityLevel: String?,
     val privateLevel: String,
     val comments: List<Comment>
 )
 
 class KeepPrivateModule(
-    private val changeSecurityTo: (String) -> Either<Throwable, Unit>,
-    private val addSecurityComment: () -> Either<Throwable, Unit>,
-    private val keepPrivateTag: String
+    private val changeSecurityTo: (Issue, String) -> Either<Throwable, Unit>,
+    private val addSecurityComment: (Issue) -> Either<Throwable, Unit>,
+    private val keepPrivateTag: String?
 ) : Module<KeepPrivateModuleRequest> {
 
     override fun invoke(request: KeepPrivateModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
+            assertNotNull(keepPrivateTag).bind()
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
-            addSecurityComment().toFailedModuleEither().bind()
-            changeSecurityTo(privateLevel).toFailedModuleEither().bind()
+            addSecurityComment(issue).toFailedModuleEither().bind()
+            changeSecurityTo(issue, privateLevel).toFailedModuleEither().bind()
         }
     }
 
     private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {
-        comments.any { it.body.contains(keepPrivateTag) } -> Unit.right()
+        comments.any { it.body.contains(keepPrivateTag!!) } -> Unit.right()
         else -> OperationNotNeededModuleResponse.left()
     }
 

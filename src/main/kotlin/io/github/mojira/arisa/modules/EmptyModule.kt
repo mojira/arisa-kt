@@ -4,8 +4,10 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import net.rcarz.jiraclient.Issue
 
 data class EmptyModuleRequest(
+    val issue: Issue,
     val numAttachments: Int,
     val description: String?,
     val environment: String?
@@ -16,8 +18,8 @@ const val ENVDEFAULT = "Put your operating system (Windows 7, Windows XP, OSX) a
 const val MINLENGTH = 5
 
 class EmptyModule(
-    val resolveAsIncomplete: () -> Either<Throwable, Unit>,
-    val addEmptyComment: () -> Either<Throwable, Unit>
+    val resolveAsIncomplete: (Issue) -> Either<Throwable, Unit>,
+    val addEmptyComment: (Issue) -> Either<Throwable, Unit>
 ) : Module<EmptyModuleRequest> {
     override fun invoke(request: EmptyModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
         with(request) {
@@ -29,8 +31,8 @@ class EmptyModule(
                 assertNotEqual(environment, ENVDEFAULT).bind()
             }
             assertNoAttachments(numAttachments).bind()
-            addEmptyComment().toFailedModuleEither().bind()
-            resolveAsIncomplete().toFailedModuleEither().bind()
+            addEmptyComment(issue).toFailedModuleEither().bind()
+            resolveAsIncomplete(issue).toFailedModuleEither().bind()
         }
     }
 

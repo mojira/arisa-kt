@@ -4,13 +4,20 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import net.rcarz.jiraclient.Issue
 
-data class CHKModuleRequest(val issueId: String, val chkField: String?, val confirmationField: String?)
+data class CHKModuleRequest(
+    val issue: Issue,
+    val chkField: String?,
+    val confirmationField: String?
+)
 
-class CHKModule(val updateCHK: () -> Either<Throwable, Unit>) : Module<CHKModuleRequest> {
-    override fun invoke(request: CHKModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertIsValid(request).bind()
-        updateCHK().toFailedModuleEither().bind()
+class CHKModule(val updateCHK: (Issue) -> Either<Throwable, Unit>) : Module<CHKModuleRequest> {
+    override fun invoke(request: CHKModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
+        Either.fx {
+            assertIsValid(request).bind()
+            updateCHK(issue).toFailedModuleEither().bind()
+        }
     }
 }
 

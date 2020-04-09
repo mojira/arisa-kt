@@ -5,17 +5,19 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import net.rcarz.jiraclient.Comment
+import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.Resolution
 import java.time.Instant
 
 data class ReopenAwaitingModuleRequest(
+    val issue: Issue,
     val resolution: Resolution?,
     val created: Instant,
     val updated: Instant,
     val comments: List<Comment>
 )
 
-class ReopenAwaitingModule(val reopen: () -> Either<Throwable, Unit>) : Module<ReopenAwaitingModuleRequest> {
+class ReopenAwaitingModule(val reopen: (Issue) -> Either<Throwable, Unit>) : Module<ReopenAwaitingModuleRequest> {
     override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
             assertResolutionIs(resolution, "Awaiting Response").bind()
@@ -25,7 +27,7 @@ class ReopenAwaitingModule(val reopen: () -> Either<Throwable, Unit>) : Module<R
             assertUpdateWasNotCausedByEditingComment(
                 updated.toEpochMilli(), lastComment.updatedDate.time, lastComment.createdDate.time
             ).bind()
-            reopen().toFailedModuleEither().bind()
+            reopen(issue).toFailedModuleEither().bind()
         }
     }
 

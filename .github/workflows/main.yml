@@ -1,6 +1,6 @@
 # This workflow will build a Java project with Gradle and deploy it
 
-name: Java CI with Gradle + Deploy
+name: Build and push
 
 on:
   push:
@@ -22,27 +22,29 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean installDist
     - name: Upload new libraries
-      uses: easingthemes/ssh-deploy@v2.0.7
+      uses: urielsalis/rsync-deploy@v1.1
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_PORT: 22
+        FOLDER: "build/install/arisa-kt/lib"
         ARGS: "-avh --delete"
-        SOURCE: "build/install/lib"
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        TARGET: /home/ubuntu/arisa-kt
+        SERVER_IP: ${{ secrets.REMOTE_HOST }}
+        USERNAME: ${{ secrets.REMOTE_USER }}
+        SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Upload new binaries
-      uses: easingthemes/ssh-deploy@v2.0.7
+      uses: urielsalis/rsync-deploy@v1.1
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_PORT: 22
+        FOLDER: "build/install/arisa-kt/bin"
         ARGS: "-avh --delete"
-        SOURCE: "build/install/bin"
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        TARGET: ${{ secrets.REMOTE_TARGET }}
+        SERVER_IP: ${{ secrets.REMOTE_HOST }}
+        USERNAME: ${{ secrets.REMOTE_USER }}
+        SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Run internal deploy script
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script: ./home/ubuntu/arisa-kt/deploy.sh
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: /home/ubuntu/arisa-kt/deploy.sh

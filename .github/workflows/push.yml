@@ -49,5 +49,5 @@ jobs:
         host: ${{ secrets.REMOTE_HOST }}
         user: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        command: /home/ubuntu/arisa-kt/deploy.sh
-        args: "-tt -vvv"
+        command: /home/ubuntu/arisa-kt/deploy.sh &&
+        args: "-tt"

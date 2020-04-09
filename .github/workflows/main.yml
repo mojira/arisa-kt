@@ -3,6 +3,8 @@
 name: Java CI with Gradle + Deploy
 
 on:
+  pull_request:
+    branches: [ master ]
   push:
     branches: [ master ]
 
@@ -27,6 +29,7 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
         ARGS: "-avh --delete"
         SOURCE: "build/install/lib"
+        REMOTE_PORT: 22
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         TARGET: /home/ubuntu/arisa-kt
@@ -38,6 +41,7 @@ jobs:
         SOURCE: "build/install/bin"
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_PORT: 22
         TARGET: ${{ secrets.REMOTE_TARGET }}
     - name: Run internal deploy script
       uses: appleboy/ssh-action@master

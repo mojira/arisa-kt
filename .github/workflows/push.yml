@@ -44,9 +44,9 @@ jobs:
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Run internal deploy script
-      uses: garygrossgarten/github-action-ssh@release
+      uses: fifsky/ssh-action@master
       with:
         host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
-        privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+        user: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: /home/ubuntu/arisa-kt/deploy.sh

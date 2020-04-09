@@ -3,11 +3,11 @@ package io.github.mojira.arisa.infrastructure
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
-import net.rcarz.jiraclient.BasicCredentials
 import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
@@ -54,7 +54,7 @@ fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Thr
 }
 
 fun connectToJira(username: String, password: String, url: String) =
-    JiraClient(url, BasicCredentials(username, password))
+    JiraClient(url, TokenCredentials(username, password))
 
 fun reopenIssue(issue: Issue) = runBlocking {
     Either.catch {

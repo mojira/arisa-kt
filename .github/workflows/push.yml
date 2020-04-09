@@ -3,8 +3,6 @@
 name: Build and push
 
 on:
-  pull_request:
-    branches: [ master ]
   push:
     branches: [ master ]
 

@@ -13,7 +13,7 @@ import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Visibility
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Date
 
 class HideImpostorsTest : StringSpec({
 

@@ -3,6 +3,8 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import net.rcarz.jiraclient.Comment
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 data class HideImpostorsModuleRequest(val comments: List<Comment>)
 
@@ -13,6 +15,7 @@ class HideImpostorsModule(
     override fun invoke(request: HideImpostorsModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
             val usersWithBrackets = comments
+                .filter(::commentIsRecent)
                 .filter(::userContainsBrackets)
                 .filter(::userIsNotVolunteer)
                 .filter(::isNotStaffRestricted)
@@ -21,6 +24,12 @@ class HideImpostorsModule(
             tryRunAll({ restrictCommentToGroup(it, it.body) }, usersWithBrackets).bind()
         }
     }
+
+    private fun commentIsRecent(comment: Comment) = comment
+        .updatedDate
+        .toInstant()
+        .plus(1, ChronoUnit.DAYS)
+        .isAfter(Instant.now())
 
     private fun userContainsBrackets(comment: Comment) = with(comment.author.displayName) {
         contains("[") && contains("]")

@@ -31,6 +31,8 @@ import io.github.mojira.arisa.modules.EmptyModuleRequest
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.FutureVersionModuleRequest
+import io.github.mojira.arisa.modules.HideImpostorsModule
+import io.github.mojira.arisa.modules.HideImpostorsModuleRequest
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.KeepPrivateModuleRequest
 import io.github.mojira.arisa.modules.ModuleError
@@ -188,6 +190,11 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
             config[Arisa.Modules.KeepPrivate.tag]
         )
 
+        val hideImpostorsModule = HideImpostorsModule(
+            ::getGroups.partially1(jiraClient),
+            ::restrictCommentToGroup.partially2("staff")
+        )
+
         // issue.project doesn't contain full project, which is needed for some modules.
         val project = try {
             jiraClient.getProject(issue.project.key)
@@ -288,6 +295,11 @@ fun initModules(config: Config, jiraClient: JiraClient): (Issue) -> Map<String, 
                         ),
                         issue.comments
                     )
+                )
+            },
+            "HideImpostors" to runIfWhitelisted(issue, config[Arisa.Modules.HideImpostors.whitelist]) {
+                hideImpostorsModule(
+                    HideImpostorsModuleRequest(issue.comments)
                 )
             }
         )

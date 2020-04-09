@@ -179,6 +179,8 @@ object Arisa : ConfigSpec() {
                 "{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
             )
         }
+
+        object HideImpostors : ModuleConfigSpec()
     }
 }
 

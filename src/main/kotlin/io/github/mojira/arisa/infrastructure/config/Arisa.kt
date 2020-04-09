@@ -40,16 +40,18 @@ object Arisa : ConfigSpec() {
 
         object Piracy : ModuleConfigSpec() {
             val piracyMessage by optional(
-        "*Thank you for your report!*\n" +
-                "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
-                "\n" +
-                "You are currently using a *non-authorized* version of Minecraft. If you wish to purchase the full game, please visit the [Minecraft Store|https://www.minecraft.net/store/minecraft-java-edition].\n" +
-                "We will not provide support for pirated versions of the game, these versions are modified and may contain malware.\n" +
-                "\n" +
-                "*Quick Links*:\n" +
-                "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\n" +
-                "\n" +
-                "~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
+                """
+                *Thank you for your report!*
+                However, this issue is {color:#FF5722}*Invalid*{color}.
+                
+                You are currently using a *non-authorized* version of Minecraft. If you wish to purchase the full game, please visit the [Minecraft Store|https://www.minecraft.net/store/minecraft-java-edition].
+                We will not provide support for pirated versions of the game, these versions are modified and may contain malware.
+                
+                *Quick Links*:
+                📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]
+                
+                ~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~
+                """.trimIndent()
             )
             val piracySignatures by optional(
                 listOf(
@@ -93,9 +95,11 @@ object Arisa : ConfigSpec() {
 
         object FutureVersion : ModuleConfigSpec() {
             val futureVersionMessage by optional(
-                "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n" +
-                "\n" +
-                "~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
+                """
+                {panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}
+                
+                ~{color:#888}- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~
+                """.trimIndent()
             )
         }
 
@@ -109,18 +113,20 @@ object Arisa : ConfigSpec() {
 
         object Empty : ModuleConfigSpec() {
             val emptyMessage by Crash.optional(
-        "*Thank you for your report!*\n" +
-                "However, this issue is {color:#FF5722}*Incomplete*{color}.\n" +
-                "\n" +
-                "Your report does not contain enough information. As such, we're unable to understand or reproduce the problem.\n" +
-                "Please review the guidelines linked below before making further reports.\n" +
-                "\n" +
-                "In case of a game crash, be sure to attach the crashlog from {{[minecraft/crash-reports/crash-<DATE>-client.txt|https://minecrafthopper.net/help/guides/finding-minecraft-data-folder/]}}.\n" +
-                "\n" +
-                "*Quick Links*:\n" +
-                "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\n" +
-                "\n" +
-                "~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
+                """
+                *Thank you for your report!*
+                However, this issue is {color:#FF5722}*Incomplete*{color}.
+                
+                Your report does not contain enough information. As such, we're unable to understand or reproduce the problem.
+                Please review the guidelines linked below before making further reports.
+                
+                In case of a game crash, be sure to attach the crashlog from {{[minecraft/crash-reports/crash-<DATE>-client.txt|https://minecrafthopper.net/help/guides/finding-minecraft-data-folder/]}}.
+                
+                *Quick Links*:
+                📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]
+                
+                ~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~
+                """.trimIndent()
             )
         }
 
@@ -128,33 +134,37 @@ object Arisa : ConfigSpec() {
             val maxAttachmentAge by optional(30)
             val crashExtensions by optional(listOf("txt", "log"))
             val duplicateMessage by optional(
-        "*Thank you for your report!*\n" +
-                "We're actually already tracking this issue in *{DUPLICATE}*, so I've resolved and linked this ticket as a duplicate.\n" +
-                "\n" +
-                "Please take a look at the linked ticket and see if there is any fix available.\n" +
-                "\n" +
-                "If you need additional help with a technical problem, please visit [Community Support|https://discord.gg/58Sxm23].\n" +
-                "\n" +
-                "*Quick Links*:\n" +
-                "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]" +
-                "\n" +
-                "~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
+                """
+                *Thank you for your report!*
+                We're actually already tracking this issue in *{DUPLICATE}*, so I've resolved and linked this ticket as a duplicate.
+                
+                Please take a look at the linked ticket and see if there is any fix available.
+                
+                If you need additional help with a technical problem, please visit [Community Support|https://discord.gg/58Sxm23].
+                
+                *Quick Links*:
+                📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]
+                
+                ~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~
+                """.trimIndent()
             )
             val moddedMessage by optional(
-        "*Thank you for your report!*\n" +
-                "However, this issue is {color:#FF5722}*Invalid*{color}.\n" +
-                "\n" +
-                "Your game, launcher or server is modified.\n" +
-                "If you can reproduce the issue in a vanilla environment, please recreate the issue.\n" +
-                "\n" +
-                "* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\n" +
-                "* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n" +
-                "* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n" +
-                "\n" +
-                "*Quick Links*:\n" +
-                "\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\n" +
-                "\n" +
-                "~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
+                """
+                *Thank you for your report!*
+                However, this issue is {color:#FF5722}*Invalid*{color}.
+                
+                Your game, launcher or server is modified.
+                If you can reproduce the issue in a vanilla environment, please recreate the issue.
+                
+                * Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.
+                * Any plugin issues need to be addressed to the creator of the plugin or resource pack.
+                * If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.
+                
+                *Quick Links*:
+                📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]
+                
+                ~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~
+                """.trimIndent()
             )
 
             val duplicates by optional(
@@ -178,9 +188,11 @@ object Arisa : ConfigSpec() {
         object KeepPrivate : ModuleConfigSpec() {
             val tag by optional("MEQS_KEEP_PRIVATE")
             val keepPrivateMessage by optional(
-            "{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}\n" +
-                "\n" +
-                "~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
+                """
+                {panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}
+
+                ~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~
+                """.trimIndent()
             )
         }
 

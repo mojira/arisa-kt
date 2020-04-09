@@ -1,7 +1,7 @@
 {
   "arisa": {
     "issues": {
-      "projects": ["MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS"],
+      "projects": ["MC", "MCTEST", "MCPE", "MCAPI", "MCL", "MCD", "MCE", "BDS", "REALMS", "WEB"],
       "url": "https://bugs.mojang.com/",
       "checkInterval": 10
     },
@@ -85,6 +85,7 @@
       },
 
       "chk": {
+        "whitelist": ["MC", "MCL", "MCPE"],
         "jql": "resolution = Unresolved AND cf[10500] != unconfirmed AND CHK = EMPTY"
       },
 
@@ -102,10 +103,7 @@
 
       "crash": {
         "maxAttachmentAge": 30,
-        "crashExtensions": [
-          "txt",
-          "log"
-        ],
+        "crashExtensions": ["txt", "log"],
         "duplicateMessage": "*Thank you for your report!*\nWe're actually already tracking this issue in *{DUPLICATE}*, so I've resolved and linked this ticket as a duplicate.\n\nPlease take a look at the linked ticket and see if there is any fix available.\n\nIf you need additional help with a technical problem, please visit [Community Support|https://discord.gg/58Sxm23].\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}",
         "moddedMessage": "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nYour game, launcher or server is modified.\nIf you can reproduce the issue in a vanilla environment, please recreate the issue.\n\n* Any non-standard client/server/launcher build needs to be taken up with the appropriate team, not Mojang.\n* Any plugin issues need to be addressed to the creator of the plugin or resource pack.\n* If you have problems on large servers, such as The Hive and Hypixel, please contact them first as they run modified server software.\n\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\n{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
       },
@@ -116,7 +114,9 @@
         "jql": "comment ~ MEQS_KEEP_PRIVATE AND level = EMPTY",
         "tag": "MEQS_KEEP_PRIVATE",
         "message": "{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}\n{color:#bbb}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}"
-      }
+      },
+
+      "hideImpostors": {}
     }
   }
 }

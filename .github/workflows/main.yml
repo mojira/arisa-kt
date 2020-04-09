@@ -24,7 +24,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean installDist
     - name: Upload new libraries
-      uses: AEnterprise/rsync-deploy@v1.0
+      uses: urielsalis/rsync-deploy@v1.1
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -33,10 +33,8 @@ jobs:
         SERVER_IP: ${{ secrets.REMOTE_HOST }}
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/ubuntu/arisa-kt
-    - name: Cleanup from lib deploy
-      run: rm -rf /github/home/.ssh
     - name: Upload new binaries
-      uses: AEnterprise/rsync-deploy@v1.0
+      uses: urielsalis/rsync-deploy@v1.1
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22

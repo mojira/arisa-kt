@@ -192,9 +192,12 @@ class ModuleExecutor(
         processedIssues: MutableMap<String, Boolean>,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
-        val projects = config[Arisa.Issues.projects].joinToString(",")
+        val projects = config[Arisa.Issues.projects]
+            .filter { config[moduleConfig.whitelist] == null || config[moduleConfig.whitelist]!!.contains(it) }
+            .joinToString(",")
+        val resolutions = config[moduleConfig.resolutions].joinToString(",")
         val cachedTickets = ticketCache.joinToString(",")
-        val combinedJql = "project in ($projects) AND key not in ($cachedTickets) AND (${config[moduleConfig.jql]})"
+        val combinedJql = "project in ($projects) AND key not in ($cachedTickets) AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
 
         val issues = queryCache[combinedJql] ?: jiraClient
             .searchIssues(combinedJql)
@@ -212,25 +215,20 @@ class ModuleExecutor(
         queryCache[combinedJql] = issues
 
         issues
-            .filter { config[moduleConfig.whitelist] == null || config[moduleConfig.whitelist]!!.contains(it.key) }
-            .filter { config[moduleConfig.resolutions].contains(it.resolution.name) }
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
-                when (response.second) {
-                    is Either.Right -> {
-                        processedIssues[issue] = true
-                        log.info("[RESPONSE] [$issue] [${response.first}] Successful")
-                    }
-                    is Either.Left -> with(response.second as Either.Left<ModuleError>) {
-                        processedIssues.putIfAbsent(issue, false)
-                        when (a) {
-                            is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
-                            is FailedModuleResponse -> for (exception in (a as FailedModuleResponse).exceptions) {
-                                log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
-                            }
+                response.second.fold({
+                    processedIssues.putIfAbsent(issue, false)
+                    when (it) {
+                        is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        is FailedModuleResponse -> for (exception in it.exceptions) {
+                            log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
                         }
                     }
-                }
+                }, {
+                    processedIssues[issue] = true
+                    log.info("[RESPONSE] [$issue] [${response.first}] Successful")
+                })
             }
     }
 

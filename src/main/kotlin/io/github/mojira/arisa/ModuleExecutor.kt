@@ -194,7 +194,7 @@ class ModuleExecutor(
                         .map { c -> HideImpostorsModule.Comment(
                             c.author.displayName,
                             getGroups(jiraClient, c.author.name).fold({ null }, { it }),
-                            c.updatedDate,
+                            c.updatedDate.toInstant(),
                             c.visibility?.type,
                             c.visibility?.value,
                             ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(null)

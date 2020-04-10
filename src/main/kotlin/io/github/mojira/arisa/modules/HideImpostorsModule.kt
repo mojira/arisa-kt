@@ -4,13 +4,12 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Date
 
 class HideImpostorsModule : Module<HideImpostorsModule.Request> {
     data class Comment(
         val authorDisplayName: String,
         val authorGroups: List<String>?,
-        val updated: Date,
+        val updated: Instant,
         val visibilityType: String?,
         val visibilityValue: String?,
         val restrict: () -> Either<Throwable, Unit>
@@ -34,7 +33,6 @@ class HideImpostorsModule : Module<HideImpostorsModule.Request> {
 
     private fun commentIsRecent(comment: Comment) = comment
         .updated
-        .toInstant()
         .plus(1, ChronoUnit.DAYS)
         .isAfter(Instant.now())
 

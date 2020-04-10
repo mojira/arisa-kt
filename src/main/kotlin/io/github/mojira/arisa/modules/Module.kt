@@ -19,7 +19,7 @@ fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
     { ModuleResponse }
 )
 
-fun assertNotEmpty(c: Iterable<*>) = when {
+fun assertNotEmpty(c: Collection<*>) = when {
     c.isEmpty() -> OperationNotNeededModuleResponse.left()
     else -> Unit.right()
 }

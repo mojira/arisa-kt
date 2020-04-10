@@ -11,6 +11,9 @@ import io.mockk.every
 import io.mockk.mockk
 import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.Date
 
 class RevokeConfirmationTest : StringSpec({
 
@@ -46,6 +49,16 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by global-moderator" {
         val module = RevokeConfirmationModule({ listOf("global-moderators").right() }, { Unit.right() })
         val changeLogEntry = mockChangelogEntry("", "Confirmation Status", "Confirmed")
+        val request = RevokeConfirmationModuleRequest("Confirmed", listOf(changeLogEntry))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when Ticket was confirmed more than a day ago by a user who is no longer staff" {
+        val module = RevokeConfirmationModule({ emptyList<String>().right() }, { Unit.right() })
+        val changeLogEntry = mockChangelogEntry("", "Confirmation Status", "Confirmed", date = Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
         val request = RevokeConfirmationModuleRequest("Confirmed", listOf(changeLogEntry))
 
         val result = module(request)
@@ -126,6 +139,20 @@ class RevokeConfirmationTest : StringSpec({
         changedConfirmation.shouldBe("Confirmed")
     }
 
+    "should set back to previous status when regular user changes confirmation status set by someone who no longer is a volunteer" {
+        var changedConfirmation = ""
+
+        val module = RevokeConfirmationModule({ listOf(it).right() }, { changedConfirmation = it; Unit.right() })
+        val volunteerChange = mockChangelogEntry("former-volunteer", "Confirmation Status", "Confirmed", date = Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
+        val userChange = mockChangelogEntry("users", "Confirmation Status", "Unconfirmed")
+        val request = RevokeConfirmationModuleRequest("Unconfirmed", listOf(volunteerChange, userChange))
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        changedConfirmation.shouldBe("Confirmed")
+    }
+
     "should return FailedModuleResponse when changing confirmation status fails" {
         val module = RevokeConfirmationModule({ emptyList<String>().right() }, { RuntimeException().left() })
         val request = RevokeConfirmationModuleRequest("Confirmed", emptyList())
@@ -138,10 +165,11 @@ class RevokeConfirmationTest : StringSpec({
     }
 })
 
-private fun mockChangelogEntry(authorName: String, fieldName: String, fieldValue: String): ChangeLogEntry {
+private fun mockChangelogEntry(authorName: String, fieldName: String, fieldValue: String, date: Date = Date()): ChangeLogEntry {
     val changeLogEntry = mockk<ChangeLogEntry>()
     every { changeLogEntry.author.name } returns authorName
     every { changeLogEntry.items } returns listOf(mockChangelogItem(fieldName, fieldValue))
+    every { changeLogEntry.created } returns date
 
     return changeLogEntry
 }

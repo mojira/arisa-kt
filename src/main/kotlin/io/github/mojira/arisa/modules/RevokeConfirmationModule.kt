@@ -3,6 +3,8 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import net.rcarz.jiraclient.ChangeLogEntry
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 data class RevokeConfirmationModuleRequest(
     val confirmationStatus: String,
@@ -26,6 +28,12 @@ class RevokeConfirmationModule(
         }
     }
 
+    private fun updateIsRecent(entry: ChangeLogEntry) = entry
+        .created
+        .toInstant()
+        .plus(1, ChronoUnit.DAYS)
+        .isAfter(Instant.now())
+
     private fun isConfirmationChange(entry: ChangeLogEntry) =
         entry.items.any { it.field == "Confirmation Status" }
 
@@ -33,6 +41,10 @@ class RevokeConfirmationModule(
         entry.items.lastOrNull { it.field == "Confirmation Status" }?.toString
 
     private fun changedByVolunteer(entry: ChangeLogEntry): Boolean {
+        if (!updateIsRecent(entry))
+        // if the change was more than a day ago, assume it was done by a volunteer
+            return true
+
         val groups = getGroups(entry.author.name)
 
         return if (groups.isLeft())

@@ -95,7 +95,7 @@ class ModuleExecutor(
                 response.second.fold({
                     processedIssues.putIfAbsent(issue, false)
                     when (it) {
-                        is OperationNotNeededModuleResponse -> log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> for (exception in it.exceptions) {
                             log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
                         }

@@ -106,7 +106,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
 
     "should only remove MEQS of the comment" {
         val module = RemoveNonStaffMeqsModule("Test.")
-        val comment = Comment("MEQS_WAI I like QC.", null, null) { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }
+        val comment = Comment("MEQS_WAI\nI like QC.", null, null) { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }
         val request = Request(listOf(comment))
 
         val result = module(request)

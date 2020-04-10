@@ -33,5 +33,5 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
         item.field == "Confirmation Status"
 
     private fun changedByVolunteer(item: ChangeLogItem) =
-        item.authorGroups?.any { it == "helper" || it == "global-moderator" || it == "staff" } ?: true
+        item.authorGroups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 }

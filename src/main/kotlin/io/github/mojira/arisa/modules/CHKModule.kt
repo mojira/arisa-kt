@@ -30,7 +30,7 @@ class CHKModule : Module<CHKModule.Request> {
 
     private fun assertNoChk(chkField: String?) =
         when (chkField) {
-            null -> OperationNotNeededModuleResponse.left()
-            else -> Unit.right()
+            null -> Unit.right()
+            else -> OperationNotNeededModuleResponse.left()
         }
 }

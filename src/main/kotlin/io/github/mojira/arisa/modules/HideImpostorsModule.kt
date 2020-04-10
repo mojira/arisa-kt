@@ -41,7 +41,7 @@ class HideImpostorsModule : Module<HideImpostorsModule.Request> {
     }
 
     private fun userIsNotVolunteer(comment: Comment) =
-        !(comment.authorGroups?.any { it == "helper" || it == "global-moderator" || it == "staff" } ?: false)
+        !(comment.authorGroups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false)
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

@@ -2,48 +2,49 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import net.rcarz.jiraclient.Comment
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.Date
 
-data class HideImpostorsModuleRequest(val comments: List<Comment>)
+class HideImpostorsModule : Module<HideImpostorsModule.Request> {
+    data class HideImpostorComment(
+        val authorDisplayName: String,
+        val authorGroups: List<String>,
+        val updated: Date,
+        val visibilityType: String?,
+        val visibilityValue: String?,
+        val restrict: () -> Either<Throwable, Unit>
+    )
 
-class HideImpostorsModule(
-    private val getGroups: (String) -> Either<Throwable, List<String>>,
-    val restrictCommentToGroup: (comment: Comment, body: String) -> Either<Throwable, Unit>
-) : Module<HideImpostorsModuleRequest> {
-    override fun invoke(request: HideImpostorsModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
+    data class Request(val comments: List<HideImpostorComment>)
+
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            val usersWithBrackets = comments
+            val restrictImpostorComments = comments
                 .filter(::commentIsRecent)
                 .filter(::userContainsBrackets)
                 .filter(::userIsNotVolunteer)
                 .filter(::isNotStaffRestricted)
+                .map { it.restrict }
 
-            assertNotEmpty(usersWithBrackets).bind()
-            tryRunAll({ restrictCommentToGroup(it, it.body) }, usersWithBrackets).bind()
+            assertNotEmpty(restrictImpostorComments).bind()
+            tryRunAll(restrictImpostorComments).bind()
         }
     }
 
-    private fun commentIsRecent(comment: Comment) = comment
-        .updatedDate
+    private fun commentIsRecent(comment: HideImpostorComment) = comment
+        .updated
         .toInstant()
         .plus(1, ChronoUnit.DAYS)
         .isAfter(Instant.now())
 
-    private fun userContainsBrackets(comment: Comment) = with(comment.author.displayName) {
+    private fun userContainsBrackets(comment: HideImpostorComment) = with(comment.authorDisplayName) {
         contains("[") && contains("]")
     }
 
-    private fun userIsNotVolunteer(comment: Comment): Boolean {
-        val groups = getGroups(comment.author.name)
-        return if (groups.isLeft()) {
-            false // when in doubt, assume change was done by a volunteer
-        } else {
-            !((groups as Either.Right).b.any { it == "helper" || it == "global-moderators" || it == "staff" })
-        }
-    }
+    private fun userIsNotVolunteer(comment: HideImpostorComment) =
+        !comment.authorGroups.any { it == "helper" || it == "global-moderator" || it == "staff" }
 
-    private fun isNotStaffRestricted(comment: Comment) =
-        comment.visibility == null || comment.visibility.type != "group" || comment.visibility.value != "staff"
+    private fun isNotStaffRestricted(comment: HideImpostorComment) =
+        comment.visibilityType != "group" || comment.visibilityValue != "staff"
 }

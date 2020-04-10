@@ -203,9 +203,9 @@ class ModuleExecutor(
         val projects = config[Arisa.Issues.projects]
             .filter { config[moduleConfig.whitelist] == null || config[moduleConfig.whitelist]!!.contains(it) }
             .joinToString(",")
-        val resolutions = config[moduleConfig.resolutions].joinToString(",")
-        val cachedTickets = ticketCache.joinToString(",")
-        val combinedJql = "project in ($projects) AND key not in ($cachedTickets) AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
+        val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
+        val cachedTickets = if (ticketCache.isEmpty()) "" else "AND key not in (${ticketCache.joinToString(",")})"
+        val combinedJql = "project in ($projects) $cachedTickets AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
 
         val issues = queryCache[combinedJql] ?: jiraClient
             .searchIssues(combinedJql)

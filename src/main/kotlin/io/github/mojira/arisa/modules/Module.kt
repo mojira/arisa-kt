@@ -19,7 +19,7 @@ fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
     { ModuleResponse }
 )
 
-fun <T> assertNotEmpty(c: Collection<T>) = when {
+fun assertNotEmpty(c: Iterable<*>) = when {
     c.isEmpty() -> OperationNotNeededModuleResponse.left()
     else -> Unit.right()
 }
@@ -29,12 +29,11 @@ fun <T> assertNotNull(e: T?) = when (e) {
     else -> Unit.right()
 }
 
-fun <T> tryRunAll(
-    func: (T) -> Either<Throwable, Unit>,
-    elements: Collection<T>
+fun tryRunAll(
+    functs: List<() -> Either<Throwable, Unit>>
 ): Either<FailedModuleResponse, ModuleResponse> {
-    val exceptions = elements
-        .map(func)
+    val exceptions = functs
+        .map { it() }
         .filter { it.isLeft() }
         .map { (it as Either.Left).a }
 
@@ -43,6 +42,11 @@ fun <T> tryRunAll(
     } else {
         FailedModuleResponse(exceptions).left()
     }
+}
+
+fun <T> assertEquals(o1: T, o2: T) = when (o1) {
+    o2 -> Unit.right()
+    else -> OperationNotNeededModuleResponse.left()
 }
 
 fun <T> assertNotEquals(o1: T, o2: T) = when (o1) {

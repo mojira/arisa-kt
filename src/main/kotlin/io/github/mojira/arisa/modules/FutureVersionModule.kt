@@ -2,35 +2,37 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import arrow.syntax.function.partially1
-import net.rcarz.jiraclient.Issue
-import net.rcarz.jiraclient.Version
+import arrow.syntax.function.complement
 
-data class FutureVersionModuleRequest(
-    val issue: Issue,
-    val affectedVersions: List<Version>,
-    val versions: List<Version>?
-)
+class FutureVersionModule : Module<FutureVersionModule.Request> {
+    data class Version(
+        val released: Boolean,
+        val archived: Boolean,
+        val execute: () -> Either<Throwable, Unit>
+    )
 
-class FutureVersionModule(
-    val removeVersion: (Issue, Version) -> Either<Throwable, Unit>,
-    val addVersion: (Issue, Version) -> Either<Throwable, Unit>,
-    val addFutureVersionComment: (Issue) -> Either<Throwable, Unit>
-) : Module<FutureVersionModuleRequest> {
+    data class Request(
+        val affectedVersions: List<Version>,
+        val versions: List<Version>?,
+        val addFutureVersionComment: () -> Either<Throwable, Unit>
+    )
 
-    override fun invoke(request: FutureVersionModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            val futureVersions = affectedVersions.filter(::isFutureVersion)
-            val latestVersion = versions?.lastOrNull { !isFutureVersion(it) }
-            assertNotEmpty(futureVersions).bind()
+            val removeFutureVersions = affectedVersions
+                .filter(::isFutureVersion)
+                .map { it.execute }
+            assertNotEmpty(removeFutureVersions).bind()
+
+            val latestVersion = versions?.lastOrNull(::isFutureVersion.complement())
             assertNotNull(latestVersion).bind()
 
-            addVersion(issue, latestVersion!!).toFailedModuleEither().bind()
-            tryRunAll(removeVersion.partially1(issue), futureVersions).bind()
-            addFutureVersionComment(issue).toFailedModuleEither().bind()
+            latestVersion!!.execute().toFailedModuleEither().bind()
+            tryRunAll(removeFutureVersions).bind()
+            addFutureVersionComment().toFailedModuleEither().bind()
         }
     }
 
     private fun isFutureVersion(version: Version) =
-        !version.isReleased && !version.isArchived
+        !version.released && !version.archived
 }

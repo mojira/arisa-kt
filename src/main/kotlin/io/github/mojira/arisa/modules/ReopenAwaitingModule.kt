@@ -4,46 +4,42 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
-import net.rcarz.jiraclient.Comment
-import net.rcarz.jiraclient.Issue
-import net.rcarz.jiraclient.Resolution
 import java.time.Instant
 
-data class ReopenAwaitingModuleRequest(
-    val issue: Issue,
-    val resolution: Resolution?,
-    val created: Instant,
-    val updated: Instant,
-    val comments: List<Comment>
-)
+class ReopenAwaitingModule : Module<ReopenAwaitingModule.Request> {
+    data class Comment(
+        val updated: Long,
+        val created: Long
+    )
 
-class ReopenAwaitingModule(val reopen: (Issue) -> Either<Throwable, Unit>) : Module<ReopenAwaitingModuleRequest> {
-    override fun invoke(request: ReopenAwaitingModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
+    data class Request(
+        val resolution: String?,
+        val created: Instant,
+        val updated: Instant,
+        val comments: List<Comment>,
+        val reopen: () -> Either<Throwable, Unit>
+    )
+
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            assertResolutionIs(resolution, "Awaiting Response").bind()
+            assertEquals(resolution, "Awaiting Response").bind()
             assertNotEmpty(comments).bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
             val lastComment = comments.last()
             assertUpdateWasNotCausedByEditingComment(
-                updated.toEpochMilli(), lastComment.updatedDate.time, lastComment.createdDate.time
+                updated.toEpochMilli(), lastComment.updated, lastComment.created
             ).bind()
-            reopen(issue).toFailedModuleEither().bind()
+            reopen().toFailedModuleEither().bind()
         }
     }
 
-    fun assertResolutionIs(resolution: Resolution?, name: String) = if (resolution == null || resolution.name != name) {
+    private fun assertCreationIsNotRecent(updated: Long, created: Long) = if ((updated - created) < 2000) {
         OperationNotNeededModuleResponse.left()
     } else {
         Unit.right()
     }
 
-    fun assertCreationIsNotRecent(updated: Long, created: Long) = if ((updated - created) < 2000) {
-        OperationNotNeededModuleResponse.left()
-    } else {
-        Unit.right()
-    }
-
-    fun assertUpdateWasNotCausedByEditingComment(updated: Long, commentUpdated: Long, commentCreated: Long) =
+    private fun assertUpdateWasNotCausedByEditingComment(updated: Long, commentUpdated: Long, commentCreated: Long) =
         if (updated - commentUpdated < 2000 && (commentUpdated - commentCreated) > 2000) {
             OperationNotNeededModuleResponse.left()
         } else {

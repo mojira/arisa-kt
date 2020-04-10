@@ -4,29 +4,33 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
-import net.rcarz.jiraclient.Issue
 
-data class CHKModuleRequest(
-    val issue: Issue,
-    val chkField: String?,
-    val confirmationField: String?
-)
+class CHKModule : Module<CHKModule.Request> {
+    data class Request(
+        val updateCHK: () -> Either<Throwable, Unit>,
+        val chkField: String?,
+        val confirmationField: String?
+    )
 
-class CHKModule(val updateCHK: (Issue) -> Either<Throwable, Unit>) : Module<CHKModuleRequest> {
-    override fun invoke(request: CHKModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            assertIsValid(request).bind()
-            updateCHK(issue).toFailedModuleEither().bind()
+            assertConfirmed(confirmationField).bind()
+            assertNoChk(chkField).bind()
+            updateCHK().toFailedModuleEither().bind()
         }
     }
-}
 
-private fun assertIsValid(request: CHKModuleRequest): Either<OperationNotNeededModuleResponse, Unit> = with(request) {
-    when {
-        confirmationField == null ||
-            confirmationField == "Undefined" ||
-            confirmationField.toLowerCase() == "unconfirmed" ||
-            chkField != null -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
-    }
+    private fun assertConfirmed(confirmationField: String?) =
+        when(confirmationField?.toLowerCase()) {
+            null -> OperationNotNeededModuleResponse.left()
+            "undefined" -> OperationNotNeededModuleResponse.left()
+            "unconfirmed" -> OperationNotNeededModuleResponse.left()
+            else -> Unit.right()
+        }
+
+    private fun assertNoChk(chkField: String?) =
+        when (chkField) {
+            null -> OperationNotNeededModuleResponse.left()
+            else -> Unit.right()
+        }
 }

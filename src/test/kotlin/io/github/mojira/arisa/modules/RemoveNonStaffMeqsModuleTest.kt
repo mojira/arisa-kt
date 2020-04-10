@@ -52,7 +52,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
 
     "should return FailedModuleResponse when updating fails" {
         val module = RemoveNonStaffMeqsModule("")
-        val comment = Comment("MEQS_WAI I like QC.", null, null) {RuntimeException().left() }
+        val comment = Comment("MEQS_WAI I like QC.", null, null) { RuntimeException().left() }
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -64,7 +64,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all exceptions when updating fails" {
         val module = RemoveNonStaffMeqsModule("")
-        val comment = Comment("MEQS_WAI I like QC.", null, null) {RuntimeException().left() }
+        val comment = Comment("MEQS_WAI I like QC.", null, null) { RuntimeException().left() }
         val request = Request(listOf(comment, comment))
 
         val result = module(request)

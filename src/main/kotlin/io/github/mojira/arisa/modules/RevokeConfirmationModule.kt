@@ -5,7 +5,6 @@ import arrow.core.extensions.fx
 import arrow.syntax.function.complement
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Date
 
 class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     data class ChangeLogItem(

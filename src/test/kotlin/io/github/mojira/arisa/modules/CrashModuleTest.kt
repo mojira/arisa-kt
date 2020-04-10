@@ -380,7 +380,7 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             SERVER_MODDED_CRASH,
             Calendar.getInstance().time,
-            {  resolvedAsInvalid = true; Unit.right() },
+            { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },

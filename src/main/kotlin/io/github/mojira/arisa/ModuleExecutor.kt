@@ -243,7 +243,7 @@ class ModuleExecutor(
                     ((it.getField(config[Arisa.CustomFields.mojangPriorityField])) as? JSONObject)?.get("value") as? String?,
                     it.getField(config[Arisa.CustomFields.triagedTimeField]) as? String?,
                     it.comments
-                        .map { c-> RemoveTriagedMeqsModule.Comment(
+                        .map { c -> RemoveTriagedMeqsModule.Comment(
                             c.body,
                             ::updateCommentBody.partially1(c)
                         ) }

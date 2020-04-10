@@ -11,7 +11,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Date
 
 class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is unconfirmed and confirmation was never changed" {
@@ -62,7 +61,6 @@ class RevokeConfirmationTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
-
 
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and groups are unknown" {
         val module = RevokeConfirmationModule()

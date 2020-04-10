@@ -25,7 +25,7 @@ class RemoveTriagedMeqsModule(
         assertTriaged(request.priority, request.triagedTime).bind()
 
         val updateMeqsComments = request.comments
-            .filter{ hasMeqsTag(it.body) }
+            .filter { hasMeqsTag(it.body) }
             .map { it.update.partially1(removeMeqsTags(it.body)) }
         assertNotEmpty(updateMeqsComments).bind()
 

@@ -35,7 +35,7 @@ class CrashModule(
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
             val textDocuments = attachments
-                .filter{ isCrashAttachment(it.name) }
+                .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
             textDocuments.add(TextDocument(body, created))

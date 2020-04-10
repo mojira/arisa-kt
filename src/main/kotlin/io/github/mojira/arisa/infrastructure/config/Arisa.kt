@@ -46,7 +46,7 @@ object Arisa : ConfigSpec() {
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
             val meqsTags by optional(emptyList<String>(), description = "List of tags that should be removed by the bot when an issue is triaged.")
-            val removalReason by optional<String?>(null, description = "Reason Arisa should add to the edited comment for removing the tag. Default is no reason.")
+            val removalReason by required<String>(description = "Reason Arisa should add to the edited comment for removing the tag. Default is no reason.")
         }
 
         object FutureVersion : ModuleConfigSpec() {
@@ -58,7 +58,7 @@ object Arisa : ConfigSpec() {
         object ReopenAwaiting : ModuleConfigSpec()
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {
-            val removalReason by optional<String?>(null, description = "Reason Arisa should add to the edited comment for removing the tag. Default is no reason.")
+            val removalReason by required<String>(description = "Reason Arisa should add to the edited comment for removing the tag. Default is no reason.")
         }
 
         object Empty : ModuleConfigSpec() {

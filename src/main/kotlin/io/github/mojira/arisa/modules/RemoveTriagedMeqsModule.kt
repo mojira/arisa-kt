@@ -8,7 +8,7 @@ import arrow.syntax.function.partially1
 
 class RemoveTriagedMeqsModule(
     private val meqsTags: List<String>,
-    private val removalReason: String?
+    private val removalReason: String
 ) : Module<RemoveTriagedMeqsModule.Request> {
     data class Comment(
         val body: String,
@@ -41,7 +41,7 @@ class RemoveTriagedMeqsModule(
             meqsTags.joinToString("|") { it.replace("MEQS", "") } +
             ")"
         ).toRegex()
-        return regex.replace(comment) { "MEQS_ARISA_REMOVED${it.groupValues[1]}${ if (removalReason != null) " Removal Reason: $removalReason" else "" }" }
+        return regex.replace(comment) { "MEQS_ARISA_REMOVED${it.groupValues[1]} Removal Reason: $removalReason" }
     }
 
     private fun assertTriaged(priority: String?, triagedTime: String?) = when {

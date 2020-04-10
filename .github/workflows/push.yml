@@ -42,9 +42,15 @@ jobs:
         USERNAME: ${{ secrets.REMOTE_USER }}
         SERVER_DESTINATION: /home/ubuntu/arisa-kt
     - name: Run internal deploy script
-      uses: appleboy/ssh-action@master
+      uses: fifsky/ssh-action@master
       with:
         host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
+        user: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: /home/ubuntu/arisa-kt/deploy.sh
+        command: |
+          /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
+          sleep 1
+          cd arisa-kt
+          /usr/bin/screen -d -m bash -c '/home/ubuntu/arisa-kt/bin/arisa-kt; exec sh'
+          
+        args: "-tt"

@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit
 class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     data class ChangeLogItem(
         val field: String,
-        val newValue: String,
+        val newValue: String?,
         val created: Instant,
         val authorGroups: List<String>?
     )

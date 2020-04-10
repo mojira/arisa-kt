@@ -3,7 +3,6 @@
 /build/
 .idea/
 arisa.yml
-arisa.json
 /.kotest
 /out/
 /logs/

@@ -5,25 +5,25 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 
-data class PiracyModuleRequest(
-    val environment: String?,
-    val summary: String?,
-    val description: String?
-)
+class PiracyModule(private val piracySignatures: List<String>) : Module<PiracyModule.Request> {
 
-class PiracyModule(
-    val resolveAsInvalid: () -> Either<Throwable, Unit>,
-    val addPiracyComment: () -> Either<Throwable, Unit>,
-    val piracySignatures: List<String>
-) : Module<PiracyModuleRequest> {
+    data class Request(
+        val environment: String?,
+        val summary: String?,
+        val description: String?,
+        val resolveAsInvalid: () -> Either<Throwable, Unit>,
+        val addPiracyComment: () -> Either<Throwable, Unit>
+    )
 
-    override fun invoke(request: PiracyModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertContainsSignatures(
-            piracySignatures,
-            "${request.description} ${request.environment} ${request.summary}"
-        ).bind()
-        addPiracyComment().toFailedModuleEither().bind()
-        resolveAsInvalid().toFailedModuleEither().bind()
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+        Either.fx {
+            assertContainsSignatures(
+                piracySignatures,
+                "$description $environment $summary"
+            ).bind()
+            addPiracyComment().toFailedModuleEither().bind()
+            resolveAsInvalid().toFailedModuleEither().bind()
+        }
     }
 
     private fun assertContainsSignatures(piracySignatures: List<String>, matcher: String) = when {

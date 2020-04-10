@@ -3,60 +3,67 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import net.rcarz.jiraclient.Attachment
 import java.util.Calendar
 import java.util.Date
 import kotlin.text.RegexOption.IGNORE_CASE
-
-data class CrashModuleRequest(
-    val attachments: List<Attachment>,
-    val body: String,
-    val created: Date
-)
 
 const val MINECRAFT_CRASH_HEADER = "---- Minecraft Crash Report ----"
 const val JAVA_CRASH_HEADER = "#  EXCEPTION_ACCESS_VIOLATION"
 
 class CrashModule(
-    private val resolveAsInvalid: () -> Either<Throwable, Unit>,
-    private val resolveAsDuplicate: () -> Either<Throwable, Unit>,
-    private val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
-    private val addModdedComment: () -> Either<Throwable, Unit>,
-    private val addDuplicateComment: (key: String) -> Either<Throwable, Unit>,
     private val crashReportExtensions: List<String>,
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val maxAttachmentAge: Int
-) : Module<CrashModuleRequest> {
-    override fun invoke(request: CrashModuleRequest): Either<ModuleError, ModuleResponse> = Either.fx {
-        val crashAttachments = request.attachments.filter(::isCrashAttachment)
+) : Module<CrashModule.Request> {
+    data class Attachment(
+        val name: String,
+        val created: Date,
+        val content: ByteArray
+    )
 
-        val textDocuments = crashAttachments
-            .map(::fetchAttachment)
-            .toMutableList()
-        textDocuments.add(TextDocument(request.body, request.created))
+    data class Request(
+        val attachments: List<Attachment>,
+        val body: String,
+        val created: Date,
+        val resolveAsInvalid: () -> Either<Throwable, Unit>,
+        val resolveAsDuplicate: () -> Either<Throwable, Unit>,
+        val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
+        val addModdedComment: () -> Either<Throwable, Unit>,
+        val addDuplicateComment: (key: String) -> Either<Throwable, Unit>
+    )
 
-        val recentTextDocuments = textDocuments.filter(::isTextDocumentRecent)
-        val infos = recentTextDocuments.mapNotNull(::fetchInfo)
-        assertNotEmpty(infos).bind()
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+        Either.fx {
+            val textDocuments = attachments
+                .filter { isCrashAttachment(it.name) }
+                .map(::fetchAttachment)
+                .toMutableList()
+            textDocuments.add(TextDocument(body, created))
 
-        val mostRelevantInfo = infos.reduce(::getMoreRelevantInfo)
+            val infos = textDocuments
+                .filter(::isTextDocumentRecent)
+                .mapNotNull(::fetchInfo)
+            assertNotEmpty(infos).bind()
 
-        if (mostRelevantInfo.modded) {
-            addModdedComment().toFailedModuleEither().bind()
-            resolveAsInvalid().toFailedModuleEither().bind()
-        } else {
-            val configs = crashDupeConfigs.filter(::isConfigValid)
-            val key = getDuplicateKey(mostRelevantInfo, configs)
-            assertNotNull(key).bind()
+            val mostRelevantInfo = infos.reduce(::getMoreRelevantInfo)
 
-            addDuplicateComment(key!!).toFailedModuleEither().bind()
-            resolveAsDuplicate().toFailedModuleEither().bind()
-            linkDuplicate(key).toFailedModuleEither().bind()
+            if (mostRelevantInfo.modded) {
+                addModdedComment().toFailedModuleEither().bind()
+                resolveAsInvalid().toFailedModuleEither().bind()
+            } else {
+                val configs = crashDupeConfigs.filter(::isConfigValid)
+                val key = getDuplicateKey(mostRelevantInfo, configs)
+                assertNotNull(key).bind()
+
+                addDuplicateComment(key!!).toFailedModuleEither().bind()
+                resolveAsDuplicate().toFailedModuleEither().bind()
+                linkDuplicate(key).toFailedModuleEither().bind()
+            }
         }
     }
 
-    private fun isCrashAttachment(attachment: Attachment) =
-        crashReportExtensions.any { it == attachment.fileName.substring(attachment.fileName.lastIndexOf(".") + 1) }
+    private fun isCrashAttachment(fileName: String) =
+        crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
     private fun isTextDocumentRecent(textDocument: TextDocument): Boolean {
         val calendar = Calendar.getInstance()
@@ -80,15 +87,15 @@ class CrashModule(
     private fun getDuplicateKey(info: CrashInfo, configs: List<CrashDupeConfig>) =
         configs.firstOrNull {
             CrashInfoType.valueOf(it.type.toUpperCase()) == info.type &&
-                    info.exception != null &&
-                    it.exceptionDesc.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
+                info.exception != null &&
+                it.exceptionRegex.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
         }?.duplicates
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
-        val data = attachment.download()
+        val data = attachment.content
         val text = String(data)
 
-        return TextDocument(text, attachment.createdDate)
+        return TextDocument(text, attachment.created)
     }
 
     private fun fetchInfo(file: TextDocument) = when {

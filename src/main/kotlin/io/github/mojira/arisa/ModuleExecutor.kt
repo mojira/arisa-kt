@@ -146,7 +146,7 @@ class ModuleExecutor(
                     ::resolveAs.partially1(issue).partially1("Duplicate"),
                     ::link.partially1(issue).partially1("Duplicate"),
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage]),
-                    { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].replace("{DUPLICATE}", key)) }
+                    { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].format(key)) }
                 )
             )
         }

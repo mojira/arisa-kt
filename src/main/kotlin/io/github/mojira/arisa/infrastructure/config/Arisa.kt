@@ -69,7 +69,7 @@ object Arisa : ConfigSpec() {
             val maxAttachmentAge by optional(0, description = "Max age in days the attachment can have to be considered")
             val crashExtensions by optional(emptyList<String>(), description = "File extensions that should be checked for crash reports.")
             val duplicateMessage by optional("", description = "Message to be send when resolving a duplicate. {DUPLICATE} will be replaced by the ticket key")
-            val moddedMessage by optional("", description = "Message to be send when resolving a duplicate. {DUPLICATE} will be replaced by the ticket key")
+            val moddedMessage by optional("", description = "Message to be send when resolving a duplicate. %s will be replaced by the ticket key")
             val duplicates by optional(emptyList<CrashDupeConfig>(), description = "List of exception details that are resolved as duplicates for a specific ticket key.")
         }
 

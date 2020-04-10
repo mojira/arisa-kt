@@ -129,7 +129,7 @@ class ModuleExecutor(
         exec(Arisa.Modules.CHK) { issue ->
             "CHK" to chkModule(
                 CHKModule.Request(
-                    issue.getField(config[Arisa.CustomFields.chkField]) as? String?,
+                    issue.getFieldAsString(config[Arisa.CustomFields.chkField]),
                     ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String?,
                     ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
                 )
@@ -155,7 +155,7 @@ class ModuleExecutor(
                 EmptyModule.Request(
                     issue.attachments.size,
                     issue.description,
-                    issue.getField("environment") as? String?,
+                    issue.getFieldAsString("environment"),
                     ::resolveAs.partially1(issue).partially1("Incomplete"),
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.message])
                 )
@@ -216,7 +216,7 @@ class ModuleExecutor(
         exec(Arisa.Modules.Piracy) { issue ->
             "Piracy" to piracyModule(
                 PiracyModule.Request(
-                    issue.getField("environment") as? String?,
+                    issue.getFieldAsString("environment"),
                     issue.summary,
                     issue.description,
                     ::resolveAs.partially1(issue).partially1("Invalid"),
@@ -241,7 +241,7 @@ class ModuleExecutor(
             "RemoveTriagedMeqs" to removeTriagedMeqsModule(
                 RemoveTriagedMeqsModule.Request(
                     ((it.getField(config[Arisa.CustomFields.mojangPriorityField])) as? JSONObject)?.get("value") as? String?,
-                    it.getField(config[Arisa.CustomFields.triagedTimeField]) as? String?,
+                    it.getFieldAsString(config[Arisa.CustomFields.triagedTimeField]),
                     it.comments
                         .map { c -> RemoveTriagedMeqsModule.Comment(
                             c.body,
@@ -294,6 +294,7 @@ class ModuleExecutor(
 
     private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private fun String.toInstant() = isoFormat.parse(this).toInstant()
+    private fun Issue.getFieldAsString(field: String) = this.getField(field) as? String
 
     private fun getSecurityLevelId(project: String) =
         config[Arisa.PrivateSecurityLevel.special][project] ?: config[Arisa.PrivateSecurityLevel.default]

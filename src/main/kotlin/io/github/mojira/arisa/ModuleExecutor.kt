@@ -274,6 +274,7 @@ class ModuleExecutor(
                             .map { i -> RevokeConfirmationModule.ChangeLogItem(
                                 i.field,
                                 i.toString,
+                                e.created.toInstant(),
                                 getGroups(jiraClient, e.author.name).fold({ null }, { it })
                             ) }
                         },

@@ -2,11 +2,16 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.syntax.function.complement
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.Date
 
 class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     data class ChangeLogItem(
         val field: String,
         val newValue: String,
+        val created: Instant,
         val authorGroups: List<String>?
     )
 
@@ -20,6 +25,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
         Either.fx {
             val volunteerConfirmation = changeLog
                 .filter(::isConfirmationChange)
+                .filter(::updateIsRecent.complement())
                 .filter(::changedByVolunteer)
                 .lastOrNull()
                 ?.newValue ?: "Unconfirmed"
@@ -34,4 +40,9 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
 
     private fun changedByVolunteer(item: ChangeLogItem) =
         item.authorGroups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+
+    private fun updateIsRecent(item: ChangeLogItem) = item
+        .created
+        .plus(1, ChronoUnit.DAYS)
+        .isAfter(Instant.now())
 }

@@ -3,7 +3,6 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import net.rcarz.jiraclient.Attachment
 import java.util.Calendar
 import java.util.Date
 import kotlin.text.RegexOption.IGNORE_CASE
@@ -16,6 +15,11 @@ class CrashModule(
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val maxAttachmentAge: Int
 ) : Module<CrashModule.Request> {
+    data class Attachment(
+        val name: String,
+        val created: Date,
+        val content: ByteArray
+    )
 
     data class Request(
         val attachments: List<Attachment>,
@@ -31,7 +35,7 @@ class CrashModule(
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
             val textDocuments = attachments
-                .filter(::isCrashAttachment)
+                .filter{ isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
             textDocuments.add(TextDocument(body, created))
@@ -58,8 +62,8 @@ class CrashModule(
         }
     }
 
-    private fun isCrashAttachment(attachment: Attachment) =
-        crashReportExtensions.any { it == attachment.fileName.substring(attachment.fileName.lastIndexOf(".") + 1) }
+    private fun isCrashAttachment(fileName: String) =
+        crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
     private fun isTextDocumentRecent(textDocument: TextDocument): Boolean {
         val calendar = Calendar.getInstance()
@@ -88,10 +92,10 @@ class CrashModule(
         }?.duplicates
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
-        val data = attachment.download()
+        val data = attachment.content
         val text = String(data)
 
-        return TextDocument(text, attachment.createdDate)
+        return TextDocument(text, attachment.created)
     }
 
     private fun fetchInfo(file: TextDocument) = when {

@@ -7,7 +7,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     data class ChangeLogItem(
         val field: String,
         val newValue: String,
-        val authorGroups: List<String>
+        val authorGroups: List<String>?
     )
 
     data class Request(
@@ -33,5 +33,5 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
         item.field == "Confirmation Status"
 
     private fun changedByVolunteer(item: ChangeLogItem) =
-        item.authorGroups.any { it == "helper" || it == "global-moderator" || it == "staff" }
+        item.authorGroups?.any { it == "helper" || it == "global-moderator" || it == "staff" } ?: true
 }

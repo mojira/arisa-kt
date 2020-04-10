@@ -7,9 +7,9 @@ import arrow.core.right
 
 class CHKModule : Module<CHKModule.Request> {
     data class Request(
-        val updateCHK: () -> Either<Throwable, Unit>,
         val chkField: String?,
-        val confirmationField: String?
+        val confirmationField: String?,
+        val updateCHK: () -> Either<Throwable, Unit>
     )
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {

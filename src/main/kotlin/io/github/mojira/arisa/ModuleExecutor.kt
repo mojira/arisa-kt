@@ -34,6 +34,7 @@ import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
@@ -82,10 +83,10 @@ class ModuleExecutor(
                 // Ignore issues where last action was a resolve
                 val latestChange = issue.changeLog.entries.lastOrNull()
 
-                latestChange == null || // There is actually a entry
-                    !latestChange.items.any { it.field == "resolution" } || // It was a transition
-                    latestChange.author.name == config[Arisa.Credentials.username] || // The transition was not done by the bot
-                    (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > latestChange.created) // And there is no comment posted after that
+                latestChange == null ||
+                        latestChange.isATransition() ||
+                        latestChange.wasNotDoneByTheBot() ||
+                        latestChange.noCommentAfterIt(issue)
             }
         queryCache[combinedJql] = issues
 
@@ -106,6 +107,15 @@ class ModuleExecutor(
                 })
             }
     }
+
+    private fun ChangeLogEntry.noCommentAfterIt(issue: Issue) =
+        (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > created)
+
+    private fun ChangeLogEntry.wasNotDoneByTheBot() =
+        author.name == config[Arisa.Credentials.username]
+
+    private fun ChangeLogEntry.isATransition() =
+        !items.any { it.field == "resolution" }
 
     fun execute() {
         // Cache issues returned by a query to avoid searching the same query for different modules

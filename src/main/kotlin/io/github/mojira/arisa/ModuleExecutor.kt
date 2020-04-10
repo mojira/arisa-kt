@@ -270,6 +270,7 @@ class ModuleExecutor(
         }
 
         cache.addProcessedTickets(290_000)
+        cache.clearQueryCache()
     }
 
     private fun executeModule(

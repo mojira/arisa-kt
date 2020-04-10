@@ -34,4 +34,8 @@ class Cache {
     fun finishProcessingTicket(issue: String) {
         processedTickets[issue] = true
     }
+
+    fun clearQueryCache() {
+        queryCache.clear()
+    }
 }

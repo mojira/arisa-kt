@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -39,14 +40,13 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
-import java.util.Timer
-import kotlin.concurrent.schedule
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
 class ModuleExecutor(
     private val jiraClient: JiraClient,
-    private val config: Config
+    private val config: Config,
+    private val cache: Cache
 ) {
     private val attachmentModule: AttachmentModule =
         AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
@@ -70,14 +70,8 @@ class ModuleExecutor(
     private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
     private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
 
-    private val ticketCache = mutableListOf<String>()
-    private val ticketTimer = Timer("RemoveCachedTicket", true)
-
     fun execute() {
-        // Cache issues returned by a query to avoid searching the same query for different modules
-        val queryCache = mutableMapOf<String, List<Issue>>()
-        val processedTickets = mutableMapOf<String, Boolean>()
-        val exec = ::executeModule.partially2(queryCache).partially2(processedTickets)
+        val exec = ::executeModule.partially2(cache)
 
         exec(Arisa.Modules.Attachment) { issue ->
             "Attachment" to attachmentModule(
@@ -112,7 +106,12 @@ class ModuleExecutor(
                     ::resolveAs.partially1(issue).partially1("Duplicate"),
                     ::link.partially1(issue).partially1("Duplicate"),
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage]),
-                    { key -> addComment(issue, config[Arisa.Modules.Crash.duplicateMessage].format(key)) }
+                    { key ->
+                        addComment(
+                            issue,
+                            config[Arisa.Modules.Crash.duplicateMessage].format(key)
+                        )
+                    }
                 )
             )
         }
@@ -164,7 +163,10 @@ class ModuleExecutor(
                         .map { c ->
                             HideImpostorsModule.Comment(
                                 c.author.displayName,
-                                getGroups(jiraClient, c.author.name).fold({ null }, { it }),
+                                getGroups(
+                                    jiraClient,
+                                    c.author.name
+                                ).fold({ null }, { it }),
                                 c.updatedDate.toInstant(),
                                 c.visibility?.type,
                                 c.visibility?.value,
@@ -255,7 +257,10 @@ class ModuleExecutor(
                                         i.field,
                                         i.toString,
                                         e.created.toInstant(),
-                                        getGroups(jiraClient, e.author.name).fold({ null }, { it })
+                                        getGroups(
+                                            jiraClient,
+                                            e.author.name
+                                        ).fold({ null }, { it })
                                     )
                                 }
                         },
@@ -264,42 +269,40 @@ class ModuleExecutor(
             )
         }
 
-        processedTickets
-            .filter { (_, executed) -> !executed }
-            .map { (ticket, _) -> ticket }
-            .forEach { ticket ->
-                ticketCache.add(ticket)
-                ticketTimer.schedule(290_000) { ticketCache.remove(ticket) }
-            }
+        cache.addProcessedTickets(290_000)
     }
 
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        queryCache: MutableMap<String, List<Issue>>,
-        processedIssues: MutableMap<String, Boolean>,
+        cache: Cache,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = config[Arisa.Issues.projects]
             .filter { it.isWhitelisted(moduleConfig) }
             .joinToString(",")
         val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
-        val cachedTickets = if (ticketCache.isEmpty()) "" else "AND key not in (${ticketCache.joinToString(",")})"
+        val cachedTickets = if (cache.isEmpty()) {
+            ""
+        } else {
+            "AND key not in (${cache.getTickets()})"
+        }
+
         val combinedJql =
             "project in ($projects) $cachedTickets AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
 
-        val issues = queryCache[combinedJql] ?: jiraClient
+        val issues = cache.getQuery(combinedJql) ?: jiraClient
             .searchIssues(combinedJql)
             .issues
             .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
             .filter(::lastActionWasAResolve)
 
-        queryCache[combinedJql] = issues
+        cache.addQuery(combinedJql, issues)
 
         issues
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
-                    processedIssues.putIfAbsent(issue, false)
+                    cache.startProcessingTicket(issue)
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> for (exception in it.exceptions) {
@@ -307,7 +310,7 @@ class ModuleExecutor(
                         }
                     }
                 }, {
-                    processedIssues[issue] = true
+                    cache.finishProcessingTicket(issue)
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }

@@ -2,6 +2,7 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import org.slf4j.LoggerFactory
@@ -25,7 +26,7 @@ fun main() {
 
     log.info("Connected to jira")
 
-    val moduleExecutor = ModuleExecutor(jiraClient, config)
+    val moduleExecutor = ModuleExecutor(jiraClient, config, Cache())
     while (true) {
         moduleExecutor.execute()
 

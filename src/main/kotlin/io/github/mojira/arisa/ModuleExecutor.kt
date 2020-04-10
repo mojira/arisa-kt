@@ -48,54 +48,30 @@ class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config
 ) {
-    private val attachmentModule: AttachmentModule
-    private val chkModule: CHKModule
-    private val crashModule: CrashModule
-    private val emptyModule: EmptyModule
-    private val keepPrivateModule: KeepPrivateModule
-    private val futureVersionModule: FutureVersionModule
-    private val hideImpostorsModule: HideImpostorsModule
-    private val piracyModule: PiracyModule
-    private val removeNonStaffMeqsModule: RemoveNonStaffMeqsModule
-    private val removeTriagedMeqsModule: RemoveTriagedMeqsModule
-    private val reopenAwaitingModule: ReopenAwaitingModule
-    private val revokeConfirmationModule: RevokeConfirmationModule
+    private val attachmentModule: AttachmentModule =
+        AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
+    private val chkModule: CHKModule = CHKModule()
+    private val crashModule: CrashModule = CrashModule(
+        config[Arisa.Modules.Crash.crashExtensions],
+        config[Arisa.Modules.Crash.duplicates],
+        config[Arisa.Modules.Crash.maxAttachmentAge]
+    )
+    private val emptyModule: EmptyModule = EmptyModule()
+    private val keepPrivateModule: KeepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
+    private val futureVersionModule: FutureVersionModule = FutureVersionModule()
+    private val hideImpostorsModule: HideImpostorsModule = HideImpostorsModule()
+    private val piracyModule: PiracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
+    private val removeNonStaffMeqsModule: RemoveNonStaffMeqsModule =
+        RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
+    private val removeTriagedMeqsModule: RemoveTriagedMeqsModule = RemoveTriagedMeqsModule(
+        config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
+        config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
+    )
+    private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
+    private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
 
     private val ticketCache = mutableListOf<String>()
     private val ticketTimer = Timer("RemoveCachedTicket", true)
-
-    init {
-        attachmentModule = AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
-
-        chkModule = CHKModule()
-
-        crashModule = CrashModule(
-            config[Arisa.Modules.Crash.crashExtensions],
-            config[Arisa.Modules.Crash.duplicates],
-            config[Arisa.Modules.Crash.maxAttachmentAge]
-        )
-
-        emptyModule = EmptyModule()
-
-        futureVersionModule = FutureVersionModule()
-
-        hideImpostorsModule = HideImpostorsModule()
-
-        keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
-
-        piracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
-
-        removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
-
-        removeTriagedMeqsModule = RemoveTriagedMeqsModule(
-            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
-            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
-        )
-
-        reopenAwaitingModule = ReopenAwaitingModule()
-
-        revokeConfirmationModule = RevokeConfirmationModule()
-    }
 
     fun execute() {
         // Cache issues returned by a query to avoid searching the same query for different modules

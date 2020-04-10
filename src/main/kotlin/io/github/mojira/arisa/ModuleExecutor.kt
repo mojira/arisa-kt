@@ -42,6 +42,8 @@ import java.text.SimpleDateFormat
 import java.util.Timer
 import kotlin.concurrent.schedule
 
+private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config
@@ -62,60 +64,38 @@ class ModuleExecutor(
     private val ticketCache = mutableListOf<String>()
     private val ticketTimer = Timer("RemoveCachedTicket", true)
 
-    private fun executeModule(
-        moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        queryCache: MutableMap<String, List<Issue>>,
-        processedIssues: MutableMap<String, Boolean>,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
-    ) {
-        val projects = config[Arisa.Issues.projects]
-            .filter { config[moduleConfig.whitelist] == null || config[moduleConfig.whitelist]!!.contains(it) }
-            .joinToString(",")
-        val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
-        val cachedTickets = if (ticketCache.isEmpty()) "" else "AND key not in (${ticketCache.joinToString(",")})"
-        val combinedJql = "project in ($projects) $cachedTickets AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
+    init {
+        attachmentModule = AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
 
-        val issues = queryCache[combinedJql] ?: jiraClient
-            .searchIssues(combinedJql)
-            .issues
-            .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
-            .filter { issue ->
-                // Ignore issues where last action was a resolve
-                val latestChange = issue.changeLog.entries.lastOrNull()
+        chkModule = CHKModule()
 
-                latestChange == null ||
-                        latestChange.isATransition() ||
-                        latestChange.wasNotDoneByTheBot() ||
-                        latestChange.noCommentAfterIt(issue)
-            }
-        queryCache[combinedJql] = issues
+        crashModule = CrashModule(
+            config[Arisa.Modules.Crash.crashExtensions],
+            config[Arisa.Modules.Crash.duplicates],
+            config[Arisa.Modules.Crash.maxAttachmentAge]
+        )
 
-        issues
-            .map { it.key to executeModule(it) }
-            .forEach { (issue, response) ->
-                response.second.fold({
-                    processedIssues.putIfAbsent(issue, false)
-                    when (it) {
-                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
-                        is FailedModuleResponse -> for (exception in it.exceptions) {
-                            log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
-                        }
-                    }
-                }, {
-                    processedIssues[issue] = true
-                    log.info("[RESPONSE] [$issue] [${response.first}] Successful")
-                })
-            }
+        emptyModule = EmptyModule()
+
+        futureVersionModule = FutureVersionModule()
+
+        hideImpostorsModule = HideImpostorsModule()
+
+        keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
+
+        piracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
+
+        removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
+
+        removeTriagedMeqsModule = RemoveTriagedMeqsModule(
+            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
+            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
+        )
+
+        reopenAwaitingModule = ReopenAwaitingModule()
+
+        revokeConfirmationModule = RevokeConfirmationModule()
     }
-
-    private fun ChangeLogEntry.noCommentAfterIt(issue: Issue) =
-        (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > created)
-
-    private fun ChangeLogEntry.wasNotDoneByTheBot() =
-        author.name == config[Arisa.Credentials.username]
-
-    private fun ChangeLogEntry.isATransition() =
-        !items.any { it.field == "resolution" }
 
     fun execute() {
         // Cache issues returned by a query to avoid searching the same query for different modules
@@ -182,16 +162,20 @@ class ModuleExecutor(
             "FutureVersion" to futureVersionModule(
                 FutureVersionModule.Request(
                     issue.versions
-                        .map { v -> FutureVersionModule.Version(
-                            v.isReleased,
-                            v.isArchived,
-                            ::removeAffectedVersion.partially1(issue).partially1(v))
+                        .map { v ->
+                            FutureVersionModule.Version(
+                                v.isReleased,
+                                v.isArchived,
+                                ::removeAffectedVersion.partially1(issue).partially1(v)
+                            )
                         },
                     project?.versions
-                        ?.map { v -> FutureVersionModule.Version(
-                            v.isReleased,
-                            v.isArchived,
-                            ::addAffectedVersion.partially1(issue).partially1(v))
+                        ?.map { v ->
+                            FutureVersionModule.Version(
+                                v.isReleased,
+                                v.isArchived,
+                                ::addAffectedVersion.partially1(issue).partially1(v)
+                            )
                         },
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.message])
                 )
@@ -201,14 +185,16 @@ class ModuleExecutor(
             "HideImpostors" to hideImpostorsModule(
                 HideImpostorsModule.Request(
                     issue.comments
-                        .map { c -> HideImpostorsModule.Comment(
-                            c.author.displayName,
-                            getGroups(jiraClient, c.author.name).fold({ null }, { it }),
-                            c.updatedDate.toInstant(),
-                            c.visibility?.type,
-                            c.visibility?.value,
-                            ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(null)
-                        ) }
+                        .map { c ->
+                            HideImpostorsModule.Comment(
+                                c.author.displayName,
+                                getGroups(jiraClient, c.author.name).fold({ null }, { it }),
+                                c.updatedDate.toInstant(),
+                                c.visibility?.type,
+                                c.visibility?.value,
+                                ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(null)
+                            )
+                        }
                 )
             )
         }
@@ -238,12 +224,14 @@ class ModuleExecutor(
             "RemoveNonStaffMeqs" to removeNonStaffMeqsModule(
                 RemoveNonStaffMeqsModule.Request(
                     issue.comments
-                        .map { c -> RemoveNonStaffMeqsModule.Comment(
-                            c.body,
-                            c.visibility?.type,
-                            c.visibility?.value,
-                            ::restrictCommentToGroup.partially1(c).partially1("staff")
-                        ) }
+                        .map { c ->
+                            RemoveNonStaffMeqsModule.Comment(
+                                c.body,
+                                c.visibility?.type,
+                                c.visibility?.value,
+                                ::restrictCommentToGroup.partially1(c).partially1("staff")
+                            )
+                        }
                 )
             )
         }
@@ -253,10 +241,12 @@ class ModuleExecutor(
                     ((it.getField(config[Arisa.CustomFields.mojangPriorityField])) as? JSONObject)?.get("value") as? String?,
                     it.getFieldAsString(config[Arisa.CustomFields.triagedTimeField]),
                     it.comments
-                        .map { c -> RemoveTriagedMeqsModule.Comment(
-                            c.body,
-                            ::updateCommentBody.partially1(c)
-                        ) }
+                        .map { c ->
+                            RemoveTriagedMeqsModule.Comment(
+                                c.body,
+                                ::updateCommentBody.partially1(c)
+                            )
+                        }
                 )
             )
         }
@@ -267,10 +257,12 @@ class ModuleExecutor(
                     (issue.getField("created") as String).toInstant(),
                     (issue.getField("updated") as String).toInstant(),
                     issue.comments
-                        .map { c -> ReopenAwaitingModule.Comment(
-                            c.updatedDate.toInstant().toEpochMilli(),
-                            c.createdDate.toInstant().toEpochMilli()
-                        ) },
+                        .map { c ->
+                            ReopenAwaitingModule.Comment(
+                                c.updatedDate.toInstant().toEpochMilli(),
+                                c.createdDate.toInstant().toEpochMilli()
+                            )
+                        },
                     ::reopenIssue.partially1(issue)
                 )
             )
@@ -280,13 +272,16 @@ class ModuleExecutor(
                 RevokeConfirmationModule.Request(
                     ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String?,
                     issue.changeLog.entries
-                        .flatMap { e -> e.items
-                            .map { i -> RevokeConfirmationModule.ChangeLogItem(
-                                i.field,
-                                i.toString,
-                                e.created.toInstant(),
-                                getGroups(jiraClient, e.author.name).fold({ null }, { it })
-                            ) }
+                        .flatMap { e ->
+                            e.items
+                                .map { i ->
+                                    RevokeConfirmationModule.ChangeLogItem(
+                                        i.field,
+                                        i.toString,
+                                        e.created.toInstant(),
+                                        getGroups(jiraClient, e.author.name).fold({ null }, { it })
+                                    )
+                                }
                         },
                     ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])
                 )
@@ -302,43 +297,71 @@ class ModuleExecutor(
             }
     }
 
-    private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    private fun executeModule(
+        moduleConfig: Arisa.Modules.ModuleConfigSpec,
+        queryCache: MutableMap<String, List<Issue>>,
+        processedIssues: MutableMap<String, Boolean>,
+        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+    ) {
+        val projects = config[Arisa.Issues.projects]
+            .filter { it.isWhitelisted(moduleConfig) }
+            .joinToString(",")
+        val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
+        val cachedTickets = if (ticketCache.isEmpty()) "" else "AND key not in (${ticketCache.joinToString(",")})"
+        val combinedJql =
+            "project in ($projects) $cachedTickets AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
+
+        val issues = queryCache[combinedJql] ?: jiraClient
+            .searchIssues(combinedJql)
+            .issues
+            .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
+            .filter(::lastActionWasAResolve)
+
+        queryCache[combinedJql] = issues
+
+        issues
+            .map { it.key to executeModule(it) }
+            .forEach { (issue, response) ->
+                response.second.fold({
+                    processedIssues.putIfAbsent(issue, false)
+                    when (it) {
+                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        is FailedModuleResponse -> for (exception in it.exceptions) {
+                            log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
+                        }
+                    }
+                }, {
+                    processedIssues[issue] = true
+                    log.info("[RESPONSE] [$issue] [${response.first}] Successful")
+                })
+            }
+    }
+
+    private fun lastActionWasAResolve(issue: Issue): Boolean {
+        val latestChange = issue.changeLog.entries.lastOrNull()
+
+        return latestChange == null ||
+                latestChange.isATransition() ||
+                latestChange.wasNotDoneByTheBot() ||
+                latestChange.noCommentAfterIt(issue)
+    }
+
+    private fun String.isWhitelisted(moduleConfig: Arisa.Modules.ModuleConfigSpec) =
+        config[moduleConfig.whitelist] == null || config[moduleConfig.whitelist]!!.contains(this)
+
+    private fun ChangeLogEntry.noCommentAfterIt(issue: Issue) =
+        (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > created)
+
+    private fun ChangeLogEntry.wasNotDoneByTheBot() =
+        author.name == config[Arisa.Credentials.username]
+
+    private fun ChangeLogEntry.isATransition() =
+        !items.any { it.field == "resolution" }
+
     private fun String.toInstant() = isoFormat.parse(this).toInstant()
+
     private fun Issue.getFieldAsString(field: String) = this.getField(field) as? String
 
     private fun getSecurityLevelId(project: String) =
         config[Arisa.PrivateSecurityLevel.special][project] ?: config[Arisa.PrivateSecurityLevel.default]
-
-    init {
-        attachmentModule = AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
-
-        chkModule = CHKModule()
-
-        crashModule = CrashModule(
-            config[Arisa.Modules.Crash.crashExtensions],
-            config[Arisa.Modules.Crash.duplicates],
-            config[Arisa.Modules.Crash.maxAttachmentAge]
-        )
-
-        emptyModule = EmptyModule()
-
-        futureVersionModule = FutureVersionModule()
-
-        hideImpostorsModule = HideImpostorsModule()
-
-        keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
-
-        piracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
-
-        removeNonStaffMeqsModule = RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
-
-        removeTriagedMeqsModule = RemoveTriagedMeqsModule(
-            config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
-            config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
-        )
-
-        reopenAwaitingModule = ReopenAwaitingModule()
-
-        revokeConfirmationModule = RevokeConfirmationModule()
-    }
 }

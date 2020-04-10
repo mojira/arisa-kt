@@ -2,55 +2,44 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import net.rcarz.jiraclient.ChangeLogEntry
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-data class RevokeConfirmationModuleRequest(
-    val confirmationStatus: String,
-    val changeLog: List<ChangeLogEntry>
-)
+class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
+    data class ChangeLogItem(
+        val field: String,
+        val newValue: String?,
+        val created: Instant,
+        val authorGroups: List<String>?
+    )
 
-class RevokeConfirmationModule(
-    private val getGroups: (String) -> Either<Throwable, List<String>>,
-    private val setConfirmationStatus: (String) -> Either<Throwable, Unit>
-) : Module<RevokeConfirmationModuleRequest> {
-    override fun invoke(request: RevokeConfirmationModuleRequest): Either<ModuleError, ModuleResponse> = with(request) {
+    data class Request(
+        val confirmationStatus: String?,
+        val changeLog: List<ChangeLogItem>,
+        val setConfirmationStatus: (String) -> Either<Throwable, Unit>
+    )
+
+    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            val confirmationChanges = changeLog.filter(::isConfirmationChange)
-            val volunteerChanges = confirmationChanges.filter(::changedByVolunteer)
-            val lastVolunteerChange = volunteerChanges.lastOrNull()
-            val volunteerConfirmation = lastVolunteerChange?.let { getConfirmation(it) } ?: "Unconfirmed"
+            val volunteerConfirmation = changeLog
+                .filter(::isConfirmationChange)
+                .filter(::changedByVolunteer)
+                .lastOrNull()
+                ?.newValue ?: "Unconfirmed"
 
             assertNotEquals(confirmationStatus, volunteerConfirmation).bind()
-
             setConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
         }
     }
 
-    private fun updateIsRecent(entry: ChangeLogEntry) = entry
+    private fun isConfirmationChange(item: ChangeLogItem) =
+        item.field == "Confirmation Status"
+
+    private fun changedByVolunteer(item: ChangeLogItem) =
+        !updateIsRecent(item) || item.authorGroups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+
+    private fun updateIsRecent(item: ChangeLogItem) = item
         .created
-        .toInstant()
         .plus(1, ChronoUnit.DAYS)
         .isAfter(Instant.now())
-
-    private fun isConfirmationChange(entry: ChangeLogEntry) =
-        entry.items.any { it.field == "Confirmation Status" }
-
-    private fun getConfirmation(entry: ChangeLogEntry) =
-        entry.items.lastOrNull { it.field == "Confirmation Status" }?.toString
-
-    private fun changedByVolunteer(entry: ChangeLogEntry): Boolean {
-        if (!updateIsRecent(entry))
-        // if the change was more than a day ago, assume it was done by a volunteer
-            return true
-
-        val groups = getGroups(entry.author.name)
-
-        return if (groups.isLeft())
-        // when in doubt, assume change was done by a volunteer
-            true
-        else
-            (groups as Either.Right).b.any { it == "helper" || it == "global-moderators" || it == "staff" }
-    }
 }

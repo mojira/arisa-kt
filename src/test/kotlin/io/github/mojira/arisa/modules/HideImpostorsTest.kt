@@ -1,25 +1,21 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.modules.HideImpostorsModule.Comment
+import io.github.mojira.arisa.modules.HideImpostorsModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.mockk.every
-import io.mockk.mockk
-import net.rcarz.jiraclient.ChangeLogEntry
-import net.rcarz.jiraclient.ChangeLogItem
-import net.rcarz.jiraclient.Comment
-import net.rcarz.jiraclient.User
-import net.rcarz.jiraclient.Visibility
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Date
 
 class HideImpostorsTest : StringSpec({
-
     "should return OperationNotNeededModuleResponse when no comments" {
-        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
-        val request = HideImpostorsModuleRequest(emptyList())
+        val module = HideImpostorsModule()
+        val request = Request(emptyList())
 
         val result = module(request)
 
@@ -27,9 +23,9 @@ class HideImpostorsTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user doesnt contain [ but contains ]" {
-        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
-        val comment = mockComment("test]")
-        val request = HideImpostorsModuleRequest(listOf(comment))
+        val module = HideImpostorsModule()
+        val comment = Comment("test]", emptyList(), Instant.now(), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
 
         val result = module(request)
 
@@ -37,9 +33,9 @@ class HideImpostorsTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user doesnt contain ] but contains [" {
-        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
-        val comment = mockComment("[test")
-        val request = HideImpostorsModuleRequest(listOf(comment))
+        val module = HideImpostorsModule()
+        val comment = Comment("[test", emptyList(), Instant.now(), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
 
         val result = module(request)
 
@@ -47,9 +43,29 @@ class HideImpostorsTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user contains [] but has group staff" {
-        val module = HideImpostorsModule({ listOf("staff").right() }, { _: Comment, _: String -> Unit.right() })
-        val comment = mockComment("[test] test")
-        val request = HideImpostorsModuleRequest(listOf(comment))
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", listOf("staff"), Instant.now(), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when user contains [] but has group helper" {
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", listOf("helper"), Instant.now(), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when user contains [] but has group global-moderators" {
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", listOf("global-moderators"), Instant.now(), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
 
         val result = module(request)
 
@@ -57,10 +73,9 @@ class HideImpostorsTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user contains [] but is not staff and comment is hidden" {
-        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
-        val visibility = mockVisibility("group", "staff")
-        val comment = mockComment("[test] test", visibility)
-        val request = HideImpostorsModuleRequest(listOf(comment))
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", emptyList(), Instant.now(), "group", "staff") { Unit.right() }
+        val request = Request(listOf(comment))
 
         val result = module(request)
 
@@ -68,57 +83,54 @@ class HideImpostorsTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user contains [] but is not staff and comment is more than a day old" {
-        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
-        val comment = mockComment("[test] test", date = Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
-        val request = HideImpostorsModuleRequest(listOf(comment))
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", listOf("staff"), Instant.now().minus(2, ChronoUnit.DAYS), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
 
         val result = module(request)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should hide comment when user contains [] but is not staff" {
-        val module = HideImpostorsModule({ emptyList<String>().right() }, { _: Comment, _: String -> Unit.right() })
-        val comment = mockComment("[test] test")
-        val request = HideImpostorsModuleRequest(listOf(comment))
+    "should hide comment when user contains [] but is not of a permission group" {
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", emptyList(), Instant.now(), null, null) { Unit.right() }
+        val request = Request(listOf(comment))
 
         val result = module(request)
 
         result.shouldBeRight(ModuleResponse)
     }
+
+    "should hide comment when user contains [] but is not of a permission group and comment is not restricted to a group" {
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", emptyList(), Instant.now(), "not a group", "staff") { Unit.right() }
+        val request = Request(listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should hide comment when user contains [] but is not of a permission group and comment is not restricted to the correct group" {
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", emptyList(), Instant.now(), "group", "users") { Unit.right() }
+        val request = Request(listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should return FailedModuleResponse when hiding the comment fails" {
+        val module = HideImpostorsModule()
+        val comment = Comment("[test] test", emptyList(), Instant.now(), null, null) { RuntimeException().left() }
+        val request = Request(listOf(comment))
+
+        val result = module(request)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
 })
-
-private fun mockComment(author: String, visibility: Visibility? = null, date: Date = Date()): Comment {
-    val comment = mockk<Comment>()
-    val user = mockk<User>()
-    every { user.displayName } returns author
-    every { user.name } returns author
-    every { comment.author } returns user
-    every { comment.body } returns "Test"
-    every { comment.visibility } returns visibility
-    every { comment.updatedDate } returns date
-    return comment
-}
-
-private fun mockChangelogEntry(authorName: String, fieldName: String, fieldValue: String): ChangeLogEntry {
-    val changeLogEntry = mockk<ChangeLogEntry>()
-    every { changeLogEntry.author.name } returns authorName
-    every { changeLogEntry.items } returns listOf(mockChangelogItem(fieldName, fieldValue))
-
-    return changeLogEntry
-}
-
-private fun mockChangelogItem(name: String, value: String): ChangeLogItem {
-    val changeLogItem = mockk<ChangeLogItem>()
-    every { changeLogItem.field } returns name
-    every { changeLogItem.toString } returns value
-
-    return changeLogItem
-}
-
-private fun mockVisibility(type: String, value: String): Visibility {
-    val visibility = mockk<Visibility>()
-    every { visibility.type } returns type
-    every { visibility.value } returns value
-    return visibility
-}

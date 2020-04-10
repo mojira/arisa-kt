@@ -131,12 +131,9 @@ fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
 
 fun updateSecurity(issue: Issue, levelId: String) = runBlocking {
     Either.catch {
-        val securityJson = JSONObject()
-        securityJson["id"] = levelId
-
         issue
             .update()
-            .field("security", securityJson)
+            .field(Field.SECURITY, Field.valueById(levelId))
             .execute()
     }
 }

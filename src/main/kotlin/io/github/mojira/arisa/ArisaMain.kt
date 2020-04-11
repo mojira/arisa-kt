@@ -39,10 +39,12 @@ fun main() {
     while (true) {
         // save time before run, so nothing happening during the run is missed
         val curRun = Instant.now().toEpochMilli()
-        moduleExecutor.execute(lastRun)
 
-        lastRunFile.writeText(curRun.toString())
-        lastRun = curRun
+        val successful = moduleExecutor.execute(lastRun)
+        if (successful) {
+            lastRunFile.writeText(curRun.toString())
+            lastRun = curRun
+        }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
     }

@@ -3,7 +3,7 @@
 [![](https://img.shields.io/github/stars/mojira/arisa-kt)](https://github.com/mojira/arisa-kt/stargazers)
 [![](https://img.shields.io/github/license/mojira/arisa-kt)](https://github.com/mojira/arisa-kt/blob/master/LICENSE)
 
-# Mojira Discord Bot
+# Arisa
 
 <!-- PROJECT LOGO -->
 <br/>
@@ -15,8 +15,10 @@
   <h3 align="center">Arisa</h3>
 
   <p align="center">
-    A Jira bot for doing various moderation tasks.
+    A JIRA bot for doing various moderation tasks on Mojang's bug tracker <a href="https://bugs.mojang.com/">Mojira</a>.
     <br/>
+    <a href="https://bugs.mojang.com/secure/ViewProfile.jspa?name=arisabot">Arisa's bug tracker profile</a>
+    ·
     <a href="https://github.com/mojira/arisa-kt/issues">Report Bug</a>
     ·
     <a href="https://github.com/mojira/arisa-kt/issues">Request Feature</a>
@@ -24,7 +26,12 @@
 </p>
 
 ## About the project
-MojiraBot was written by [urielsalis](https://github.com/urielsalis). Its purpose is to run various checks on tickets and do automated tasks. This project is based on [arisa-js](https://github.com/mojira/arisa-js) by [Mustek](https://github.com/mustek)
+Arisa is a Bot account on Mojira, Mojang's bug tracker. Its purpose is to run various checks on tickets and do automated tasks.
+For instance, it automatically analyzes newly posted tickets and automatically resolves them in case the game is modified.
+
+Arisa was [originally written in Ruby](https://github.com/mojira/arisa) by Synchunk, a now retired Mojira moderator.
+Later, Arisa was [rewritten in JavaScript](https://github.com/mojira/arisa-js) by [Mustek](https://github.com/Mustek).
+This Kotlin version of Arisa was written by [urielsalis](https://github.com/urielsalis).
 
 ## Installation
 
@@ -54,11 +61,12 @@ This project depends on the following projects, thanks to every developer who ma
 
 ## Contributing
 
-You're very welcome to contribute to this project! Please note that this project uses [Ktlint](https://github.com/pinterest/ktlint) to ensure consistent code, it runs with ./gradlew build but you can run it independetly using ./gradlew ktlintCheck
+You're very welcome to contribute to this project! Please note that this project uses [ktlint](https://github.com/pinterest/ktlint) to ensure consistent code.
+It runs with `./gradlew build`, but you can also run it independently using `./gradlew ktlintCheck`.
 
 ## Found a bug in Minecraft?
 
-Please head over to [bugs.mojang.com](https://bugs.mojang.com), search whether your bug is already reported and if not, create an account and click the red "Create" button on the top of the page.
+Please head over to [bugs.mojang.com](https://bugs.mojang.com/), search whether your bug is already reported and if not, create an account and click the red "Create" button on the top of the page.
 
 ## License
 

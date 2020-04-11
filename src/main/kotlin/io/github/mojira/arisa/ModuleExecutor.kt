@@ -282,7 +282,7 @@ class ModuleExecutor(
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
-        val resolutions = config[moduleConfig.resolutions].map { it.toLowerCase() }
+        val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
 
         val jql = config[moduleConfig.jql].format(lastRun)
 
@@ -296,7 +296,7 @@ class ModuleExecutor(
 
         issues
             .filter { it.project.key in projects }
-            .filter { it.resolution?.name ?: "Unresolved" in resolutions }
+            .filter { it.resolution?.name ?: "unresolved" in resolutions }
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({

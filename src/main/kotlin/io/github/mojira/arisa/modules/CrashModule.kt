@@ -63,13 +63,13 @@ class CrashModule(
                 resolveAsInvalid().toFailedModuleEither().bind()
             } else {
                 val minecraftKeyMaybe = minecraftCrashes.map { crash ->
-                    minecraftConfigs.firstOrNone { crash.exception.contains(it.exceptionRegex) }
+                    minecraftConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
                 }.firstOrNone { !it.isEmpty() }.map { (it as Some).t }
 
                 val javaKeyMaybe = javaCrashes.map { crash ->
-                    javaConfigs.firstOrNone { crash.code.contains(it.exceptionRegex) }
+                    javaConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
                 }.firstOrNone { !it.isEmpty() }.map { (it as Some).t }
-
+                
                 val key = if (minecraftKeyMaybe.isDefined()) {
                     (minecraftKeyMaybe as Some).t.duplicates
                 } else if (javaKeyMaybe.isDefined()) {

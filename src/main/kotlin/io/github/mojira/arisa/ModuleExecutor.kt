@@ -337,7 +337,7 @@ class ModuleExecutor(
 
     private fun String.toInstant() = isoFormat.parse(this).toInstant()
 
-    private fun Issue.getFieldAsString(field: String) = this.getField(field) as? String
+    private fun Issue.getFieldAsString(field: String) = this.getField(field) as? String?
 
     private fun getSecurityLevelId(project: String) =
         config[Arisa.PrivateSecurityLevel.special][project] ?: config[Arisa.PrivateSecurityLevel.default]

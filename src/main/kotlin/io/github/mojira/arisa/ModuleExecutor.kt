@@ -36,6 +36,7 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import me.urielsalis.mccrashlib.CrashReader
 import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
@@ -55,7 +56,8 @@ class ModuleExecutor(
     private val crashModule: CrashModule = CrashModule(
         config[Arisa.Modules.Crash.crashExtensions],
         config[Arisa.Modules.Crash.duplicates],
-        config[Arisa.Modules.Crash.maxAttachmentAge]
+        config[Arisa.Modules.Crash.maxAttachmentAge],
+        CrashReader()
     )
     private val emptyModule: EmptyModule = EmptyModule()
     private val keepPrivateModule: KeepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])

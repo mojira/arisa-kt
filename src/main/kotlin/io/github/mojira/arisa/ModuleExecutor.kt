@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -46,7 +46,7 @@ private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
-    private val cache: Cache
+    private val cache: QueryCache
 ) {
     private val attachmentModule: AttachmentModule =
         AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
@@ -70,8 +70,8 @@ class ModuleExecutor(
     private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
     private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
 
-    fun execute() {
-        val exec = ::executeModule.partially2(cache)
+    fun execute(lastRun: Long) {
+        val exec = ::executeModule.partially2(cache).partially2(lastRun)
 
         exec(Arisa.Modules.Attachment) { issue ->
             "Attachment" to attachmentModule(
@@ -269,27 +269,22 @@ class ModuleExecutor(
             )
         }
 
-        cache.addProcessedTickets(290_000)
         cache.clearQueryCache()
     }
 
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        cache: Cache,
+        cache: QueryCache,
+        lastRun: Long,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = config[Arisa.Issues.projects]
             .filter { it.isWhitelisted(moduleConfig) }
             .joinToString(",")
         val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
-        val cachedTickets = if (cache.isEmpty()) {
-            ""
-        } else {
-            "AND key not in (${cache.getTickets()})"
-        }
 
         val combinedJql =
-            "project in ($projects) $cachedTickets AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
+            "project in ($projects) AND resolution in ($resolutions) AND (${config[moduleConfig.jql].format(lastRun)})"
 
         val issues = cache.getQuery(combinedJql) ?: jiraClient
             .searchIssues(combinedJql)
@@ -303,7 +298,6 @@ class ModuleExecutor(
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
-                    cache.startProcessingTicket(issue)
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> for (exception in it.exceptions) {
@@ -311,7 +305,6 @@ class ModuleExecutor(
                         }
                     }
                 }, {
-                    cache.finishProcessingTicket(issue)
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }

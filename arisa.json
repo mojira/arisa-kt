@@ -113,6 +113,18 @@
       },
 
       "keepPrivate": {
+        "resolutions": [
+          "Awaiting Response",
+          "Cannot Reproduce",
+          "Done",
+          "Duplicate",
+          "Fixed",
+          "Incomplete",
+          "Invalid",
+          "Unresolved",
+          "Won't Fix",
+          "Works As Intended"
+        ],
         "jql": "comment ~ MEQS_KEEP_PRIVATE AND level = EMPTY",
         "tag": "MEQS_KEEP_PRIVATE",
         "message": "{panel:borderColor=orange}(!) Please do not unmark issues from _private_ after a moderator had set it that way{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"

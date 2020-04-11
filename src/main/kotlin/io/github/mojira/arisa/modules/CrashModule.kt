@@ -7,11 +7,10 @@ import arrow.core.firstOrNone
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
+import me.urielsalis.mccrashlib.parser.ParserError
 import java.util.Calendar
 import java.util.Date
-
-const val MINECRAFT_CRASH_HEADER = "---- Minecraft Crash Report ----"
-const val JAVA_CRASH_HEADER = "#  EXCEPTION_ACCESS_VIOLATION"
+import java.util.SortedMap
 
 class CrashModule(
     private val crashReportExtensions: List<String>,
@@ -45,38 +44,22 @@ class CrashModule(
             textDocuments.add(TextDocument(body ?: "", created))
 
             val crashes = textDocuments
+                .asSequence()
                 .filter(::isTextDocumentRecent)
-                .map { crashReader.processCrash(it.content.lines()) }
-                .filterIsInstance<Either.Right<Crash>>()
-                .map { it.b }
-                .filter { it is Crash.Minecraft || it is Crash.Java }
+                .map { processCrash(it) }
+                .filter { it.second.isRight() }
+                .map { extractCrash(it) }
+                .filter { it.second is Crash.Minecraft || it.second is Crash.Java }
+                .toList()
 
             assertNotEmpty(crashes).bind()
 
-            val minecraftCrashes = crashes.filterIsInstance<Crash.Minecraft>()
-            val javaCrashes = crashes.filterIsInstance<Crash.Java>()
-            val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
-            val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
-
-            if (minecraftCrashes.any(Crash.Minecraft::modded)) {
+            if (crashes.any { it.second is Crash.Minecraft && (it.second as Crash.Minecraft).modded }) {
                 addModdedComment().toFailedModuleEither().bind()
                 resolveAsInvalid().toFailedModuleEither().bind()
             } else {
-                val minecraftKeyMaybe = minecraftCrashes.map { crash ->
-                    minecraftConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
-                }.firstOrNone { !it.isEmpty() }.map { (it as Some).t }
-
-                val javaKeyMaybe = javaCrashes.map { crash ->
-                    javaConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
-                }.firstOrNone { !it.isEmpty() }.map { (it as Some).t }
-                
-                val key = if (minecraftKeyMaybe.isDefined()) {
-                    (minecraftKeyMaybe as Some).t.duplicates
-                } else if (javaKeyMaybe.isDefined()) {
-                    (javaKeyMaybe as Some).t.duplicates
-                } else {
-                    null
-                }
+                val sortedMap = crashes.toMap().toSortedMap(compareBy { it.created })
+                val key = findDuplicate(sortedMap, crashDupeConfigs)
 
                 assertNotNull(key).bind()
                 addDuplicateComment(key!!).toFailedModuleEither().bind()
@@ -84,6 +67,38 @@ class CrashModule(
                 linkDuplicate(key).toFailedModuleEither().bind()
             }
         }
+    }
+
+    private fun extractCrash(it: Pair<TextDocument, Either<ParserError, Crash>>) =
+        it.first to (it.second as Either.Right<Crash>).b
+
+    private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.content.lines())
+
+    private fun findDuplicate(
+        sortedMap: SortedMap<TextDocument, Crash>,
+        crashDupeConfigs: List<CrashDupeConfig>
+    ): String? {
+        val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
+        val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
+
+        sortedMap.forEach { (_, crash) ->
+            when (crash) {
+                is Crash.Minecraft -> {
+                    val config =
+                        minecraftConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
+                    if (config.isDefined()) {
+                        return (config as Some).t.duplicates
+                    }
+                }
+                is Crash.Java -> {
+                    val config = javaConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
+                    if (config.isDefined()) {
+                        return (config as Some).t.duplicates
+                    }
+                }
+            }
+        }
+        return null
     }
 
     private fun isCrashAttachment(fileName: String) =

@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.infrastructure.QueryCache
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -46,7 +46,7 @@ private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
-    private val cache: QueryCache
+    private val cache: Cache
 ) {
     private val attachmentModule: AttachmentModule =
         AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
@@ -276,7 +276,7 @@ class ModuleExecutor(
 
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        cache: QueryCache,
+        cache: Cache,
         lastRun: Long,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ): Boolean {

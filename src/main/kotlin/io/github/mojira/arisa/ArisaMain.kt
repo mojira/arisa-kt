@@ -2,7 +2,7 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
-import io.github.mojira.arisa.infrastructure.QueryCache
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.connectToJira
 import org.slf4j.LoggerFactory
@@ -35,7 +35,7 @@ fun main() {
             lastRunFile.readText().toLong()
         else Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli()
 
-    val moduleExecutor = ModuleExecutor(jiraClient, config, QueryCache())
+    val moduleExecutor = ModuleExecutor(jiraClient, config, Cache())
     while (true) {
         // save time before run, so nothing happening during the run is missed
         val curRun = Instant.now().toEpochMilli()

@@ -58,7 +58,7 @@ class CrashModule(
                 addModdedComment().toFailedModuleEither().bind()
                 resolveAsInvalid().toFailedModuleEither().bind()
             } else {
-                val sortedMap = crashes.toMap().toSortedMap(compareBy { it.created })
+                val sortedMap = crashes.toMap().toSortedMap(compareByDescending { it.created })
                 val key = findDuplicate(sortedMap, crashDupeConfigs)
 
                 assertNotNull(key).bind()

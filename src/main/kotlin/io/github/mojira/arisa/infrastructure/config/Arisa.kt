@@ -81,6 +81,8 @@ object Arisa : ConfigSpec() {
         }
 
         object HideImpostors : ModuleConfigSpec()
+
+        object ResolveTrash : ModuleConfigSpec()
     }
 }
 

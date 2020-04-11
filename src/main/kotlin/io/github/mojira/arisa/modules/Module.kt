@@ -44,12 +44,14 @@ fun tryRunAll(
     }
 }
 
-fun <T> assertEquals(o1: T, o2: T) = when (o1) {
-    o2 -> Unit.right()
-    else -> OperationNotNeededModuleResponse.left()
+fun <T> assertEquals(o1: T, o2: T) = if (o1 == o2) {
+    Unit.right()
+} else {
+    OperationNotNeededModuleResponse.left()
 }
 
-fun <T> assertNotEquals(o1: T, o2: T) = when (o1) {
-    o2 -> OperationNotNeededModuleResponse.left()
-    else -> Unit.right()
+fun <T> assertNotEquals(o1: T, o2: T) = if (o1 == o2) {
+    OperationNotNeededModuleResponse.left()
+} else {
+    Unit.right()
 }

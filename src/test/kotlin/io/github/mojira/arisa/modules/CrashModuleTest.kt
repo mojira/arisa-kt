@@ -22,6 +22,7 @@ Time: 6/28/17 11:44 AM
 Description: Initializing game
 
 org.lwjgl.LWJGLException: Pixel format not accelerated
+
 -- System Details --
 Details:
 	Minecraft Version: 1.8.9
@@ -106,6 +107,7 @@ Time: 12/04/18 18:49
 Description: Initializing game
 
 java.lang.IllegalStateException: GLFW error 65542: WGL: The driver does not appear to support OpenGL
+
 -- System Details --
 Details:
 	Minecraft Version: 18w15a
@@ -121,6 +123,7 @@ Description: mouseClicked event handler
 
 java.lang.NullPointerException: mouseClicked event handler
 	at com.replaymod.simplepathing.ReplayModSimplePathing.onReplayClosing(ReplayModSimplePathing.java:129)
+
 -- System Details --
 Details:
 	Minecraft Version: 1.14.4

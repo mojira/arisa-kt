@@ -49,6 +49,7 @@ class CrashModule(
                 .map { crashReader.processCrash(it.content.lines()) }
                 .filterIsInstance<Either.Right<Crash>>()
                 .map { it.b }
+                .filter { it is Crash.Minecraft || it is Crash.Java }
 
             assertNotEmpty(crashes).bind()
 

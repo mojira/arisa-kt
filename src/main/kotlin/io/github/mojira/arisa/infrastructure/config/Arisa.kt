@@ -32,7 +32,7 @@ object Arisa : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
             val whitelist by optional<List<String>?>(null, description = "Optional. The projects this module should operate on. Default is arisa.issues.projects")
             val resolutions by optional(listOf("unresolved"), description = "Optional. The resolutions that should be considered for this module. Default is unresolved.")
-            val jql by optional("updated > -5m", description = "Optional. Jql query that should be used to fetch issues from this module. Default is updated within the last 5 minutes (updated > -5m).")
+            val jql by optional("updated > %s", description = "Optional. Jql query that should be used to fetch issues from this module %s will be replaced by the last time all queries successfully ran. Default is updated since last run.")
         }
 
         object Attachment : ModuleConfigSpec() {

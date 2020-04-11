@@ -70,8 +70,9 @@ class ModuleExecutor(
     private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
     private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
 
-    fun execute() {
-        val exec = ::executeModule.partially2(cache)
+    fun execute(lastRun: Long): Boolean {
+        var allModulesSuccessful = true
+        val exec = ::executeModule.partially2(cache).partially2(lastRun).partially2 { allModulesSuccessful = false }
 
         exec(Arisa.Modules.Attachment) { issue ->
             "Attachment" to attachmentModule(
@@ -269,27 +270,24 @@ class ModuleExecutor(
             )
         }
 
-        cache.addProcessedTickets(290_000)
         cache.clearQueryCache()
+        return allModulesSuccessful
     }
 
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         cache: Cache,
+        lastRun: Long,
+        onModuleFail: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = config[Arisa.Issues.projects]
             .filter { it.isWhitelisted(moduleConfig) }
             .joinToString(",")
         val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
-        val cachedTickets = if (cache.isEmpty()) {
-            ""
-        } else {
-            "AND key not in (${cache.getTickets()})"
-        }
 
         val combinedJql =
-            "project in ($projects) $cachedTickets AND resolution in ($resolutions) AND (${config[moduleConfig.jql]})"
+            "project in ($projects) AND resolution in ($resolutions) AND (${config[moduleConfig.jql].format(lastRun)})"
 
         val issues = cache.getQuery(combinedJql) ?: jiraClient
             .searchIssues(combinedJql)
@@ -303,15 +301,14 @@ class ModuleExecutor(
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
-                    cache.startProcessingTicket(issue)
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
-                        is FailedModuleResponse -> for (exception in it.exceptions) {
-                            log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
+                        is FailedModuleResponse -> {
+                            onModuleFail()
+                            for (exception in it.exceptions) { log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception) }
                         }
                     }
                 }, {
-                    cache.finishProcessingTicket(issue)
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }

@@ -232,7 +232,7 @@ class ModuleExecutor(
         exec(Arisa.Modules.ReopenAwaiting) { issue ->
             "ReopenAwaiting" to reopenAwaitingModule(
                 ReopenAwaitingModule.Request(
-                    issue.resolution.name,
+                    issue.resolution?.name,
                     (issue.getField("created") as String).toInstant(),
                     (issue.getField("updated") as String).toInstant(),
                     issue.comments
@@ -281,8 +281,7 @@ class ModuleExecutor(
         onModuleFail: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
-        val projects = config[Arisa.Issues.projects]
-            .filter { it.isWhitelisted(moduleConfig) }
+        val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
             .joinToString(",")
         val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
 
@@ -322,9 +321,6 @@ class ModuleExecutor(
                 latestChange.wasNotDoneByTheBot() ||
                 latestChange.noCommentAfterIt(issue)
     }
-
-    private fun String.isWhitelisted(moduleConfig: Arisa.Modules.ModuleConfigSpec) =
-        config[moduleConfig.whitelist] == null || config[moduleConfig.whitelist]!!.contains(this)
 
     private fun ChangeLogEntry.noCommentAfterIt(issue: Issue) =
         (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > created)

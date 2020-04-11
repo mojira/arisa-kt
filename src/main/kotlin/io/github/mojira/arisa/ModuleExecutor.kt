@@ -282,21 +282,21 @@ class ModuleExecutor(
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
-        val resolutions = config[moduleConfig.resolutions].joinToString(",") { "\"$it\"" }
+        val resolutions = config[moduleConfig.resolutions].map { it.toLowerCase() }
 
-        val combinedJql =
-            "resolution in ($resolutions) AND (${config[moduleConfig.jql].format(lastRun)})"
+        val jql = config[moduleConfig.jql].format(lastRun)
 
-        val issues = cache.getQuery(combinedJql) ?: jiraClient
-            .searchIssues(combinedJql)
+        val issues = cache.getQuery(jql) ?: jiraClient
+            .searchIssues(jql)
             .issues
             .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
             .filter(::lastActionWasAResolve)
 
-        cache.addQuery(combinedJql, issues)
+        cache.addQuery(jql, issues)
 
         issues
             .filter { it.project.key in projects }
+            .filter { it.resolution?.name ?: "Unresolved" in resolutions }
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({

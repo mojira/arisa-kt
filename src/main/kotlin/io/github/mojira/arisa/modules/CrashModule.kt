@@ -23,7 +23,7 @@ class CrashModule(
 
     data class Request(
         val attachments: List<Attachment>,
-        val body: String,
+        val body: String?,
         val created: Date,
         val resolveAsInvalid: () -> Either<Throwable, Unit>,
         val resolveAsDuplicate: () -> Either<Throwable, Unit>,
@@ -38,7 +38,7 @@ class CrashModule(
                 .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
-            textDocuments.add(TextDocument(body, created))
+            textDocuments.add(TextDocument(body ?: "", created))
 
             val infos = textDocuments
                 .filter(::isTextDocumentRecent)
@@ -87,8 +87,8 @@ class CrashModule(
     private fun getDuplicateKey(info: CrashInfo, configs: List<CrashDupeConfig>) =
         configs.firstOrNull {
             CrashInfoType.valueOf(it.type.toUpperCase()) == info.type &&
-                info.exception != null &&
-                it.exceptionRegex.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
+                    info.exception != null &&
+                    it.exceptionRegex.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
         }?.duplicates
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {

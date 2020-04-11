@@ -71,9 +71,9 @@ class ModuleExecutor(
     private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
 
     fun execute(lastRun: Long): Boolean {
-        val exec = ::executeModule.partially2(cache).partially2(lastRun)
+        var allModulesSuccessful = true
+        val exec = ::executeModule.partially2(cache).partially2(lastRun).partially2 { allModulesSuccessful = false }
 
-        val allModulesSuccessful =
         exec(Arisa.Modules.Attachment) { issue ->
             "Attachment" to attachmentModule(
                 AttachmentModule.Request(
@@ -86,7 +86,7 @@ class ModuleExecutor(
                         }
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.CHK) { issue ->
             "CHK" to chkModule(
                 CHKModule.Request(
@@ -95,7 +95,7 @@ class ModuleExecutor(
                     ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.Crash) { issue ->
             "Crash" to crashModule(
                 CrashModule.Request(
@@ -115,7 +115,7 @@ class ModuleExecutor(
                     }
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.Empty) { issue ->
             "Empty" to emptyModule(
                 EmptyModule.Request(
@@ -126,7 +126,7 @@ class ModuleExecutor(
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.message])
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.FutureVersion) { issue ->
             // issue.project doesn't contain versions
             val project = try {
@@ -156,7 +156,7 @@ class ModuleExecutor(
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.message])
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.HideImpostors) { issue ->
             "HideImpostors" to hideImpostorsModule(
                 HideImpostorsModule.Request(
@@ -176,7 +176,7 @@ class ModuleExecutor(
                         }
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.KeepPrivate) { issue ->
             "KeepPrivate" to keepPrivateModule(
                 KeepPrivateModule.Request(
@@ -187,7 +187,7 @@ class ModuleExecutor(
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.message])
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.Piracy) { issue ->
             "Piracy" to piracyModule(
                 PiracyModule.Request(
@@ -198,7 +198,7 @@ class ModuleExecutor(
                     ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.message])
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.RemoveNonStaffMeqs) { issue ->
             "RemoveNonStaffMeqs" to removeNonStaffMeqsModule(
                 RemoveNonStaffMeqsModule.Request(
@@ -213,7 +213,7 @@ class ModuleExecutor(
                         }
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.RemoveTriagedMeqs) {
             "RemoveTriagedMeqs" to removeTriagedMeqsModule(
                 RemoveTriagedMeqsModule.Request(
@@ -228,7 +228,7 @@ class ModuleExecutor(
                         }
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.ReopenAwaiting) { issue ->
             "ReopenAwaiting" to reopenAwaitingModule(
                 ReopenAwaitingModule.Request(
@@ -245,7 +245,7 @@ class ModuleExecutor(
                     ::reopenIssue.partially1(issue)
                 )
             )
-        } &&
+        }
         exec(Arisa.Modules.RevokeConfirmation) { issue ->
             "RevokeConfirmation" to revokeConfirmationModule(
                 RevokeConfirmationModule.Request(
@@ -278,8 +278,9 @@ class ModuleExecutor(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         cache: Cache,
         lastRun: Long,
+        onModuleFail: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
-    ): Boolean {
+    ) {
         val projects = config[Arisa.Issues.projects]
             .filter { it.isWhitelisted(moduleConfig) }
             .joinToString(",")
@@ -296,7 +297,6 @@ class ModuleExecutor(
 
         cache.addQuery(combinedJql, issues)
 
-        var allSuccessful = true
         issues
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
@@ -304,7 +304,7 @@ class ModuleExecutor(
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> {
-                            allSuccessful = false
+                            onModuleFail()
                             for (exception in it.exceptions) { log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception) }
                         }
                     }
@@ -312,7 +312,6 @@ class ModuleExecutor(
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }
-        return allSuccessful
     }
 
     private fun lastActionWasAResolve(issue: Issue): Boolean {

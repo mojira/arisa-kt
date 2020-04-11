@@ -296,7 +296,7 @@ class ModuleExecutor(
 
         issues
             .filter { it.project.key in projects }
-            .filter { it.resolution?.name ?: "unresolved" in resolutions }
+            .filter { it.resolution?.name?.toLowerCase() ?: "unresolved" in resolutions }
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({

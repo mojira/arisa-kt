@@ -109,7 +109,7 @@
       },
 
       "revokeConfirmation": {
-        "whitelist": ["MC", "MCL", "MCPE", "BDS", "MCTEST", "MCD", "MCE"],
+        "whitelist": ["MC", "MCL", "MCPE", "BDS", "MCTEST", "MCD", "MCE"]
       },
 
       "keepPrivate": {

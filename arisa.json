@@ -74,19 +74,16 @@
       },
 
       "removeTriagedMeqs": {
-        "jql": "(cf[12200] != EMPTY OR cf[12201] != EMPTY) AND (comment ~ MEQS_WAI OR comment ~ MEQS_WONTFIX)",
         "meqsTags": ["MEQS_WAI", "MEQS_WONTFIX"],
         "removalReason": "Ticket has been triaged."
       },
 
       "futureVersion": {
-        "jql": "affectedVersion in unreleasedVersions() AND updated > -1d",
         "message": "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
       },
 
       "chk": {
-        "whitelist": ["MC", "MCL", "MCPE"],
-        "jql": "resolution = Unresolved AND cf[10500] != unconfirmed AND CHK = EMPTY"
+        "whitelist": ["MC", "MCL", "MCPE"]
       },
 
       "reopenAwaiting": {
@@ -125,7 +122,6 @@
           "Won't Fix",
           "Works As Intended"
         ],
-        "jql": "comment ~ MEQS_KEEP_PRIVATE AND level = EMPTY",
         "tag": "MEQS_KEEP_PRIVATE",
         "message": "{panel:borderColor=orange}(!) Please do not unmark issues from _private_ after a moderator had set it that way{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
       },

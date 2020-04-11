@@ -34,6 +34,7 @@ import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
+import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.Issue
@@ -69,6 +70,7 @@ class ModuleExecutor(
     )
     private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
     private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
+    private val resolveTrash: ResolveTrashModule = ResolveTrashModule()
 
     fun execute(lastRun: Long): Boolean {
         var allModulesSuccessful = true
@@ -266,6 +268,14 @@ class ModuleExecutor(
                                 }
                         },
                     ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])
+                )
+            )
+        }
+        exec(Arisa.Modules.ResolveTrash) { issue ->
+            "ResolveTrash" to resolveTrash(
+                ResolveTrashModule.Request(
+                    issue.project.key,
+                    ::resolveAs.partially1(issue).partially1("Invalid")
                 )
             )
         }

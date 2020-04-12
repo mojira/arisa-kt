@@ -13,7 +13,7 @@ import java.io.File
 class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
         val module = LanguageModule()
-        val request = Request(null, null, { Unit.right() }, { Unit.right() })
+        val request = Request(null, null, { emptyMap<String, Double>().right() }, { Unit.right() }, { Unit.right() })
 
         val result = module(request)
 
@@ -22,7 +22,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when description, summary and environment are empty" {
         val module = LanguageModule()
-        val request = Request("", "", { Unit.right() }, { Unit.right() })
+        val request = Request("", "", { emptyMap<String, Double>().right() }, { Unit.right() }, { Unit.right() })
 
         val result = module(request)
 
@@ -31,7 +31,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when no language matches" {
         val module = LanguageModule()
-        val request = Request("##########", "##########", { Unit.right() }, { Unit.right() })
+        val request = Request("", "", { emptyMap<String, Double>().right() }, { Unit.right() }, { Unit.right() })
 
         val result = module(request)
 
@@ -43,6 +43,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "Ich habe einen seltsamen Fehler gefunden",
             "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!",
+            { mapOf("de" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
@@ -57,6 +58,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "I found a strange bug",
             "There is an issue in Minecraft. Please fix it as soon as possible",
+            { mapOf("en" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
@@ -71,6 +73,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "Coarse Dirt is translated incorrectly in Russian",
             "The translation for Acacia slab in Russian is 'Алмазный блок' instead of 'Каменистая земля'.",
+            { mapOf("en" to 0.8).right() },
             { Unit.right() },
             { Unit.right() }
         )
@@ -85,6 +88,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
             "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
+            { mapOf("en" to 0.6).right() },
             { Unit.right() },
             { Unit.right() }
         )
@@ -123,6 +127,7 @@ class LanguageModuleTest : StringSpec({
                 at net.minecraft.server.MinecraftServer.run(SourceFile:447)
                 at java.lang.Thread.run(Thread.java:748)
             """.trimIndent(),
+            { mapOf("en" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
@@ -132,42 +137,14 @@ class LanguageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should handle sample tickets correctly" {
-        val module = LanguageModule()
-        val tickets = File(this::class.java.getResource("/modules/language").file).listFiles()
-
-        tickets.forEach {
-            val (expectedResult, ticket) = """^(\w+)-([A-Z]+-[0-9]+)\.txt$"""
-                .toRegex()
-                .matchEntire(it.name)!!
-                .destructured
-
-            val lines = it.readLines()
-
-            val request = Request(
-                lines[0],
-                lines.subList(2, lines.size).joinToString("\n"),
-                { Unit.right() },
-                { language ->
-                    assert(language.isoCode639_1.toString() == expectedResult)
-                    Unit.right()
-                }
-            )
-
-            println("Checking test ticket $ticket...")
-            val result = module(request)
-
-            if (expectedResult == "valid") {
-                result.shouldBeLeft(OperationNotNeededModuleResponse)
-            } else {
-                result.shouldBeRight(ModuleResponse)
-            }
-        }
-    }
-
     "should return FailedModuleResponse when resolving as invalid fails" {
         val module = LanguageModule(emptyList())
-        val request = Request("Bonjour", "", { RuntimeException().left() }, { Unit.right() })
+        val request = Request(
+            "Bonjour",
+            "",
+            { emptyMap<String, Double>().right() },
+            { RuntimeException().left() },
+            { Unit.right() })
 
         val result = module(request)
 
@@ -178,7 +155,12 @@ class LanguageModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding comment fails" {
         val module = LanguageModule(emptyList())
-        val request = Request("Salut", "", { Unit.right() }, { RuntimeException().left() })
+        val request = Request(
+            "Salut",
+            "",
+            { emptyMap<String, Double>().right() },
+            { Unit.right() },
+            { RuntimeException().left() })
 
         val result = module(request)
 

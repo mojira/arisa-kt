@@ -9,6 +9,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://dl.bintray.com/cbeust/maven")
     maven("https://jitpack.io")
 }
 
@@ -35,7 +36,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-core", arrowVersion)
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
-    implementation("com.github.pemistahl", "lingua", "0.6.1")
+    implementation("com.beust", "klaxon", "5.2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)

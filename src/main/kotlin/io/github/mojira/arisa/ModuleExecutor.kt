@@ -12,6 +12,7 @@ import io.github.mojira.arisa.infrastructure.addRestrictedComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.getGroups
+import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
@@ -214,10 +215,10 @@ class ModuleExecutor(
                 LanguageModule.Request(
                     issue.summary,
                     issue.description,
+                    ::getLanguage.partially1(config[Arisa.Modules.Language.token]),
                     { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
                     { language ->
-                        val code = language.isoCode639_1.toString()
-                        val translatedMessage = config[Arisa.Modules.Language.messages][code]
+                        val translatedMessage = config[Arisa.Modules.Language.messages][language]
                         val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
                         val text = if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(translatedMessage, defaultMessage) else defaultMessage
 

@@ -1,0 +1,3 @@
+No puedo descargar otra vez una snapshot
+
+No puedo descargar otra vez una snapshot despues de que las desinstalase sin saber lo que eran

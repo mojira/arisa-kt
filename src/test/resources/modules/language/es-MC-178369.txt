@@ -1,0 +1,15 @@
+El problema es que minecraft no logra iniciar por completo, solo. Siempre que entro al launcher, le doy a jugar pero cuando esta en la pantalla de carga de mojang, se pega justo antes de acabar, tirado el error "java se binary dejo de funcionar", cuando entro al task manager, sale que java ha dejado de funcionar, sin embargo cuando finalizo el recurso de "Minecraft Launcher", la pantalla de mojang se destraba y carga por completo, una vez entro en el juego no logro ver la skin de nadie, ni siquiera la mia.
+
+*Lo que esperaba que sucediera era ...:*
+ Debería arrancar el juego sin problema, sin embargo no funciona.
+
+*Lo que realmente sucedió fue ...:*
+Se congela, se cierra la pestaña de mojang y vuelve al launcher con el mensaje "Ha ocurrido un error."
+
+*Pasos para reproducir:*
+ 1. Abrir launcher.
+2. Darle a Jugar
+
+
+
+Tengo este problema hace bastante y he intentado de todo, reinstalar minecraft desde 0, java versiones 7 y 8 de 32 y 64 bits  reinstalados desde 0. Aun así no se soluciona el error.

@@ -1,0 +1,20 @@
+Hebrew letters aren't assigned to their correct textures
+
+h3. The bug
+With 1.14 Hebrew letters have been added to the Minecraft font. However, most (if not all) letters seem to have been assigned to the incorrect texture. For instance, the letter א (Alef) is assigned to the texture that belogs to the letter ח (Het).
+
+h3. To reproduce
+# Paste {noformat}מיינקראפט{noformat} into the chat ("Minecraft" in Hebrew according to the Hebrew wikipedia)
+# Compare what's been written into the game to what you just copied from here
+# (x) The letters don't match
+
+h3. Fix
+Download the attached resource pack, put it into your resource packs folder, and enable it. That should fix this issue.
+
+h3. Workaround
+You can work around this issue by enabling the Unicode font by clicking on the left button at the bottom of the language menu.
+
+h3. Original description
+Every time you type in Hebrew it switches the keys that you wrote. For example:
+
+That's that would happen in English: If you type the letter Y it would write O instead.

@@ -24,6 +24,11 @@ fun assertNotEmpty(c: Collection<*>) = when {
     else -> Unit.right()
 }
 
+fun <T> assertNull(e: T?) = when (e) {
+    null -> Unit.right()
+    else -> OperationNotNeededModuleResponse.left()
+}
+
 fun <T> assertNotNull(e: T?) = when (e) {
     null -> OperationNotNeededModuleResponse.left()
     else -> Unit.right()

@@ -95,7 +95,7 @@ class ModuleExecutor(
             "CHK" to chkModule(
                 CHKModule.Request(
                     issue.getFieldAsString(config[Arisa.CustomFields.chkField]),
-                    ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String?,
+                    issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
                     ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
                 )
             )
@@ -107,6 +107,8 @@ class ModuleExecutor(
                         .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },
                     issue.description,
                     issue.createdDate,
+                    issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
+                    issue.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
                     ::resolveAs.partially1(issue).partially1("Invalid"),
                     ::resolveAs.partially1(issue).partially1("Duplicate"),
                     ::link.partially1(issue).partially1("Duplicate"),
@@ -221,7 +223,7 @@ class ModuleExecutor(
         exec(Arisa.Modules.RemoveTriagedMeqs) {
             "RemoveTriagedMeqs" to removeTriagedMeqsModule(
                 RemoveTriagedMeqsModule.Request(
-                    ((it.getField(config[Arisa.CustomFields.mojangPriorityField])) as? JSONObject)?.get("value") as? String?,
+                    it.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
                     it.getFieldAsString(config[Arisa.CustomFields.triagedTimeField]),
                     it.comments
                         .map { c ->
@@ -237,8 +239,8 @@ class ModuleExecutor(
             "ReopenAwaiting" to reopenAwaitingModule(
                 ReopenAwaitingModule.Request(
                     issue.resolution?.name,
-                    (issue.getField("created") as String).toInstant(),
-                    (issue.getField("updated") as String).toInstant(),
+                    (issue.getFieldAsString("created"))!!.toInstant(),
+                    (issue.getFieldAsString("updated"))!!.toInstant(),
                     issue.comments
                         .map { c ->
                             ReopenAwaitingModule.Comment(
@@ -253,7 +255,7 @@ class ModuleExecutor(
         exec(Arisa.Modules.RevokeConfirmation) { issue ->
             "RevokeConfirmation" to revokeConfirmationModule(
                 RevokeConfirmationModule.Request(
-                    ((issue.getField(config[Arisa.CustomFields.confirmationField])) as? JSONObject)?.get("value") as? String?,
+                    issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
                     issue.changeLog.entries
                         .flatMap { e ->
                             e.items
@@ -316,7 +318,9 @@ class ModuleExecutor(
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> {
                             onModuleFail()
-                            for (exception in it.exceptions) { log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception) }
+                            for (exception in it.exceptions) {
+                                log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
+                            }
                         }
                     }
                 }, {
@@ -346,6 +350,9 @@ class ModuleExecutor(
     private fun String.toInstant() = isoFormat.parse(this).toInstant()
 
     private fun Issue.getFieldAsString(field: String) = this.getField(field) as? String?
+
+    private fun Issue.getCustomField(customField: String): String? =
+        ((getField(customField)) as? JSONObject)?.get("value") as? String?
 
     private fun getSecurityLevelId(project: String) =
         config[Arisa.PrivateSecurityLevel.special][project] ?: config[Arisa.PrivateSecurityLevel.default]

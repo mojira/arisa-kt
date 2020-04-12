@@ -8,6 +8,7 @@ import io.github.mojira.arisa.modules.CrashModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -155,6 +156,9 @@ const val JAVA_CRASH = """#
 # See problematic frame for where to report the bug.
 #"""
 
+const val Unconfirmed = "Unconfirmed"
+val NoPriority = null
+
 val crashReader = CrashReader()
 
 class CrashModuleTest : StringSpec({
@@ -169,6 +173,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -197,6 +203,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -220,6 +228,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -244,6 +254,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -268,6 +280,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -297,6 +311,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -321,6 +337,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -346,6 +364,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -371,6 +391,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -396,6 +418,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             SERVER_MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -422,6 +446,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             SERVER_MODDED_CRASH_2,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -448,6 +474,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -476,6 +504,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -502,6 +532,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -529,6 +561,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -555,6 +589,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             JAVA_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -581,6 +617,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             JAVA_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -605,6 +643,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { it.shouldBe("MC-297").right() },
@@ -632,6 +672,8 @@ class CrashModuleTest : StringSpec({
             listOf(modded, dupe),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -660,6 +702,8 @@ class CrashModuleTest : StringSpec({
             listOf(dupe, modded),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -693,6 +737,8 @@ class CrashModuleTest : StringSpec({
             listOf(fromYesterday, fromNow),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { it.shouldBe("MC-297").right() },
@@ -725,6 +771,8 @@ class CrashModuleTest : StringSpec({
             listOf(fromNow, fromYesterday),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { it.shouldBe("MC-297").right() },
@@ -748,6 +796,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { RuntimeException().left() },
             { Unit.right() },
             { Unit.right() },
@@ -773,6 +823,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -798,6 +850,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { RuntimeException().left() },
             { Unit.right() },
@@ -823,6 +877,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { RuntimeException().left() },
@@ -848,6 +904,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -860,5 +918,61 @@ class CrashModuleTest : StringSpec({
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return operation not needed when the ticket is confirmed" {
+        var resolvedAsDupe = false
+
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader
+        )
+        val request = Request(
+            emptyList(),
+            EXAMPLE_CRASH,
+            Calendar.getInstance().time,
+            "Confirmed",
+            NoPriority,
+            { Unit.right() },
+            { resolvedAsDupe = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
+    }
+
+    "should return operation not needed when the ticket has priority" {
+        var resolvedAsDupe = false
+
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader
+        )
+        val request = Request(
+            emptyList(),
+            EXAMPLE_CRASH,
+            Calendar.getInstance().time,
+            Unconfirmed,
+            "Medium",
+            { Unit.right() },
+            { resolvedAsDupe = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
     }
 })

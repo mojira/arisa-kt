@@ -28,6 +28,8 @@ class CrashModule(
         val attachments: List<Attachment>,
         val body: String?,
         val created: Date,
+        val confirmationStatus: String?,
+        val priority: String?,
         val resolveAsInvalid: () -> Either<Throwable, Unit>,
         val resolveAsDuplicate: () -> Either<Throwable, Unit>,
         val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
@@ -37,6 +39,9 @@ class CrashModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
+            assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
+            assertNull(priority).bind()
+
             val textDocuments = attachments
                 .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)

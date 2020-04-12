@@ -1,19 +1,22 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
+import arrow.core.Some
 import arrow.core.extensions.fx
+import arrow.core.firstOrNone
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
+import me.urielsalis.mccrashlib.Crash
+import me.urielsalis.mccrashlib.CrashReader
+import me.urielsalis.mccrashlib.parser.ParserError
 import java.util.Calendar
 import java.util.Date
-import kotlin.text.RegexOption.IGNORE_CASE
-
-const val MINECRAFT_CRASH_HEADER = "---- Minecraft Crash Report ----"
-const val JAVA_CRASH_HEADER = "#  EXCEPTION_ACCESS_VIOLATION"
+import java.util.SortedMap
 
 class CrashModule(
     private val crashReportExtensions: List<String>,
     private val crashDupeConfigs: List<CrashDupeConfig>,
-    private val maxAttachmentAge: Int
+    private val maxAttachmentAge: Int,
+    private val crashReader: CrashReader
 ) : Module<CrashModule.Request> {
     data class Attachment(
         val name: String,
@@ -25,6 +28,8 @@ class CrashModule(
         val attachments: List<Attachment>,
         val body: String?,
         val created: Date,
+        val confirmationStatus: String?,
+        val priority: String?,
         val resolveAsInvalid: () -> Either<Throwable, Unit>,
         val resolveAsDuplicate: () -> Either<Throwable, Unit>,
         val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
@@ -34,32 +39,75 @@ class CrashModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
+            assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
+            assertNull(priority).bind()
+
             val textDocuments = attachments
                 .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
             textDocuments.add(TextDocument(body ?: "", created))
 
-            val infos = textDocuments
+            val crashes = textDocuments
+                .asSequence()
                 .filter(::isTextDocumentRecent)
-                .mapNotNull(::fetchInfo)
-            assertNotEmpty(infos).bind()
+                .map { processCrash(it) }
+                .filter { it.second.isRight() }
+                .map { extractCrash(it) }
+                .filter { it.second is Crash.Minecraft || it.second is Crash.Java }
+                .toList()
 
-            val mostRelevantInfo = infos.reduce(::getMoreRelevantInfo)
+            assertNotEmpty(crashes).bind()
 
-            if (mostRelevantInfo.modded) {
-                addModdedComment().toFailedModuleEither().bind()
-                resolveAsInvalid().toFailedModuleEither().bind()
+            val anyModded = crashes.any { it.second is Crash.Minecraft && (it.second as Crash.Minecraft).modded }
+            val sortedMap = crashes.toMap().toSortedMap(compareByDescending { it.created })
+            val key = findDuplicate(sortedMap, crashDupeConfigs)
+
+            if (key == null) {
+                if (anyModded) {
+                    addModdedComment().toFailedModuleEither().bind()
+                    resolveAsInvalid().toFailedModuleEither().bind()
+                } else {
+                    assertNotNull(key).bind()
+                }
             } else {
-                val configs = crashDupeConfigs.filter(::isConfigValid)
-                val key = getDuplicateKey(mostRelevantInfo, configs)
-                assertNotNull(key).bind()
-
                 addDuplicateComment(key!!).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
                 linkDuplicate(key).toFailedModuleEither().bind()
             }
         }
+    }
+
+    private fun extractCrash(it: Pair<TextDocument, Either<ParserError, Crash>>) =
+        it.first to (it.second as Either.Right<Crash>).b
+
+    private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.content.lines())
+
+    private fun findDuplicate(
+        sortedMap: SortedMap<TextDocument, Crash>,
+        crashDupeConfigs: List<CrashDupeConfig>
+    ): String? {
+        val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
+        val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
+
+        sortedMap.forEach { (_, crash) ->
+            when (crash) {
+                is Crash.Minecraft -> {
+                    val config =
+                        minecraftConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
+                    if (config.isDefined()) {
+                        return (config as Some).t.duplicates
+                    }
+                }
+                is Crash.Java -> {
+                    val config = javaConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
+                    if (config.isDefined()) {
+                        return (config as Some).t.duplicates
+                    }
+                }
+            }
+        }
+        return null
     }
 
     private fun isCrashAttachment(fileName: String) =
@@ -72,25 +120,6 @@ class CrashModule(
         return textDocument.created.after(calendar.time)
     }
 
-    private fun isConfigValid(config: CrashDupeConfig) =
-        CrashInfoType.values().any { it.name == config.type.toUpperCase() }
-
-    private fun getMoreRelevantInfo(info1: CrashInfo, info2: CrashInfo) = when {
-        !info1.exception.isNullOrBlank() && info2.exception.isNullOrBlank() -> info1
-        info1.exception.isNullOrBlank() && !info2.exception.isNullOrBlank() -> info2
-        info1.modded && !info2.modded -> info2
-        !info1.modded && info2.modded -> info1
-        info2.created.after(info1.created) -> info2
-        else -> info1
-    }
-
-    private fun getDuplicateKey(info: CrashInfo, configs: List<CrashDupeConfig>) =
-        configs.firstOrNull {
-            CrashInfoType.valueOf(it.type.toUpperCase()) == info.type &&
-                    info.exception != null &&
-                    it.exceptionRegex.toRegex(IGNORE_CASE).containsMatchIn(info.exception)
-        }?.duplicates
-
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val data = attachment.content
         val text = String(data)
@@ -98,59 +127,8 @@ class CrashModule(
         return TextDocument(text, attachment.created)
     }
 
-    private fun fetchInfo(file: TextDocument) = when {
-        file.content.contains(MINECRAFT_CRASH_HEADER, true) -> {
-            val lines = file.content.split("\n")
-            val exception = lines.getOrNull(6)
-            var modded = false
-
-            lines.forEach {
-                if (it.contains("Is Modded", true)) {
-                    modded = !it.contains("Probably Not", true) && !it.contains("Unknown", true)
-                }
-            }
-
-            if (lines.size >= 7)
-                CrashInfo(
-                    CrashInfoType.MINECRAFT,
-                    exception?.trim(),
-                    modded,
-                    file.created
-                )
-            else null
-        }
-        file.content.contains(JAVA_CRASH_HEADER, true) -> {
-            val lines = file.content.split("\n")
-            var error: String? = null
-
-            lines.forEach {
-                if (it.contains("# C  ", true)) {
-                    error = it.substring(it.indexOf('[') + 1, it.indexOf('+'))
-                }
-            }
-
-            if (error == null) {
-                null
-            } else {
-                CrashInfo(CrashInfoType.JAVA, error!!.trim(), false, file.created)
-            }
-        }
-        else -> null
-    }
-
     data class TextDocument(
         val content: String,
         val created: Date
     )
-
-    data class CrashInfo(
-        val type: CrashInfoType,
-        val exception: String?,
-        val modded: Boolean,
-        val created: Date
-    )
-
-    enum class CrashInfoType {
-        MINECRAFT, JAVA
-    }
 }

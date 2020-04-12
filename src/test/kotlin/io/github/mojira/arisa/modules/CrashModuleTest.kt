@@ -8,11 +8,14 @@ import io.github.mojira.arisa.modules.CrashModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import me.urielsalis.mccrashlib.CrashReader
 import java.util.Calendar
 import java.util.Calendar.DAY_OF_YEAR
+import java.util.Date
 
 const val EXAMPLE_CRASH = """---- Minecraft Crash Report ----
 // Daisy, daisy...
@@ -21,6 +24,7 @@ Time: 6/28/17 11:44 AM
 Description: Initializing game
 
 org.lwjgl.LWJGLException: Pixel format not accelerated
+
 -- System Details --
 Details:
 	Minecraft Version: 1.8.9
@@ -105,6 +109,7 @@ Time: 12/04/18 18:49
 Description: Initializing game
 
 java.lang.IllegalStateException: GLFW error 65542: WGL: The driver does not appear to support OpenGL
+
 -- System Details --
 Details:
 	Minecraft Version: 18w15a
@@ -120,6 +125,7 @@ Description: mouseClicked event handler
 
 java.lang.NullPointerException: mouseClicked event handler
 	at com.replaymod.simplepathing.ReplayModSimplePathing.onReplayClosing(ReplayModSimplePathing.java:129)
+
 -- System Details --
 Details:
 	Minecraft Version: 1.14.4
@@ -151,17 +157,25 @@ const val JAVA_CRASH = """#
 # See problematic frame for where to report the bug.
 #"""
 
+const val Unconfirmed = "Unconfirmed"
+val NoPriority = null
+
+val crashReader = CrashReader()
+
 class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue does not contain any valid crash report" {
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -178,7 +192,8 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
 
         val calendar = Calendar.getInstance()
@@ -189,6 +204,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             EXAMPLE_CRASH,
             time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -205,12 +222,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -227,13 +247,16 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("hytale", "The game has not yet been released", "HT-1")),
-            10
+            10,
+            crashReader
         )
 
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -250,13 +273,16 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
-            10
+            10,
+            crashReader
         )
 
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -273,7 +299,8 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
 
         val calendar = Calendar.getInstance()
@@ -285,6 +312,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -300,7 +329,8 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
-            10
+            10,
+            crashReader
         )
 
         val attachment = Attachment("crash.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
@@ -308,6 +338,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -324,7 +356,8 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
 
         val attachment = Attachment("crash.png", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
@@ -332,6 +365,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -348,7 +383,8 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(),
-            10
+            10,
+            crashReader
         )
 
         val attachment = Attachment("crash.txt", Calendar.getInstance().time, SERVER_UNMODDED_CRASH.toByteArray())
@@ -356,6 +392,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -374,12 +412,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             SERVER_MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -399,12 +440,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             SERVER_MODDED_CRASH_2,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -424,12 +468,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -449,7 +496,8 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
 
         val attachment = Attachment("crash.txt", Calendar.getInstance().time, MODDED_CRASH.toByteArray())
@@ -457,6 +505,8 @@ class CrashModuleTest : StringSpec({
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -476,12 +526,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -501,13 +554,16 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val attachment = Attachment("crash.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
         val request = Request(
             listOf(attachment),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -527,12 +583,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             JAVA_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -552,12 +611,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             JAVA_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -575,12 +637,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { it.shouldBe("MC-297").right() },
@@ -599,14 +664,21 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
-        val modded = Attachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val modded = Attachment(
+            "crash_modded.txt",
+            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000)),
+            EXAMPLE_CRASH.toByteArray()
+        )
         val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
         val request = Request(
             listOf(modded, dupe),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -626,14 +698,21 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val modded = Attachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
-        val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val dupe = Attachment(
+            "crash_dupe.txt",
+            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000)),
+            EXAMPLE_CRASH.toByteArray()
+        )
         val request = Request(
             listOf(dupe, modded),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { resolvedAsDupe = true; Unit.right() },
             { Unit.right() },
@@ -654,7 +733,8 @@ class CrashModuleTest : StringSpec({
                 CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
                 CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302")
             ),
-            10
+            10,
+            crashReader
         )
         val calendar = Calendar.getInstance()
         calendar.add(DAY_OF_YEAR, -1)
@@ -666,6 +746,8 @@ class CrashModuleTest : StringSpec({
             listOf(fromYesterday, fromNow),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { it.shouldBe("MC-297").right() },
@@ -685,7 +767,8 @@ class CrashModuleTest : StringSpec({
                 CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
                 CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302")
             ),
-            10
+            10,
+            crashReader
         )
         val calendar = Calendar.getInstance()
         calendar.add(DAY_OF_YEAR, -1)
@@ -697,6 +780,8 @@ class CrashModuleTest : StringSpec({
             listOf(fromNow, fromYesterday),
             "",
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { it.shouldBe("MC-297").right() },
@@ -713,12 +798,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { RuntimeException().left() },
             { Unit.right() },
             { Unit.right() },
@@ -737,12 +825,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             MODDED_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -761,12 +852,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { RuntimeException().left() },
             { Unit.right() },
@@ -785,12 +879,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { RuntimeException().left() },
@@ -809,12 +906,15 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10
+            10,
+            crashReader
         )
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
             Calendar.getInstance().time,
+            Unconfirmed,
+            NoPriority,
             { Unit.right() },
             { Unit.right() },
             { Unit.right() },
@@ -827,5 +927,61 @@ class CrashModuleTest : StringSpec({
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return operation not needed when the ticket is confirmed" {
+        var resolvedAsDupe = false
+
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader
+        )
+        val request = Request(
+            emptyList(),
+            EXAMPLE_CRASH,
+            Calendar.getInstance().time,
+            "Confirmed",
+            NoPriority,
+            { Unit.right() },
+            { resolvedAsDupe = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
+    }
+
+    "should return operation not needed when the ticket has priority" {
+        var resolvedAsDupe = false
+
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader
+        )
+        val request = Request(
+            emptyList(),
+            EXAMPLE_CRASH,
+            Calendar.getInstance().time,
+            Unconfirmed,
+            "Medium",
+            { Unit.right() },
+            { resolvedAsDupe = true; Unit.right() },
+            { Unit.right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
     }
 })

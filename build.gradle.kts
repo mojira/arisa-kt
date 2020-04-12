@@ -14,7 +14,7 @@ repositories {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val kotestVersion = "4.0.1"
+val kotestVersion = "4.0.2"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {
@@ -28,6 +28,7 @@ dependencies {
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("com.github.rcarz", "jira-client", "master-SNAPSHOT")
+    implementation("me.urielsalis", "mc-crash-lib", "master-SNAPSHOT")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)
     implementation("ch.qos.logback", "logback-core", logBackVersion)
@@ -37,7 +38,7 @@ dependencies {
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
-    implementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
+    testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
     testImplementation("io.mockk", "mockk", "1.9.3")
 }
 

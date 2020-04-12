@@ -15,6 +15,7 @@ import io.kotest.matchers.shouldBe
 import me.urielsalis.mccrashlib.CrashReader
 import java.util.Calendar
 import java.util.Calendar.DAY_OF_YEAR
+import java.util.Date
 
 const val EXAMPLE_CRASH = """---- Minecraft Crash Report ----
 // Daisy, daisy...
@@ -666,7 +667,11 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val modded = Attachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val modded = Attachment(
+            "crash_modded.txt",
+            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000)),
+            EXAMPLE_CRASH.toByteArray()
+        )
         val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
         val request = Request(
             listOf(modded, dupe),
@@ -697,7 +702,11 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
         val modded = Attachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
-        val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val dupe = Attachment(
+            "crash_dupe.txt",
+            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000)),
+            EXAMPLE_CRASH.toByteArray()
+        )
         val request = Request(
             listOf(dupe, modded),
             "",

@@ -59,14 +59,18 @@ class CrashModule(
 
             assertNotEmpty(crashes).bind()
 
-            if (crashes.any { it.second is Crash.Minecraft && (it.second as Crash.Minecraft).modded }) {
-                addModdedComment().toFailedModuleEither().bind()
-                resolveAsInvalid().toFailedModuleEither().bind()
-            } else {
-                val sortedMap = crashes.toMap().toSortedMap(compareByDescending { it.created })
-                val key = findDuplicate(sortedMap, crashDupeConfigs)
+            val anyModded = crashes.any { it.second is Crash.Minecraft && (it.second as Crash.Minecraft).modded }
+            val sortedMap = crashes.toMap().toSortedMap(compareByDescending { it.created })
+            val key = findDuplicate(sortedMap, crashDupeConfigs)
 
-                assertNotNull(key).bind()
+            if (key == null) {
+                if (anyModded) {
+                    addModdedComment().toFailedModuleEither().bind()
+                    resolveAsInvalid().toFailedModuleEither().bind()
+                } else {
+                    assertNotNull(key).bind()
+                }
+            } else {
                 addDuplicateComment(key!!).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
                 linkDuplicate(key).toFailedModuleEither().bind()

@@ -18,9 +18,9 @@ fun getLanguage(token: String, text: String): Either<Error, Map<String, Double>>
         requestMethod = "POST"
         doOutput = true
 
-        val wr = OutputStreamWriter(outputStream);
-        wr.write(request);
-        wr.flush();
+        val wr = OutputStreamWriter(outputStream)
+        wr.write(request)
+        wr.flush()
 
         if (responseCode != 200) {
             return Either.left(Error("$responseCode from translation api"))
@@ -28,7 +28,7 @@ fun getLanguage(token: String, text: String): Either<Error, Map<String, Double>>
 
         val result = Klaxon().parse<Response>(inputStream) ?: return Either.left(Error("Couldn't deserialize response"))
 
-        return Either.right(result.detectedLangs.filter { it.confidence > 0.7 }.map { it.lang to it.confidence }
+        return Either.right(result.detectedLangs.map { it.lang to it.confidence }
             .toMap())
     }
 }

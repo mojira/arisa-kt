@@ -6,7 +6,7 @@ import arrow.core.left
 import arrow.core.right
 
 class LanguageModule(
-    val allowedLanguages: List<String> = listOf()
+    val allowedLanguages: List<String> = listOf("en")
 ) : Module<LanguageModule.Request> {
 
     data class Request(
@@ -21,7 +21,7 @@ class LanguageModule(
         Either.fx {
             val detectedLanguage = getDetectedLanguage(getLanguage, request.summary, request.description)
 
-            assertNotNull(detectedLanguage)
+            assertNotNull(detectedLanguage).bind()
 
             assertLanguageIsNotAllowed(allowedLanguages, detectedLanguage!!).bind()
 
@@ -39,11 +39,7 @@ class LanguageModule(
         return detected.fold(
             { null },
             {
-                if (it.isEmpty()) {
-                    null
-                } else {
-                    it.maxBy { it.value }!!.key
-                }
+                it.filter { it.value > 0.7 }.maxBy { it.value }?.key
             }
         )
     }

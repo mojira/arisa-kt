@@ -8,7 +8,6 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import java.io.File
 
 class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
@@ -88,7 +87,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
             "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
-            { mapOf("en" to 0.6).right() },
+            { mapOf("en" to 0.6, "de" to 0.8).right() },
             { Unit.right() },
             { Unit.right() }
         )
@@ -142,7 +141,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "Bonjour",
             "",
-            { emptyMap<String, Double>().right() },
+            { mapOf("en" to 1.0).right() },
             { RuntimeException().left() },
             { Unit.right() })
 
@@ -158,7 +157,7 @@ class LanguageModuleTest : StringSpec({
         val request = Request(
             "Salut",
             "",
-            { emptyMap<String, Double>().right() },
+            { mapOf("en" to 1.0).right() },
             { Unit.right() },
             { RuntimeException().left() })
 

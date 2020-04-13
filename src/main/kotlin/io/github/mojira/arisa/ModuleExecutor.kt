@@ -220,30 +220,31 @@ class ModuleExecutor(
                         ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.message])
                     )
                 )
-        }
-        exec(Arisa.Modules.Language) { issue ->
-            "Language" to languageModule(
-                LanguageModule.Request(
-                    issue.summary,
-                    issue.description,
-                    issue.security?.id,
-                    getSecurityLevelId(issue.project.key),
-                    ::getLanguage.partially1(config[Arisa.Modules.Language.token]),
-                    { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
-                    { language ->
-                        val translatedMessage = config[Arisa.Modules.Language.messages][language]
-                        val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
-                        val text = if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
-                            translatedMessage,
-                            defaultMessage
-                        ) else defaultMessage
+            }
+            exec(Arisa.Modules.Language) { issue ->
+                "Language" to languageModule(
+                    LanguageModule.Request(
+                        issue.summary,
+                        issue.description,
+                        issue.security?.id,
+                        getSecurityLevelId(issue.project.key),
+                        ::getLanguage.partially1(config[Arisa.Modules.Language.token]),
+                        { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
+                        { language ->
+                            val translatedMessage = config[Arisa.Modules.Language.messages][language]
+                            val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
+                            val text =
+                                if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
+                                    translatedMessage,
+                                    defaultMessage
+                                ) else defaultMessage
 
-                        addRestrictedComment(issue, text, "helper")
-                    }
+                            addRestrictedComment(issue, text, "helper")
+                        }
+                    )
                 )
-            )
-        }
-        
+            }
+
             exec(Arisa.Modules.RemoveNonStaffMeqs) { issue ->
                 "RemoveNonStaffMeqs" to removeNonStaffMeqsModule(
                     RemoveNonStaffMeqsModule.Request(

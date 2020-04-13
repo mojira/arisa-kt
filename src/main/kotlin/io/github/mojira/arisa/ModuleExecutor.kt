@@ -302,7 +302,8 @@ class ModuleExecutor(
 
         val issues = cache.getQuery(jql) ?: jiraClient
             .searchIssues(jql)
-            .issues
+            .iterator()
+            .asSequence()
             .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
             .filter(::lastActionWasAResolve)
 

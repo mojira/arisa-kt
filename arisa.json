@@ -218,6 +218,13 @@
         "whitelist": [
           "TRASH"
         ]
+      },
+      "updateLinked": {
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCPE"
+        ]
       }
     }
   }

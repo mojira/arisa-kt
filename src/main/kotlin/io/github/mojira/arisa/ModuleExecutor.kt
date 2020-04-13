@@ -386,25 +386,25 @@ class ModuleExecutor(
 
         return searchResult
             .issues
-            .filter(::lastActionWasAResolve)
+            .filter(::lastActionWasNotAResolve)
     }
 
-    private fun lastActionWasAResolve(issue: Issue): Boolean {
+    private fun lastActionWasNotAResolve(issue: Issue): Boolean {
         val latestChange = issue.changeLog.entries.lastOrNull()
 
         return latestChange == null ||
-                latestChange.isATransition() ||
-                latestChange.wasNotDoneByTheBot() ||
-                latestChange.noCommentAfterIt(issue)
+                latestChange.isNotATransition() ||
+                latestChange.wasDoneByTheBot() ||
+                latestChange.commentAfterIt(issue)
     }
 
-    private fun ChangeLogEntry.noCommentAfterIt(issue: Issue) =
+    private fun ChangeLogEntry.commentAfterIt(issue: Issue) =
         (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > created)
 
-    private fun ChangeLogEntry.wasNotDoneByTheBot() =
+    private fun ChangeLogEntry.wasDoneByTheBot() =
         author.name == config[Arisa.Credentials.username]
 
-    private fun ChangeLogEntry.isATransition() =
+    private fun ChangeLogEntry.isNotATransition() =
         !items.any { it.field == "resolution" }
 
     private fun String.toInstant() = isoFormat.parse(this).toInstant()

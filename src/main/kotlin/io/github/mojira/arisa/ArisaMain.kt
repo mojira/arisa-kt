@@ -30,21 +30,30 @@ fun main() {
     log.info("Connected to jira")
 
     val lastRunFile = File("last-run")
-    var lastRun =
-        if (lastRunFile.exists())
-            lastRunFile.readText().toLong()
+    val lastRun =
+        (if (lastRunFile.exists())
+            lastRunFile.readText()
+        else "")
+            .split(",")
+
+    var lastRunTime =
+        if (lastRun[0].isNotEmpty())
+            lastRun[0].toLong()
         else Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli()
 
-    val moduleExecutor = ModuleExecutor(jiraClient, config, Cache())
+    val failedTickets = lastRun.subList(1, lastRun.size).toSet()
+
+    val cache = Cache(failedTickets)
+    val moduleExecutor = ModuleExecutor(jiraClient, config, cache)
     while (true) {
         // save time before run, so nothing happening during the run is missed
-        val curRun = Instant.now().toEpochMilli()
+        val curRunTime = Instant.now().toEpochMilli()
 
-        val successful = moduleExecutor.execute(lastRun)
-        if (successful) {
-            lastRunFile.writeText(curRun.toString())
-            lastRun = curRun
-        }
+        moduleExecutor.execute(lastRunTime)
+        val failed = cache.getFailedTickets().joinToString{ ",$it" } // even first entry should start with a comma
+
+        lastRunFile.writeText("$curRunTime$failed")
+        lastRunTime = curRunTime
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
     }

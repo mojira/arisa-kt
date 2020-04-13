@@ -75,8 +75,7 @@ class ModuleExecutor(
     private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
     private val resolveTrash: ResolveTrashModule = ResolveTrashModule()
 
-    fun execute(lastRun: Long): Boolean {
-        var allModulesSuccessful = true
+    fun execute(lastRun: Long) {
         var missingResultsPage: Boolean
         var startAt = 0
 
@@ -86,7 +85,6 @@ class ModuleExecutor(
                 .partially2(cache)
                 .partially2(lastRun)
                 .partially2(startAt)
-                .partially2 { allModulesSuccessful = false }
                 .partially2 { missingResultsPage = true }
 
             exec(Arisa.Modules.Attachment) { issue ->
@@ -298,7 +296,7 @@ class ModuleExecutor(
             cache.clearQueryCache()
             startAt += MAX_RESULTS
         } while (missingResultsPage)
-        return allModulesSuccessful
+        cache.updatedFailedTickets()
     }
 
     private fun executeModule(
@@ -306,14 +304,18 @@ class ModuleExecutor(
         cache: Cache,
         lastRun: Long,
         startAt: Int,
-        onModuleFail: () -> Unit,
         onQueryNotAtResultEnd: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
+        val failedTicketsJQL = with(cache.getFailedTickets()) {
+            if (isNotEmpty())
+                "key in ${joinToString(",")} OR "
+            else ""
+        }
 
-        val jql = config[moduleConfig.jql].format(lastRun)
+        val jql = "$failedTicketsJQL(${config[moduleConfig.jql].format(lastRun)})"
         val issues = cache.getQuery(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
 
         cache.addQuery(jql, issues)
@@ -327,7 +329,7 @@ class ModuleExecutor(
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> {
-                            onModuleFail()
+                            cache.addFailedTicket(issue)
                             for (exception in it.exceptions) {
                                 log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
                             }

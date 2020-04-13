@@ -126,7 +126,7 @@ class LanguageModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should return operation not needed if ticket is private" {
+    "should return OperationNotNeeded if ticket is private" {
         val module = LanguageModule()
         val request = Request(
             "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",

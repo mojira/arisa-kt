@@ -18,6 +18,7 @@ import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.infrastructure.updateConfirmation
+import io.github.mojira.arisa.infrastructure.updateLinked
 import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -43,7 +44,6 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
-import io.github.mojira.arisa.infrastructure.updateLinked as updateLinkedField
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
@@ -74,8 +74,8 @@ class ModuleExecutor(
     )
     private val reopenAwaitingModule = ReopenAwaitingModule()
     private val revokeConfirmationModule = RevokeConfirmationModule()
-    private val resolveTrash = ResolveTrashModule()
-    private val updateLinked = UpdateLinkedModule()
+    private val resolveTrashModule = ResolveTrashModule()
+    private val updateLinkedModule = UpdateLinkedModule()
 
     fun execute(lastRun: Long): Boolean {
         var allModulesSuccessful = true
@@ -279,7 +279,7 @@ class ModuleExecutor(
             )
         }
         exec(Arisa.Modules.ResolveTrash) { issue ->
-            "ResolveTrash" to resolveTrash(
+            "ResolveTrash" to resolveTrashModule(
                 ResolveTrashModule.Request(
                     issue.project.key,
                     ::resolveAs.partially1(issue).partially1("Invalid")
@@ -287,12 +287,12 @@ class ModuleExecutor(
             )
         }
         exec(Arisa.Modules.UpdateLinked) { issue ->
-            "UpdateLinked" to updateLinked(
+            "UpdateLinked" to updateLinkedModule(
                 UpdateLinkedModule.Request(
                     issue.issueLinks
                         .map { it.type.name },
                     issue.getField(config[Arisa.CustomFields.linked]) as? Double?,
-                    ::updateLinkedField.partially1(issue).partially1(config[Arisa.CustomFields.linked])
+                    ::updateLinked.partially1(issue).partially1(config[Arisa.CustomFields.linked])
                 )
             )
         }

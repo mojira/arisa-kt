@@ -12,6 +12,8 @@ class LanguageModule(
     data class Request(
         val summary: String?,
         val description: String?,
+        val securityLevel: String?,
+        val privateLevel: String,
         val getLanguage: (String) -> Either<Any, Map<String, Double>>,
         val resolveAsInvalid: () -> Either<Throwable, Unit>,
         val addLanguageComment: (language: String) -> Either<Throwable, Unit>
@@ -19,6 +21,8 @@ class LanguageModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
+            assertIsPublic(securityLevel, privateLevel).bind()
+
             val detectedLanguage = getDetectedLanguage(getLanguage, request.summary, request.description)
 
             assertNotNull(detectedLanguage).bind()
@@ -42,6 +46,11 @@ class LanguageModule(
                 it.filter { it.value > 0.7 }.maxBy { it.value }?.key
             }
         )
+    }
+
+    private fun assertIsPublic(securityLevel: String?, privateLevel: String) = when {
+        securityLevel == privateLevel -> OperationNotNeededModuleResponse.left()
+        else -> Unit.right()
     }
 
     private fun assertLanguageIsNotAllowed(allowedLanguages: List<String>, language: String) = when {

@@ -306,6 +306,7 @@ class ModuleExecutor(
             .asSequence()
             .map { jiraClient.getIssue(it.key, "*all", "changelog") } // Get issues again to retrieve all fields
             .filter(::lastActionWasAResolve)
+            .toList()
 
         cache.addQuery(jql, issues)
 

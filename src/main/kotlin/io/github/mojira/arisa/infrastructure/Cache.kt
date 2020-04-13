@@ -3,10 +3,10 @@ package io.github.mojira.arisa.infrastructure
 import net.rcarz.jiraclient.Issue
 
 class Cache {
-    private val queryCache = mutableMapOf<String, Sequence<Issue>>()
+    private val queryCache = mutableMapOf<String, List<Issue>>()
 
     fun getQuery(combinedJql: String) = queryCache.getOrDefault(combinedJql, null)
-    fun addQuery(combinedJql: String, issues: Sequence<Issue>) {
+    fun addQuery(combinedJql: String, issues: List<Issue>) {
         queryCache[combinedJql] = issues
     }
 

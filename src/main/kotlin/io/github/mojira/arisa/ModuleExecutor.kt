@@ -48,6 +48,7 @@ import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+private const val MAX_RESULTS = 50
 
 class ModuleExecutor(
     private val jiraClient: JiraClient,
@@ -81,134 +82,144 @@ class ModuleExecutor(
 
     fun execute(lastRun: Long): Boolean {
         var allModulesSuccessful = true
-        val exec = ::executeModule.partially2(cache).partially2(lastRun).partially2 { allModulesSuccessful = false }
+        var missingResultsPage: Boolean
+        var startAt = 0
 
-        exec(Arisa.Modules.Attachment) { issue ->
-            "Attachment" to attachmentModule(
-                AttachmentModule.Request(
-                    issue.attachments
-                        .map { a ->
-                            AttachmentModule.Attachment(
-                                a.fileName,
-                                ::deleteAttachment.partially1(jiraClient).partially1(a)
-                            )
-                        }
+        do {
+            missingResultsPage = false
+            val exec = ::executeModule
+                .partially2(cache)
+                .partially2(lastRun)
+                .partially2(startAt)
+                .partially2 { allModulesSuccessful = false }
+                .partially2 { missingResultsPage = true }
+
+            exec(Arisa.Modules.Attachment) { issue ->
+                "Attachment" to attachmentModule(
+                    AttachmentModule.Request(
+                        issue.attachments
+                            .map { a ->
+                                AttachmentModule.Attachment(
+                                    a.fileName,
+                                    ::deleteAttachment.partially1(jiraClient).partially1(a)
+                                )
+                            }
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.CHK) { issue ->
-            "CHK" to chkModule(
-                CHKModule.Request(
-                    issue.getFieldAsString(config[Arisa.CustomFields.chkField]),
-                    issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
-                    ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
-                )
-            )
-        }
-        exec(Arisa.Modules.Crash) { issue ->
-            "Crash" to crashModule(
-                CrashModule.Request(
-                    issue.attachments
-                        .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },
-                    issue.description,
-                    issue.createdDate,
-                    issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
-                    issue.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
-                    ::resolveAs.partially1(issue).partially1("Invalid"),
-                    ::resolveAs.partially1(issue).partially1("Duplicate"),
-                    ::link.partially1(issue).partially1("Duplicate"),
-                    ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage]),
-                    { key ->
-                        addComment(
-                            issue,
-                            config[Arisa.Modules.Crash.duplicateMessage].format(key)
-                        )
-                    }
-                )
-            )
-        }
-        exec(Arisa.Modules.Empty) { issue ->
-            "Empty" to emptyModule(
-                EmptyModule.Request(
-                    issue.attachments.size,
-                    issue.description,
-                    issue.getFieldAsString("environment"),
-                    ::resolveAs.partially1(issue).partially1("Incomplete"),
-                    ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.message])
-                )
-            )
-        }
-        exec(Arisa.Modules.FutureVersion) { issue ->
-            // issue.project doesn't contain versions
-            val project = try {
-                jiraClient.getProject(issue.project.key)
-            } catch (e: Exception) {
-                log.error("Failed to get project of issue", e)
-                null
             }
-            "FutureVersion" to futureVersionModule(
-                FutureVersionModule.Request(
-                    issue.versions
-                        .map { v ->
-                            FutureVersionModule.Version(
-                                v.isReleased,
-                                v.isArchived,
-                                ::removeAffectedVersion.partially1(issue).partially1(v)
-                            )
-                        },
-                    project?.versions
-                        ?.map { v ->
-                            FutureVersionModule.Version(
-                                v.isReleased,
-                                v.isArchived,
-                                ::addAffectedVersion.partially1(issue).partially1(v)
-                            )
-                        },
-                    ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.message])
+            exec(Arisa.Modules.CHK) { issue ->
+                "CHK" to chkModule(
+                    CHKModule.Request(
+                        issue.getFieldAsString(config[Arisa.CustomFields.chkField]),
+                        issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
+                        ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.HideImpostors) { issue ->
-            "HideImpostors" to hideImpostorsModule(
-                HideImpostorsModule.Request(
-                    issue.comments
-                        .map { c ->
-                            HideImpostorsModule.Comment(
-                                c.author.displayName,
-                                getGroups(
-                                    jiraClient,
-                                    c.author.name
-                                ).fold({ null }, { it }),
-                                c.updatedDate.toInstant(),
-                                c.visibility?.type,
-                                c.visibility?.value,
-                                ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(null)
+            }
+            exec(Arisa.Modules.Crash) { issue ->
+                "Crash" to crashModule(
+                    CrashModule.Request(
+                        issue.attachments
+                            .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },
+                        issue.description,
+                        issue.createdDate,
+                        issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
+                        issue.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
+                        ::resolveAs.partially1(issue).partially1("Invalid"),
+                        ::resolveAs.partially1(issue).partially1("Duplicate"),
+                        ::link.partially1(issue).partially1("Duplicate"),
+                        ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage]),
+                        { key ->
+                            addComment(
+                                issue,
+                                config[Arisa.Modules.Crash.duplicateMessage].format(key)
                             )
                         }
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.KeepPrivate) { issue ->
-            "KeepPrivate" to keepPrivateModule(
-                KeepPrivateModule.Request(
-                    issue.security?.id,
-                    getSecurityLevelId(issue.project.key),
-                    issue.comments.map { c -> c.body },
-                    ::updateSecurity.partially1(issue).partially1(getSecurityLevelId(issue.project.key)),
-                    ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.message])
+            }
+            exec(Arisa.Modules.Empty) { issue ->
+                "Empty" to emptyModule(
+                    EmptyModule.Request(
+                        issue.attachments.size,
+                        issue.description,
+                        issue.getFieldAsString("environment"),
+                        ::resolveAs.partially1(issue).partially1("Incomplete"),
+                        ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.message])
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.Piracy) { issue ->
-            "Piracy" to piracyModule(
-                PiracyModule.Request(
-                    issue.getFieldAsString("environment"),
-                    issue.summary,
-                    issue.description,
-                    ::resolveAs.partially1(issue).partially1("Invalid"),
-                    ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.message])
+            }
+            exec(Arisa.Modules.FutureVersion) { issue ->
+                // issue.project doesn't contain versions
+                val project = try {
+                    jiraClient.getProject(issue.project.key)
+                } catch (e: Exception) {
+                    log.error("Failed to get project of issue", e)
+                    null
+                }
+                "FutureVersion" to futureVersionModule(
+                    FutureVersionModule.Request(
+                        issue.versions
+                            .map { v ->
+                                FutureVersionModule.Version(
+                                    v.isReleased,
+                                    v.isArchived,
+                                    ::removeAffectedVersion.partially1(issue).partially1(v)
+                                )
+                            },
+                        project?.versions
+                            ?.map { v ->
+                                FutureVersionModule.Version(
+                                    v.isReleased,
+                                    v.isArchived,
+                                    ::addAffectedVersion.partially1(issue).partially1(v)
+                                )
+                            },
+                        ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.message])
+                    )
                 )
-            )
+            }
+            exec(Arisa.Modules.HideImpostors) { issue ->
+                "HideImpostors" to hideImpostorsModule(
+                    HideImpostorsModule.Request(
+                        issue.comments
+                            .map { c ->
+                                HideImpostorsModule.Comment(
+                                    c.author.displayName,
+                                    getGroups(
+                                        jiraClient,
+                                        c.author.name
+                                    ).fold({ null }, { it }),
+                                    c.updatedDate.toInstant(),
+                                    c.visibility?.type,
+                                    c.visibility?.value,
+                                    ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(null)
+                                )
+                            }
+                    )
+                )
+            }
+            exec(Arisa.Modules.KeepPrivate) { issue ->
+                "KeepPrivate" to keepPrivateModule(
+                    KeepPrivateModule.Request(
+                        issue.security?.id,
+                        getSecurityLevelId(issue.project.key),
+                        issue.comments.map { c -> c.body },
+                        ::updateSecurity.partially1(issue).partially1(getSecurityLevelId(issue.project.key)),
+                        ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.message])
+                    )
+                )
+            }
+            exec(Arisa.Modules.Piracy) { issue ->
+                "Piracy" to piracyModule(
+                    PiracyModule.Request(
+                        issue.getFieldAsString("environment"),
+                        issue.summary,
+                        issue.description,
+                        ::resolveAs.partially1(issue).partially1("Invalid"),
+                        ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.message])
+                    )
+                )
         }
         exec(Arisa.Modules.Language) { issue ->
             "Language" to languageModule(
@@ -232,86 +243,89 @@ class ModuleExecutor(
                 )
             )
         }
-        exec(Arisa.Modules.RemoveNonStaffMeqs) { issue ->
-            "RemoveNonStaffMeqs" to removeNonStaffMeqsModule(
-                RemoveNonStaffMeqsModule.Request(
-                    issue.comments
-                        .map { c ->
-                            RemoveNonStaffMeqsModule.Comment(
-                                c.body,
-                                c.visibility?.type,
-                                c.visibility?.value,
-                                ::restrictCommentToGroup.partially1(c).partially1("staff")
-                            )
-                        }
+        
+            exec(Arisa.Modules.RemoveNonStaffMeqs) { issue ->
+                "RemoveNonStaffMeqs" to removeNonStaffMeqsModule(
+                    RemoveNonStaffMeqsModule.Request(
+                        issue.comments
+                            .map { c ->
+                                RemoveNonStaffMeqsModule.Comment(
+                                    c.body,
+                                    c.visibility?.type,
+                                    c.visibility?.value,
+                                    ::restrictCommentToGroup.partially1(c).partially1("staff")
+                                )
+                            }
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.RemoveTriagedMeqs) {
-            "RemoveTriagedMeqs" to removeTriagedMeqsModule(
-                RemoveTriagedMeqsModule.Request(
-                    it.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
-                    it.getFieldAsString(config[Arisa.CustomFields.triagedTimeField]),
-                    it.comments
-                        .map { c ->
-                            RemoveTriagedMeqsModule.Comment(
-                                c.body,
-                                ::updateCommentBody.partially1(c)
-                            )
-                        }
+            }
+            exec(Arisa.Modules.RemoveTriagedMeqs) {
+                "RemoveTriagedMeqs" to removeTriagedMeqsModule(
+                    RemoveTriagedMeqsModule.Request(
+                        it.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
+                        it.getFieldAsString(config[Arisa.CustomFields.triagedTimeField]),
+                        it.comments
+                            .map { c ->
+                                RemoveTriagedMeqsModule.Comment(
+                                    c.body,
+                                    ::updateCommentBody.partially1(c)
+                                )
+                            }
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.ReopenAwaiting) { issue ->
-            "ReopenAwaiting" to reopenAwaitingModule(
-                ReopenAwaitingModule.Request(
-                    issue.resolution?.name,
-                    (issue.getFieldAsString("created"))!!.toInstant(),
-                    (issue.getFieldAsString("updated"))!!.toInstant(),
-                    issue.comments
-                        .map { c ->
-                            ReopenAwaitingModule.Comment(
-                                c.updatedDate.toInstant().toEpochMilli(),
-                                c.createdDate.toInstant().toEpochMilli()
-                            )
-                        },
-                    ::reopenIssue.partially1(issue)
+            }
+            exec(Arisa.Modules.ReopenAwaiting) { issue ->
+                "ReopenAwaiting" to reopenAwaitingModule(
+                    ReopenAwaitingModule.Request(
+                        issue.resolution?.name,
+                        (issue.getFieldAsString("created"))!!.toInstant(),
+                        (issue.getFieldAsString("updated"))!!.toInstant(),
+                        issue.comments
+                            .map { c ->
+                                ReopenAwaitingModule.Comment(
+                                    c.updatedDate.toInstant().toEpochMilli(),
+                                    c.createdDate.toInstant().toEpochMilli()
+                                )
+                            },
+                        ::reopenIssue.partially1(issue)
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.RevokeConfirmation) { issue ->
-            "RevokeConfirmation" to revokeConfirmationModule(
-                RevokeConfirmationModule.Request(
-                    issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
-                    issue.changeLog.entries
-                        .flatMap { e ->
-                            e.items
-                                .map { i ->
-                                    RevokeConfirmationModule.ChangeLogItem(
-                                        i.field,
-                                        i.toString,
-                                        e.created.toInstant(),
-                                        getGroups(
-                                            jiraClient,
-                                            e.author.name
-                                        ).fold({ null }, { it })
-                                    )
-                                }
-                        },
-                    ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])
+            }
+            exec(Arisa.Modules.RevokeConfirmation) { issue ->
+                "RevokeConfirmation" to revokeConfirmationModule(
+                    RevokeConfirmationModule.Request(
+                        issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
+                        issue.changeLog.entries
+                            .flatMap { e ->
+                                e.items
+                                    .map { i ->
+                                        RevokeConfirmationModule.ChangeLogItem(
+                                            i.field,
+                                            i.toString,
+                                            e.created.toInstant(),
+                                            getGroups(
+                                                jiraClient,
+                                                e.author.name
+                                            ).fold({ null }, { it })
+                                        )
+                                    }
+                            },
+                        ::updateConfirmation.partially1(issue).partially1(config[Arisa.CustomFields.confirmationField])
+                    )
                 )
-            )
-        }
-        exec(Arisa.Modules.ResolveTrash) { issue ->
-            "ResolveTrash" to resolveTrash(
-                ResolveTrashModule.Request(
-                    issue.project.key,
-                    ::resolveAs.partially1(issue).partially1("Invalid")
+            }
+            exec(Arisa.Modules.ResolveTrash) { issue ->
+                "ResolveTrash" to resolveTrash(
+                    ResolveTrashModule.Request(
+                        issue.project.key,
+                        ::resolveAs.partially1(issue).partially1("Invalid")
+                    )
                 )
-            )
-        }
+            }
 
-        cache.clearQueryCache()
+            cache.clearQueryCache()
+            startAt += MAX_RESULTS
+        } while (missingResultsPage)
         return allModulesSuccessful
     }
 
@@ -319,20 +333,16 @@ class ModuleExecutor(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         cache: Cache,
         lastRun: Long,
+        startAt: Int,
         onModuleFail: () -> Unit,
+        onQueryNotAtResultEnd: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
 
         val jql = config[moduleConfig.jql].format(lastRun)
-
-        val issues = cache.getQuery(jql) ?: jiraClient
-            .searchIssues(jql, "*all", "changelog", 1000, 0)
-            .iterator()
-            .asSequence()
-            .filter(::lastActionWasAResolve)
-            .toList()
+        val issues = cache.getQuery(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
 
         cache.addQuery(jql, issues)
 
@@ -355,6 +365,22 @@ class ModuleExecutor(
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }
+    }
+
+    private fun searchIssues(
+        jql: String,
+        startAt: Int,
+        onQueryPaginated: () -> Unit
+    ): List<Issue> {
+        val searchResult = jiraClient
+            .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
+
+        if (searchResult.start + searchResult.max < searchResult.total)
+            onQueryPaginated()
+
+        return searchResult
+            .issues
+            .filter(::lastActionWasAResolve)
     }
 
     private fun lastActionWasAResolve(issue: Issue): Boolean {

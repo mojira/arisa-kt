@@ -48,12 +48,14 @@ fun main() {
     while (true) {
         // save time before run, so nothing happening during the run is missed
         val curRunTime = Instant.now().toEpochMilli()
+        val success = moduleExecutor.execute(lastRunTime)
 
-        moduleExecutor.execute(lastRunTime)
-        val failed = cache.getFailedTickets().joinToString{ ",$it" } // even first entry should start with a comma
+        if (success) {
+            val failed = cache.getFailedTickets().joinToString { ",$it" } // even first entry should start with a comma
 
-        lastRunFile.writeText("$curRunTime$failed")
-        lastRunTime = curRunTime
+            lastRunFile.writeText("$curRunTime$failed")
+            lastRunTime = curRunTime
+        }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
     }

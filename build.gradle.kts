@@ -9,8 +9,8 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://dl.bintray.com/cbeust/maven")
     maven("https://jitpack.io")
+    maven("https://dl.bintray.com/cbeust/maven")
 }
 
 val logBackVersion = "1.2.3"

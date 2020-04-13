@@ -17,6 +17,7 @@
       "checkInterval": 10
     },
     "customFields": {
+      "linked": "customfield_11100",
       "chkField": "customfield_10701",
       "confirmationField": "customfield_10500",
       "mojangPriorityField": "customfield_12200",

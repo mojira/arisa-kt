@@ -36,12 +36,14 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
 import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
+import io.github.mojira.arisa.infrastructure.updateLinked as updateLinkedField
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
@@ -50,29 +52,30 @@ class ModuleExecutor(
     private val config: Config,
     private val cache: Cache
 ) {
-    private val attachmentModule: AttachmentModule =
+    private val attachmentModule =
         AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
-    private val chkModule: CHKModule = CHKModule()
-    private val crashModule: CrashModule = CrashModule(
+    private val chkModule = CHKModule()
+    private val crashModule = CrashModule(
         config[Arisa.Modules.Crash.crashExtensions],
         config[Arisa.Modules.Crash.duplicates],
         config[Arisa.Modules.Crash.maxAttachmentAge],
         CrashReader()
     )
-    private val emptyModule: EmptyModule = EmptyModule()
-    private val keepPrivateModule: KeepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
-    private val futureVersionModule: FutureVersionModule = FutureVersionModule()
-    private val hideImpostorsModule: HideImpostorsModule = HideImpostorsModule()
-    private val piracyModule: PiracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
-    private val removeNonStaffMeqsModule: RemoveNonStaffMeqsModule =
+    private val emptyModule = EmptyModule()
+    private val keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
+    private val futureVersionModule = FutureVersionModule()
+    private val hideImpostorsModule = HideImpostorsModule()
+    private val piracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
+    private val removeNonStaffMeqsModule =
         RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
-    private val removeTriagedMeqsModule: RemoveTriagedMeqsModule = RemoveTriagedMeqsModule(
+    private val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
         config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
         config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
     )
-    private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
-    private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
-    private val resolveTrash: ResolveTrashModule = ResolveTrashModule()
+    private val reopenAwaitingModule = ReopenAwaitingModule()
+    private val revokeConfirmationModule = RevokeConfirmationModule()
+    private val resolveTrash = ResolveTrashModule()
+    private val updateLinked = UpdateLinkedModule()
 
     fun execute(lastRun: Long): Boolean {
         var allModulesSuccessful = true
@@ -280,6 +283,16 @@ class ModuleExecutor(
                 ResolveTrashModule.Request(
                     issue.project.key,
                     ::resolveAs.partially1(issue).partially1("Invalid")
+                )
+            )
+        }
+        exec(Arisa.Modules.UpdateLinked) { issue ->
+            "UpdateLinked" to updateLinked(
+                UpdateLinkedModule.Request(
+                    issue.issueLinks
+                        .map { it.type.name },
+                    issue.getField(config[Arisa.CustomFields.linked]) as? Double?,
+                    ::updateLinkedField.partially1(issue).partially1(config[Arisa.CustomFields.linked])
                 )
             )
         }

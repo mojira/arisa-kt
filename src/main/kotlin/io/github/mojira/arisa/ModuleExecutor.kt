@@ -342,7 +342,7 @@ class ModuleExecutor(
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
         val failedTicketsJQL = with(cache.getFailedTickets()) {
             if (isNotEmpty())
-                "key in ${joinToString(",")} OR "
+                "key in (${joinToString(",")}) OR "
             else ""
         }
 

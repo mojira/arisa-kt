@@ -51,7 +51,7 @@ fun main() {
         val success = moduleExecutor.execute(lastRunTime)
 
         if (success) {
-            val failed = cache.getFailedTickets().joinToString { ",$it" } // even first entry should start with a comma
+            val failed = cache.getFailedTickets().joinToString("") { ",$it" } // even first entry should start with a comma
 
             lastRunFile.writeText("$curRunTime$failed")
             lastRunTime = curRunTime

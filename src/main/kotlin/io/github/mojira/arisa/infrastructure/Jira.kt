@@ -46,6 +46,15 @@ fun updateConfirmation(issue: Issue, confirmationField: String, value: String) =
     }
 }
 
+fun updateLinked(issue: Issue, linkedField: String, value: Double) = runBlocking {
+    Either.catch {
+        issue
+            .transition()
+            .field(linkedField, value)
+            .execute("Update Issue")
+    }
+}
+
 fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Throwable, Unit> = runBlocking {
     Either.catch {
         jiraClient.restClient.delete(URI(attachment.self))

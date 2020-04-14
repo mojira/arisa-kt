@@ -19,6 +19,7 @@ import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.infrastructure.updateConfirmation
+import io.github.mojira.arisa.infrastructure.updateLinked
 import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -37,6 +38,7 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
 import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.Issue
@@ -52,29 +54,30 @@ class ModuleExecutor(
     private val config: Config,
     private val cache: Cache
 ) {
-    private val attachmentModule: AttachmentModule =
+    private val attachmentModule =
         AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
-    private val chkModule: CHKModule = CHKModule()
-    private val crashModule: CrashModule = CrashModule(
+    private val chkModule = CHKModule()
+    private val crashModule = CrashModule(
         config[Arisa.Modules.Crash.crashExtensions],
         config[Arisa.Modules.Crash.duplicates],
         config[Arisa.Modules.Crash.maxAttachmentAge],
         CrashReader()
     )
-    private val emptyModule: EmptyModule = EmptyModule()
-    private val keepPrivateModule: KeepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
-    private val futureVersionModule: FutureVersionModule = FutureVersionModule()
-    private val hideImpostorsModule: HideImpostorsModule = HideImpostorsModule()
-    private val piracyModule: PiracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
-    private val removeNonStaffMeqsModule: RemoveNonStaffMeqsModule =
+    private val emptyModule = EmptyModule()
+    private val keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
+    private val futureVersionModule = FutureVersionModule()
+    private val hideImpostorsModule = HideImpostorsModule()
+    private val piracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
+    private val removeNonStaffMeqsModule =
         RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
-    private val removeTriagedMeqsModule: RemoveTriagedMeqsModule = RemoveTriagedMeqsModule(
+    private val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
         config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
         config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
     )
-    private val reopenAwaitingModule: ReopenAwaitingModule = ReopenAwaitingModule()
-    private val revokeConfirmationModule: RevokeConfirmationModule = RevokeConfirmationModule()
-    private val resolveTrash: ResolveTrashModule = ResolveTrashModule()
+    private val reopenAwaitingModule = ReopenAwaitingModule()
+    private val revokeConfirmationModule = RevokeConfirmationModule()
+    private val resolveTrashModule = ResolveTrashModule()
+    private val updateLinkedModule = UpdateLinkedModule()
 
     fun execute(lastRun: Long): Boolean {
         try {
@@ -309,10 +312,22 @@ class ModuleExecutor(
                 }
                 exec(Arisa.Modules.ResolveTrash) { issue ->
                     "ResolveTrash" to tryExecuteModule {
-                        resolveTrash(
+                        resolveTrashModule(
                             ResolveTrashModule.Request(
                                 issue.project.key,
                                 ::resolveAs.partially1(issue).partially1("Invalid")
+                            )
+                        )
+                    }
+                }
+                exec(Arisa.Modules.UpdateLinked) { issue ->
+                    "UpdateLinked" to tryExecuteModule {
+                        updateLinkedModule(
+                            UpdateLinkedModule.Request(
+                                issue.issueLinks
+                                    .map { it.type.name },
+                                issue.getField(config[Arisa.CustomFields.linked]) as? Double?,
+                                ::updateLinked.partially1(issue).partially1(config[Arisa.CustomFields.linked])
                             )
                         )
                     }

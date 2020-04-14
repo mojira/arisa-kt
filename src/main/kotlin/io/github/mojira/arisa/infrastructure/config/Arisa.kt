@@ -17,6 +17,7 @@ object Arisa : ConfigSpec() {
     }
 
     object CustomFields : ConfigSpec() {
+        val linked by required<String>()
         val chkField by required<String>()
         val confirmationField by required<String>()
         val mojangPriorityField by required<String>()
@@ -83,6 +84,8 @@ object Arisa : ConfigSpec() {
         object HideImpostors : ModuleConfigSpec()
 
         object ResolveTrash : ModuleConfigSpec()
+
+        object UpdateLinked : ModuleConfigSpec()
     }
 }
 

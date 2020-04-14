@@ -324,7 +324,7 @@ class ModuleExecutor(
             cache.updatedFailedTickets()
 
             return true
-        } catch(ex: Throwable) {
+        } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)
             return false
         }
@@ -419,7 +419,7 @@ class ModuleExecutor(
 
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
         executeModule()
-    } catch (e :Throwable) {
+    } catch (e: Throwable) {
         FailedModuleResponse(listOf(e)).left()
     }
 }

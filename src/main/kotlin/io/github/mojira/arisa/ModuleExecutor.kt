@@ -322,7 +322,7 @@ class ModuleExecutor(
                 }
                 exec(Arisa.Modules.UpdateLinked) { issue ->
                     "UpdateLinked" to tryExecuteModule {
-                         updateLinkedModule(
+                        updateLinkedModule(
                             UpdateLinkedModule.Request(
                                 issue.issueLinks
                                     .map { it.type.name },

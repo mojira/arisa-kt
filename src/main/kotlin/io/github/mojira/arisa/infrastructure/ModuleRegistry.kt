@@ -6,8 +6,10 @@ import arrow.syntax.function.partially1
 import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
+import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
+import io.github.mojira.arisa.infrastructure.config.Arisa.PrivateSecurityLevel
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CrashModule
@@ -67,13 +69,13 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         ((getField(customField)) as? JSONObject)?.get("value") as? String?
 
     private fun getSecurityLevelId(project: String) =
-        config[Arisa.PrivateSecurityLevel.special][project] ?: config[Arisa.PrivateSecurityLevel.default]
+        config[PrivateSecurityLevel.special][project] ?: config[PrivateSecurityLevel.default]
 
     init {
         register(
             "Attachment",
-            Arisa.Modules.Attachment,
-            AttachmentModule(config[Arisa.Modules.Attachment.extensionBlacklist])
+            Modules.Attachment,
+            AttachmentModule(config[Modules.Attachment.extensionBlacklist])
         )
         { issue ->
             AttachmentModule.Request(
@@ -88,23 +90,23 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "CHK",
-            Arisa.Modules.CHK,
+            Modules.CHK,
             CHKModule()
         ) { issue ->
             CHKModule.Request(
-                issue.getFieldAsString(config[Arisa.CustomFields.chkField]),
-                issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
-                ::updateCHK.partially1(issue).partially1(config[Arisa.CustomFields.chkField])
+                issue.getFieldAsString(config[CustomFields.chkField]),
+                issue.getCustomField(config[CustomFields.confirmationField]),
+                ::updateCHK.partially1(issue).partially1(config[CustomFields.chkField])
             )
         }
 
         register(
             "Crash",
-            Arisa.Modules.Crash,
+            Modules.Crash,
             CrashModule(
-                config[Arisa.Modules.Crash.crashExtensions],
-                config[Arisa.Modules.Crash.duplicates],
-                config[Arisa.Modules.Crash.maxAttachmentAge],
+                config[Modules.Crash.crashExtensions],
+                config[Modules.Crash.duplicates],
+                config[Modules.Crash.maxAttachmentAge],
                 CrashReader()
             )
         )
@@ -114,16 +116,16 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },
                 issue.description,
                 issue.createdDate,
-                issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
-                issue.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
+                issue.getCustomField(config[CustomFields.confirmationField]),
+                issue.getCustomField(config[CustomFields.mojangPriorityField]),
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
                 ::link.partially1(issue).partially1("Duplicate"),
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Crash.moddedMessage]),
+                ::addComment.partially1(issue).partially1(config[Modules.Crash.moddedMessage]),
                 { key ->
                     addComment(
                         issue,
-                        config[Arisa.Modules.Crash.duplicateMessage].format(key)
+                        config[Modules.Crash.duplicateMessage].format(key)
                     )
                 }
             )
@@ -131,7 +133,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "Empty",
-            Arisa.Modules.Empty,
+            Modules.Empty,
             EmptyModule()
         ) { issue ->
             EmptyModule.Request(
@@ -139,13 +141,13 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.description,
                 issue.getFieldAsString("environment"),
                 ::resolveAs.partially1(issue).partially1("Incomplete"),
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Empty.message])
+                ::addComment.partially1(issue).partially1(config[Modules.Empty.message])
             )
         }
 
         register(
             "FutureVersion",
-            Arisa.Modules.FutureVersion,
+            Modules.FutureVersion,
             FutureVersionModule()
         ) { issue ->
             val project = jiraClient.getProject(issue.project.key)
@@ -166,13 +168,13 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             ::addAffectedVersion.partially1(issue).partially1(v)
                         )
                     },
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.FutureVersion.message])
+                ::addComment.partially1(issue).partially1(config[Modules.FutureVersion.message])
             )
         }
 
         register(
             "HideImpostors",
-            Arisa.Modules.HideImpostors,
+            Modules.HideImpostors,
             HideImpostorsModule()
         ) { issue ->
             HideImpostorsModule.Request(
@@ -195,36 +197,36 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "KeepPrivate",
-            Arisa.Modules.KeepPrivate,
-            KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
+            Modules.KeepPrivate,
+            KeepPrivateModule(config[Modules.KeepPrivate.tag])
         ) { issue ->
             KeepPrivateModule.Request(
                 issue.security?.id,
                 getSecurityLevelId(issue.project.key),
                 issue.comments.map { c -> c.body },
                 ::updateSecurity.partially1(issue).partially1(getSecurityLevelId(issue.project.key)),
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.KeepPrivate.message])
+                ::addComment.partially1(issue).partially1(config[Modules.KeepPrivate.message])
             )
         }
 
         register(
             "Piracy",
-            Arisa.Modules.Piracy,
-            PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
+            Modules.Piracy,
+            PiracyModule(config[Modules.Piracy.piracySignatures])
         ) { issue ->
             PiracyModule.Request(
                 issue.getFieldAsString("environment"),
                 issue.summary,
                 issue.description,
                 ::resolveAs.partially1(issue).partially1("Invalid"),
-                ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.message])
+                ::addComment.partially1(issue).partially1(config[Modules.Piracy.message])
             )
         }
 
         register(
             "RemoveNonStaffMeqs",
-            Arisa.Modules.RemoveNonStaffMeqs,
-            RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
+            Modules.RemoveNonStaffMeqs,
+            RemoveNonStaffMeqsModule(config[Modules.RemoveNonStaffMeqs.removalReason])
         ) { issue ->
             RemoveNonStaffMeqsModule.Request(
                 issue.comments
@@ -241,15 +243,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "RemoveTriagedMeqs",
-            Arisa.Modules.RemoveTriagedMeqs,
+            Modules.RemoveTriagedMeqs,
             RemoveTriagedMeqsModule(
-                config[Arisa.Modules.RemoveTriagedMeqs.meqsTags],
-                config[Arisa.Modules.RemoveTriagedMeqs.removalReason]
+                config[Modules.RemoveTriagedMeqs.meqsTags],
+                config[Modules.RemoveTriagedMeqs.removalReason]
             )
         ) { issue ->
             RemoveTriagedMeqsModule.Request(
-                issue.getCustomField(config[Arisa.CustomFields.mojangPriorityField]),
-                issue.getFieldAsString(config[Arisa.CustomFields.triagedTimeField]),
+                issue.getCustomField(config[CustomFields.mojangPriorityField]),
+                issue.getFieldAsString(config[CustomFields.triagedTimeField]),
                 issue.comments
                     .map { c ->
                         RemoveTriagedMeqsModule.Comment(
@@ -262,7 +264,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "ReopenAwaiting",
-            Arisa.Modules.ReopenAwaiting,
+            Modules.ReopenAwaiting,
             ReopenAwaitingModule()
         ) { issue ->
             ReopenAwaitingModule.Request(
@@ -282,11 +284,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "RevokeConfirmation",
-            Arisa.Modules.RevokeConfirmation,
+            Modules.RevokeConfirmation,
             RevokeConfirmationModule()
         ) { issue ->
             RevokeConfirmationModule.Request(
-                issue.getCustomField(config[Arisa.CustomFields.confirmationField]),
+                issue.getCustomField(config[CustomFields.confirmationField]),
                 issue.changeLog.entries
                     .flatMap { e ->
                         e.items
@@ -303,13 +305,13 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             }
                     },
                 ::updateConfirmation.partially1(issue)
-                    .partially1(config[Arisa.CustomFields.confirmationField])
+                    .partially1(config[CustomFields.confirmationField])
             )
         }
 
         register(
             "ResolveTrash",
-            Arisa.Modules.ResolveTrash,
+            Modules.ResolveTrash,
             ResolveTrashModule()
         ) { issue ->
             ResolveTrashModule.Request(
@@ -320,14 +322,14 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register(
             "UpdateLinked",
-            Arisa.Modules.UpdateLinked,
+            Modules.UpdateLinked,
             UpdateLinkedModule()
         ) { issue ->
             UpdateLinkedModule.Request(
                 issue.issueLinks
                     .map { it.type.name },
-                issue.getField(config[Arisa.CustomFields.linked]) as? Double?,
-                ::updateLinked.partially1(issue).partially1(config[Arisa.CustomFields.linked])
+                issue.getField(config[CustomFields.linked]) as? Double?,
+                ::updateLinked.partially1(issue).partially1(config[CustomFields.linked])
             )
         }
     }

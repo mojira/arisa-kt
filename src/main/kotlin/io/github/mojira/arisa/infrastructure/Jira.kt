@@ -78,6 +78,13 @@ fun addComment(issue: Issue, comment: String) = runBlocking {
     }
 }
 
+fun addRestrictedComment(issue: Issue, comment: String, restrictionLevel: String) = runBlocking {
+    Either.catch {
+        issue.addComment(comment, "group", restrictionLevel)
+        Unit
+    }
+}
+
 fun resolveAs(issue: Issue, resolution: String) = runBlocking {
     Either.catch {
         val resolutionJson = JSONObject()

@@ -8,10 +8,11 @@ object Arisa : ConfigSpec() {
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
+        val dandelionToken by Modules.Language.required<String>(description = "Token for dandelion.eu")
     }
 
     object Issues : ConfigSpec() {
-        val projects by required<List<String>>(description = "the projects to operate on. Used for default whitelist of modules")
+        val projects by required<List<String>>(description = "The projects to operate on. Used for default whitelist of modules")
         val url by required<String>(description = "The base url for the jira instance")
         val checkInterval by required<Long>(description = "The interval in which all issues are checked")
     }
@@ -43,6 +44,12 @@ object Arisa : ConfigSpec() {
         object Piracy : ModuleConfigSpec() {
             val message by optional("", description = "The message that is posted when this module succeeds.")
             val piracySignatures by optional(emptyList<String>(), description = "Signatures that indicate a pirated version of Minecraft. Default is no signatures.")
+        }
+
+        object Language : ModuleConfigSpec() {
+            val messages by optional(emptyMap<String, String>(), description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys. Default is no translated messages.")
+            val defaultMessage by optional("", description = "The message that is posted when this module succeeds.")
+            val messageFormat by optional("%s\n----\n%s", description = "The message format to be used if the translated message is present. First argument is translated message, second is default message.")
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {

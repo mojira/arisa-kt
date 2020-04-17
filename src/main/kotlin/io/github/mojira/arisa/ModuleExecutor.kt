@@ -1,8 +1,8 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
-import arrow.core.right
 import arrow.core.left
+import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
@@ -244,7 +244,7 @@ class ModuleExecutor(
                                 issue.description,
                                 issue.security?.id,
                                 getSecurityLevelId(issue.project.key),
-                                ::getLanguage.partially1(config[Arisa.Modules.Language.token]),
+                                ::getLanguage.partially1(config[Arisa.Credentials.dandelionToken]),
                                 { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
                                 { language ->
                                     val translatedMessage = config[Arisa.Modules.Language.messages][language]

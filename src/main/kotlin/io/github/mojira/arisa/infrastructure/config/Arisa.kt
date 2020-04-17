@@ -8,7 +8,7 @@ object Arisa : ConfigSpec() {
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
-        val dandelionToken by Modules.Language.required<String>(description = "Token for dandelion.eu")
+        val dandelionToken by required<String>(description = "Token for dandelion.eu")
     }
 
     object Issues : ConfigSpec() {

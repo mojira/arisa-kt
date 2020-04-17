@@ -17,6 +17,7 @@
       "checkInterval": 10
     },
     "customFields": {
+      "linked": "customfield_11100",
       "chkField": "customfield_10701",
       "confirmationField": "customfield_10500",
       "mojangPriorityField": "customfield_12200",
@@ -83,7 +84,7 @@
           "Launcher X",
           "PHVL",
           "Pre-Launcher v6",
-          "LauncherFEnix",
+          "LauncherFenix",
           "TLauncher",
           "Titan"
         ]
@@ -230,6 +231,13 @@
         ],
         "whitelist": [
           "TRASH"
+        ]
+      },
+      "updateLinked": {
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCPE"
         ]
       }
     }

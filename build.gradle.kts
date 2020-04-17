@@ -10,6 +10,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://jitpack.io")
+    maven("https://dl.bintray.com/cbeust/maven")
 }
 
 val logBackVersion = "1.2.3"
@@ -35,6 +36,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-core", arrowVersion)
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
+    implementation("com.beust", "klaxon", "5.2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)

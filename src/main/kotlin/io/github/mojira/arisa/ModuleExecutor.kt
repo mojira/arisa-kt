@@ -2,15 +2,18 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
+import io.github.mojira.arisa.infrastructure.addRestrictedComment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.getGroups
+import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
@@ -29,6 +32,7 @@ import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
+import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
@@ -64,10 +68,11 @@ class ModuleExecutor(
         CrashReader()
     )
     private val emptyModule = EmptyModule()
-    private val keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
     private val futureVersionModule = FutureVersionModule()
     private val hideImpostorsModule = HideImpostorsModule()
     private val piracyModule = PiracyModule(config[Arisa.Modules.Piracy.piracySignatures])
+    private val keepPrivateModule = KeepPrivateModule(config[Arisa.Modules.KeepPrivate.tag])
+    private val languageModule: LanguageModule = LanguageModule()
     private val removeNonStaffMeqsModule =
         RemoveNonStaffMeqsModule(config[Arisa.Modules.RemoveNonStaffMeqs.removalReason])
     private val removeTriagedMeqsModule = RemoveTriagedMeqsModule(
@@ -227,6 +232,31 @@ class ModuleExecutor(
                                 issue.description,
                                 ::resolveAs.partially1(issue).partially1("Invalid"),
                                 ::addComment.partially1(issue).partially1(config[Arisa.Modules.Piracy.message])
+                            )
+                        )
+                    }
+                }
+                exec(Arisa.Modules.Language) { issue ->
+                    "Language" to tryExecuteModule {
+                        languageModule(
+                            LanguageModule.Request(
+                                issue.summary,
+                                issue.description,
+                                issue.security?.id,
+                                getSecurityLevelId(issue.project.key),
+                                ::getLanguage.partially1(config[Arisa.Credentials.dandelionToken]),
+                                { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
+                                { language ->
+                                    val translatedMessage = config[Arisa.Modules.Language.messages][language]
+                                    val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
+                                    val text =
+                                        if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
+                                            translatedMessage,
+                                            defaultMessage
+                                        ) else defaultMessage
+
+                                    addRestrictedComment(issue, text, "helper")
+                                }
                             )
                         )
                     }

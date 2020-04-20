@@ -385,6 +385,7 @@ class ModuleExecutor(
     ) {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
+        val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
         val failedTicketsJQL = with(cache.getFailedTickets()) {
             if (isNotEmpty())
                 "key in (${joinToString(",")}) OR "
@@ -398,6 +399,7 @@ class ModuleExecutor(
 
         issues
             .filter { it.project.key in projects }
+            .filter { it.status.name.toLowerCase() !in excludedStatuses }
             .filter { it.resolution?.name?.toLowerCase() ?: "unresolved" in resolutions }
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->

@@ -3,7 +3,6 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.ModuleRegistry
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError

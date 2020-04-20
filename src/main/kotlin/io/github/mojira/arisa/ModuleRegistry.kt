@@ -2,18 +2,22 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addComment
+import io.github.mojira.arisa.infrastructure.addRestrictedComment
+import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.config.Arisa.PrivateSecurityLevel
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.getGroups
+import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
@@ -32,6 +36,7 @@ import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
+import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -234,6 +239,32 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.description,
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::addComment.partially1(issue).partially1(config[Modules.Piracy.message])
+            )
+        }
+
+        register(
+            "Language",
+            Modules.Language,
+            LanguageModule()
+        ) { issue ->
+            LanguageModule.Request(
+                issue.summary,
+                issue.description,
+                issue.security?.id,
+                getSecurityLevelId(issue.project.key),
+                ::getLanguage.partially1(config[Credentials.dandelionToken]),
+                { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
+                { language ->
+                    val translatedMessage = config[Modules.Language.messages][language]
+                    val defaultMessage = config[Modules.Language.defaultMessage]
+                    val text =
+                        if (translatedMessage != null) config[Modules.Language.messageFormat].format(
+                            translatedMessage,
+                            defaultMessage
+                        ) else defaultMessage
+
+                    addRestrictedComment(issue, text, "helper")
+                }
             )
         }
 

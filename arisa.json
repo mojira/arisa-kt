@@ -56,6 +56,7 @@
         ]
       },
       "piracy": {
+        "excludedStatuses": ["Postponed"],
         "message": "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nYou are currently using a *non-authorized* version of Minecraft. If you wish to purchase the full game, please visit the [Minecraft Store|https://www.minecraft.net/store/minecraft-java-edition].\nWe will not provide support for pirated versions of the game, these versions are modified and may contain malware.\n\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~",
         "piracySignatures": [
           "Minecraft Launcher null",
@@ -100,6 +101,7 @@
         "message": "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
       },
       "chk": {
+        "excludedStatuses": ["Postponed"],
         "whitelist": [
           "MC",
           "MCL",
@@ -115,9 +117,11 @@
         "removalReason": "Comment was not properly staff-restricted."
       },
       "empty": {
+        "excludedStatuses": ["Postponed"],
         "message": "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Incomplete*{color}.\n\nYour report does not contain enough information. As such, we're unable to understand or reproduce the problem.\nPlease review the guidelines linked below before making further reports.\n\nIn case of a game crash, be sure to attach the crashlog from {{[minecraft/crash-reports/crash-<DATE>-client.txt|https://minecrafthopper.net/help/guides/finding-minecraft-data-folder/]}}.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
       },
       "crash": {
+        "excludedStatuses": ["Postponed"],
         "maxAttachmentAge": 30,
         "crashExtensions": [
           "txt",
@@ -184,6 +188,7 @@
         ]
       },
       "revokeConfirmation": {
+        "excludedStatuses": ["Postponed"],
         "whitelist": [
           "MC",
           "MCL",
@@ -209,8 +214,26 @@
         "tag": "MEQS_KEEP_PRIVATE",
         "message": "{panel:borderColor=orange}(!) Please do not unmark issues from _private_ after a moderator had set it that way{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
       },
+      "language": {
+        "excludedStatuses": ["Postponed"],
+        "jql": "created > %s AND filter != 24600",
+        "messages": {
+          "zh": "I have detected that this ticket is in *Chinese*.",
+          "fr": "I have detected that this ticket is in *French*.",
+          "de": "I have detected that this ticket is in *German*.",
+          "ja": "I have detected that this ticket is in *Japanese*.",
+          "ko": "I have detected that this ticket is in *Korean*.",
+          "pl": "I have detected that this ticket is in *Polish*.",
+          "pt": "I have detected that this ticket is in *Portuguese*.",
+          "ru": "I have detected that this ticket is in *Russian*.",
+          "es": "I have detected that this ticket is in *Spanish*.",
+          "it": "I have detected that this ticket is in *Italian*."
+        },
+        "defaultMessage": "I would have closed this ticket as Invalid. This module is currently in the testing phase. If you find any issues, please [report them on GitHub|https://github.com/mojira/arisa-kt/issues].\nARISA_LANGUAGE_MODULE_TEST\n\n~{color:#888}-- I am a bot. This action was performed automagically!{color}~"
+      },
       "hideImpostors": {},
       "resolveTrash": {
+        "excludedStatuses": ["Postponed"],
         "resolutions": [
           "Unresolved"
         ],
@@ -219,6 +242,7 @@
         ]
       },
       "updateLinked": {
+        "excludedStatuses": ["Postponed"],
         "whitelist": [
           "MC",
           "MCL",

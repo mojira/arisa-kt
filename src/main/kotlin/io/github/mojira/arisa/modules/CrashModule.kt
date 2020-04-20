@@ -71,7 +71,7 @@ class CrashModule(
                     assertNotNull(key).bind()
                 }
             } else {
-                addDuplicateComment(key!!).toFailedModuleEither().bind()
+                addDuplicateComment(key).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
                 linkDuplicate(key).toFailedModuleEither().bind()
             }

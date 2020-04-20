@@ -52,7 +52,6 @@ class ModuleExecutor(
         }
     }
 
-
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         cache: Cache,
@@ -131,5 +130,4 @@ class ModuleExecutor(
 
     private fun ChangeLogEntry.isNotATransition() =
         !items.any { it.field == "resolution" }
-
 }

@@ -95,8 +95,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Attachment",
             Modules.Attachment,
             AttachmentModule(config[Modules.Attachment.extensionBlacklist])
-        )
-        { issue ->
+        ) { issue ->
             AttachmentModule.Request(
                 issue.attachments.map { a ->
                     AttachmentModule.Attachment(
@@ -128,8 +127,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 config[Modules.Crash.maxAttachmentAge],
                 CrashReader()
             )
-        )
-        { issue ->
+        ) { issue ->
             CrashModule.Request(
                 issue.attachments
                     .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },

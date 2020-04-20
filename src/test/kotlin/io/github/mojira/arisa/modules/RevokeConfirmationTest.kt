@@ -75,8 +75,19 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when multiple volunteers changed the confirmation status" {
         val module = RevokeConfirmationModule()
         val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
-        val userChange = ChangeLogItem("Confirmation Status", "Unconfirmed", Instant.now(), listOf("helper"))
-        val request = Request("Unconfirmed", listOf(volunteerChange, userChange)) { Unit.right() }
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "Unconfirmed", Instant.now(), listOf("helper"))
+        val request = Request("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when ticket is Unconfirmed and Confirmation Status was unset" {
+        val module = RevokeConfirmationModule()
+        val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "", Instant.now(), listOf("helper"))
+        val request = Request("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
 
         val result = module(request)
 
@@ -113,7 +124,22 @@ class RevokeConfirmationTest : StringSpec({
 
         val module = RevokeConfirmationModule()
         val changeLogItem = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), emptyList())
-        val request = Request("Confirmed", listOf(changeLogItem)) { it -> changedConfirmation = it; Unit.right() }
+        val request = Request("Confirmed", listOf(changeLogItem)) { changedConfirmation = it; Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        changedConfirmation.shouldBe("Unconfirmed")
+    }
+
+    "should set to Unconfirmed when last volunteer action was setting the confirmation status to empty, and a user changed the confirmation afterwards" {
+        var changedConfirmation = ""
+
+        val module = RevokeConfirmationModule()
+        val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "", Instant.now(), listOf("helper"))
+        val userChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), emptyList())
+        val request = Request("Confirmed", listOf(volunteerChange, otherVolunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
 
         val result = module(request)
 

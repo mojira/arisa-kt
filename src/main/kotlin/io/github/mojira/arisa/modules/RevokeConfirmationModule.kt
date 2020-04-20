@@ -25,7 +25,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
                 .filter(::isConfirmationChange)
                 .filter(::changedByVolunteer)
                 .lastOrNull()
-                ?.newValue ?: "Unconfirmed"
+                ?.newValue.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus, volunteerConfirmation).bind()
             setConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
@@ -42,4 +42,10 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
         .created
         .plus(1, ChronoUnit.DAYS)
         .isAfter(Instant.now())
+
+    private fun String?.getOrDefault(default: String) =
+        if (isNullOrBlank())
+            default
+        else
+            this!!
 }

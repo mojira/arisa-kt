@@ -61,8 +61,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
     private val modules = mutableListOf<Entry>()
 
-    fun getModules() =
-        modules.toList()
+    fun getModules(): List<Entry> =
+        modules
 
     private fun <T> register(
         name: String,

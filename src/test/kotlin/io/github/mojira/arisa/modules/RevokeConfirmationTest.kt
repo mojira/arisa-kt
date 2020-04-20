@@ -75,8 +75,41 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when multiple volunteers changed the confirmation status" {
         val module = RevokeConfirmationModule()
         val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
-        val userChange = ChangeLogItem("Confirmation Status", "Unconfirmed", Instant.now(), listOf("helper"))
-        val request = Request("Unconfirmed", listOf(volunteerChange, userChange)) { Unit.right() }
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "Unconfirmed", Instant.now(), listOf("helper"))
+        val request = Request("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when ticket is Unconfirmed and Confirmation Status was unset" {
+        val module = RevokeConfirmationModule()
+        val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "", Instant.now(), listOf("helper"))
+        val request = Request("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when confirmation status is null and was unset" {
+        val module = RevokeConfirmationModule()
+        val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "", Instant.now(), listOf("helper"))
+        val request = Request(null, listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when confirmation status is empty and was unset" {
+        val module = RevokeConfirmationModule()
+        val volunteerChange = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), listOf("staff"))
+        val otherVolunteerChange = ChangeLogItem("Confirmation Status", "", Instant.now(), listOf("helper"))
+        val request = Request("", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
 
         val result = module(request)
 
@@ -113,7 +146,7 @@ class RevokeConfirmationTest : StringSpec({
 
         val module = RevokeConfirmationModule()
         val changeLogItem = ChangeLogItem("Confirmation Status", "Confirmed", Instant.now(), emptyList())
-        val request = Request("Confirmed", listOf(changeLogItem)) { it -> changedConfirmation = it; Unit.right() }
+        val request = Request("Confirmed", listOf(changeLogItem)) { changedConfirmation = it; Unit.right() }
 
         val result = module(request)
 

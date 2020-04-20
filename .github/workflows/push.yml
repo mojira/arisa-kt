@@ -29,8 +29,8 @@ jobs:
         FOLDER: "build/install/arisa-kt/lib"
         ARGS: "-avh --delete"
         SERVER_IP: ${{ secrets.REMOTE_HOST }}
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/ubuntu/arisa-kt
+        USERNAME: arisakt
+        SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new binaries
       uses: urielsalis/rsync-deploy@v1.1
       env:
@@ -39,8 +39,8 @@ jobs:
         FOLDER: "build/install/arisa-kt/bin"
         ARGS: "-avh --delete"
         SERVER_IP: ${{ secrets.REMOTE_HOST }}
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/ubuntu/arisa-kt
+        USERNAME: arisakt
+        SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new configuration
       uses: urielsalis/rsync-deploy@v1.1
       env:
@@ -49,18 +49,18 @@ jobs:
         FOLDER: "arisa.json"
         ARGS: "-avh --delete"
         SERVER_IP: ${{ secrets.REMOTE_HOST }}
-        USERNAME: ${{ secrets.REMOTE_USER }}
-        SERVER_DESTINATION: /home/ubuntu/arisa-kt
+        USERNAME: arisakt
+        SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Run internal deploy script
       uses: fifsky/ssh-action@master
       with:
         host: ${{ secrets.REMOTE_HOST }}
-        user: ${{ secrets.REMOTE_USER }}
+        user: arisakt
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
           /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
           sleep 1
           cd arisa-kt
-          /usr/bin/screen -d -m bash -c '/home/ubuntu/arisa-kt/bin/arisa-kt; exec sh'
+          /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'
           
         args: "-tt"

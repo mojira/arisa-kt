@@ -109,7 +109,7 @@ fun updateCommentBody(comment: Comment, body: String) = runBlocking {
     }
 }
 
-fun restrictCommentToGroup(comment: Comment, group: String, body: String? = comment.body) = runBlocking {
+fun restrictCommentToGroup(comment: Comment, group: String, body: String = comment.body) = runBlocking {
     Either.catch {
         comment.update(body, "group", group)
         Unit

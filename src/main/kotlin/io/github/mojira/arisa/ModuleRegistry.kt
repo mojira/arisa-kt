@@ -30,6 +30,7 @@ import io.github.mojira.arisa.infrastructure.updateLinked
 import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
+import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -115,6 +116,23 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.getFieldAsString(config[CustomFields.chkField]),
                 issue.getCustomField(config[CustomFields.confirmationField]),
                 ::updateCHK.partially1(issue).partially1(config[CustomFields.chkField])
+            )
+        }
+
+        register(
+            "ConfirmParent",
+            Modules.ConfirmParent,
+            ConfirmParentModule(
+                config[Modules.ConfirmParent.confirmationStatusWhitelist],
+                config[Modules.ConfirmParent.targetConfirmationStatus]
+            )
+        ) { issue ->
+            ConfirmParentModule.Request(
+                issue.getCustomField(config[CustomFields.confirmationField]),
+                issue.getField(config[CustomFields.linked]) as? Int?,
+                ::updateConfirmation
+                    .partially1(issue)
+                    .partially1(config[CustomFields.confirmationField])
             )
         }
 

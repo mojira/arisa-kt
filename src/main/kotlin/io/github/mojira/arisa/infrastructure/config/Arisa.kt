@@ -64,6 +64,11 @@ object Arisa : ConfigSpec() {
 
         object CHK : ModuleConfigSpec()
 
+        object ConfirmParent : ModuleConfigSpec() {
+            val confirmationStatusWhitelist by optional(emptyList<String>(), description = "List of confirmation status that can be replaced by the target status if Linked is greater than 0.")
+            val targetConfirmationStatus by optional("", description = "The target confirmation status for tickets whose Linked is greater than 0.")
+        }
+
         object ReopenAwaiting : ModuleConfigSpec()
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {

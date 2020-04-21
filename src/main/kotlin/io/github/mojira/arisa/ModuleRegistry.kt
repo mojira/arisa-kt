@@ -369,8 +369,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             UpdateLinkedModule()
         ) { issue ->
             UpdateLinkedModule.Request(
+                issue.reporter.name,
                 issue.issueLinks
-                    .map { it.type.name },
+                    .map { UpdateLinkedModule.IssueLink(it.inwardIssue.reporter.name, it.type.name) },
                 issue.getField(config[CustomFields.linked]) as? Double?,
                 ::updateLinked.partially1(issue).partially1(config[CustomFields.linked])
             )

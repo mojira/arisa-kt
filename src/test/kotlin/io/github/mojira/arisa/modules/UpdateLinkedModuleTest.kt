@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 class UpdateLinkedModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when linked is empty and there are no duplicates" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(emptyList(), null) { Unit.right() }
+        val request = UpdateLinkedModule.Request("Piston", emptyList(), null) { Unit.right() }
 
         val result = module(request)
 
@@ -20,7 +20,7 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when linked is 0 and there are no duplicates" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(emptyList(), 0.0) { Unit.right() }
+        val request = UpdateLinkedModule.Request("Piston", emptyList(), 0.0) { Unit.right() }
 
         val result = module(request)
 
@@ -29,7 +29,11 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when linked and number of duplicates is equal" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(listOf("Duplicate"), 1.0) { Unit.right() }
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(UpdateLinkedModule.IssueLink("Arisa", "Duplicate")),
+            1.0
+        ) { Unit.right() }
 
         val result = module(request)
 
@@ -38,7 +42,11 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should set linked when there are duplicates and linked is empty" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(listOf("Duplicate"), null) { Unit.right() }
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(UpdateLinkedModule.IssueLink("Arisa", "Duplicate")),
+            null
+        ) { Unit.right() }
 
         val result = module(request)
 
@@ -47,7 +55,11 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should set linked when there are duplicates and linked is too low" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(listOf("Duplicate"), 0.0) { Unit.right() }
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(UpdateLinkedModule.IssueLink("Arisa", "Duplicate")),
+            0.0
+        ) { Unit.right() }
 
         val result = module(request)
 
@@ -56,7 +68,11 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should set linked when there are duplicates and linked is too high" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(listOf("Duplicate"), 2.0) { Unit.right() }
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(UpdateLinkedModule.IssueLink("Arisa", "Duplicate")),
+            2.0
+        ) { Unit.right() }
 
         val result = module(request)
 
@@ -66,7 +82,34 @@ class UpdateLinkedModuleTest : StringSpec({
     "should only count duplicates" {
         var linked = 0.0
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(listOf("Duplicate", "Relates", "Duplicate"), null) { linked = it; Unit.right() }
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(
+                UpdateLinkedModule.IssueLink("Arisa", "Duplicate"),
+                UpdateLinkedModule.IssueLink("Arisa", "Relates"),
+                UpdateLinkedModule.IssueLink("Arisa", "Duplicate")
+            ),
+            null
+        ) { linked = it; Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        linked shouldBe 2.0
+    }
+
+    "should only count tickets reported by different users" {
+        var linked = 0.0
+        val module = UpdateLinkedModule()
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(
+                UpdateLinkedModule.IssueLink("Arisa", "Duplicate"),
+                UpdateLinkedModule.IssueLink("Piston", "Duplicate"),
+                UpdateLinkedModule.IssueLink("Arisa", "Duplicate")
+            ),
+            null
+        ) { linked = it; Unit.right() }
 
         val result = module(request)
 
@@ -76,7 +119,11 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return FailedModuleResponse when setting linked fails" {
         val module = UpdateLinkedModule()
-        val request = UpdateLinkedModule.Request(listOf("Duplicate"), null) { RuntimeException().left() }
+        val request = UpdateLinkedModule.Request(
+            "Piston",
+            listOf(UpdateLinkedModule.IssueLink("Arisa", "Duplicate")),
+            null
+        ) { RuntimeException().left() }
 
         val result = module(request)
 

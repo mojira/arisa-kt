@@ -428,7 +428,7 @@ class ModuleExecutor(
         val searchResult = jiraClient
             .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
 
-        if (searchResult.start + searchResult.max < searchResult.total)
+        if (startAt + searchResult.max < searchResult.total)
             onQueryPaginated()
 
         return searchResult

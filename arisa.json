@@ -52,7 +52,8 @@
           "msi",
           "run",
           "lnk",
-          "dmg"
+          "dmg",
+          "url"
         ]
       },
       "piracy": {

@@ -129,7 +129,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         ) { issue ->
             ConfirmParentModule.Request(
                 issue.getCustomField(config[CustomFields.confirmationField]),
-                issue.getField(config[CustomFields.linked]) as? Int?,
+                issue.getField(config[CustomFields.linked]) as? Double?,
                 ::updateConfirmation
                     .partially1(issue)
                     .partially1(config[CustomFields.confirmationField])

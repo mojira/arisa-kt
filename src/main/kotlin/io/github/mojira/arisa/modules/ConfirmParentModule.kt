@@ -11,7 +11,7 @@ class ConfirmParentModule(
 ) : Module<ConfirmParentModule.Request> {
     data class Request(
         val confirmationStatus: String?,
-        val linked: Int?,
+        val linked: Double?,
         val setConfirmationStatus: (String) -> Either<Throwable, Unit>
     )
 
@@ -23,7 +23,7 @@ class ConfirmParentModule(
         }
     }
 
-    private fun assertLinkedMoreThanZero(linked: Int?) = if ((linked ?: 0) > 0) {
+    private fun assertLinkedMoreThanZero(linked: Double?) = if ((linked ?: 0.0) > 0.0) {
             Unit.right()
         } else {
             OperationNotNeededModuleResponse.left()

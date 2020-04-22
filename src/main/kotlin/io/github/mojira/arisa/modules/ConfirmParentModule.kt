@@ -18,13 +18,13 @@ class ConfirmParentModule(
 
     override fun invoke(request: ConfirmParentModule.Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            assertLinkedMoreThanZero(linked).bind()
+            assertLinkedMoreThanThreshold(linked).bind()
             assertConfirmationStatusWhitelisted(confirmationStatus, confirmationStatusWhitelist).bind()
             setConfirmationStatus(targetConfirmationStatus).toFailedModuleEither().bind()
         }
     }
 
-    private fun assertLinkedMoreThanZero(linked: Double?) = if ((linked ?: 0.0) >= linkedThreshold) {
+    private fun assertLinkedMoreThanThreshold(linked: Double?) = if ((linked ?: 0.0) >= linkedThreshold) {
             Unit.right()
         } else {
             OperationNotNeededModuleResponse.left()

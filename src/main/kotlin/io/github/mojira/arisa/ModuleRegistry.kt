@@ -325,6 +325,16 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             c.createdDate.toInstant().toEpochMilli()
                         )
                     },
+                issue.changeLog.entries
+                    .flatMap { e ->
+                        e.items
+                            .map { i ->
+                                ReopenAwaitingModule.ChangeLogItem(
+                                    e.created.toInstant().toEpochMilli(),
+                                    i.toString
+                                )
+                            }
+                    },
                 ::reopenIssue.partially1(issue)
             )
         }

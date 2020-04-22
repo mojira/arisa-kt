@@ -7,8 +7,8 @@ import arrow.core.right
 import java.time.Instant
 
 class ReopenAwaitingModule(
-    private val blacklistedRoles : List<String>,
-    private val blacklistedVisibilities : List<String>
+    private val blacklistedRoles: List<String>,
+    private val blacklistedVisibilities: List<String>
 ) : Module<ReopenAwaitingModule.Request> {
     data class Comment(
         val updated: Long,

@@ -16,7 +16,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         listOf("staff", "global-moderators"),
         listOf("helper", "staff", "global-moderators")
     )
-    
+t push
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val now = Instant.now()
         val updated = Instant.now().plusSeconds(3)

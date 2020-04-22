@@ -210,7 +210,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             c.updatedDate.toInstant(),
                             c.visibility?.type,
                             c.visibility?.value,
-                            ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(null)
+                            ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(c.body)
                         )
                     }
             )

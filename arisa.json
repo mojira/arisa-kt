@@ -112,9 +112,7 @@
       "confirmParent": {
         "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
         "targetConfirmationStatus": ["Community Consensus"],
-        "resolutions": [
-          "Unresolved"
-        ],
+        "linkedThreshold": 3.0,
         "whitelist": [
           "MC",
           "MCL",

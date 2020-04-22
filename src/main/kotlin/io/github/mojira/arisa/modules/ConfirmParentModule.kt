@@ -7,7 +7,8 @@ import arrow.core.right
 
 class ConfirmParentModule(
     private val confirmationStatusWhitelist: List<String>,
-    private val targetConfirmationStatus: String
+    private val targetConfirmationStatus: String,
+    private val linkedThreshold: Double
 ) : Module<ConfirmParentModule.Request> {
     data class Request(
         val confirmationStatus: String?,
@@ -23,16 +24,22 @@ class ConfirmParentModule(
         }
     }
 
-    private fun assertLinkedMoreThanZero(linked: Double?) = if ((linked ?: 0.0) > 0.0) {
+    private fun assertLinkedMoreThanZero(linked: Double?) = if ((linked ?: 0.0) >= linkedThreshold) {
             Unit.right()
         } else {
             OperationNotNeededModuleResponse.left()
         }
 
     private fun assertConfirmationStatusWhitelisted(status: String?, whitelist: List<String>) =
-        if ((status ?: "Unconfirmed") in whitelist) {
+        if ((status.getOrDefault("Unconfirmed")) in whitelist) {
             Unit.right()
         } else {
             OperationNotNeededModuleResponse.left()
         }
+
+    private fun String?.getOrDefault(default: String) =
+        if (isNullOrBlank())
+            default
+        else
+            this!!
 }

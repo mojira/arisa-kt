@@ -124,7 +124,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             Modules.ConfirmParent,
             ConfirmParentModule(
                 config[Modules.ConfirmParent.confirmationStatusWhitelist],
-                config[Modules.ConfirmParent.targetConfirmationStatus]
+                config[Modules.ConfirmParent.targetConfirmationStatus],
+                config[Modules.ConfirmParent.linkedThreshold]
             )
         ) { issue ->
             ConfirmParentModule.Request(

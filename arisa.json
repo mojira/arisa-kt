@@ -112,6 +112,15 @@
       "reopenAwaiting": {
         "resolutions": [
           "Awaiting Response"
+        ],
+        "blacklistedRoles": [
+          "staff",
+          "global-moderators"
+        ],
+        "blacklistedRestrictions": [
+          "helper",
+          "staff",
+          "global-moderators"
         ]
       },
       "removeNonStaffMeqs": {

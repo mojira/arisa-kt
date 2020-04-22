@@ -90,7 +90,14 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
     private fun getSecurityLevelId(project: String) =
         config[PrivateSecurityLevel.special][project] ?: config[PrivateSecurityLevel.default]
 
+    private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
+        jiraClient,
+        username
+    ).fold({ null }, { it })
+
     init {
+        val getGroups = ::getUserGroups.partially1(jiraClient)
+
         register(
             "Attachment",
             Modules.Attachment,
@@ -199,10 +206,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     .map { c ->
                         HideImpostorsModule.Comment(
                             c.author.displayName,
-                            getGroups(
-                                jiraClient,
-                                c.author.name
-                            ).fold({ null }, { it }),
+                            getGroups(c.author.name),
                             c.updatedDate.toInstant(),
                             c.visibility?.type,
                             c.visibility?.value,
@@ -308,7 +312,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         register(
             "ReopenAwaiting",
             Modules.ReopenAwaiting,
-            ReopenAwaitingModule()
+            ReopenAwaitingModule(
+                config[Modules.ReopenAwaiting.blacklistedRoles],
+                config[Modules.ReopenAwaiting.blacklistedVisibilities]
+            )
         ) { issue ->
             ReopenAwaitingModule.Request(
                 issue.resolution?.name,
@@ -318,7 +325,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     .map { c ->
                         ReopenAwaitingModule.Comment(
                             c.updatedDate.toInstant().toEpochMilli(),
-                            c.createdDate.toInstant().toEpochMilli()
+                            c.createdDate.toInstant().toEpochMilli(),
+                            c.visibility?.type,
+                            c.visibility?.value,
+                            getGroups(c.author.name)
                         )
                     },
                 ::reopenIssue.partially1(issue)
@@ -340,10 +350,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                     i.field,
                                     i.toString,
                                     e.created.toInstant(),
-                                    getGroups(
-                                        jiraClient,
-                                        e.author.name
-                                    ).fold({ null }, { it })
+                                    getGroups(e.author.name)
                                 )
                             }
                     },

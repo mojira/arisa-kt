@@ -10,9 +10,34 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class EmptyModuleTest : StringSpec({
+    "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
+        val module = EmptyModule()
+        val request = Request(
+            0,
+            1,
+            0,
+            null,
+            null,
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when there is a attachment and desc and env are correct" {
         val module = EmptyModule()
-        val request = Request(1, "asddsa", "asddsa", { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            1,
+            "asddsa",
+            "asddsa",
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -21,7 +46,15 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc and env are correct" {
         val module = EmptyModule()
-        val request = Request(0, "asddsa", "asddsa", { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            "asddsa",
+            "asddsa",
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -30,7 +63,15 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a attachment and no desc or env" {
         val module = EmptyModule()
-        val request = Request(1, null, null, { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            1,
+            null,
+            null,
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -39,7 +80,15 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and no desc and env is correct" {
         val module = EmptyModule()
-        val request = Request(0, null, "asddsa", { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            null,
+            "asddsa",
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -48,7 +97,15 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc is correct and no env" {
         val module = EmptyModule()
-        val request = Request(0, "asdasd", null, { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            "asdasd",
+            null,
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -57,7 +114,15 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and no desc or env" {
         val module = EmptyModule()
-        val request = Request(0, null, null, { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            null,
+            null,
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -66,7 +131,15 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is default and env is empty" {
         val module = EmptyModule()
-        val request = Request(0, DESCDEFAULT, null, { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            DESC_DEFAULT,
+            null,
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -75,7 +148,15 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is empty and env is default" {
         val module = EmptyModule()
-        val request = Request(0, null, ENVDEFAULT, { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            null,
+            ENV_DEFAULT,
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -84,7 +165,15 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
         val module = EmptyModule()
-        val request = Request(0, "asd", "asd", { Unit.right() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            "asd",
+            "asd",
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -93,7 +182,15 @@ class EmptyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when resolving fails" {
         val module = EmptyModule()
-        val request = Request(0, "asd", "asd", { RuntimeException().left() }, { Unit.right() })
+        val request = Request(
+            1,
+            0,
+            0,
+            "asd",
+            "asd",
+            { RuntimeException().left() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -104,7 +201,15 @@ class EmptyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding comment fails" {
         val module = EmptyModule()
-        val request = Request(0, "asd", "asd", { Unit.right() }, { RuntimeException().left() })
+        val request = Request(
+            1,
+            0,
+            0,
+            "asd",
+            "asd",
+            { Unit.right() },
+            { RuntimeException().left() }
+        )
 
         val result = module(request)
 

@@ -56,7 +56,7 @@ import java.text.SimpleDateFormat
 class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
     data class Entry(
         val config: ModuleConfigSpec,
-        val execute: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        val execute: (Issue, Long) -> Pair<String, Either<ModuleError, ModuleResponse>>
     )
 
     private val modules = mutableListOf<Entry>()
@@ -69,8 +69,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         config: ModuleConfigSpec,
         module: Module<T>,
         requestCreator: (Issue) -> T
-    ) = { issue: Issue ->
-        name to ({ issue pipe requestCreator pipe module::invoke } pipe ::tryExecuteModule)
+    ) = register(name, config, module) { issue, _ -> requestCreator(issue) }
+
+    private fun <T> register(
+        name: String,
+        config: ModuleConfigSpec,
+        module: Module<T>,
+        requestCreator: (Issue, Long) -> T
+    ) = { issue: Issue, lastRun: Long ->
+        name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (config pipe2 ModuleRegistry::Entry) pipe modules::add
 
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
@@ -159,8 +166,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Empty",
             Modules.Empty,
             EmptyModule()
-        ) { issue ->
+        ) { issue, lastRun ->
             EmptyModule.Request(
+                issue.createdDate.toInstant().toEpochMilli(),
+                lastRun,
                 issue.attachments.size,
                 issue.description,
                 issue.getFieldAsString("environment"),
@@ -248,8 +257,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Language",
             Modules.Language,
             LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
-        ) { issue ->
+        ) { issue, lastRun ->
             LanguageModule.Request(
+                issue.createdDate.toInstant().toEpochMilli(),
+                lastRun,
                 issue.summary,
                 issue.description,
                 issue.security?.id,
@@ -330,6 +341,16 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             c.visibility?.value,
                             getGroups(c.author.name)
                         )
+                    },
+                issue.changeLog.entries
+                    .flatMap { e ->
+                        e.items
+                            .map { i ->
+                                ReopenAwaitingModule.ChangeLogItem(
+                                    e.created.toInstant().toEpochMilli(),
+                                    i.toString
+                                )
+                            }
                     },
                 ::reopenIssue.partially1(issue)
             )

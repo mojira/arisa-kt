@@ -11,6 +11,8 @@ class LanguageModule(
 ) : Module<LanguageModule.Request> {
 
     data class Request(
+        val created: Long,
+        val lastRun: Long,
         val summary: String?,
         val description: String?,
         val securityLevel: String?,
@@ -22,6 +24,7 @@ class LanguageModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
+            assertGreaterThan(created, lastRun).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
             val combinedText = "${(summary ?: "").trim()} ${(description ?: "").trim()}"

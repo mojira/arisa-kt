@@ -1,6 +1,7 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
+import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -8,7 +9,6 @@ import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
-import net.rcarz.jiraclient.ChangeLogEntry
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 
@@ -36,7 +36,7 @@ class ModuleExecutor(
                         lastRun,
                         startAt,
                         { missingResultsPage = true },
-                        exec
+                        exec.partially2(lastRun)
                     )
                 }
 
@@ -110,24 +110,5 @@ class ModuleExecutor(
 
         return searchResult
             .issues
-            .filter(::lastActionWasNotAResolve)
     }
-
-    private fun lastActionWasNotAResolve(issue: Issue): Boolean {
-        val latestChange = issue.changeLog.entries.lastOrNull()
-
-        return latestChange == null ||
-                latestChange.isNotATransition() ||
-                latestChange.wasDoneByTheBot() ||
-                latestChange.commentAfterIt(issue)
-    }
-
-    private fun ChangeLogEntry.commentAfterIt(issue: Issue) =
-        (issue.comments.isNotEmpty() && issue.comments.last().updatedDate > created)
-
-    private fun ChangeLogEntry.wasDoneByTheBot() =
-        author.name == config[Arisa.Credentials.username]
-
-    private fun ChangeLogEntry.isNotATransition() =
-        !items.any { it.field == "resolution" }
 }

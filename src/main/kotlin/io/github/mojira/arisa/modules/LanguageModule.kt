@@ -6,7 +6,8 @@ import arrow.core.left
 import arrow.core.right
 
 class LanguageModule(
-    val allowedLanguages: List<String> = listOf("en")
+    val allowedLanguages: List<String> = listOf("en"),
+    val lengthThreshold: Int = 0
 ) : Module<LanguageModule.Request> {
 
     data class Request(
@@ -26,7 +27,11 @@ class LanguageModule(
             assertGreaterThan(created, lastRun).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
-            val detectedLanguage = getDetectedLanguage(getLanguage, request.summary, request.description)
+            val combinedText = "${(summary ?: "").trim()} ${(description ?: "").trim()}"
+
+            assertExceedLengthThreshold(combinedText).bind()
+
+            val detectedLanguage = getDetectedLanguage(getLanguage, combinedText)
 
             assertNotNull(detectedLanguage).bind()
 
@@ -39,16 +44,20 @@ class LanguageModule(
 
     private fun getDetectedLanguage(
         getLanguage: (String) -> Either<Any, Map<String, Double>>,
-        summary: String?,
-        description: String?
+        text: String
     ): String? {
-        val detected = getLanguage("${summary ?: ""} ${description ?: ""}")
+        val detected = getLanguage(text)
         return detected.fold(
             { null },
             {
                 it.filter { it.value > 0.7 }.maxBy { it.value }?.key
             }
         )
+    }
+
+    private fun assertExceedLengthThreshold(text: String) = when {
+        text.length < lengthThreshold -> OperationNotNeededModuleResponse.left()
+        else -> Unit.right()
     }
 
     private fun assertIsPublic(securityLevel: String?, privateLevel: String) = when {

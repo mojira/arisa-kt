@@ -51,6 +51,7 @@ object Arisa : ConfigSpec() {
             val messages by optional(emptyMap<String, String>(), description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys. Default is no translated messages.")
             val defaultMessage by optional("", description = "The message that is posted when this module succeeds.")
             val messageFormat by optional("%s\n----\n%s", description = "The message format to be used if the translated message is present. First argument is translated message, second is default message.")
+            val lengthThreshold by optional(0, description = "The minimum string length that the combined summary and description text must exceed before they can be detected by this module.")
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
@@ -64,7 +65,10 @@ object Arisa : ConfigSpec() {
 
         object CHK : ModuleConfigSpec()
 
-        object ReopenAwaiting : ModuleConfigSpec()
+        object ReopenAwaiting : ModuleConfigSpec() {
+            val blacklistedRoles by optional(emptyList<String>(), description = "Comments that were posted by someone who is member of this role should be ignored.")
+            val blacklistedVisibilities by optional(emptyList<String>(), description = "Comments that are restricted to one of these roles should be ignored")
+        }
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {
             val removalReason by required<String>(description = "Reason Arisa should add to the edited comment for removing the tag. Default is no reason.")

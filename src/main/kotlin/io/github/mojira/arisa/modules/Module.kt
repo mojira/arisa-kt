@@ -60,3 +60,9 @@ fun <T> assertNotEquals(o1: T, o2: T) = if (o1 == o2) {
 } else {
     Unit.right()
 }
+
+fun <T : Comparable<T>> assertGreaterThan(o1: T, o2: T) = if (o1 > o2) {
+    Unit.right()
+} else {
+    OperationNotNeededModuleResponse.left()
+}

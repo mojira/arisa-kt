@@ -57,7 +57,7 @@ import java.text.SimpleDateFormat
 class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
     data class Entry(
         val config: ModuleConfigSpec,
-        val execute: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        val execute: (Issue, Long) -> Pair<String, Either<ModuleError, ModuleResponse>>
     )
 
     private val modules = mutableListOf<Entry>()
@@ -70,8 +70,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         config: ModuleConfigSpec,
         module: Module<T>,
         requestCreator: (Issue) -> T
-    ) = { issue: Issue ->
-        name to ({ issue pipe requestCreator pipe module::invoke } pipe ::tryExecuteModule)
+    ) = register(name, config, module) { issue, _ -> requestCreator(issue) }
+
+    private fun <T> register(
+        name: String,
+        config: ModuleConfigSpec,
+        module: Module<T>,
+        requestCreator: (Issue, Long) -> T
+    ) = { issue: Issue, lastRun: Long ->
+        name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (config pipe2 ModuleRegistry::Entry) pipe modules::add
 
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
@@ -91,7 +98,14 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
     private fun getSecurityLevelId(project: String) =
         config[PrivateSecurityLevel.special][project] ?: config[PrivateSecurityLevel.default]
 
+    private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
+        jiraClient,
+        username
+    ).fold({ null }, { it })
+
     init {
+        val getGroups = ::getUserGroups.partially1(jiraClient)
+
         register(
             "Attachment",
             Modules.Attachment,
@@ -171,8 +185,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Empty",
             Modules.Empty,
             EmptyModule()
-        ) { issue ->
+        ) { issue, lastRun ->
             EmptyModule.Request(
+                issue.createdDate.toInstant().toEpochMilli(),
+                lastRun,
                 issue.attachments.size,
                 issue.description,
                 issue.getFieldAsString("environment"),
@@ -218,10 +234,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     .map { c ->
                         HideImpostorsModule.Comment(
                             c.author.displayName,
-                            getGroups(
-                                jiraClient,
-                                c.author.name
-                            ).fold({ null }, { it }),
+                            getGroups(c.author.name),
                             c.updatedDate.toInstant(),
                             c.visibility?.type,
                             c.visibility?.value,
@@ -263,8 +276,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Language",
             Modules.Language,
             LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
-        ) { issue ->
+        ) { issue, lastRun ->
             LanguageModule.Request(
+                issue.createdDate.toInstant().toEpochMilli(),
+                lastRun,
                 issue.summary,
                 issue.description,
                 issue.security?.id,
@@ -327,7 +342,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         register(
             "ReopenAwaiting",
             Modules.ReopenAwaiting,
-            ReopenAwaitingModule()
+            ReopenAwaitingModule(
+                config[Modules.ReopenAwaiting.blacklistedRoles],
+                config[Modules.ReopenAwaiting.blacklistedVisibilities]
+            )
         ) { issue ->
             ReopenAwaitingModule.Request(
                 issue.resolution?.name,
@@ -337,8 +355,21 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     .map { c ->
                         ReopenAwaitingModule.Comment(
                             c.updatedDate.toInstant().toEpochMilli(),
-                            c.createdDate.toInstant().toEpochMilli()
+                            c.createdDate.toInstant().toEpochMilli(),
+                            c.visibility?.type,
+                            c.visibility?.value,
+                            getGroups(c.author.name)
                         )
+                    },
+                issue.changeLog.entries
+                    .flatMap { e ->
+                        e.items
+                            .map { i ->
+                                ReopenAwaitingModule.ChangeLogItem(
+                                    e.created.toInstant().toEpochMilli(),
+                                    i.toString
+                                )
+                            }
                     },
                 ::reopenIssue.partially1(issue)
             )
@@ -359,10 +390,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                     i.field,
                                     i.toString,
                                     e.created.toInstant(),
-                                    getGroups(
-                                        jiraClient,
-                                        e.author.name
-                                    ).fold({ null }, { it })
+                                    getGroups(e.author.name)
                                 )
                             }
                     },

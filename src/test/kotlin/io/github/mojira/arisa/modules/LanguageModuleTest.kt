@@ -10,9 +10,30 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class LanguageModuleTest : StringSpec({
+    "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
+        val module = LanguageModule()
+        val request = Request(
+            0,
+            1,
+            "Ich habe einen seltsamen Fehler gefunden",
+            "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!",
+            "not private",
+            "private",
+            { mapOf("de" to 1.0).right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             null,
             null,
             "not private",
@@ -29,6 +50,8 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when description, summary and environment are empty" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "",
             "",
             "not private",
@@ -45,6 +68,8 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no language matches" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "",
             "",
             "not private",
@@ -63,6 +88,8 @@ class LanguageModuleTest : StringSpec({
             lengthThreshold = 100
         )
         val request = Request(
+            1,
+            0,
             "?",
             "Villagers can open iron doors",
             "not private",
@@ -79,6 +106,8 @@ class LanguageModuleTest : StringSpec({
     "should resolve as invalid if ticket is not in English" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "Ich habe einen seltsamen Fehler gefunden",
             "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!",
             "not private",
@@ -96,6 +125,8 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse if ticket is in English" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "I found a strange bug",
             "There is an issue in Minecraft. Please fix it as soon as possible",
             "not private",
@@ -113,6 +144,8 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse if ticket is mostly in English" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "Coarse Dirt is translated incorrectly in Russian",
             "The translation for Acacia slab in Russian is 'Алмазный блок' instead of 'Каменистая земля'.",
             "not private",
@@ -130,6 +163,8 @@ class LanguageModuleTest : StringSpec({
     "should resolve as invalid if ticket is mostly not in English" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
             "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
             "not private",
@@ -147,6 +182,8 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeeded if ticket is private" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
             "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
             "private",
@@ -164,6 +201,8 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse if ticket contains only a crash report" {
         val module = LanguageModule()
         val request = Request(
+            1,
+            0,
             "java.lang.IllegalArgumentException: bound must be positive",
             """
             java.lang.IllegalArgumentException: bound must be positive
@@ -205,6 +244,8 @@ class LanguageModuleTest : StringSpec({
     "should return FailedModuleResponse when resolving as invalid fails" {
         val module = LanguageModule(emptyList())
         val request = Request(
+            1,
+            0,
             "Bonjour",
             "",
             "not private",
@@ -223,6 +264,8 @@ class LanguageModuleTest : StringSpec({
     "should return FailedModuleResponse when adding comment fails" {
         val module = LanguageModule(emptyList())
         val request = Request(
+            1,
+            0,
             "Salut",
             "",
             "not private",

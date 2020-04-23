@@ -71,7 +71,10 @@ object Arisa : ConfigSpec() {
             val linkedThreshold by optional(0.0, description = "The threshold of the Linked field for the ticket to be confirmed")
         }
 
-        object ReopenAwaiting : ModuleConfigSpec()
+        object ReopenAwaiting : ModuleConfigSpec() {
+            val blacklistedRoles by optional(emptyList<String>(), description = "Comments that were posted by someone who is member of this role should be ignored.")
+            val blacklistedVisibilities by optional(emptyList<String>(), description = "Comments that are restricted to one of these roles should be ignored")
+        }
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {
             val removalReason by required<String>(description = "Reason Arisa should add to the edited comment for removing the tag. Default is no reason.")

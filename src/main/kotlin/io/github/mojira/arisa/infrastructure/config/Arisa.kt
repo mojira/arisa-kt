@@ -51,7 +51,7 @@ object Arisa : ConfigSpec() {
             val messages by optional(emptyMap<String, String>(), description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys. Default is no translated messages.")
             val defaultMessage by optional("", description = "The message that is posted when this module succeeds.")
             val messageFormat by optional("%s\n----\n%s", description = "The message format to be used if the translated message is present. First argument is translated message, second is default message.")
-            val lengthThreshold by optional(0, description = "The minimum string length that the combined summary and description text must exceed before they can be detected by this module.")
+            val lengthThreshold by optional(0, description = "The minimum string length that the combined summary and description text must exceed before they can be detected by this module (inclusive).")
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
@@ -68,7 +68,7 @@ object Arisa : ConfigSpec() {
         object ConfirmParent : ModuleConfigSpec() {
             val confirmationStatusWhitelist by optional(emptyList<String>(), description = "List of confirmation status that can be replaced by the target status if Linked is greater than or equal to the threshold.")
             val targetConfirmationStatus by optional("", description = "The target confirmation status for tickets whose Linked is greater than or equal to the threshold.")
-            val linkedThreshold by optional(0.0, description = "The threshold of the Linked field for the ticket to be confirmed")
+            val linkedThreshold by optional(0.0, description = "The threshold of the Linked field for the ticket to be confirmed (inclusive).")
         }
 
         object ReopenAwaiting : ModuleConfigSpec() {
@@ -106,6 +106,8 @@ object Arisa : ConfigSpec() {
         object UpdateLinked : ModuleConfigSpec()
 
         object TransferVersions : ModuleConfigSpec()
+
+        object ReplaceComment : ModuleConfigSpec()
     }
 }
 

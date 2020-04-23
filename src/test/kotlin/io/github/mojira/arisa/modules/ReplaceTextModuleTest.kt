@@ -1,6 +1,8 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
+import io.github.mojira.arisa.modules.ReplaceTextModule.Comment
+import io.github.mojira.arisa.modules.ReplaceTextModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -9,10 +11,10 @@ import io.kotest.matchers.shouldBe
 class ReplaceTextModuleTest : StringSpec({
     val module = ReplaceTextModule()
     "should return OperationNotNeededModuleResponse when there is no description nor comment" {
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
-            listOf()
+            emptyList()
         ) { Unit.right() }
 
         val result = module(request)
@@ -20,11 +22,11 @@ class ReplaceTextModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
     "should return OperationNotNeededModuleResponse when the comment is updated before last run" {
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(1L, "https://bugs.mojang.com/browse/MC-1") { Unit.right() }
+                Comment(1L, "https://bugs.mojang.com/browse/MC-1") { Unit.right() }
             )
         ) { Unit.right() }
 
@@ -33,11 +35,11 @@ class ReplaceTextModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
     "should return OperationNotNeededModuleResponse when the comment doesn't need replace" {
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "MC-1") { Unit.right() }
+                Comment(100L, "MC-1") { Unit.right() }
             )
         ) { Unit.right() }
 
@@ -46,11 +48,11 @@ class ReplaceTextModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
     "should return OperationNotNeededModuleResponse when the title of the link is not a ticket ID" {
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(
+                Comment(
                     100L,
                     "[A similar issue with this was fixed previously|https://bugs.mojang.com/browse/MC-4]"
                 ) { Unit.right() }
@@ -62,11 +64,11 @@ class ReplaceTextModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
     "should return OperationNotNeededModuleResponse when the title of the link is not the same ticket as specified in the /browse link" {
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "[MC-5|https://bugs.mojang.com/browse/MC-4]") { Unit.right() }
+                Comment(100L, "[MC-5|https://bugs.mojang.com/browse/MC-4]") { Unit.right() }
             )
         ) { Unit.right() }
 
@@ -75,11 +77,11 @@ class ReplaceTextModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
     "should return OperationNotNeededModuleResponse when the title of the link is not the same ticket as specified in the /projects link" {
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(
+                Comment(
                     100L,
                     "[MC-5|https://bugs.mojang.com/projects/MC/issues/MC-4]"
                 ) { Unit.right() }
@@ -93,11 +95,11 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links in comments" {
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-4") {
+                Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-4") {
                     replacedCommentBody = it
                     Unit.right()
                 }
@@ -112,11 +114,11 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /projects links in comments" {
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4") {
+                Comment(100L, "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4") {
                     replacedCommentBody = it
                     Unit.right()
                 }
@@ -131,11 +133,11 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links with query in comments" {
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-4?jql=votes%3E0") {
+                Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-4?jql=votes%3E0") {
                     replacedCommentBody = it
                     Unit.right()
                 }
@@ -150,11 +152,11 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /projects links with query in comments" {
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(
+                Comment(
                     100L,
                     "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4?jql=votes%3E0"
                 ) {
@@ -172,11 +174,11 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace titled /browse links in comments" {
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "Duplicates [MC-4|https://bugs.mojang.com/browse/MC-4]") {
+                Comment(100L, "Duplicates [MC-4|https://bugs.mojang.com/browse/MC-4]") {
                     replacedCommentBody = it
                     Unit.right()
                 }
@@ -191,11 +193,11 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace titled /projects links in comments" {
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "Duplicates [MC-4|https://bugs.mojang.com/projects/MC/issues/MC-4]") {
+                Comment(100L, "Duplicates [MC-4|https://bugs.mojang.com/projects/MC/issues/MC-4]") {
                     replacedCommentBody = it
                     Unit.right()
                 }
@@ -212,19 +214,19 @@ class ReplaceTextModuleTest : StringSpec({
         var replacedCommentBody1: String? = null
         var replacedCommentBody2: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             null,
             listOf(
-                ReplaceTextModule.Comment(100L, "This is a duplicate of [MC-4|https://bugs.mojang.com/browse/MC-4]") {
+                Comment(100L, "This is a duplicate of [MC-4|https://bugs.mojang.com/browse/MC-4]") {
                     replacedCommentBody0 = it
                     Unit.right()
                 },
-                ReplaceTextModule.Comment(200L, "Check https://bugs.mojang.com/browse/MC-106013 too") {
+                Comment(200L, "Check https://bugs.mojang.com/browse/MC-106013 too") {
                     replacedCommentBody1 = it
                     Unit.right()
                 },
-                ReplaceTextModule.Comment(300L, "Oops, sorry!") {
+                Comment(300L, "Oops, sorry!") {
                     replacedCommentBody2 = it
                     Unit.right()
                 }
@@ -241,10 +243,10 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links in description" {
         var replacedDescription: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             "A mod in https://bugs.mojang.com/browse/MC-4 said that I have to report it in a new ticket.",
-            listOf()
+            emptyList()
         ) {
             replacedDescription = it
             Unit.right()
@@ -260,11 +262,11 @@ class ReplaceTextModuleTest : StringSpec({
 
         var replacedCommentBody: String? = null
 
-        val request = ReplaceTextModule.Request(
+        val request = Request(
             42L,
             "A mod in https://bugs.mojang.com/browse/MC-4 said that I have to report it in a new ticket.",
             listOf(
-                ReplaceTextModule.Comment(100L, "This is a duplicate of [MC-4|https://bugs.mojang.com/browse/MC-4]") {
+                Comment(100L, "This is a duplicate of [MC-4|https://bugs.mojang.com/browse/MC-4]") {
                     replacedCommentBody = it
                     Unit.right()
                 }

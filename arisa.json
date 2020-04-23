@@ -273,7 +273,7 @@
       "transferVersions": {
         "resolutions": [ "Duplicate" ]
       },
-      "replaceComment": {
+      "replaceText": {
         "resolutions": [
           "Awaiting Response",
           "Cannot Reproduce",

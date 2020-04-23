@@ -107,7 +107,7 @@ object Arisa : ConfigSpec() {
 
         object TransferVersions : ModuleConfigSpec()
 
-        object ReplaceComment : ModuleConfigSpec()
+        object ReplaceText : ModuleConfigSpec()
     }
 }
 

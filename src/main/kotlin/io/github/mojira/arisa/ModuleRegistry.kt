@@ -28,6 +28,7 @@ import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.infrastructure.updateConfirmation
+import io.github.mojira.arisa.infrastructure.updateDescription
 import io.github.mojira.arisa.infrastructure.updateLinked
 import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -47,7 +48,7 @@ import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
-import io.github.mojira.arisa.modules.ReplaceCommentModule
+import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
@@ -408,20 +409,22 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         }
 
         register(
-            "ReplaceComment",
-            Modules.ReplaceComment,
-            ReplaceCommentModule()
+            "ReplaceText",
+            Modules.ReplaceText,
+            ReplaceTextModule()
         ) { issue, lastRun ->
-            ReplaceCommentModule.Request(
+            ReplaceTextModule.Request(
                 lastRun,
+                issue.description,
                 issue.comments
                     .map { c ->
-                        ReplaceCommentModule.Comment(
+                        ReplaceTextModule.Comment(
                             c.updatedDate.toInstant().toEpochMilli(),
                             c.body,
                             ::updateCommentBody.partially1(c)
                         )
-                    }
+                    },
+                ::updateDescription.partially1(issue)
             )
         }
 

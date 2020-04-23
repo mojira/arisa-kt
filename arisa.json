@@ -269,6 +269,26 @@
           "MCL",
           "MCPE"
         ]
+      },
+      "replaceComment": {
+        "resolutions": [
+          "Awaiting Response",
+          "Cannot Reproduce",
+          "Done",
+          "Duplicate",
+          "Fixed",
+          "Incomplete",
+          "Invalid",
+          "Unresolved",
+          "Won't Fix",
+          "Works As Intended"
+        ],
+        "replacements": [
+          ["\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/browse/\\1(?:\\?[\\w%=&]*)?\\]", "$1"],
+          ["\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/\\1(?:\\?[\\w%=&]*)?\\]", "$1"],
+          ["(?<=[^\\|])https?://bugs\\.mojang\\.com/browse/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?", "$1"],
+          ["(?<=[^\\|])https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?", "$1"]
+        ]
       }
     }
   }

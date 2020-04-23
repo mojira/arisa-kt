@@ -15,7 +15,7 @@ class ReopenAwaitingModule(
         val created: Long,
         val visibilityType: String?,
         val visibilityValue: String?,
-        val authorGroups: List<String>?
+        val getAuthorGroups: () -> List<String>?
     )
 
     data class ChangeLogItem(
@@ -46,8 +46,8 @@ class ReopenAwaitingModule(
             assertUpdateWasNotCausedByEditingComment(
                 updated.toEpochMilli(), lastComment.updated, lastComment.created
             ).bind()
-            assertCommentWasNotAddedByABlacklistedRole(lastComment.authorGroups).bind()
             assertCommentIsNotRestrictedToABlacklistedLevel(lastComment.visibilityType, lastComment.visibilityValue).bind()
+            assertCommentWasNotAddedByABlacklistedRole(lastComment.getAuthorGroups()).bind()
 
             reopen().toFailedModuleEither().bind()
         }

@@ -211,4 +211,4 @@ private fun getComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     authorGroups: List<String>? = null
-) = Comment(updated, created, visibilityType, visibilityValue, authorGroups)
+) = Comment(updated, created, visibilityType, visibilityValue) { authorGroups }

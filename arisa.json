@@ -270,7 +270,7 @@
           "MCPE"
         ]
       },
-      "replaceComment": {
+      "replaceText": {
         "resolutions": [
           "Awaiting Response",
           "Cannot Reproduce",

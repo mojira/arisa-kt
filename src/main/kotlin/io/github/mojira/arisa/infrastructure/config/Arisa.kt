@@ -65,6 +65,12 @@ object Arisa : ConfigSpec() {
 
         object CHK : ModuleConfigSpec()
 
+        object ConfirmParent : ModuleConfigSpec() {
+            val confirmationStatusWhitelist by optional(emptyList<String>(), description = "List of confirmation status that can be replaced by the target status if Linked is greater than or equal to the threshold.")
+            val targetConfirmationStatus by optional("", description = "The target confirmation status for tickets whose Linked is greater than or equal to the threshold.")
+            val linkedThreshold by optional(0.0, description = "The threshold of the Linked field for the ticket to be confirmed")
+        }
+
         object ReopenAwaiting : ModuleConfigSpec() {
             val blacklistedRoles by optional(emptyList<String>(), description = "Comments that were posted by someone who is member of this role should be ignored.")
             val blacklistedVisibilities by optional(emptyList<String>(), description = "Comments that are restricted to one of these roles should be ignored")

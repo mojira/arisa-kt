@@ -88,6 +88,8 @@ class LanguageModuleTest : StringSpec({
             lengthThreshold = 100
         )
         val request = Request(
+            1,
+            0,
             "?",
             "Villagers can open iron doors",
             "not private",

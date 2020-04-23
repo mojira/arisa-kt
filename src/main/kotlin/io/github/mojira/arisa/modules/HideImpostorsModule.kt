@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit
 class HideImpostorsModule : Module<HideImpostorsModule.Request> {
     data class Comment(
         val authorDisplayName: String,
-        val authorGroups: List<String>?,
+        val getAuthorGroups: () -> List<String>?,
         val updated: Instant,
         val visibilityType: String?,
         val visibilityValue: String?,
@@ -22,8 +22,8 @@ class HideImpostorsModule : Module<HideImpostorsModule.Request> {
             val restrictImpostorComments = comments
                 .filter(::commentIsRecent)
                 .filter(::userContainsBrackets)
-                .filter(::userIsNotVolunteer)
                 .filter(::isNotStaffRestricted)
+                .filter(::userIsNotVolunteer)
                 .map { it.restrict }
 
             assertNotEmpty(restrictImpostorComments).bind()
@@ -41,7 +41,7 @@ class HideImpostorsModule : Module<HideImpostorsModule.Request> {
     }
 
     private fun userIsNotVolunteer(comment: Comment) =
-        !(comment.authorGroups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false)
+        !(comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false)
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

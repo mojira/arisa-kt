@@ -46,7 +46,7 @@ class CrashModule(
                 .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
-            textDocuments.add(TextDocument(body ?: "", created))
+            textDocuments.add(TextDocument({ body ?: "" }, created))
 
             val crashes = textDocuments
                 .asSequence()
@@ -81,7 +81,7 @@ class CrashModule(
     private fun extractCrash(it: Pair<TextDocument, Either<ParserError, Crash>>) =
         it.first to (it.second as Either.Right<Crash>).b
 
-    private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.content.lines())
+    private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.getContent().lines())
 
     private fun findDuplicate(
         sortedMap: SortedMap<TextDocument, Crash>,
@@ -122,13 +122,13 @@ class CrashModule(
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val data = attachment.getContent()
-        val text = String(data)
+        val getText = { String(data) }
 
-        return TextDocument(text, attachment.created)
+        return TextDocument(getText, attachment.created)
     }
 
     data class TextDocument(
-        val content: String,
+        val getContent: () -> String,
         val created: Date
     )
 }

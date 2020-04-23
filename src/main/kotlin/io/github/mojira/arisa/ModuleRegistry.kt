@@ -8,6 +8,7 @@ import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
+import io.github.mojira.arisa.infrastructure.addAffectedVersionById
 import io.github.mojira.arisa.infrastructure.addComment
 import io.github.mojira.arisa.infrastructure.addRestrictedComment
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
@@ -17,6 +18,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSp
 import io.github.mojira.arisa.infrastructure.config.Arisa.PrivateSecurityLevel
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.getGroups
+import io.github.mojira.arisa.infrastructure.getIssue
 import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
@@ -47,6 +49,7 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
 import net.rcarz.jiraclient.Issue
@@ -255,6 +258,34 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.comments.map { c -> c.body },
                 ::updateSecurity.partially1(issue).partially1(getSecurityLevelId(issue.project.key)),
                 ::addComment.partially1(issue).partially1(config[Modules.KeepPrivate.message])
+            )
+        }
+
+        register(
+            "TransferVersions",
+            Modules.TransferVersions,
+            TransferVersionsModule()
+        ) { issue ->
+            TransferVersionsModule.Request(
+                issue.issueLinks
+                    .map { link ->
+                        TransferVersionsModule.Link(
+                            link.type.name,
+                            link.outwardIssue != null
+                        ) {
+                            if (link.outwardIssue != null) {
+                                getIssue(jiraClient, link.outwardIssue.key)
+                            } else {
+                                getIssue(jiraClient, link.inwardIssue.key)
+                            }.bimap({ it }, { issue ->
+                                TransferVersionsModule.LinkedIssue(
+                                    issue.versions.map { it.id },
+                                    ::addAffectedVersionById.partially1(issue)
+                                )
+                            })
+                        }
+                    },
+                issue.versions.map { it.id }
             )
         }
 

@@ -269,6 +269,9 @@
           "MCL",
           "MCPE"
         ]
+      },
+      "transferVersions": {
+        "resolutions": [ "Duplicate" ]
       }
     }
   }

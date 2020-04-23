@@ -104,6 +104,8 @@ object Arisa : ConfigSpec() {
         object ResolveTrash : ModuleConfigSpec()
 
         object UpdateLinked : ModuleConfigSpec()
+
+        object TransferVersions : ModuleConfigSpec()
     }
 }
 

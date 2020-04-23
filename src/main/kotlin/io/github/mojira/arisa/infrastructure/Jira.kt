@@ -17,6 +17,12 @@ import java.time.temporal.ChronoField
 
 typealias IssueId = String
 
+fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
+    Either.catch {
+        jiraClient.getIssue(key)
+    }
+}
+
 fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBlocking {
     Either.catch {
         issue
@@ -121,6 +127,15 @@ fun removeAffectedVersion(issue: Issue, version: Version) = runBlocking {
         issue
             .update()
             .fieldRemove("versions", version)
+            .execute()
+    }
+}
+
+fun addAffectedVersionById(issue: Issue, id: String) = runBlocking {
+    Either.catch {
+        issue
+            .update()
+            .fieldAdd("versions", Field.valueById(id))
             .execute()
     }
 }

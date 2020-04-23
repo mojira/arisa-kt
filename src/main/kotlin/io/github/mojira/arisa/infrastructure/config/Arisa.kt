@@ -51,6 +51,7 @@ object Arisa : ConfigSpec() {
             val messages by optional(emptyMap<String, String>(), description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys. Default is no translated messages.")
             val defaultMessage by optional("", description = "The message that is posted when this module succeeds.")
             val messageFormat by optional("%s\n----\n%s", description = "The message format to be used if the translated message is present. First argument is translated message, second is default message.")
+            val lengthThreshold by optional(0, description = "The minimum string length that the combined summary and description text must exceed before they can be detected by this module.")
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {

@@ -68,6 +68,13 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
+        requestCreator: (Issue) -> T
+    ) = register(name, config, module) { issue, _ -> requestCreator(issue) }
+
+    private fun <T> register(
+        name: String,
+        config: ModuleConfigSpec,
+        module: Module<T>,
         requestCreator: (Issue, Long) -> T
     ) = { issue: Issue, lastRun: Long ->
         name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
@@ -95,7 +102,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Attachment",
             Modules.Attachment,
             AttachmentModule(config[Modules.Attachment.extensionBlacklist])
-        ) { issue, _ ->
+        ) { issue ->
             AttachmentModule.Request(
                 issue.attachments.map { a ->
                     AttachmentModule.Attachment(
@@ -110,7 +117,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "CHK",
             Modules.CHK,
             CHKModule()
-        ) { issue, _ ->
+        ) { issue ->
             CHKModule.Request(
                 issue.getFieldAsString(config[CustomFields.chkField]),
                 issue.getCustomField(config[CustomFields.confirmationField]),
@@ -127,7 +134,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 config[Modules.Crash.maxAttachmentAge],
                 CrashReader()
             )
-        ) { issue, _ ->
+        ) { issue ->
             CrashModule.Request(
                 issue.attachments
                     .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },
@@ -168,7 +175,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "FutureVersion",
             Modules.FutureVersion,
             FutureVersionModule()
-        ) { issue, _ ->
+        ) { issue ->
             val project = jiraClient.getProject(issue.project.key)
             FutureVersionModule.Request(
                 issue.versions
@@ -195,7 +202,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "HideImpostors",
             Modules.HideImpostors,
             HideImpostorsModule()
-        ) { issue, _ ->
+        ) { issue ->
             HideImpostorsModule.Request(
                 issue.comments
                     .map { c ->
@@ -218,7 +225,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "KeepPrivate",
             Modules.KeepPrivate,
             KeepPrivateModule(config[Modules.KeepPrivate.tag])
-        ) { issue, _ ->
+        ) { issue ->
             KeepPrivateModule.Request(
                 issue.security?.id,
                 getSecurityLevelId(issue.project.key),
@@ -232,7 +239,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Piracy",
             Modules.Piracy,
             PiracyModule(config[Modules.Piracy.piracySignatures])
-        ) { issue, _ ->
+        ) { issue ->
             PiracyModule.Request(
                 issue.getFieldAsString("environment"),
                 issue.summary,
@@ -274,7 +281,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "RemoveNonStaffMeqs",
             Modules.RemoveNonStaffMeqs,
             RemoveNonStaffMeqsModule(config[Modules.RemoveNonStaffMeqs.removalReason])
-        ) { issue, _ ->
+        ) { issue ->
             RemoveNonStaffMeqsModule.Request(
                 issue.comments
                     .map { c ->
@@ -295,7 +302,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 config[Modules.RemoveTriagedMeqs.meqsTags],
                 config[Modules.RemoveTriagedMeqs.removalReason]
             )
-        ) { issue, _ ->
+        ) { issue ->
             RemoveTriagedMeqsModule.Request(
                 issue.getCustomField(config[CustomFields.mojangPriorityField]),
                 issue.getFieldAsString(config[CustomFields.triagedTimeField]),
@@ -313,7 +320,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "ReopenAwaiting",
             Modules.ReopenAwaiting,
             ReopenAwaitingModule()
-        ) { issue, _ ->
+        ) { issue ->
             ReopenAwaitingModule.Request(
                 issue.resolution?.name,
                 (issue.getFieldAsString("created"))!!.toInstant(),
@@ -343,7 +350,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "RevokeConfirmation",
             Modules.RevokeConfirmation,
             RevokeConfirmationModule()
-        ) { issue, _ ->
+        ) { issue ->
             RevokeConfirmationModule.Request(
                 issue.getCustomField(config[CustomFields.confirmationField]),
                 issue.changeLog.entries
@@ -370,7 +377,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "ResolveTrash",
             Modules.ResolveTrash,
             ResolveTrashModule()
-        ) { issue, _ ->
+        ) { issue ->
             ResolveTrashModule.Request(
                 issue.project.key,
                 ::resolveAs.partially1(issue).partially1("Invalid")
@@ -381,7 +388,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "UpdateLinked",
             Modules.UpdateLinked,
             UpdateLinkedModule()
-        ) { issue, _ ->
+        ) { issue ->
             UpdateLinkedModule.Request(
                 issue.issueLinks
                     .map { it.type.name },

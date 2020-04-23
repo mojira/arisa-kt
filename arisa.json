@@ -270,6 +270,9 @@
           "MCPE"
         ]
       },
+      "transferVersions": {
+        "resolutions": [ "Duplicate" ]
+      },
       "replaceText": {
         "resolutions": [
           "Awaiting Response",

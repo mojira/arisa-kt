@@ -12,18 +12,18 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 
-class ReopenAwaitingModuleTest : StringSpec({
+private val NOW = Instant.now()
 
+class ReopenAwaitingModuleTest : StringSpec({
     val MODULE = ReopenAwaitingModule(
         listOf("staff", "global-moderators"),
         listOf("helper", "staff", "global-moderators")
     )
-    val NOW = Instant.now()
-    val COMMENT = Comment(NOW.toEpochMilli(), NOW.toEpochMilli(), null, null, null)
     val AWAITING_RESOLVE = ChangeLogItem(NOW.minusSeconds(10).toEpochMilli(), "Awaiting Response")
+
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = NOW.plusSeconds(3)
-        val request = Request(null, NOW, updated, listOf(COMMENT), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request(null, NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -32,7 +32,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Test", NOW, updated, listOf(COMMENT), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Test", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -41,7 +41,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is less than 2 seconds old" {
         val updated = NOW.plusSeconds(1)
-        val request = Request("Awaiting Response", NOW, updated, listOf(COMMENT), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -59,12 +59,9 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is only a comment from before the resolve" {
         val updated = NOW.plusSeconds(3)
-        val comment = Comment(
+        val comment = getComment(
             NOW.minusSeconds(20).toEpochMilli(),
-            NOW.minusSeconds(20).toEpochMilli(),
-            null,
-            null,
-            null
+            NOW.minusSeconds(20).toEpochMilli()
         )
         val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
@@ -76,12 +73,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there were multiple resolves, but no comment after the last resolve." {
         val updated = NOW.plusSeconds(3)
         val oldResolve = ChangeLogItem(NOW.minusSeconds(30).toEpochMilli(), "Awaiting Response")
-        val comment = Comment(
+        val comment = getComment(
             NOW.minusSeconds(20).toEpochMilli(),
-            NOW.minusSeconds(20).toEpochMilli(),
-            null,
-            null,
-            null
+            NOW.minusSeconds(20).toEpochMilli()
         )
         val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(oldResolve, AWAITING_RESOLVE)) { Unit.right() }
 
@@ -91,13 +85,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
-        val comment = Comment(
-            NOW.plusSeconds(3).toEpochMilli(),
-            NOW.toEpochMilli(),
-            null,
-            null,
-            null
-        )
+        val comment = getComment(NOW.plusSeconds(3).toEpochMilli())
         val updated = NOW.plusSeconds(3)
         val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
@@ -107,10 +95,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment is restricted" {
-        val now = NOW
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), "group", "helper", null)
+        val comment = getComment(visibilityType = "group", visibilityValue = "helper")
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -118,10 +105,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment author is staff" {
-        val now = NOW
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), null, null, listOf("staff"))
+        val comment = getComment(authorGroups = listOf("staff"))
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -130,7 +116,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return ModuleResponse when ticket is reopened" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(COMMENT), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -139,20 +125,8 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should grab the last comment" {
         val updated = NOW.plusSeconds(3)
-        val commentFail = Comment(
-            NOW.plusSeconds(3).toEpochMilli(),
-            NOW.toEpochMilli(),
-            null,
-            null,
-            null
-        )
-        val commentSuccess = Comment(
-            NOW.toEpochMilli(),
-            NOW.toEpochMilli(),
-            null,
-            null,
-            null
-        )
+        val commentFail = getComment(NOW.plusSeconds(3).toEpochMilli())
+        val commentSuccess = getComment()
         val request = Request("Awaiting Response", NOW, updated, listOf(commentSuccess, commentFail), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
@@ -163,7 +137,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should ignore changes that are not a resolve" {
         val updated = NOW.plusSeconds(3)
         val change = ChangeLogItem(NOW.plusSeconds(3).toEpochMilli(), "Confirmed")
-        val request = Request("Awaiting Response", NOW, updated, listOf(COMMENT), listOf(AWAITING_RESOLVE, change)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE, change)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -171,10 +145,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when someone answered" {
-        val now = NOW
         val updated = NOW.plusSeconds(3)
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), null, null, null)
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -182,10 +154,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when comment is restricted, but not to a group" {
-        val now = NOW
         val updated = NOW.plusSeconds(3)
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), "not-a-group", "helper", null)
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val comment = getComment(visibilityType = "not-a-group", visibilityValue = "helper")
+        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -193,10 +164,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when comment is restricted, but not to a blacklisted group" {
-        val now = NOW
         val updated = NOW.plusSeconds(3)
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), "group", "users", null)
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val comment = getComment(visibilityType = "group", visibilityValue = "users")
+        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -204,10 +174,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when comment author has no groups" {
-        val now = NOW
         val updated = NOW.plusSeconds(3)
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), null, null, emptyList())
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val comment = getComment(authorGroups = emptyList())
+        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -215,10 +184,9 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when comment author has no blacklisted groups" {
-        val now = NOW
         val updated = NOW.plusSeconds(3)
-        val comment = Comment(now.toEpochMilli(), now.toEpochMilli(), null, null, listOf("Users"))
-        val request = Request("Awaiting Response", now, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val comment = getComment(authorGroups = listOf("Users"))
+        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -227,7 +195,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all exceptions when reopening fails" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(COMMENT), listOf(AWAITING_RESOLVE)) { RuntimeException().left() }
+        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { RuntimeException().left() }
 
         val result = MODULE(request)
 
@@ -236,3 +204,11 @@ class ReopenAwaitingModuleTest : StringSpec({
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })
+
+private fun getComment(
+    updated: Long = NOW.toEpochMilli(),
+    created: Long = NOW.toEpochMilli(),
+    visibilityType: String? = null,
+    visibilityValue: String? = null,
+    authorGroups: List<String>? = null
+) = Comment(updated, created, visibilityType, visibilityValue, authorGroups)

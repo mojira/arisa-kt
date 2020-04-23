@@ -26,6 +26,7 @@ import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
 import io.github.mojira.arisa.infrastructure.updateConfirmation
+import io.github.mojira.arisa.infrastructure.updateDescription
 import io.github.mojira.arisa.infrastructure.updateLinked
 import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -383,6 +384,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         ) { issue, lastRun ->
             ReplaceTextModule.Request(
                 lastRun,
+                issue.description,
                 issue.comments
                     .map { c ->
                         ReplaceTextModule.Comment(
@@ -390,7 +392,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             c.body,
                             ::updateCommentBody.partially1(c)
                         )
-                    }
+                    },
+                ::updateDescription.partially1(issue)
             )
         }
 

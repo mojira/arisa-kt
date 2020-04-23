@@ -67,7 +67,7 @@ class LanguageModuleTest : StringSpec({
             "Villagers can open iron doors",
             "not private",
             "private",
-            { emptyMap<String, Double>().right() },
+            { mapOf("de" to 1.0).right() },
             { Unit.right() },
             { Unit.right() })
 

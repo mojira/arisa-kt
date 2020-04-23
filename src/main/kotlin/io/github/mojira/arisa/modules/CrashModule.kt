@@ -21,7 +21,7 @@ class CrashModule(
     data class Attachment(
         val name: String,
         val created: Date,
-        val content: ByteArray
+        val getContent: () -> ByteArray
     )
 
     data class Request(
@@ -121,7 +121,7 @@ class CrashModule(
     }
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
-        val data = attachment.content
+        val data = attachment.getContent()
         val text = String(data)
 
         return TextDocument(text, attachment.created)

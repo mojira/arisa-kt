@@ -10,7 +10,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
         val field: String,
         val newValue: String?,
         val created: Instant,
-        val authorGroups: List<String>?
+        val getAuthorGroups: () -> List<String>?
     )
 
     data class Request(
@@ -36,7 +36,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
         item.field == "Confirmation Status"
 
     private fun changedByVolunteer(item: ChangeLogItem) =
-        !updateIsRecent(item) || item.authorGroups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+        !updateIsRecent(item) || item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 
     private fun updateIsRecent(item: ChangeLogItem) = item
         .created

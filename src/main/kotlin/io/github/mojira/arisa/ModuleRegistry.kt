@@ -163,7 +163,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         ) { issue ->
             CrashModule.Request(
                 issue.attachments
-                    .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a.download()) },
+                    .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a::download) },
                 issue.description,
                 issue.createdDate,
                 issue.getCustomField(config[CustomFields.confirmationField]),
@@ -234,7 +234,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     .map { c ->
                         HideImpostorsModule.Comment(
                             c.author.displayName,
-                            getGroups(c.author.name),
+                            getGroups.partially1(c.author.name),
                             c.updatedDate.toInstant(),
                             c.visibility?.type,
                             c.visibility?.value,
@@ -358,7 +358,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             c.createdDate.toInstant().toEpochMilli(),
                             c.visibility?.type,
                             c.visibility?.value,
-                            getGroups(c.author.name)
+                            getGroups.partially1(c.author.name)
                         )
                     },
                 issue.changeLog.entries
@@ -390,7 +390,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                     i.field,
                                     i.toString,
                                     e.created.toInstant(),
-                                    getGroups(e.author.name)
+                                    getGroups.partially1(e.author.name)
                                 )
                             }
                     },

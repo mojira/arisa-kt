@@ -306,7 +306,7 @@ class CrashModuleTest : StringSpec({
         val calendar = Calendar.getInstance()
         calendar.add(DAY_OF_YEAR, -42)
         val time = calendar.time
-        val attachment = Attachment("crash.txt", time, EXAMPLE_CRASH.toByteArray())
+        val attachment = Attachment("crash.txt", time) { EXAMPLE_CRASH.toByteArray() }
 
         val request = Request(
             listOf(attachment),
@@ -333,7 +333,7 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
         val request = Request(
             listOf(attachment),
             "",
@@ -360,7 +360,7 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.png", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val attachment = Attachment("crash.png", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
         val request = Request(
             listOf(attachment),
             "",
@@ -387,7 +387,7 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time, SERVER_UNMODDED_CRASH.toByteArray())
+        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { SERVER_UNMODDED_CRASH.toByteArray() }
         val request = Request(
             listOf(attachment),
             "",
@@ -500,7 +500,7 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time, MODDED_CRASH.toByteArray())
+        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { MODDED_CRASH.toByteArray() }
         val request = Request(
             listOf(attachment),
             "",
@@ -557,7 +557,7 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
         val request = Request(
             listOf(attachment),
             "",
@@ -669,10 +669,9 @@ class CrashModuleTest : StringSpec({
         )
         val modded = Attachment(
             "crash_modded.txt",
-            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000)),
-            EXAMPLE_CRASH.toByteArray()
-        )
-        val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000))
+        ) { EXAMPLE_CRASH.toByteArray() }
+        val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
         val request = Request(
             listOf(modded, dupe),
             "",
@@ -701,12 +700,11 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val modded = Attachment("crash_modded.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
+        val modded = Attachment("crash_modded.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
         val dupe = Attachment(
             "crash_dupe.txt",
-            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000)),
-            EXAMPLE_CRASH.toByteArray()
-        )
+            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000))
+        ) { EXAMPLE_CRASH.toByteArray() }
         val request = Request(
             listOf(dupe, modded),
             "",
@@ -740,8 +738,8 @@ class CrashModuleTest : StringSpec({
         calendar.add(DAY_OF_YEAR, -1)
         val yesterday = calendar.time
 
-        val fromNow = Attachment("recent.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
-        val fromYesterday = Attachment("crash_dupe.txt", yesterday, EXAMPLE_CRASH_2.toByteArray())
+        val fromNow = Attachment("recent.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+        val fromYesterday = Attachment("crash_dupe.txt", yesterday) { EXAMPLE_CRASH_2.toByteArray() }
         val request = Request(
             listOf(fromYesterday, fromNow),
             "",
@@ -774,8 +772,8 @@ class CrashModuleTest : StringSpec({
         calendar.add(DAY_OF_YEAR, -1)
         val yesterday = calendar.time
 
-        val fromNow = Attachment("recent.txt", Calendar.getInstance().time, EXAMPLE_CRASH.toByteArray())
-        val fromYesterday = Attachment("crash_dupe.txt", yesterday, EXAMPLE_CRASH_2.toByteArray())
+        val fromNow = Attachment("recent.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+        val fromYesterday = Attachment("crash_dupe.txt", yesterday) { EXAMPLE_CRASH_2.toByteArray() }
         val request = Request(
             listOf(fromNow, fromYesterday),
             "",

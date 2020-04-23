@@ -109,6 +109,16 @@
           "MCPE"
         ]
       },
+      "confirmParent": {
+        "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
+        "targetConfirmationStatus": ["Community Consensus"],
+        "linkedThreshold": 3.0,
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCPE"
+        ]
+      },
       "reopenAwaiting": {
         "resolutions": [
           "Awaiting Response"

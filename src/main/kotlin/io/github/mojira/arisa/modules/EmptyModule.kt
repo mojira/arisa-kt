@@ -5,12 +5,25 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 
-const val DESCDEFAULT = "Put the summary of the bug you're having here\r\n\r\n*What I expected to happen was...:*\r\nDescribe what you thought should happen here\r\n\r\n*What actually happened was...:*\r\nDescribe what happened here\r\n\r\n*Steps to Reproduce:*\r\n1. Put a step by step guide on how to trigger the bug here\r\n2. ...\r\n3. ..."
-const val ENVDEFAULT = "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
-const val MINLENGTH = 5
+const val DESC_DEFAULT = """Put the summary of the bug you're having here
+
+*What I expected to happen was...:*
+Describe what you thought should happen here
+
+*What actually happened was...:*
+Describe what happened here
+
+*Steps to Reproduce:*
+1. Put a step by step guide on how to trigger the bug here
+2. ...
+3. ..."""
+const val ENV_DEFAULT = "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
+const val MIN_LENGTH = 5
 
 class EmptyModule : Module<EmptyModule.Request> {
     data class Request(
+        val created: Long,
+        val lastRun: Long,
         val numAttachments: Int,
         val description: String?,
         val environment: String?,
@@ -20,12 +33,13 @@ class EmptyModule : Module<EmptyModule.Request> {
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = Either.fx {
         with(request) {
-            if (description != DESCDEFAULT && environment != ENVDEFAULT) {
-                assertNotBigger(description, MINLENGTH).bind()
-                assertNotBigger(environment, MINLENGTH).bind()
+            assertGreaterThan(created, lastRun).bind()
+            if (description != DESC_DEFAULT && environment != ENV_DEFAULT) {
+                assertNotBigger(description, MIN_LENGTH).bind()
+                assertNotBigger(environment, MIN_LENGTH).bind()
             } else {
-                assertNotEqual(description, DESCDEFAULT).bind()
-                assertNotEqual(environment, ENVDEFAULT).bind()
+                assertNotEqual(description, DESC_DEFAULT).bind()
+                assertNotEqual(environment, ENV_DEFAULT).bind()
             }
             assertNoAttachments(numAttachments).bind()
             addEmptyComment().toFailedModuleEither().bind()
@@ -33,18 +47,18 @@ class EmptyModule : Module<EmptyModule.Request> {
         }
     }
 
-    fun assertNoAttachments(i: Int) = when {
+    private fun assertNoAttachments(i: Int) = when {
         i != 0 -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
 
-    fun assertNotBigger(s: String?, size: Int) = when {
+    private fun assertNotBigger(s: String?, size: Int) = when {
         s.isNullOrBlank() -> Unit.right()
         s.length > size -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
 
-    fun assertNotEqual(s: String?, default: String) = when {
+    private fun assertNotEqual(s: String?, default: String) = when {
         s.isNullOrBlank() -> Unit.right()
         s != default -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()

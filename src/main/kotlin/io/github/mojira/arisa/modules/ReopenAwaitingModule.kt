@@ -18,11 +18,17 @@ class ReopenAwaitingModule(
         val authorGroups: List<String>?
     )
 
+    data class ChangeLogItem(
+        val created: Long,
+        val changedTo: String?
+    )
+
     data class Request(
         val resolution: String?,
         val created: Instant,
         val updated: Instant,
         val comments: List<Comment>,
+        val changeLog: List<ChangeLogItem>,
         val reopen: () -> Either<Throwable, Unit>
     )
 
@@ -31,7 +37,12 @@ class ReopenAwaitingModule(
             assertEquals(resolution, "Awaiting Response").bind()
             assertNotEmpty(comments).bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
+            val resolveTime = changeLog
+                .filter(::isAwaitingResolve)
+                .last()
+                .created
             val lastComment = comments.last()
+            assertGreaterThan(lastComment.created, resolveTime).bind()
             assertUpdateWasNotCausedByEditingComment(
                 updated.toEpochMilli(), lastComment.updated, lastComment.created
             ).bind()
@@ -41,6 +52,9 @@ class ReopenAwaitingModule(
             reopen().toFailedModuleEither().bind()
         }
     }
+
+    private fun isAwaitingResolve(change: ChangeLogItem) =
+        change.changedTo == "Awaiting Response"
 
     private fun assertCreationIsNotRecent(updated: Long, created: Long) = when {
             (updated - created) < 2000 -> OperationNotNeededModuleResponse.left()

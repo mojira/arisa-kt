@@ -58,6 +58,24 @@ class LanguageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the combined text does not exceed the threshold" {
+        val module = LanguageModule(
+            lengthThreshold = 100
+        )
+        val request = Request(
+            "?",
+            "Villagers can open iron doors",
+            "not private",
+            "private",
+            { emptyMap<String, Double>().right() },
+            { Unit.right() },
+            { Unit.right() })
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should resolve as invalid if ticket is not in English" {
         val module = LanguageModule()
         val request = Request(

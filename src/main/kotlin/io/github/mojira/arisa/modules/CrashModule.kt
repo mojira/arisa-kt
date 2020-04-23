@@ -121,8 +121,10 @@ class CrashModule(
     }
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
-        val data = attachment.getContent()
-        val getText = { String(data) }
+        val getText = {
+            val data = attachment.getContent()
+            String(data)
+        }
 
         return TextDocument(getText, attachment.created)
     }

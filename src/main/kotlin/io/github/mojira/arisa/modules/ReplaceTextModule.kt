@@ -4,14 +4,14 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.partially2
 
-class ReplaceCommentModule(
+class ReplaceTextModule(
     private val replacements: Map<Regex, String> = mapOf(
         Regex("\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/browse/\\1(?:\\?[\\w%=&]*)?\\]") to "$1",
         Regex("\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/\\1(?:\\?[\\w%=&]*)?\\]") to "$1",
         Regex("(?<=[^\\|])https?://bugs\\.mojang\\.com/browse/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?") to "$1",
         Regex("(?<=[^\\|])https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?") to "$1"
     )
-) : Module<ReplaceCommentModule.Request> {
+) : Module<ReplaceTextModule.Request> {
     data class Comment(
         val updated: Long,
         val body: String,

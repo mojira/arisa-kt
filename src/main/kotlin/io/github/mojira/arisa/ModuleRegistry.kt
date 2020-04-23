@@ -45,7 +45,7 @@ import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
-import io.github.mojira.arisa.modules.ReplaceCommentModule
+import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
@@ -377,15 +377,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         }
 
         register(
-            "ReplaceComment",
-            Modules.ReplaceComment,
-            ReplaceCommentModule()
+            "ReplaceText",
+            Modules.ReplaceText,
+            ReplaceTextModule()
         ) { issue, lastRun ->
-            ReplaceCommentModule.Request(
+            ReplaceTextModule.Request(
                 lastRun,
                 issue.comments
                     .map { c ->
-                        ReplaceCommentModule.Comment(
+                        ReplaceTextModule.Comment(
                             c.updatedDate.toInstant().toEpochMilli(),
                             c.body,
                             ::updateCommentBody.partially1(c)

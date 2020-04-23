@@ -105,7 +105,7 @@ object Arisa : ConfigSpec() {
 
         object UpdateLinked : ModuleConfigSpec()
 
-        object ReplaceComment : ModuleConfigSpec()
+        object ReplaceText : ModuleConfigSpec()
     }
 }
 

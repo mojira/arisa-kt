@@ -34,6 +34,13 @@ fun <T> assertNotNull(e: T?) = when (e) {
     else -> Unit.right()
 }
 
+fun assertOr(vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
+    if (list.any { it.isRight() }) {
+        Unit.right()
+    } else {
+        OperationNotNeededModuleResponse.left()
+    }
+
 fun tryRunAll(
     functs: List<() -> Either<Throwable, Unit>>
 ): Either<FailedModuleResponse, ModuleResponse> {
@@ -50,6 +57,12 @@ fun tryRunAll(
 }
 
 fun <T> assertEquals(o1: T, o2: T) = if (o1 == o2) {
+    Unit.right()
+} else {
+    OperationNotNeededModuleResponse.left()
+}
+
+fun assertTrue(b: Boolean) = if (b) {
     Unit.right()
 } else {
     OperationNotNeededModuleResponse.left()

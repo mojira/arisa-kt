@@ -153,3 +153,12 @@ fun updateSecurity(issue: Issue, levelId: String) = runBlocking {
             .execute()
     }
 }
+
+fun updateDescription(issue: Issue, description: String) = runBlocking {
+    Either.catch {
+        issue
+            .update()
+            .field(Field.DESCRIPTION, description)
+            .execute()
+    }
+}

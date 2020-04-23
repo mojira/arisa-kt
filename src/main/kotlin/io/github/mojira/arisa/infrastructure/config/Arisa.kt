@@ -105,9 +105,7 @@ object Arisa : ConfigSpec() {
 
         object UpdateLinked : ModuleConfigSpec()
 
-        object ReplaceComment : ModuleConfigSpec() {
-            val replacements by optional(emptyList<List<String>>(), description = "Pairs of strings that will be used for replacing comment bodies. The first item in each pair is a regular expression, the second item is a replacement string.")
-        }
+        object ReplaceComment : ModuleConfigSpec()
     }
 }
 

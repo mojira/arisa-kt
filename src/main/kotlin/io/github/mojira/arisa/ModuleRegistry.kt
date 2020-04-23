@@ -379,9 +379,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         register(
             "ReplaceComment",
             Modules.ReplaceComment,
-            ReplaceCommentModule(
-                config[Modules.ReplaceComment.replacements]
-            )
+            ReplaceCommentModule()
         ) { issue, lastRun ->
             ReplaceCommentModule.Request(
                 lastRun,

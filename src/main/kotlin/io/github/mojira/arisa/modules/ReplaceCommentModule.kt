@@ -5,7 +5,12 @@ import arrow.core.extensions.fx
 import arrow.syntax.function.partially2
 
 class ReplaceCommentModule(
-    private val replacements: List<List<String>>
+    private val replacements: List<List<String>> = listOf(
+        listOf("\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/browse/\\1(?:\\?[\\w%=&]*)?\\]", "$1"),
+        listOf("\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/\\1(?:\\?[\\w%=&]*)?\\]", "$1"),
+        listOf("(?<=[^\\|])https?://bugs\\.mojang\\.com/browse/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?", "$1"),
+        listOf("(?<=[^\\|])https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?", "$1")
+    )
 ) : Module<ReplaceCommentModule.Request> {
     data class Comment(
         val updated: Long,

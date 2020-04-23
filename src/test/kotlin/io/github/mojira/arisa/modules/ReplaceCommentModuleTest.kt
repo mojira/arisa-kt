@@ -7,14 +7,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 class ReplaceCommentModuleTest : StringSpec({
-    val module = ReplaceCommentModule(
-        listOf(
-            listOf("\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/browse/\\1(?:\\?[\\w%=&]*)?\\]", "$1"),
-            listOf("\\[([A-Z]+-\\d+)\\|https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/\\1(?:\\?[\\w%=&]*)?\\]", "$1"),
-            listOf("(?<=[^\\|])https?://bugs\\.mojang\\.com/browse/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?", "$1"),
-            listOf("(?<=[^\\|])https?://bugs\\.mojang\\.com/projects/[A-Z]+/issues/([A-Z]+-\\d+)(?:\\?[\\w%=&]*)?", "$1")
-        )
-    )
+    val module = ReplaceCommentModule()
     "should return OperationNotNeededModuleResponse when there is no comment" {
         val request = ReplaceCommentModule.Request(
             42L,

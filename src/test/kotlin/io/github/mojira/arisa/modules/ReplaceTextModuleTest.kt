@@ -92,7 +92,7 @@ class ReplaceTextModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
-    "should return OperationNotNeededModuleResponse for /browse links with query in comments" {
+    "should return OperationNotNeededModuleResponse for /browse links with query paramerters in comments" {
         val request = Request(
             42L,
             null,
@@ -107,7 +107,7 @@ class ReplaceTextModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
-    "should return OperationNotNeededModuleResponse for /projects links with query in comments" {
+    "should return OperationNotNeededModuleResponse for /projects links with query paramerters in comments" {
         val request = Request(
             42L,
             null,
@@ -115,6 +115,37 @@ class ReplaceTextModuleTest : StringSpec({
                 Comment(
                     100L,
                     "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4?focusedCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054"
+                ) { Unit.right() }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+    "should return OperationNotNeededModuleResponse for /browse links which ends in a slash with query paramerters in comments" {
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L,
+                    "Duplicates https://bugs.mojang.com/browse/MCPE-38374/?focusedCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054"
+                ) { Unit.right() }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+    "should return OperationNotNeededModuleResponse for /projects links which ends in a slash with query paramerters in comments" {
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(
+                    100L,
+                    "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4/?focusedCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054"
                 ) { Unit.right() }
             )
         ) { Unit.right() }
@@ -171,6 +202,120 @@ class ReplaceTextModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         replacedCommentBody shouldBe "Duplicates MC-4"
+    }
+    "should replace /browse links with two-digit ticket key in comments" {
+        var replacedCommentBody: String? = null
+
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-44") {
+                    replacedCommentBody = it
+                    Unit.right()
+                }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        replacedCommentBody shouldBe "Duplicates MC-44"
+    }
+    "should replace /projects links with two-digit ticket key in comments" {
+        var replacedCommentBody: String? = null
+
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L, "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-44") {
+                    replacedCommentBody = it
+                    Unit.right()
+                }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        replacedCommentBody shouldBe "Duplicates MC-44"
+    }
+    "should replace /browse links which ends with a slash in comments" {
+        var replacedCommentBody: String? = null
+
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-4/") {
+                    replacedCommentBody = it
+                    Unit.right()
+                }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        replacedCommentBody shouldBe "Duplicates MC-4"
+    }
+    "should replace /projects links which ends with a slash in comments" {
+        var replacedCommentBody: String? = null
+
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L, "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4/") {
+                    replacedCommentBody = it
+                    Unit.right()
+                }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        replacedCommentBody shouldBe "Duplicates MC-4"
+    }
+    "should replace /browse links with two-digit ticket key which ends with a slash in comments" {
+        var replacedCommentBody: String? = null
+
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-44/") {
+                    replacedCommentBody = it
+                    Unit.right()
+                }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        replacedCommentBody shouldBe "Duplicates MC-44"
+    }
+    "should replace /projects links with two-digit ticket key which ends with a slash in comments" {
+        var replacedCommentBody: String? = null
+
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L, "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-44/") {
+                    replacedCommentBody = it
+                    Unit.right()
+                }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        replacedCommentBody shouldBe "Duplicates MC-44"
     }
     "should replace titled /browse links in comments" {
         var replacedCommentBody: String? = null

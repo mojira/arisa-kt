@@ -274,7 +274,6 @@
         "resolutions": [ "Duplicate" ]
       },
       "replaceText": {
-        "whitelist" : [],
         "resolutions": [
           "Awaiting Response",
           "Cannot Reproduce",

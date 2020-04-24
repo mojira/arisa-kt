@@ -92,6 +92,48 @@ class ReplaceTextModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
+    "should return OperationNotNeededModuleResponse for /browse links with query in comments" {
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(100L,
+                    "Duplicates https://bugs.mojang.com/browse/MCPE-38374?focusedCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054"
+                ) { Unit.right() }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+    "should return OperationNotNeededModuleResponse for /projects links with query in comments" {
+        val request = Request(
+            42L,
+            null,
+            listOf(
+                Comment(
+                    100L,
+                    "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4?focusedCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054"
+                ) { Unit.right() }
+            )
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+    "should return OperationNotNeededModuleResponse for /browse links with query in description" {
+        val request = Request(
+            42L,
+            "Duplicates https://bugs.mojang.com/browse/MCPE-38374?focusedCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054",
+            emptyList()
+        ) { Unit.right() }
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
     "should replace /browse links in comments" {
         var replacedCommentBody: String? = null
 
@@ -119,47 +161,6 @@ class ReplaceTextModuleTest : StringSpec({
             null,
             listOf(
                 Comment(100L, "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4") {
-                    replacedCommentBody = it
-                    Unit.right()
-                }
-            )
-        ) { Unit.right() }
-
-        val result = module(request)
-
-        result.shouldBeRight(ModuleResponse)
-        replacedCommentBody shouldBe "Duplicates MC-4"
-    }
-    "should replace /browse links with query in comments" {
-        var replacedCommentBody: String? = null
-
-        val request = Request(
-            42L,
-            null,
-            listOf(
-                Comment(100L, "Duplicates https://bugs.mojang.com/browse/MC-4?jql=votes%3E0") {
-                    replacedCommentBody = it
-                    Unit.right()
-                }
-            )
-        ) { Unit.right() }
-
-        val result = module(request)
-
-        result.shouldBeRight(ModuleResponse)
-        replacedCommentBody shouldBe "Duplicates MC-4"
-    }
-    "should replace /projects links with query in comments" {
-        var replacedCommentBody: String? = null
-
-        val request = Request(
-            42L,
-            null,
-            listOf(
-                Comment(
-                    100L,
-                    "Duplicates https://bugs.mojang.com/projects/MC/issues/MC-4?jql=votes%3E0"
-                ) {
                     replacedCommentBody = it
                     Unit.right()
                 }

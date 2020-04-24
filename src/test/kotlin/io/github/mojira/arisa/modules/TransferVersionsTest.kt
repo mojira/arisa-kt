@@ -15,7 +15,7 @@ import io.kotest.matchers.shouldBe
 class TransferVersionsTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferVersionsModule()
-        val request = Request(emptyList(), listOf("v1"))
+        val request = Request("MC-1", emptyList(), listOf("v1"))
 
         val result = module(request)
 
@@ -24,8 +24,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no duplicates link" {
         val module = TransferVersionsModule()
-        val link = Link("Relates", true) { LinkedIssue(emptyList()) { Unit.right() }.right() }
-        val request = Request(listOf(link), listOf("v1"))
+        val link = Link("Relates", true, "MC-1") { LinkedIssue(emptyList()) { Unit.right() }.right() }
+        val request = Request("MC-1", listOf(link), listOf("v1"))
 
         val result = module(request)
 
@@ -34,8 +34,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no outgoing duplicates link" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", false) { LinkedIssue(emptyList()) { Unit.right() }.right() }
-        val request = Request(listOf(link), listOf("v1"))
+        val link = Link("Duplicate", false, "MC-1") { LinkedIssue(emptyList()) { Unit.right() }.right() }
+        val request = Request("MC-1", listOf(link), listOf("v1"))
 
         val result = module(request)
 
@@ -44,8 +44,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the issue has no affected versions" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { LinkedIssue(emptyList()) { Unit.right() }.right() }
-        val request = Request(listOf(link), emptyList())
+        val link = Link("Duplicate", true, "MC-1") { LinkedIssue(emptyList()) { Unit.right() }.right() }
+        val request = Request("MC-1", listOf(link), emptyList())
 
         val result = module(request)
 
@@ -54,8 +54,18 @@ class TransferVersionsTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the parent already has all versions" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { LinkedIssue(listOf("v1")) { Unit.right() }.right() }
-        val request = Request(listOf(link), listOf("v1"))
+        val link = Link("Duplicate", true, "MC-1") { LinkedIssue(listOf("v1")) { Unit.right() }.right() }
+        val request = Request("MC-1", listOf(link), listOf("v1"))
+
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the parent is from a different project" {
+        val module = TransferVersionsModule()
+        val link = Link("Duplicate", true, "MCL-1") { LinkedIssue(emptyList()) { Unit.right() }.right() }
+        val request = Request("MC-1", listOf(link), listOf("v1"))
 
         val result = module(request)
 
@@ -64,8 +74,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return ModuleResponse when there are versions to transfer" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { LinkedIssue(emptyList()) { Unit.right() }.right() }
-        val request = Request(listOf(link), listOf("v1"))
+        val link = Link("Duplicate", true, "MC-1") { LinkedIssue(emptyList()) { Unit.right() }.right() }
+        val request = Request("MC-1", listOf(link), listOf("v1"))
 
         val result = module(request)
 
@@ -76,7 +86,7 @@ class TransferVersionsTest : StringSpec({
         var firstVersionAdded = false
         var secondVersionAdded = false
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) {
+        val link = Link("Duplicate", true, "MC-1") {
             LinkedIssue(emptyList()) { v ->
                 when (v) {
                     "v1" -> firstVersionAdded = true
@@ -85,7 +95,7 @@ class TransferVersionsTest : StringSpec({
                 Unit.right()
             }.right()
         }
-        val request = Request(listOf(link), listOf("v1", "v2"))
+        val request = Request("MC-1", listOf(link), listOf("v1", "v2"))
 
         val result = module(request)
 
@@ -98,19 +108,19 @@ class TransferVersionsTest : StringSpec({
         var addedToFirstParent = false
         var addedToSecondParent = false
         val module = TransferVersionsModule()
-        val link1 = Link("Duplicate", true) {
+        val link1 = Link("Duplicate", true, "MC-1") {
             addedToFirstParent = true
             LinkedIssue(emptyList()) {
                 Unit.right()
             }.right()
         }
-        val link2 = Link("Duplicate", true) {
+        val link2 = Link("Duplicate", true, "MC-1") {
             addedToSecondParent = true
             LinkedIssue(emptyList()) {
                 Unit.right()
             }.right()
         }
-        val request = Request(listOf(link1, link2), listOf("v1"))
+        val request = Request("MC-1", listOf(link1, link2), listOf("v1"))
 
         val result = module(request)
 
@@ -121,8 +131,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return FailedModuleResponse when adding a version fails" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { LinkedIssue(emptyList()) { RuntimeException().left() }.right() }
-        val request = Request(listOf(link), listOf(""))
+        val link = Link("Duplicate", true, "MC-1") { LinkedIssue(emptyList()) { RuntimeException().left() }.right() }
+        val request = Request("MC-1", listOf(link), listOf(""))
 
         val result = module(request)
 
@@ -133,8 +143,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return FailedModuleResponse with all errors when adding multiple versions fails" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { LinkedIssue(emptyList()) { RuntimeException().left() }.right() }
-        val request = Request(listOf(link), listOf("v1", "v2"))
+        val link = Link("Duplicate", true, "MC-1") { LinkedIssue(emptyList()) { RuntimeException().left() }.right() }
+        val request = Request("MC-1", listOf(link), listOf("v1", "v2"))
 
         val result = module(request)
 
@@ -145,8 +155,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return FailedModuleResponse when getting an issue fails" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { RuntimeException().left() }
-        val request = Request(listOf(link), listOf("v1"))
+        val link = Link("Duplicate", true, "MC-1") { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf("v1"))
 
         val result = module(request)
 
@@ -157,8 +167,8 @@ class TransferVersionsTest : StringSpec({
 
     "should return FailedModuleResponse with all errors when getting an issue fails" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true) { RuntimeException().left() }
-        val request = Request(listOf(link, link), listOf("v1"))
+        val link = Link("Duplicate", true, "MC-1") { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link, link), listOf("v1"))
 
         val result = module(request)
 

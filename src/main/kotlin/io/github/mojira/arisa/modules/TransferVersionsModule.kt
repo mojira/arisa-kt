@@ -15,17 +15,22 @@ class TransferVersionsModule : Module<TransferVersionsModule.Request> {
     data class Link(
         val type: String,
         val outwards: Boolean,
+        val issueKey: String,
         val getLinkedIssue: () -> Either<Throwable, LinkedIssue>
     )
 
     data class Request(
+        val key: String,
         val links: List<Link>,
         val versions: List<String>
     )
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            val parentLinks = links.filter(::isDuplicatesLink)
+            val parentLinks = links
+                .filter(::isDuplicatesLink)
+                .filter(::isSameProject.partially2(key))
+
             assertGreaterThan(parentLinks.size, 0).bind()
             val parents = parentLinks
                 .map { it.getLinkedIssue() }
@@ -39,6 +44,12 @@ class TransferVersionsModule : Module<TransferVersionsModule.Request> {
 
     private fun isDuplicatesLink(link: Link) =
         link.type.toLowerCase() == "duplicate" && link.outwards
+
+    private fun isSameProject(link: Link, key: String) =
+        link.issueKey.getProject() == key.getProject()
+
+    private fun String.getProject() =
+        substring(0, indexOf('-'))
 
     private fun applyParents(version: String, parents: List<Either<Throwable, LinkedIssue>>) =
         parents.map { parentEither ->

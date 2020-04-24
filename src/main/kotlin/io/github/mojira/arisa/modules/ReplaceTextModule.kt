@@ -5,10 +5,10 @@ import arrow.core.extensions.fx
 
 class ReplaceTextModule(
     private val replacements: List<Pair> = listOf(
-        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1(?:\?[\w%=&]*)?\]""".toRegex()),
-        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1(?:\?[\w%=&]*)?\]""".toRegex()),
-        Pair("""(?<=[^\|])https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)(?:\?[\w%=&]*)?""".toRegex()),
-        Pair("""(?<=[^\|])https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)(?:\?[\w%=&]*)?""".toRegex())
+        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d\?/#])\]""".toRegex()),
+        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex()),
+        Pair("""(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex()),
+        Pair("""(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex())
     )
 ) : Module<ReplaceTextModule.Request> {
     data class Pair(

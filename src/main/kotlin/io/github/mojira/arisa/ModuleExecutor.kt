@@ -3,7 +3,7 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -17,11 +17,18 @@ private const val MAX_RESULTS = 50
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
-    private val cache: Cache
+    private val queryCache: QueryCache
 ) {
     private val registry = ModuleRegistry(jiraClient, config)
 
-    fun execute(lastRun: Long): Boolean {
+    data class ExecutionResults(
+        val successful: Boolean,
+        val failedTickets: Collection<String>
+    )
+
+    fun execute(lastRun: Long, rerunTickets: Set<String>): ExecutionResults {
+        val failedTickets = mutableSetOf<String>()
+
         try {
             var missingResultsPage: Boolean
             var startAt = 0
@@ -32,47 +39,49 @@ class ModuleExecutor(
                 registry.getModules().forEach { (config, exec) ->
                     executeModule(
                         config,
-                        cache,
+                        queryCache,
+                        rerunTickets,
                         lastRun,
                         startAt,
+                        failedTickets::add,
                         { missingResultsPage = true },
                         exec.partially2(lastRun)
                     )
                 }
 
-                cache.clearQueryCache()
+                queryCache.clear()
                 startAt += MAX_RESULTS
             } while (missingResultsPage)
-            cache.updatedFailedTickets()
-
-            return true
+            return ExecutionResults(true, failedTickets)
         } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)
-            return false
+            return ExecutionResults(false, failedTickets)
         }
     }
 
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        cache: Cache,
+        queryCache: QueryCache,
+        rerunTickets: Collection<String>,
         lastRun: Long,
         startAt: Int,
+        addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
         val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
-        val failedTicketsJQL = with(cache.getFailedTickets()) {
+        val failedTicketsJQL = with(rerunTickets) {
             if (isNotEmpty())
                 "key in (${joinToString(",")}) OR "
             else ""
         }
 
         val jql = "$failedTicketsJQL(${config[moduleConfig.jql].format(lastRun)})"
-        val issues = cache.getQuery(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
+        val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
 
-        cache.addQuery(jql, issues)
+        queryCache.add(jql, issues)
 
         issues
             .filter { it.project.key in projects }
@@ -84,7 +93,7 @@ class ModuleExecutor(
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         is FailedModuleResponse -> {
-                            cache.addFailedTicket(issue)
+                            addFailedTicket(issue)
 
                             for (exception in it.exceptions) {
                                 log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)

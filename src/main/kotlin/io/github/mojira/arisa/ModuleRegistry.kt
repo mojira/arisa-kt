@@ -275,7 +275,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                         TransferVersionsModule.Link(
                             link.type.name,
                             link.outwardIssue != null,
-                            link.outwardIssue.key
+                            if (link.outwardIssue != null)
+                                link.outwardIssue.key
+                            else
+                                link.inwardIssue.key
                         ) {
                             if (link.outwardIssue != null) {
                                 getIssue(jiraClient, link.outwardIssue.key)

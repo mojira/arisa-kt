@@ -42,7 +42,7 @@ fun assertOr(vararg list: Either<OperationNotNeededModuleResponse, ModuleRespons
     }
 
 fun tryRunAll(
-    functs: List<() -> Either<Throwable, Unit>>
+    functs: Collection<() -> Either<Throwable, Unit>>
 ): Either<FailedModuleResponse, ModuleResponse> {
     val exceptions = functs
         .map { it() }

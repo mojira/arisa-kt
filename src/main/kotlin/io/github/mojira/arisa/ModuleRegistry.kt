@@ -275,22 +275,31 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                         TransferVersionsModule.Link(
                             link.type.name,
                             link.outwardIssue != null,
-                            if (link.outwardIssue != null)
-                                link.outwardIssue.key
-                            else
-                                link.inwardIssue.key
-                        ) {
-                            if (link.outwardIssue != null) {
-                                getIssue(jiraClient, link.outwardIssue.key)
-                            } else {
-                                getIssue(jiraClient, link.inwardIssue.key)
-                            }.bimap({ it }, { issue ->
+                            (
+                                    if (link.outwardIssue != null)
+                                        link.outwardIssue
+                                    else
+                                        link.inwardIssue
+                                    ) pipe { linkedIssue ->
                                 TransferVersionsModule.LinkedIssue(
-                                    issue.versions.map { it.id },
-                                    ::addAffectedVersionById.partially1(issue)
+                                    linkedIssue.key,
+                                    linkedIssue.status.name,
+                                    ::addAffectedVersionById.partially1(linkedIssue),
+                                    {
+                                        getIssue(jiraClient, linkedIssue.key) pipe { issueEither ->
+                                            issueEither.fold(
+                                                { it.left() },
+                                                { issue ->
+                                                    issue.versions
+                                                        .map { it.name }
+                                                        .right()
+                                                }
+                                            )
+                                        }
+                                    }
                                 )
-                            })
-                        }
+                            }
+                        )
                     },
                 issue.versions.map { it.id }
             )

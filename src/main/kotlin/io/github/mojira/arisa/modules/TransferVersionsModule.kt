@@ -62,12 +62,12 @@ class TransferVersionsModule : Module<TransferVersionsModule.Request> {
     private fun toVersionAdders(parent: Pair<LinkedIssue, List<String>>, versions: List<String>) =
         versions
             .filter { it !in parent.second }
-            .map{ parent.first.addVersion.partially1(it) }
+            .map { parent.first.addVersion.partially1(it) }
 
     private fun isDuplicatesLink(link: Link) =
         link.type.toLowerCase() == "duplicate" && link.outwards
 
-    private fun isSameProject(issue:  LinkedIssue, key: String) =
+    private fun isSameProject(issue: LinkedIssue, key: String) =
         issue.key.getProject() == key.getProject()
 
     private fun isUnresolved(issue: LinkedIssue) =
@@ -75,5 +75,4 @@ class TransferVersionsModule : Module<TransferVersionsModule.Request> {
 
     private fun String.getProject() =
         substring(0, indexOf('-'))
-
 }

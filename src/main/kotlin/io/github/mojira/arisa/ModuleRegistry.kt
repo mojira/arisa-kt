@@ -16,11 +16,12 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.config.Arisa.PrivateSecurityLevel
+import io.github.mojira.arisa.infrastructure.createLink
 import io.github.mojira.arisa.infrastructure.deleteAttachment
+import io.github.mojira.arisa.infrastructure.deleteLink
 import io.github.mojira.arisa.infrastructure.getGroups
 import io.github.mojira.arisa.infrastructure.getIssue
 import io.github.mojira.arisa.infrastructure.getLanguage
-import io.github.mojira.arisa.infrastructure.link
 import io.github.mojira.arisa.infrastructure.removeAffectedVersion
 import io.github.mojira.arisa.infrastructure.reopenIssue
 import io.github.mojira.arisa.infrastructure.resolveAs
@@ -52,6 +53,7 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
@@ -176,7 +178,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.getCustomField(config[CustomFields.mojangPriorityField]),
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
-                ::link.partially1(issue).partially1("Duplicate"),
+                ::createLink.partially1(issue).partially1("Duplicate"),
                 ::addComment.partially1(issue).partially1(config[Modules.Crash.moddedMessage]),
                 { key ->
                     addComment(
@@ -303,6 +305,71 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                         )
                     },
                 issue.versions.map { it.id }
+            )
+        }
+
+        register(
+            "TransferLinks",
+            Modules.TransferLinks,
+            TransferLinksModule()
+        ) { issue ->
+            // TODO: move mapping functions to own file
+            val links =
+                issue.issueLinks
+                    .map { link ->
+                        AbstractTransferFieldModule.Link(
+                            link.type.name,
+                            link.outwardIssue != null,
+                            (
+                                    if (link.outwardIssue != null)
+                                        link.outwardIssue
+                                    else
+                                        link.inwardIssue
+                                    ) pipe { linkedIssue ->
+                                AbstractTransferFieldModule.LinkedIssue<List<AbstractTransferFieldModule.Link<*, TransferLinksModule.LinkParam>>, TransferLinksModule.LinkParam>(
+                                    linkedIssue.key,
+                                    linkedIssue.status.name,
+                                    { createLink(linkedIssue, it.type, it.issue) } ,
+                                    {
+                                        getIssue(jiraClient, linkedIssue.key) pipe { issueEither ->
+                                            issueEither.fold(
+                                                { it.left() },
+                                                { issue ->
+                                                    issue.issueLinks
+                                                        .map { link ->
+                                                            AbstractTransferFieldModule.Link(
+                                                                link.type.name,
+                                                                link.outwardIssue != null,
+                                                                (
+                                                                        if (link.outwardIssue != null)
+                                                                            link.outwardIssue
+                                                                        else
+                                                                            link.inwardIssue
+                                                                        ) pipe { linkedIssue ->
+                                                                    AbstractTransferFieldModule.LinkedIssue<Nothing, TransferLinksModule.LinkParam>(
+                                                                        linkedIssue.key,
+                                                                        linkedIssue.status.name,
+                                                                        { createLink(linkedIssue, it.type, it.issue) } ,
+                                                                        { UnsupportedOperationException().left() }
+                                                                    )
+                                                                }
+                                                            )
+                                                        }
+                                                        .right()
+                                                }
+                                            )
+                                        }
+                                    }
+                                )
+                            },
+                            ::deleteLink.partially1(link)
+                        )
+                    }
+
+            AbstractTransferFieldModule.Request(
+                issue.key,
+                links,
+                links
             )
         }
 

@@ -2,9 +2,9 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.TransferVersionsModule.Link
-import io.github.mojira.arisa.modules.TransferVersionsModule.LinkedIssue
-import io.github.mojira.arisa.modules.TransferVersionsModule.Request
+import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Link
+import io.github.mojira.arisa.modules.AbstractTransferFieldModule.LinkedIssue
+import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -229,7 +229,7 @@ class TransferVersionsTest : StringSpec({
 
     "should return FailedModuleResponse when getting an issue fails" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true, LinkedIssue("MC-1", "Open", { Unit.right() }, { RuntimeException().left() }))
+        val link = Link<List<String>>("Duplicate", true, LinkedIssue("MC-1", "Open", { Unit.right() }, { RuntimeException().left() }))
         val request = Request("MC-1", listOf(link), listOf("v1"))
 
         val result = module(request)
@@ -241,7 +241,7 @@ class TransferVersionsTest : StringSpec({
 
     "should return FailedModuleResponse with all errors when getting an issue fails" {
         val module = TransferVersionsModule()
-        val link = Link("Duplicate", true, LinkedIssue("MC-1", "Open", { Unit.right() }, { RuntimeException().left() }))
+        val link = Link<List<String>>("Duplicate", true, LinkedIssue("MC-1", "Open", { Unit.right() }, { RuntimeException().left() }))
         val request = Request("MC-1", listOf(link, link), listOf("v1"))
 
         val result = module(request)

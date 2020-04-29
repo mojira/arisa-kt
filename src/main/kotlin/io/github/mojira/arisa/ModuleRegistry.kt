@@ -31,6 +31,7 @@ import io.github.mojira.arisa.infrastructure.updateConfirmation
 import io.github.mojira.arisa.infrastructure.updateDescription
 import io.github.mojira.arisa.infrastructure.updateLinked
 import io.github.mojira.arisa.infrastructure.updateSecurity
+import io.github.mojira.arisa.modules.AbstractTransferFieldModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
@@ -268,11 +269,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             Modules.TransferVersions,
             TransferVersionsModule()
         ) { issue ->
-            TransferVersionsModule.Request(
+            AbstractTransferFieldModule.Request(
                 issue.key,
                 issue.issueLinks
                     .map { link ->
-                        TransferVersionsModule.Link(
+                        AbstractTransferFieldModule.Link(
                             link.type.name,
                             link.outwardIssue != null,
                             (
@@ -281,7 +282,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                     else
                                         link.inwardIssue
                                     ) pipe { linkedIssue ->
-                                TransferVersionsModule.LinkedIssue(
+                                AbstractTransferFieldModule.LinkedIssue(
                                     linkedIssue.key,
                                     linkedIssue.status.name,
                                     ::addAffectedVersionById.partially1(linkedIssue),

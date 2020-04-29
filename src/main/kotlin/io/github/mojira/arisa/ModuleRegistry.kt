@@ -329,7 +329,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                 AbstractTransferFieldModule.LinkedIssue<List<AbstractTransferFieldModule.Link<*, TransferLinksModule.LinkParam>>, TransferLinksModule.LinkParam>(
                                     linkedIssue.key,
                                     linkedIssue.status.name,
-                                    { createLink(linkedIssue, it.type, it.issue) } ,
+                                    { createLink(linkedIssue, it.type, it.issue) },
                                     {
                                         getIssue(jiraClient, linkedIssue.key) pipe { issueEither ->
                                             issueEither.fold(
@@ -349,7 +349,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                                                     AbstractTransferFieldModule.LinkedIssue<Nothing, TransferLinksModule.LinkParam>(
                                                                         linkedIssue.key,
                                                                         linkedIssue.status.name,
-                                                                        { createLink(linkedIssue, it.type, it.issue) } ,
+                                                                        { createLink(linkedIssue, it.type, it.issue) },
                                                                         { UnsupportedOperationException().left() }
                                                                     )
                                                                 }

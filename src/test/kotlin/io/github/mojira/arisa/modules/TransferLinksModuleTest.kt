@@ -34,7 +34,7 @@ class TransferLinksModuleTest : StringSpec({
             { Unit.right() },
             { emptyList<Link<*, LinkParam>>().right() })
     ) { Unit.right() }
-    
+
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferLinksModule()
         val request = Request<List<Link<*, LinkParam>>, LinkParam>("MC-1", emptyList(), emptyList())
@@ -118,7 +118,7 @@ class TransferLinksModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         parentLinkRemoved.shouldBeFalse()
     }
-    
+
     "should add all inwards links to parent" {
         var firstLinkAdded = false
         var secondLinkAdded = false
@@ -206,7 +206,7 @@ class TransferLinksModuleTest : StringSpec({
         var firstLinkAdded = false
         var secondLinkAdded = false
         val module = TransferLinksModule()
-        
+
         val outwardsRelates1 = Link(
             "Relates",
             true,
@@ -234,7 +234,7 @@ class TransferLinksModuleTest : StringSpec({
                 },
                 { emptyList<Link<*, LinkParam>>().right() })
         ) { Unit.right() }
-        
+
         val request = Request(
             "",
             listOf(DUPLICATES_LINK, outwardsRelates1, outwardsRelates2),

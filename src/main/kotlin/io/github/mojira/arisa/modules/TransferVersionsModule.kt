@@ -12,7 +12,6 @@ class TransferVersionsModule : AbstractTransferFieldModule<List<String>, String>
             .filter { it !in parent.second }
             .map(parent.first.setField::partially1)
 
-
     private fun LinkedIssue<*, *>.isSameProject(otherKey: String) =
         key.getProject() == otherKey.getProject()
 

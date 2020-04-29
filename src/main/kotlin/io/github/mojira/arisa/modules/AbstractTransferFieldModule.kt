@@ -62,7 +62,6 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
     protected open fun filterParents(issue: LinkedIssue<FIELD, *>, request: Request<FIELD, *>) =
         true
 
-
     protected abstract fun toFunction(parent: Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>, field: FIELD): Collection<() -> Either<Throwable, Unit>>
 
     protected fun isDuplicatesLink(link: Link<*, *>) =

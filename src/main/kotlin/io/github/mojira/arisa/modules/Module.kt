@@ -19,6 +19,18 @@ fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
     { ModuleResponse }
 )
 
+fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleError, ModuleResponse> {
+    val errors =
+        filter(Either<Throwable, Any>::isLeft)
+        .map { (it as Either.Left).a }
+
+    return if (errors.isEmpty()) {
+        ModuleResponse.right()
+    } else {
+        FailedModuleResponse(errors).left()
+    }
+}
+
 fun assertNotEmpty(c: Collection<*>) = when {
     c.isEmpty() -> OperationNotNeededModuleResponse.left()
     else -> Unit.right()

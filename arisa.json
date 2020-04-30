@@ -236,7 +236,6 @@
       },
       "language": {
         "excludedStatuses": ["Postponed"],
-        "jql": "created > %s AND filter != 24600",
         "messages": {
           "zh": "I have detected that this ticket is in *Chinese*.",
           "fr": "I have detected that this ticket is in *French*.",

@@ -300,7 +300,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                                 { it.left() },
                                                 { issue ->
                                                     issue.versions
-                                                        .map { it.name }
+                                                        .map { it.id }
                                                         .right()
                                                 }
                                             )

@@ -571,6 +571,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                     UpdateLinkedModule.ChangeLogItem(
                                         i.field,
                                         e.created.toInstant(),
+                                        i.fromString,
                                         i.toString
                                     )
                                 }

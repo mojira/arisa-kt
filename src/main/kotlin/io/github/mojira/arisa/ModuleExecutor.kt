@@ -36,12 +36,12 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                registry.getModules().forEach { (config, exec) ->
+                registry.getModules().forEach { (config, getJql, exec) ->
                     executeModule(
                         config,
                         queryCache,
                         rerunTickets,
-                        lastRun,
+                        getJql(lastRun),
                         startAt,
                         failedTickets::add,
                         { missingResultsPage = true },
@@ -63,7 +63,7 @@ class ModuleExecutor(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         queryCache: QueryCache,
         rerunTickets: Collection<String>,
-        lastRun: Long,
+        moduleJql: String,
         startAt: Int,
         addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
@@ -78,7 +78,7 @@ class ModuleExecutor(
             else ""
         }
 
-        val jql = "$failedTicketsJQL(${config[moduleConfig.jql].format(lastRun)})"
+        val jql = "$failedTicketsJQL($moduleJql})"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
 
         queryCache.add(jql, issues)

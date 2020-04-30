@@ -264,6 +264,7 @@
       },
       "updateLinked": {
         "excludedStatuses": ["Postponed"],
+        "updateInterval": 24,
         "whitelist": [
           "MC",
           "MCL",

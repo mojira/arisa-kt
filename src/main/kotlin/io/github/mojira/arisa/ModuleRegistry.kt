@@ -499,7 +499,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                     issue.changeLog.entries
                         .flatMap { e ->
                             e.items
-                                .map {  i ->
+                                .map { i ->
                                     UpdateLinkedModule.ChangeLogItem(
                                         i.field,
                                         e.created.toInstant(),

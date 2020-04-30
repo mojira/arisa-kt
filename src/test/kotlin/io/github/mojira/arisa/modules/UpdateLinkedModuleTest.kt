@@ -16,7 +16,7 @@ class UpdateLinkedModuleTest : StringSpec({
     val NOW = Instant.now()
     val A_SECOND_AGO = NOW.minusSeconds(1)
     val DUPLICATE_LINK = ChangeLogItem("Link", NOW, "This issue is duplicated by MC-4")
-    
+
     "should return OperationNotNeededModuleResponse when linked is empty and there are no duplicates" {
         val module = UpdateLinkedModule(0)
         val request = Request(A_SECOND_AGO, emptyList(), null) { Unit.right() }

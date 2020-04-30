@@ -103,7 +103,7 @@ object Arisa : ConfigSpec() {
         object ResolveTrash : ModuleConfigSpec()
 
         object UpdateLinked : ModuleConfigSpec() {
-            val updateInterval by optional(24L, description = "Interval in which the module should update the Linked field in hours")
+            val updateInterval by optional(0L, description = "Interval in which the module should update the Linked field in hours")
         }
 
         object TransferVersions : ModuleConfigSpec()

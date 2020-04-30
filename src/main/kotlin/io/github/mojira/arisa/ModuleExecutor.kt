@@ -78,7 +78,7 @@ class ModuleExecutor(
             else ""
         }
 
-        val jql = "$failedTicketsJQL($moduleJql})"
+        val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
 
         queryCache.add(jql, issues)

@@ -8,13 +8,16 @@ import arrow.syntax.function.partially2
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()
+
 class UpdateLinkedModule(
     private val updateInterval: Long
 ) : Module<UpdateLinkedModule.Request> {
     data class ChangeLogItem(
         val field: String,
         val created: Instant,
-        val value: String?
+        val oldValue: String?,
+        val newValue: String?
     )
 
     data class Request(
@@ -31,11 +34,18 @@ class UpdateLinkedModule(
                 ?.created
                 ?: created
 
-            val duplicates = changeLogItems.filter(::isDuplicateAddedChange)
-            val duplicateAmount = duplicates.size.toDouble()
+            val duplicates = changeLogItems.filter(::isDuplicateLinkChange)
+            val duplicatesAdded = duplicates
+                .filter(::isDuplicateLinkAddedChange)
+                .size
+            val duplicatesRemoved = duplicates
+                .filter(::isDuplicateLinkRemovedChange)
+                .size
+            val duplicateAmount = (duplicatesAdded - duplicatesRemoved).toDouble()
+
             assertNotEquals(duplicateAmount, linkedField ?: 0.0).bind()
 
-            val firstAddedLinkSinceLastUpdate = changeLogItems
+            val firstAddedLinkSinceLastUpdate = duplicates
                 .firstOrNull(::createdAfter.partially2(lastLinkedChange))
                 ?.created
 
@@ -49,9 +59,18 @@ class UpdateLinkedModule(
     private fun isLinkedChange(change: ChangeLogItem) =
         change.field == "Linked"
 
-    private fun isDuplicateAddedChange(change: ChangeLogItem) =
+    private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-            change.value?.matches("""This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()) ?: false
+        change.newValue?.matches(DUPLICATE_REGEX) ?: false
+
+    private fun isDuplicateLinkRemovedChange(change: ChangeLogItem) =
+        change.field == "Link" &&
+        change.oldValue?.matches(DUPLICATE_REGEX) ?: false
+
+    private fun isDuplicateLinkChange(change: ChangeLogItem) =
+        change.field == "Link" && (
+                isDuplicateLinkAddedChange(change) || isDuplicateLinkRemovedChange(change)
+        )
 
     private fun createdAfter(change: ChangeLogItem, lastUpdate: Instant) =
         change.created.isAfter(lastUpdate)

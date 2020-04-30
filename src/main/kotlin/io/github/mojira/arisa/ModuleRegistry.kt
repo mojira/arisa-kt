@@ -6,6 +6,7 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
+import arrow.syntax.function.pipe3
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.addAffectedVersion
 import io.github.mojira.arisa.infrastructure.addAffectedVersionById
@@ -58,10 +59,13 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
     data class Entry(
         val config: ModuleConfigSpec,
+        val getJql: (lastRun: Long) -> String,
         val execute: (Issue, Long) -> Pair<String, Either<ModuleError, ModuleResponse>>
     )
 
@@ -74,17 +78,19 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
+        getJql: (lastRun: Long) -> String = { "updated > $it" },
         requestCreator: (Issue) -> T
-    ) = register(name, config, module) { issue, _ -> requestCreator(issue) }
+    ) = register(name, config, module, getJql) { issue, _ -> requestCreator(issue) }
 
     private fun <T> register(
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
+        getJql: (lastRun: Long) -> String = { "updated > $it" },
         requestCreator: (Issue, Long) -> T
     ) = { issue: Issue, lastRun: Long ->
         name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
-    } pipe (config pipe2 ModuleRegistry::Entry) pipe modules::add
+    } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
 
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
         executeModule()
@@ -480,14 +486,31 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         register(
             "UpdateLinked",
             Modules.UpdateLinked,
-            UpdateLinkedModule()
-        ) { issue ->
-            UpdateLinkedModule.Request(
-                issue.issueLinks
-                    .map { it.type.name },
-                issue.getField(config[CustomFields.linked]) as? Double?,
-                ::updateLinked.partially1(issue).partially1(config[CustomFields.linked])
-            )
-        }
+            UpdateLinkedModule(config[Modules.UpdateLinked.updateInterval]),
+            { lastRun ->
+                val now = Instant.now()
+                val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
+                val intervalEnd = intervalStart.minusMillis(now.minusMillis(lastRun).toEpochMilli())
+                return@register "updated > $lastRun OR (updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()})"
+            },
+            { issue ->
+                UpdateLinkedModule.Request(
+                    issue.createdDate.toInstant(),
+                    issue.changeLog.entries
+                        .flatMap { e ->
+                            e.items
+                                .map { i ->
+                                    UpdateLinkedModule.ChangeLogItem(
+                                        i.field,
+                                        e.created.toInstant(),
+                                        i.toString
+                                    )
+                                }
+                        },
+                    issue.getField(config[CustomFields.linked]) as? Double?,
+                    ::updateLinked.partially1(issue).partially1(config[CustomFields.linked])
+                )
+            }
+        )
     }
 }

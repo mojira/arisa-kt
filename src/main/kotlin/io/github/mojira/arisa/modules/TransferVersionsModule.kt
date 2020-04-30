@@ -7,10 +7,15 @@ class TransferVersionsModule : AbstractTransferFieldModule<List<String>, String>
         return issue.isSameProject(request.key) && issue.isUnresolved()
     }
 
-    override fun toFunction(parent: Pair<LinkedIssue<List<String>, String>, List<String>>, field: List<String>) =
-        field
-            .filter { it !in parent.second }
-            .map(parent.first.setField::partially1)
+    override fun getFunctions(
+        parents: Collection<Pair<LinkedIssue<List<String>, String>, List<String>>>,
+        field: List<String>
+    ) =
+        parents.flatMap { parent ->
+            field
+                .filter { it !in parent.second }
+                .map(parent.first.setField::partially1)
+        }
 
     private fun LinkedIssue<*, *>.isSameProject(otherKey: String) =
         key.getProject() == otherKey.getProject()

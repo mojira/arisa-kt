@@ -43,8 +43,7 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
             val parents = parentEithers
                 .map { (it as Either.Right).b }
 
-            val functions = parents
-                .flatMap(::toFunction.partially2(field))
+            val functions = getFunctions(parents, field)
 
             assertNotEmpty(functions).bind()
             tryRunAll(functions).bind()
@@ -62,7 +61,7 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
     protected open fun filterParents(issue: LinkedIssue<FIELD, *>, request: Request<FIELD, *>) =
         true
 
-    protected abstract fun toFunction(parent: Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>, field: FIELD): Collection<() -> Either<Throwable, Unit>>
+    protected abstract fun getFunctions(parents: Collection<Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>>, field: FIELD): Collection<() -> Either<Throwable, Unit>>
 
     protected fun isDuplicatesLink(link: Link<*, *>) =
         link.type.toLowerCase() == "duplicate" && link.outwards

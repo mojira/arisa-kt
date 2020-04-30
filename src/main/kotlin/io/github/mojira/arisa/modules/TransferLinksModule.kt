@@ -13,8 +13,8 @@ class TransferLinksModule : AbstractTransferFieldModule<List<Link<*, LinkParam>>
         val issue: String
     )
 
-    override fun toFunction(
-        parent: Pair<LinkedIssue<List<Link<*, LinkParam>>, LinkParam>, List<Link<*, LinkParam>>>,
+    override fun getFunctions(
+        parents: Collection<Pair<LinkedIssue<List<Link<*, LinkParam>>, LinkParam>, List<Link<*, LinkParam>>>>,
         field: List<Link<*, LinkParam>>
     ): Collection<() -> Either<Throwable, Unit>> {
         val links = field
@@ -23,9 +23,12 @@ class TransferLinksModule : AbstractTransferFieldModule<List<Link<*, LinkParam>>
         val linkRemovers = links
             .map { it.remove }
 
-        val linkAdders = links
-            .filter(::parentDoesNotHaveLink.partially1(parent.second))
-            .map(::toLinkAdder.partially2(parent))
+        val linkAdders = parents
+            .flatMap { parent ->
+                links
+                    .filter(::parentDoesNotHaveLink.partially1(parent.second))
+                    .map(::toLinkAdder.partially2(parent))
+            }
 
         return linkRemovers union linkAdders
     }

@@ -42,7 +42,7 @@ class TransferLinksModule : AbstractTransferFieldModule<List<Link<*, LinkParam>>
         parent: Pair<LinkedIssue<*, LinkParam>, List<Link<*, LinkParam>>>
     ) =
         when {
-            link.outwards -> link.issue.setField.partially1(LinkParam(link.type, parent.first.key))
-            else -> parent.first.setField.partially1(LinkParam(link.type, link.issue.key))
+            link.outwards -> parent.first.setField.partially1(LinkParam(link.type, link.issue.key))
+            else -> link.issue.setField.partially1(LinkParam(link.type, parent.first.key))
         }
 }

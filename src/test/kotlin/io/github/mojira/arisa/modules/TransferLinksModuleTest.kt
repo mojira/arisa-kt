@@ -27,7 +27,7 @@ class TransferLinksModuleTest : StringSpec({
 
     val RELATES_LINK = Link(
         "Relates",
-        false,
+        true,
         LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
             "MC-2",
             "",
@@ -90,7 +90,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val linkToTransfer = Link(
             "Relates",
-            false,
+            true,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-2", "", { Unit.right() }, { emptyList<Link<*, LinkParam>>().right() })
         ) { linkRemoved = true; Unit.right() }
 
@@ -127,7 +127,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val relatesLink2 = Link(
             "Relates",
-            false,
+            true,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-3", "", { Unit.right() }, { emptyList<Link<*, LinkParam>>().right() })
         ) { Unit.right() }
 
@@ -209,7 +209,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val outwardsRelates1 = Link(
             "Relates",
-            true,
+            false,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
                 "MC-2",
                 "",
@@ -223,7 +223,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val outwardsRelates2 = Link(
             "Relates",
-            true,
+            false,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
                 "MC-3",
                 "",
@@ -254,7 +254,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val outwardsRelates = Link(
             "Relates",
-            true,
+            false,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
                 "MC-2",
                 "",
@@ -297,7 +297,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val link = Link(
             "Relates",
-            false,
+            true,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
                 "MC-2",
                 "",
@@ -319,7 +319,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val link1 = Link(
             "Relates",
-            false,
+            true,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
                 "MC-2",
                 "",
@@ -329,7 +329,7 @@ class TransferLinksModuleTest : StringSpec({
 
         val link2 = Link(
             "Relates",
-            false,
+            true,
             LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
                 "MC-2",
                 "",

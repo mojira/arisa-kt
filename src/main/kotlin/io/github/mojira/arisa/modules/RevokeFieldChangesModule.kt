@@ -42,7 +42,7 @@ class RevokeFieldChangesModule : Module<RevokeFieldChangesModule.Request> {
                     .filter { (field, value) ->
                         value.getOrDefault(field.defaultValue) != field.value.getOrDefault(field.defaultValue)
                     }
-                    .flatMap{ (field, value) ->
+                    .flatMap { (field, value) ->
                         listOfNotNull(
                             field.set.partially1(value),
                             if (!field.message.isNullOrBlank()) addComment.partially1(field.message) else null

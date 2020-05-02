@@ -285,6 +285,16 @@
               "staff"
             ],
             "message": "{panel:borderColor=orange}(!) Don't try to change \"Triaged Time\". It may only be changed by the developers of the game. Consider this a warning.{panel}"
+          },
+          {
+            "fieldId": "customfield_11500",
+            "fieldName": "ADO",
+            "fieldType": "STRING",
+            "defaultValue": null,
+            "permissionGroups": [
+              "staff"
+            ],
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"ADO\". It may only be changed by the developers of the game. Consider this a warning.{panel}"
           }
         ]
       },

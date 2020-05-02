@@ -91,7 +91,9 @@ object Arisa : ConfigSpec() {
             val duplicates by optional(emptyList<CrashDupeConfig>(), description = "List of exception details that are resolved as duplicates for a specific ticket key.")
         }
 
-        object RevokeConfirmation : ModuleConfigSpec()
+        object RevokeFieldChanges : ModuleConfigSpec() {
+            val fields by optional(emptyList<RevokeFieldConfig>(), description = "Configured fields to revoke if someone not part of a permission group tried to change them")
+        }
 
         object KeepPrivate : ModuleConfigSpec() {
             val message by optional("", description = "The message that is posted when this module succeeds.")
@@ -119,3 +121,16 @@ data class CrashDupeConfig(
     val exceptionRegex: String,
     val duplicates: String
 )
+
+data class RevokeFieldConfig(
+    val fieldId: String,
+    val fieldName: String,
+    val fieldType: FieldType,
+    val defaultValue: String?,
+    val permissionGroups: List<String>,
+    val message: String? = null
+)
+
+enum class FieldType {
+    VALUE, DOUBLE, STRING
+}

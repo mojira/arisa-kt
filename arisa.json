@@ -228,7 +228,7 @@
               "global-moderators",
               "helper"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"Confirmation Status\". It may only be changed by moderators and helpers. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"Confirmation Status\". It may only be changed by moderators and helpers. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           },
           {
             "fieldId": "customfield_10701",
@@ -240,7 +240,7 @@
               "global-moderators",
               "helper"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"CHK\". It may only be changed by moderators and helpers. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"CHK\". It may only be changed by moderators and helpers. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           },
           {
             "fieldId": "customfield_11100",
@@ -252,7 +252,7 @@
               "global-moderators",
               "helper"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"Linked\". It may only be changed by moderators and helpers. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"Linked\". It may only be changed by moderators and helpers. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           },
           {
             "fieldId": "customfield_10900",
@@ -264,7 +264,7 @@
               "global-moderators",
               "helper"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"Pinned\". It may only be changed by moderators and helpers. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"Pinned\". It may only be changed by moderators and helpers. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           },
           {
             "fieldId": "customfield_12200",
@@ -274,7 +274,7 @@
             "permissionGroups": [
               "staff"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"Mojang Priority\". It may only be changed by the developers of the game. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"Mojang Priority\". It may only be changed by the developers of the game. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           },
           {
             "fieldId": "customfield_12201",
@@ -284,7 +284,7 @@
             "permissionGroups": [
               "staff"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"Triaged Time\". It may only be changed by the developers of the game. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"Triaged Time\". It may only be changed by the developers of the game. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           },
           {
             "fieldId": "customfield_11500",
@@ -294,7 +294,7 @@
             "permissionGroups": [
               "staff"
             ],
-            "message": "{panel:borderColor=orange}(!) Don't try to change \"ADO\". It may only be changed by the developers of the game. Consider this a warning.{panel}"
+            "message": "{panel:borderColor=orange}(!) Don't try to change \"ADO\". It may only be changed by the developers of the game. Consider this a warning.{panel}\n~{color:#888}-- I am a bot. This action was performed automagically! Please report any issues in [Discord|https://discordapp.com/invite/rpCyfKV] or [Reddit|https://www.reddit.com/r/Mojira/]{color}~"
           }
         ]
       },

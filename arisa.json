@@ -209,14 +209,7 @@
       },
       "revokeFieldChanges": {
         "excludedStatuses": ["Postponed"],
-        "whitelist": [
-          "MC",
-          "MCL",
-          "MCPE",
-          "BDS",
-          "MCD",
-          "MCE"
-        ],
+        "whitelist": [],
         "fields": [
           {
             "fieldId": "customfield_10500",

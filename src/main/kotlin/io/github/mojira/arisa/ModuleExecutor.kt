@@ -36,6 +36,8 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
+                registry.getModules()[16].execute(jiraClient.getIssue("MC-178663", "*all", "changelog"), 0)
+
                 registry.getModules().forEach { (config, getJql, exec) ->
                     executeModule(
                         config,

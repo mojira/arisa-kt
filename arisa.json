@@ -92,6 +92,7 @@
         ]
       },
       "removeTriagedMeqs": {
+        "whitelist": [],
         "meqsTags": [
           "MEQS_WAI",
           "MEQS_WONTFIX"

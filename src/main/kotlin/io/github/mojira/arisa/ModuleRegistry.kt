@@ -530,7 +530,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                         config.fieldName,
                         when (config.fieldType) {
                             FieldType.VALUE -> issue.getCustomField(config.fieldId)
-                            FieldType.DOUBLE, FieldType.STRING -> issue.getFieldAsString(config.fieldId)
+                            FieldType.DOUBLE -> (issue.getField(config.fieldId) as? Double?)?.toInt()?.toString()
+                            FieldType.STRING -> issue.getFieldAsString(config.fieldId)
                         },
                         config.defaultValue,
                         config.permissionGroups,

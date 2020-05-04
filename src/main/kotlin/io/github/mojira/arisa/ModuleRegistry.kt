@@ -319,7 +319,6 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             Modules.TransferLinks,
             TransferLinksModule()
         ) { issue ->
-            // TODO: move mapping functions to own file
             val links =
                 issue.issueLinks
                     .map { link ->

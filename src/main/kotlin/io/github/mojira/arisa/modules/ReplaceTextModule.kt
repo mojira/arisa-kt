@@ -2,26 +2,16 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.Comment
 
 class ReplaceTextModule(
-    private val replacements: List<Pair> = listOf(
-        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d\?/#])\]""".toRegex()),
-        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex()),
-        Pair("""(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex()),
-        Pair("""(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex())
+    private val replacements: List<Pair<Regex, String>> = listOf(
+        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
+        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
+        """(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
+        """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1"
     )
 ) : Module<ReplaceTextModule.Request> {
-    data class Pair(
-        val regex: Regex,
-        val replacement: String = "$1"
-    )
-
-    data class Comment(
-        val updated: Long,
-        val body: String,
-        val updateBody: (body: String) -> Either<Throwable, Unit>
-    )
-
     data class Request(
         val lastRun: Long,
         val description: String?,
@@ -34,7 +24,7 @@ class ReplaceTextModule(
             val needUpdateDescription = description != null && needReplacement(description)
 
             val filteredComments = comments
-                .filter { updatedAfterLastRun(it.updated, lastRun) }
+                .filter { updatedAfterLastRun(it.updated.toEpochMilli(), lastRun) }
                 .filter { needReplacement(it.body) }
 
             assertOr(
@@ -47,7 +37,7 @@ class ReplaceTextModule(
             }
 
             filteredComments.forEach {
-                it.updateBody(replace(it.body)).toFailedModuleEither().bind()
+                it.update(replace(it.body)).toFailedModuleEither().bind()
             }
         }
     }

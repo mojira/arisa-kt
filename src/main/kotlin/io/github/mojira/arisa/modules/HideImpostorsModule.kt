@@ -2,19 +2,12 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class HideImpostorsModule : Module<HideImpostorsModule.Request> {
-    data class Comment(
-        val authorDisplayName: String,
-        val getAuthorGroups: () -> List<String>?,
-        val updated: Instant,
-        val visibilityType: String?,
-        val visibilityValue: String?,
-        val restrict: () -> Either<Throwable, Unit>
-    )
-
     data class Request(val comments: List<Comment>)
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
@@ -24,7 +17,7 @@ class HideImpostorsModule : Module<HideImpostorsModule.Request> {
                 .filter(::userContainsBrackets)
                 .filter(::isNotStaffRestricted)
                 .filter(::userIsNotVolunteer)
-                .map { it.restrict }
+                .map { it.restrict.partially1(it.body) }
 
             assertNotEmpty(restrictImpostorComments).bind()
             tryRunAll(restrictImpostorComments).bind()

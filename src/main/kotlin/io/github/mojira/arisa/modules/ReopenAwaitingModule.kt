@@ -4,25 +4,14 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
 
 class ReopenAwaitingModule(
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>
 ) : Module<ReopenAwaitingModule.Request> {
-    data class Comment(
-        val updated: Long,
-        val created: Long,
-        val visibilityType: String?,
-        val visibilityValue: String?,
-        val getAuthorGroups: () -> List<String>?
-    )
-
-    data class ChangeLogItem(
-        val created: Long,
-        val changedTo: String?
-    )
-
     data class Request(
         val resolution: String?,
         val created: Instant,
@@ -37,14 +26,12 @@ class ReopenAwaitingModule(
             assertEquals(resolution, "Awaiting Response").bind()
             assertNotEmpty(comments).bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
-            val resolveTime = changeLog
-                .filter(::isAwaitingResolve)
-                .last()
+            val resolveTime = changeLog.last(::isAwaitingResolve)
                 .created
             val lastComment = comments.last()
-            assertGreaterThan(lastComment.created, resolveTime).bind()
+            assertGreaterThan(lastComment.created.toEpochMilli(), resolveTime).bind()
             assertUpdateWasNotCausedByEditingComment(
-                updated.toEpochMilli(), lastComment.updated, lastComment.created
+                updated.toEpochMilli(), lastComment.updated.toEpochMilli(), lastComment.created.toEpochMilli()
             ).bind()
             assertCommentIsNotRestrictedToABlacklistedLevel(lastComment.visibilityType, lastComment.visibilityValue).bind()
             assertCommentWasNotAddedByABlacklistedRole(lastComment.getAuthorGroups()).bind()

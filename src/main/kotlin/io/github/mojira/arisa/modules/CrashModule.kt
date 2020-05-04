@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
@@ -18,11 +19,6 @@ class CrashModule(
     private val maxAttachmentAge: Int,
     private val crashReader: CrashReader
 ) : Module<CrashModule.Request> {
-    data class Attachment(
-        val name: String,
-        val created: Date,
-        val getContent: () -> ByteArray
-    )
 
     data class Request(
         val attachments: List<Attachment>,

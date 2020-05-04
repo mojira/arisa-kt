@@ -4,15 +4,11 @@ import arrow.core.Either
 import arrow.syntax.function.complement
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
-import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Link
-import io.github.mojira.arisa.modules.TransferLinksModule.LinkParam
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkParam
+import io.github.mojira.arisa.domain.LinkedIssue
 
 class TransferLinksModule : AbstractTransferFieldModule<List<Link<*, LinkParam>>, LinkParam>() {
-    data class LinkParam(
-        val type: String,
-        val issue: String
-    )
-
     override fun getFunctions(
         parents: Collection<Pair<LinkedIssue<List<Link<*, LinkParam>>, LinkParam>, List<Link<*, LinkParam>>>>,
         field: List<Link<*, LinkParam>>

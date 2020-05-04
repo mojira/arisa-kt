@@ -8,31 +8,40 @@ import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.infrastructure.addAffectedVersion
-import io.github.mojira.arisa.infrastructure.addAffectedVersionById
-import io.github.mojira.arisa.infrastructure.addComment
-import io.github.mojira.arisa.infrastructure.addRestrictedComment
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
-import io.github.mojira.arisa.infrastructure.config.Arisa.PrivateSecurityLevel
-import io.github.mojira.arisa.infrastructure.createLink
-import io.github.mojira.arisa.infrastructure.deleteAttachment
-import io.github.mojira.arisa.infrastructure.deleteLink
-import io.github.mojira.arisa.infrastructure.getGroups
-import io.github.mojira.arisa.infrastructure.getIssue
 import io.github.mojira.arisa.infrastructure.getLanguage
-import io.github.mojira.arisa.infrastructure.removeAffectedVersion
-import io.github.mojira.arisa.infrastructure.reopenIssue
-import io.github.mojira.arisa.infrastructure.resolveAs
-import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
-import io.github.mojira.arisa.infrastructure.updateCHK
-import io.github.mojira.arisa.infrastructure.updateCommentBody
-import io.github.mojira.arisa.infrastructure.updateConfirmation
-import io.github.mojira.arisa.infrastructure.updateDescription
-import io.github.mojira.arisa.infrastructure.updateLinked
-import io.github.mojira.arisa.infrastructure.updateSecurity
+import io.github.mojira.arisa.infrastructure.jira.addAffectedVersion
+import io.github.mojira.arisa.infrastructure.jira.addAffectedVersionById
+import io.github.mojira.arisa.infrastructure.jira.addComment
+import io.github.mojira.arisa.infrastructure.jira.addRestrictedComment
+import io.github.mojira.arisa.infrastructure.jira.createLink
+import io.github.mojira.arisa.infrastructure.jira.deleteAttachment
+import io.github.mojira.arisa.infrastructure.jira.getAttachments
+import io.github.mojira.arisa.infrastructure.jira.getCHK
+import io.github.mojira.arisa.infrastructure.jira.getChangeLogEntries
+import io.github.mojira.arisa.infrastructure.jira.getComments
+import io.github.mojira.arisa.infrastructure.jira.getConfirmation
+import io.github.mojira.arisa.infrastructure.jira.getCreated
+import io.github.mojira.arisa.infrastructure.jira.getEnvironment
+import io.github.mojira.arisa.infrastructure.jira.getLinked
+import io.github.mojira.arisa.infrastructure.jira.getLinks
+import io.github.mojira.arisa.infrastructure.jira.getPriority
+import io.github.mojira.arisa.infrastructure.jira.getSecurityLevelId
+import io.github.mojira.arisa.infrastructure.jira.getTriagedTime
+import io.github.mojira.arisa.infrastructure.jira.getUpdated
+import io.github.mojira.arisa.infrastructure.jira.getVersions
+import io.github.mojira.arisa.infrastructure.jira.getVersionsGetField
+import io.github.mojira.arisa.infrastructure.jira.removeAffectedVersion
+import io.github.mojira.arisa.infrastructure.jira.reopenIssue
+import io.github.mojira.arisa.infrastructure.jira.resolveAs
+import io.github.mojira.arisa.infrastructure.jira.updateCHK
+import io.github.mojira.arisa.infrastructure.jira.updateConfirmation
+import io.github.mojira.arisa.infrastructure.jira.updateDescription
+import io.github.mojira.arisa.infrastructure.jira.updateLinked
+import io.github.mojira.arisa.infrastructure.jira.updateSecurity
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -54,14 +63,11 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
-import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
-import net.sf.json.JSONObject
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -101,48 +107,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         FailedModuleResponse(listOf(e)).left()
     }
 
-    private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-    private fun String.toInstant() = isoFormat.parse(this).toInstant()
-
-    private fun Issue.getFieldAsString(field: String) = this.getField(field) as? String?
-
-    private fun Issue.getCustomField(customField: String): String? =
-        ((getField(customField)) as? JSONObject)?.get("value") as? String?
-
-    private fun getSecurityLevelId(project: String) =
-        config[PrivateSecurityLevel.special][project] ?: config[PrivateSecurityLevel.default]
-
-    private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
-        jiraClient,
-        username
-    ).fold({ null }, { it })
-
     init {
-        val getGroups = ::getUserGroups.partially1(jiraClient)
-
         register(
-            "Attachment",
-            Modules.Attachment,
-            AttachmentModule(config[Modules.Attachment.extensionBlacklist])
-        ) { issue ->
-            AttachmentModule.Request(
-                issue.attachments.map { a ->
-                    AttachmentModule.Attachment(
-                        a.fileName,
-                        ::deleteAttachment.partially1(jiraClient).partially1(a)
-                    )
-                }
-            )
-        }
+            "Attachment", Modules.Attachment, AttachmentModule(config[Modules.Attachment.extensionBlacklist])
+        ) { issue -> AttachmentModule.Request(issue.getAttachments(::deleteAttachment.partially1(jiraClient))) }
 
-        register(
-            "CHK",
-            Modules.CHK,
-            CHKModule()
-        ) { issue ->
+        register("CHK", Modules.CHK, CHKModule()) { issue ->
             CHKModule.Request(
-                issue.getFieldAsString(config[CustomFields.chkField]),
-                issue.getCustomField(config[CustomFields.confirmationField]),
+                issue.getCHK(config),
+                issue.getConfirmation(config),
                 ::updateCHK.partially1(issue).partially1(config[CustomFields.chkField])
             )
         }
@@ -157,11 +130,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             )
         ) { issue ->
             ConfirmParentModule.Request(
-                issue.getCustomField(config[CustomFields.confirmationField]),
-                issue.getField(config[CustomFields.linked]) as? Double?,
-                ::updateConfirmation
-                    .partially1(issue)
-                    .partially1(config[CustomFields.confirmationField])
+                issue.getConfirmation(config),
+                issue.getLinked(config),
+                ::updateConfirmation.partially1(issue).partially1(config[CustomFields.confirmationField])
             )
         }
 
@@ -176,215 +147,82 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             )
         ) { issue ->
             CrashModule.Request(
-                issue.attachments
-                    .map { a -> CrashModule.Attachment(a.fileName, a.createdDate, a::download) },
+                issue.getAttachments { Unit.right() },
                 issue.description,
                 issue.createdDate,
-                issue.getCustomField(config[CustomFields.confirmationField]),
-                issue.getCustomField(config[CustomFields.mojangPriorityField]),
+                issue.getConfirmation(config),
+                issue.getPriority(config),
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
                 ::createLink.partially1(issue).partially1("Duplicate"),
                 ::addComment.partially1(issue).partially1(config[Modules.Crash.moddedMessage]),
-                { key ->
-                    addComment(
-                        issue,
-                        config[Modules.Crash.duplicateMessage].format(key)
-                    )
-                }
+                { key -> addComment(issue, config[Modules.Crash.duplicateMessage].format(key)) }
             )
         }
 
-        register(
-            "Empty",
-            Modules.Empty,
-            EmptyModule()
-        ) { issue, lastRun ->
+        register("Empty", Modules.Empty, EmptyModule()) { issue, lastRun ->
             EmptyModule.Request(
                 issue.createdDate.toInstant().toEpochMilli(),
                 lastRun,
                 issue.attachments.size,
                 issue.description,
-                issue.getFieldAsString("environment"),
+                issue.getEnvironment(),
                 ::resolveAs.partially1(issue).partially1("Incomplete"),
                 ::addComment.partially1(issue).partially1(config[Modules.Empty.message])
             )
         }
 
-        register(
-            "FutureVersion",
-            Modules.FutureVersion,
-            FutureVersionModule()
-        ) { issue ->
+        register("FutureVersion", Modules.FutureVersion, FutureVersionModule()) { issue ->
             val project = jiraClient.getProject(issue.project.key)
             FutureVersionModule.Request(
-                issue.versions
-                    .map { v ->
-                        FutureVersionModule.Version(
-                            v.isReleased,
-                            v.isArchived,
-                            ::removeAffectedVersion.partially1(issue).partially1(v)
-                        )
-                    },
-                project?.versions
-                    ?.map { v ->
-                        FutureVersionModule.Version(
-                            v.isReleased,
-                            v.isArchived,
-                            ::addAffectedVersion.partially1(issue).partially1(v)
-                        )
-                    },
+                issue.getVersions(::removeAffectedVersion.partially1(issue)),
+                project.getVersions(::addAffectedVersion.partially1(issue)),
                 ::addComment.partially1(issue).partially1(config[Modules.FutureVersion.message])
             )
         }
 
-        register(
-            "HideImpostors",
-            Modules.HideImpostors,
-            HideImpostorsModule()
-        ) { issue ->
-            HideImpostorsModule.Request(
-                issue.comments
-                    .map { c ->
-                        HideImpostorsModule.Comment(
-                            c.author.displayName,
-                            getGroups.partially1(c.author.name),
-                            c.updatedDate.toInstant(),
-                            c.visibility?.type,
-                            c.visibility?.value,
-                            ::restrictCommentToGroup.partially1(c).partially1("staff").partially1(c.body)
-                        )
-                    }
-            )
+        register("HideImpostors", Modules.HideImpostors, HideImpostorsModule()) { issue ->
+            HideImpostorsModule.Request(issue.getComments(jiraClient))
         }
 
-        register(
-            "KeepPrivate",
-            Modules.KeepPrivate,
-            KeepPrivateModule(config[Modules.KeepPrivate.tag])
-        ) { issue ->
+        register("KeepPrivate", Modules.KeepPrivate, KeepPrivateModule(config[Modules.KeepPrivate.tag])) { issue ->
             KeepPrivateModule.Request(
                 issue.security?.id,
-                getSecurityLevelId(issue.project.key),
+                issue.getSecurityLevelId(config),
                 issue.comments.map { c -> c.body },
-                ::updateSecurity.partially1(issue).partially1(getSecurityLevelId(issue.project.key)),
+                ::updateSecurity.partially1(issue).partially1(issue.getSecurityLevelId(config)),
                 ::addComment.partially1(issue).partially1(config[Modules.KeepPrivate.message])
             )
         }
 
-        register(
-            "TransferVersions",
-            Modules.TransferVersions,
-            TransferVersionsModule()
-        ) { issue ->
+        register("TransferVersions", Modules.TransferVersions, TransferVersionsModule()) { issue ->
             AbstractTransferFieldModule.Request(
                 issue.key,
-                issue.issueLinks
-                    .map { link ->
-                        AbstractTransferFieldModule.Link(
-                            link.type.name,
-                            link.outwardIssue != null,
-                            (
-                                    if (link.outwardIssue != null)
-                                        link.outwardIssue
-                                    else
-                                        link.inwardIssue
-                                    ) pipe { linkedIssue ->
-                                AbstractTransferFieldModule.LinkedIssue(
-                                    linkedIssue.key,
-                                    linkedIssue.status.name,
-                                    ::addAffectedVersionById.partially1(linkedIssue),
-                                    {
-                                        getIssue(jiraClient, linkedIssue.key) pipe { issueEither ->
-                                            issueEither.fold(
-                                                { it.left() },
-                                                { issue ->
-                                                    issue.versions
-                                                        .map { it.id }
-                                                        .right()
-                                                }
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        )
-                    },
+                issue.getLinks(jiraClient, ::addAffectedVersionById, ::getVersionsGetField),
                 issue.versions.map { it.id }
             )
         }
 
-        register(
-            "TransferLinks",
-            Modules.TransferLinks,
-            TransferLinksModule()
-        ) { issue ->
-            val links =
-                issue.issueLinks
-                    .map { link ->
-                        AbstractTransferFieldModule.Link(
-                            link.type.name,
-                            link.outwardIssue != null,
-                            (
-                                    if (link.outwardIssue != null)
-                                        link.outwardIssue
-                                    else
-                                        link.inwardIssue
-                                    ) pipe { linkedIssue ->
-                                AbstractTransferFieldModule.LinkedIssue<List<AbstractTransferFieldModule.Link<*, TransferLinksModule.LinkParam>>, TransferLinksModule.LinkParam>(
-                                    linkedIssue.key,
-                                    linkedIssue.status.name,
-                                    { createLink(linkedIssue, it.type, it.issue) },
-                                    {
-                                        getIssue(jiraClient, linkedIssue.key) pipe { issueEither ->
-                                            issueEither.fold(
-                                                { it.left() },
-                                                { issue ->
-                                                    issue.issueLinks
-                                                        .map { link ->
-                                                            AbstractTransferFieldModule.Link(
-                                                                link.type.name,
-                                                                link.outwardIssue != null,
-                                                                (
-                                                                        if (link.outwardIssue != null)
-                                                                            link.outwardIssue
-                                                                        else
-                                                                            link.inwardIssue
-                                                                        ) pipe { linkedIssue ->
-                                                                    AbstractTransferFieldModule.LinkedIssue<Nothing, TransferLinksModule.LinkParam>(
-                                                                        linkedIssue.key,
-                                                                        linkedIssue.status.name,
-                                                                        { createLink(linkedIssue, it.type, it.issue) },
-                                                                        { UnsupportedOperationException().left() }
-                                                                    )
-                                                                }
-                                                            )
-                                                        }
-                                                        .right()
-                                                }
-                                            )
-                                        }
-                                    }
-                                )
-                            },
-                            ::deleteLink.partially1(link)
-                        )
-                    }
+        // TODO FIX THIS SOMEHOW TO REUSE THE FUNCTIONS FROM TRANSFERVERSION - NEED HELP
+        /* register(
+             "TransferLinks",
+             Modules.TransferLinks,
+             TransferLinksModule()
+         ) { issue ->
+             val links =
+                 issue.getLinks(jiraClient, ::createLinkForTransfer, ::getIssueForLink.partially1(jiraClient))
 
-            AbstractTransferFieldModule.Request(
-                issue.key,
-                links,
-                links
-            )
-        }
 
-        register(
-            "Piracy",
-            Modules.Piracy,
-            PiracyModule(config[Modules.Piracy.piracySignatures])
-        ) { issue ->
+             AbstractTransferFieldModule.Request(
+                 issue.key,
+                 links,
+                 links
+             )
+         }*/
+
+        register("Piracy", Modules.Piracy, PiracyModule(config[Modules.Piracy.piracySignatures])) { issue ->
             PiracyModule.Request(
-                issue.getFieldAsString("environment"),
+                issue.getEnvironment(),
                 issue.summary,
                 issue.description,
                 ::resolveAs.partially1(issue).partially1("Invalid"),
@@ -393,9 +231,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         }
 
         register(
-            "Language",
-            Modules.Language,
-            LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
+            "Language", Modules.Language, LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
         ) { issue, lastRun ->
             LanguageModule.Request(
                 issue.createdDate.toInstant().toEpochMilli(),
@@ -403,10 +239,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.summary,
                 issue.description,
                 issue.security?.id,
-                getSecurityLevelId(issue.project.key),
+                issue.getSecurityLevelId(config),
                 ::getLanguage.partially1(config[Credentials.dandelionToken]),
                 { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
                 { language ->
+                    // Should we move this?
                     val translatedMessage = config[Modules.Language.messages][language]
                     val defaultMessage = config[Modules.Language.defaultMessage]
                     val text =
@@ -415,7 +252,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                             defaultMessage
                         ) else defaultMessage
 
-                    addRestrictedComment(issue, text, "helper")
+                    addRestrictedComment(
+                        issue,
+                        text,
+                        "helper"
+                    )
                 }
             )
         }
@@ -424,19 +265,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "RemoveNonStaffMeqs",
             Modules.RemoveNonStaffMeqs,
             RemoveNonStaffMeqsModule(config[Modules.RemoveNonStaffMeqs.removalReason])
-        ) { issue ->
-            RemoveNonStaffMeqsModule.Request(
-                issue.comments
-                    .map { c ->
-                        RemoveNonStaffMeqsModule.Comment(
-                            c.body,
-                            c.visibility?.type,
-                            c.visibility?.value,
-                            ::restrictCommentToGroup.partially1(c).partially1("staff")
-                        )
-                    }
-            )
-        }
+        ) { issue -> RemoveNonStaffMeqsModule.Request(issue.getComments(jiraClient)) }
 
         register(
             "RemoveTriagedMeqs",
@@ -447,15 +276,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             )
         ) { issue ->
             RemoveTriagedMeqsModule.Request(
-                issue.getCustomField(config[CustomFields.mojangPriorityField]),
-                issue.getFieldAsString(config[CustomFields.triagedTimeField]),
-                issue.comments
-                    .map { c ->
-                        RemoveTriagedMeqsModule.Comment(
-                            c.body,
-                            ::updateCommentBody.partially1(c)
-                        )
-                    }
+                issue.getPriority(config),
+                issue.getTriagedTime(config),
+                issue.getComments(jiraClient)
             )
         }
 
@@ -469,85 +292,33 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         ) { issue ->
             ReopenAwaitingModule.Request(
                 issue.resolution?.name,
-                (issue.getFieldAsString("created"))!!.toInstant(),
-                (issue.getFieldAsString("updated"))!!.toInstant(),
-                issue.comments
-                    .map { c ->
-                        ReopenAwaitingModule.Comment(
-                            c.updatedDate.toInstant().toEpochMilli(),
-                            c.createdDate.toInstant().toEpochMilli(),
-                            c.visibility?.type,
-                            c.visibility?.value,
-                            getGroups.partially1(c.author.name)
-                        )
-                    },
-                issue.changeLog.entries
-                    .flatMap { e ->
-                        e.items
-                            .map { i ->
-                                ReopenAwaitingModule.ChangeLogItem(
-                                    e.created.toInstant().toEpochMilli(),
-                                    i.toString
-                                )
-                            }
-                    },
+                issue.getCreated(),
+                issue.getUpdated(),
+                issue.getComments(jiraClient),
+                issue.getChangeLogEntries(jiraClient),
                 ::reopenIssue.partially1(issue)
             )
         }
 
-        register(
-            "ReplaceText",
-            Modules.ReplaceText,
-            ReplaceTextModule()
-        ) { issue, lastRun ->
+        register("ReplaceText", Modules.ReplaceText, ReplaceTextModule()) { issue, lastRun ->
             ReplaceTextModule.Request(
                 lastRun,
                 issue.description,
-                issue.comments
-                    .map { c ->
-                        ReplaceTextModule.Comment(
-                            c.updatedDate.toInstant().toEpochMilli(),
-                            c.body,
-                            ::updateCommentBody.partially1(c)
-                        )
-                    },
+                issue.getComments(jiraClient),
                 ::updateDescription.partially1(issue)
             )
         }
 
-        register(
-            "RevokeConfirmation",
-            Modules.RevokeConfirmation,
-            RevokeConfirmationModule()
-        ) { issue ->
+        register("RevokeConfirmation", Modules.RevokeConfirmation, RevokeConfirmationModule()) { issue ->
             RevokeConfirmationModule.Request(
-                issue.getCustomField(config[CustomFields.confirmationField]),
-                issue.changeLog.entries
-                    .flatMap { e ->
-                        e.items
-                            .map { i ->
-                                RevokeConfirmationModule.ChangeLogItem(
-                                    i.field,
-                                    i.toString,
-                                    e.created.toInstant(),
-                                    getGroups.partially1(e.author.name)
-                                )
-                            }
-                    },
-                ::updateConfirmation.partially1(issue)
-                    .partially1(config[CustomFields.confirmationField])
+                issue.getConfirmation(config),
+                issue.getChangeLogEntries(jiraClient),
+                ::updateConfirmation.partially1(issue).partially1(config[CustomFields.confirmationField])
             )
         }
 
-        register(
-            "ResolveTrash",
-            Modules.ResolveTrash,
-            ResolveTrashModule()
-        ) { issue ->
-            ResolveTrashModule.Request(
-                issue.project.key,
-                ::resolveAs.partially1(issue).partially1("Invalid")
-            )
+        register("ResolveTrash", Modules.ResolveTrash, ResolveTrashModule()) { issue ->
+            ResolveTrashModule.Request(issue.project.key, ::resolveAs.partially1(issue).partially1("Invalid"))
         }
 
         register(
@@ -563,19 +334,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             { issue ->
                 UpdateLinkedModule.Request(
                     issue.createdDate.toInstant(),
-                    issue.changeLog.entries
-                        .flatMap { e ->
-                            e.items
-                                .map { i ->
-                                    UpdateLinkedModule.ChangeLogItem(
-                                        i.field,
-                                        e.created.toInstant(),
-                                        i.fromString,
-                                        i.toString
-                                    )
-                                }
-                        },
-                    issue.getField(config[CustomFields.linked]) as? Double?,
+                    issue.getChangeLogEntries(jiraClient),
+                    issue.getLinked(config),
                     ::updateLinked.partially1(issue).partially1(config[CustomFields.linked])
                 )
             }

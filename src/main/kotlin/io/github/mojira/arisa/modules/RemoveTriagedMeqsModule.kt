@@ -5,16 +5,12 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.Comment
 
 class RemoveTriagedMeqsModule(
     private val meqsTags: List<String>,
     private val removalReason: String
 ) : Module<RemoveTriagedMeqsModule.Request> {
-    data class Comment(
-        val body: String,
-        val update: (String) -> Either<Throwable, Unit>
-    )
-
     data class Request(
         val priority: String?,
         val triagedTime: String?,

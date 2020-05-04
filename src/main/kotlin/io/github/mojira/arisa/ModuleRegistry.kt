@@ -17,6 +17,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.config.Arisa.PrivateSecurityLevel
+import io.github.mojira.arisa.infrastructure.config.FieldType
 import io.github.mojira.arisa.infrastructure.createLink
 import io.github.mojira.arisa.infrastructure.deleteAttachment
 import io.github.mojira.arisa.infrastructure.deleteLink
@@ -29,9 +30,9 @@ import io.github.mojira.arisa.infrastructure.resolveAs
 import io.github.mojira.arisa.infrastructure.restrictCommentToGroup
 import io.github.mojira.arisa.infrastructure.updateCHK
 import io.github.mojira.arisa.infrastructure.updateCommentBody
-import io.github.mojira.arisa.infrastructure.updateConfirmation
 import io.github.mojira.arisa.infrastructure.updateDescription
-import io.github.mojira.arisa.infrastructure.updateLinked
+import io.github.mojira.arisa.infrastructure.updateFieldByLiteralValue
+import io.github.mojira.arisa.infrastructure.updateFieldByValue
 import io.github.mojira.arisa.infrastructure.updateSecurity
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -53,7 +54,7 @@ import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
-import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.RevokeFieldChangesModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
@@ -159,7 +160,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             ConfirmParentModule.Request(
                 issue.getCustomField(config[CustomFields.confirmationField]),
                 issue.getField(config[CustomFields.linked]) as? Double?,
-                ::updateConfirmation
+                ::updateFieldByValue
                     .partially1(issue)
                     .partially1(config[CustomFields.confirmationField])
             )
@@ -517,26 +518,44 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         }
 
         register(
-            "RevokeConfirmation",
-            Modules.RevokeConfirmation,
-            RevokeConfirmationModule()
-        ) { issue ->
-            RevokeConfirmationModule.Request(
-                issue.getCustomField(config[CustomFields.confirmationField]),
+            "RevokeFieldChanges",
+            Modules.RevokeFieldChanges,
+            RevokeFieldChangesModule()
+        ) { issue, lastRun ->
+            RevokeFieldChangesModule.Request(
+                lastRun,
+                config[Modules.RevokeFieldChanges.fields].map { config ->
+                    RevokeFieldChangesModule.Field(
+                        config.fieldId,
+                        config.fieldName,
+                        when (config.fieldType) {
+                            FieldType.VALUE -> issue.getCustomField(config.fieldId)
+                            FieldType.DOUBLE -> (issue.getField(config.fieldId) as? Double?)?.toInt()?.toString()
+                            FieldType.STRING -> issue.getFieldAsString(config.fieldId)
+                        },
+                        config.defaultValue,
+                        config.permissionGroups,
+                        config.message,
+                        when (config.fieldType) {
+                            FieldType.VALUE -> ::updateFieldByValue.partially1(issue).partially1(config.fieldId)
+                            FieldType.STRING -> ::updateFieldByLiteralValue.partially1(issue).partially1(config.fieldId)
+                            FieldType.DOUBLE -> { value -> updateFieldByLiteralValue(issue, config.fieldId, value?.toDouble()) }
+                        }
+                    )
+                },
                 issue.changeLog.entries
                     .flatMap { e ->
                         e.items
                             .map { i ->
-                                RevokeConfirmationModule.ChangeLogItem(
+                                RevokeFieldChangesModule.ChangeLogItem(
                                     i.field,
                                     i.toString,
-                                    e.created.toInstant(),
+                                    e.created.toInstant().toEpochMilli(),
                                     getGroups.partially1(e.author.name)
                                 )
                             }
                     },
-                ::updateConfirmation.partially1(issue)
-                    .partially1(config[CustomFields.confirmationField])
+                ::addComment.partially1(issue)
             )
         }
 
@@ -577,7 +596,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                                 }
                         },
                     issue.getField(config[CustomFields.linked]) as? Double?,
-                    ::updateLinked.partially1(issue).partially1(config[CustomFields.linked])
+                    ::updateFieldByLiteralValue.partially1(issue).partially1(config[CustomFields.linked])
                 )
             }
         )

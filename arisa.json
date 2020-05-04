@@ -313,9 +313,6 @@
       "transferVersions": {
         "resolutions": [ "Duplicate" ]
       },
-      "transferLinks": {
-        "resolutions": [ "Duplicate" ]
-      },
       "replaceText": {
         "resolutions": [
           "Awaiting Response",

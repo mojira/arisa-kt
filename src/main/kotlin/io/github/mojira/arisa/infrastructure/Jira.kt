@@ -41,26 +41,23 @@ fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBloc
     }
 }
 
-fun updateFieldByValue(issue: Issue, fieldId: String, value: String?) = runBlocking {
+fun updateConfirmation(issue: Issue, confirmationField: String, value: String) = runBlocking {
     Either.catch {
-        val jsonValue = if (value != null)
-            JSONObject()
-        else
-            null
-        jsonValue?.set("value", value)
+        val jsonValue = JSONObject()
+        jsonValue["value"] = value
 
         issue
             .transition()
-            .field(fieldId, jsonValue)
+            .field(confirmationField, jsonValue)
             .execute("Update Issue")
     }
 }
 
-fun updateFieldByLiteralValue(issue: Issue, fieldId: String, value: Any?) = runBlocking {
+fun updateLinked(issue: Issue, linkedField: String, value: Double) = runBlocking {
     Either.catch {
         issue
             .transition()
-            .field(fieldId, value)
+            .field(linkedField, value)
             .execute("Update Issue")
     }
 }
@@ -97,8 +94,11 @@ fun addRestrictedComment(issue: Issue, comment: String, restrictionLevel: String
 
 fun resolveAs(issue: Issue, resolution: String) = runBlocking {
     Either.catch {
+        val resolutionJson = JSONObject()
+        resolutionJson["name"] = resolution
+
         issue.transition()
-            .field(Field.RESOLUTION, Field.valueByName(resolution))
+            .field(Field.RESOLUTION, resolutionJson)
             .execute("Resolve Issue")
     }
 }

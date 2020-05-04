@@ -58,7 +58,7 @@ jobs:
         user: arisakt
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
-          /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
+          /usr/bin/screen -ls | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
           sleep 1
           cd arisa-kt
           /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'

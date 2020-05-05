@@ -194,7 +194,7 @@ class RevokeConfirmationTest : StringSpec({
     }
 })
 
-fun getChangeLogItem(
+private fun getChangeLogItem(
     created: Instant = Instant.now(),
     field: String = "Confirmation Status",
     value: String = "Confirmed",

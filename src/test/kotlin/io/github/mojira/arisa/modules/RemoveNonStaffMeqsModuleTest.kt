@@ -32,7 +32,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             null,
             null,
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -51,7 +52,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             "group",
             "staff",
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -70,7 +72,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             null,
             null,
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -89,7 +92,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             null,
             null,
             { RuntimeException().left() },
-            { RuntimeException().left() })
+            { RuntimeException().left() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -110,7 +114,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             null,
             null,
             { RuntimeException().left() },
-            { RuntimeException().left() })
+            { RuntimeException().left() }
+        )
         val request = Request(listOf(comment, comment))
 
         val result = module(request)
@@ -131,7 +136,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             null,
             null,
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -150,7 +156,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             "group",
             "users",
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -169,7 +176,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             "user",
             "staff",
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
@@ -188,11 +196,13 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             null,
             null,
             { Unit.right() },
-            { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() })
+            { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }
+        )
         val request = Request(listOf(comment))
 
         val result = module(request)
 
         result.shouldBeRight(ModuleResponse)
     }
-})
+}
+        )

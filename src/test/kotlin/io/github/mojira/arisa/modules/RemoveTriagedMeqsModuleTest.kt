@@ -150,7 +150,16 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
 
     "should not replace MEQS of tags that aren't configured" {
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Test.")
-        val comment = Comment("MEQS_WAI\nMEQS_TRIVIAL\nI like QC.") { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC.").right() }
+        val comment = Comment(
+            "MEQS_WAI\nMEQS_TRIVIAL\nI like QC.",
+            "",
+            { emptyList() },
+            Instant.now(),
+            Instant.now(),
+            null,
+            null,
+            { Unit.right() },
+            { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC.").right() })
         val request = Request(null, "triaged", listOf(comment))
 
         val result = module(request)
@@ -160,7 +169,19 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
 
     "should replace MEQS of all configured tags" {
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI", "MEQS_WONTFIX"), "Test.")
-        val comment = Comment("MEQS_WAI\nMEQS_WONTFIX\nI like QC.") { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_ARISA_REMOVED_WONTFIX Removal Reason: Test.\nI like QC.").right() }
+        val comment = Comment(
+            "MEQS_WAI\nMEQS_WONTFIX\nI like QC.",
+            "",
+            { emptyList() },
+            Instant.now(),
+            Instant.now(),
+            null,
+            null,
+            { Unit.right() },
+            {
+                it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_ARISA_REMOVED_WONTFIX Removal Reason: Test.\nI like QC.")
+                    .right()
+            })
         val request = Request(null, "triaged", listOf(comment))
 
         val result = module(request)

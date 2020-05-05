@@ -71,8 +71,8 @@ fun JiraComment.toDomain(
     body,
     author.displayName,
     getGroups.partially1(author.name),
-    updatedDate.toInstant(),
     createdDate.toInstant(),
+    updatedDate.toInstant(),
     visibility?.type,
     visibility?.value,
     restrict.partially1(this).partially1("staff"),
@@ -146,8 +146,8 @@ fun getIssueForLink(jiraClient: JiraClient, issue: JiraIssue) =
 fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
     entry.created.toInstant(),
     field,
-    toString,
     fromString,
+    toString,
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 

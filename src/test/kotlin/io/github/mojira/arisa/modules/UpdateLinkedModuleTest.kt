@@ -55,8 +55,13 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is only a recently added link after the last Linked change" {
         val module = UpdateLinkedModule(1)
-        val linkedChange = ChangeLogItem(NOW.minusSeconds(2), "Linked", null, "1.0") { null }
-        val oldAddedLink = ChangeLogItem(NOW.minus(2, ChronoUnit.HOURS), "Link", null, "This issue is duplicated by MC-4") { null }
+        val linkedChange = ChangeLogItem(NOW.minusSeconds(2), "Linked", "1.0", null) { null }
+        val oldAddedLink = ChangeLogItem(
+            NOW.minus(2, ChronoUnit.HOURS),
+            "Link",
+            null,
+            "This issue is duplicated by MC-4"
+        ) { null }
         val request = Request(NOW.minus(3, ChronoUnit.HOURS), listOf(oldAddedLink, linkedChange, DUPLICATE_LINK), 0.0) { Unit.right() }
 
         val result = module(request)
@@ -110,7 +115,12 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should update if there is an old and a recent link" {
         val module = UpdateLinkedModule(1)
-        val oldAddedLink = ChangeLogItem(NOW.minus(2, ChronoUnit.HOURS), "Link", null, "This issue is duplicated by MC-4") { null }
+        val oldAddedLink = ChangeLogItem(
+            NOW.minus(2, ChronoUnit.HOURS),
+            "Link",
+            null,
+            "This issue is duplicated by MC-4"
+        ) { null }
         val request = Request(A_SECOND_AGO.minus(2, ChronoUnit.HOURS), listOf(oldAddedLink, DUPLICATE_LINK), null) { Unit.right() }
 
         val result = module(request)
@@ -122,8 +132,13 @@ class UpdateLinkedModuleTest : StringSpec({
         var linked = 1.0
         val module = UpdateLinkedModule(1)
         val addedLink = ChangeLogItem(NOW.minus(4, ChronoUnit.HOURS), "Link", null, "This issue is duplicated by MC-4") { null }
-        val linkedChange = ChangeLogItem(A_SECOND_AGO.minus(3, ChronoUnit.HOURS), "Linked", null, "1.0") { null }
-        val removedLink = ChangeLogItem(NOW.minus(2, ChronoUnit.HOURS), "Link", "This issue is duplicated by MC-4", null) { null }
+        val linkedChange = ChangeLogItem(A_SECOND_AGO.minus(3, ChronoUnit.HOURS), "Linked", "1.0", null) { null }
+        val removedLink = ChangeLogItem(
+            NOW.minus(2, ChronoUnit.HOURS),
+            "Link",
+            "This issue is duplicated by MC-4",
+            null
+        ) { null }
         val request = Request(A_SECOND_AGO.minus(4, ChronoUnit.HOURS), listOf(addedLink, linkedChange, removedLink), 1.0) { linked = it; Unit.right() }
 
         val result = module(request)

@@ -19,7 +19,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         listOf("staff", "global-moderators"),
         listOf("helper", "staff", "global-moderators")
     )
-    val AWAITING_RESOLVE = ChangeLogItem(NOW.minusSeconds(10), "", "Awaiting Response", "") { emptyList() }
+    val AWAITING_RESOLVE = ChangeLogItem(NOW.minusSeconds(10), "", "", "Awaiting Response") { emptyList() }
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = NOW.plusSeconds(3)
@@ -74,7 +74,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there were multiple resolves, but no comment after the last resolve." {
         val updated = NOW.plusSeconds(3)
-        val oldResolve = ChangeLogItem(NOW.minusSeconds(30), "", "Awaiting Response", "") { emptyList() }
+        val oldResolve = ChangeLogItem(NOW.minusSeconds(30), "", "", "Awaiting Response") { emptyList() }
         val comment = getComment(
             NOW.minusSeconds(20),
             NOW.minusSeconds(20)
@@ -154,7 +154,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should ignore changes that are not a resolve" {
         val updated = NOW.plusSeconds(3)
-        val change = ChangeLogItem(NOW.plusSeconds(3), "", "Confirmed", "") { emptyList() }
+        val change = ChangeLogItem(NOW.plusSeconds(3), "", "", "Confirmed") { emptyList() }
         val request = Request(
             "Awaiting Response",
             NOW,
@@ -250,8 +250,8 @@ private fun getComment(
     "",
     "",
     { authorGroups },
-    updated,
     created,
+    updated,
     visibilityType,
     visibilityValue,
     { Unit.right() },

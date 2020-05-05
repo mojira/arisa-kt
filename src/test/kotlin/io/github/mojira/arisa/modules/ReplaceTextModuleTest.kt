@@ -439,4 +439,4 @@ private fun getComment(
     created: Long,
     update: (String) -> Either<Throwable, Unit>
 ) =
-    Comment(body, "", { null }, Instant.now(), Instant.ofEpochMilli(created), null, null, { Unit.right() }, update)
+    Comment(body, "", { null }, Instant.ofEpochMilli(created), Instant.now(), null, null, { Unit.right() }, update)

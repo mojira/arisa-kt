@@ -200,4 +200,4 @@ private fun getChangeLogItem(
     value: String = "Confirmed",
     getAuthorGroups: () -> List<String>? = { emptyList() }
 ) =
-    ChangeLogItem(created, field, value, null, getAuthorGroups)
+    ChangeLogItem(created, field, null, value, getAuthorGroups)

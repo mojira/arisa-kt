@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.modules.ReopenAwaitingModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -40,7 +41,8 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is less than 2 seconds old" {
         val updated = NOW.plusSeconds(1)
-        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -59,10 +61,11 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is only a comment from before the resolve" {
         val updated = NOW.plusSeconds(3)
         val comment = getComment(
-            NOW.minusSeconds(20).toEpochMilli(),
-            NOW.minusSeconds(20).toEpochMilli()
+            NOW.minusSeconds(20),
+            NOW.minusSeconds(20)
         )
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -71,12 +74,18 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there were multiple resolves, but no comment after the last resolve." {
         val updated = NOW.plusSeconds(3)
-        val oldResolve = ChangeLogItem(NOW.minusSeconds(30).toEpochMilli(), "Awaiting Response")
+        val oldResolve = ChangeLogItem(NOW.minusSeconds(30), "Awaiting Response")
         val comment = getComment(
-            NOW.minusSeconds(20).toEpochMilli(),
-            NOW.minusSeconds(20).toEpochMilli()
+            NOW.minusSeconds(20),
+            NOW.minusSeconds(20)
         )
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(oldResolve, AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request(
+            "Awaiting Response",
+            NOW,
+            updated,
+            listOf(comment),
+            listOf(oldResolve, AWAITING_RESOLVE)
+        ) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -84,9 +93,10 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
-        val comment = getComment(NOW.plusSeconds(3).toEpochMilli())
+        val comment = getComment(NOW.plusSeconds(3))
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -96,7 +106,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when comment is restricted" {
         val comment = getComment(visibilityType = "group", visibilityValue = "helper")
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -106,7 +117,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when comment author is staff" {
         val comment = getComment(authorGroups = listOf("staff"))
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -115,7 +127,8 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return ModuleResponse when ticket is reopened" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -124,9 +137,15 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should grab the last comment" {
         val updated = NOW.plusSeconds(3)
-        val commentFail = getComment(NOW.plusSeconds(3).toEpochMilli())
+        val commentFail = getComment(NOW.plusSeconds(3))
         val commentSuccess = getComment()
-        val request = Request("Awaiting Response", NOW, updated, listOf(commentSuccess, commentFail), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request(
+            "Awaiting Response",
+            NOW,
+            updated,
+            listOf(commentSuccess, commentFail),
+            listOf(AWAITING_RESOLVE)
+        ) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -135,8 +154,14 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should ignore changes that are not a resolve" {
         val updated = NOW.plusSeconds(3)
-        val change = ChangeLogItem(NOW.plusSeconds(3).toEpochMilli(), "Confirmed")
-        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE, change)) { Unit.right() }
+        val change = ChangeLogItem(NOW.plusSeconds(3), "Confirmed")
+        val request = Request(
+            "Awaiting Response",
+            NOW,
+            updated,
+            listOf(getComment()),
+            listOf(AWAITING_RESOLVE, change)
+        ) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -145,7 +170,8 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should reopen when someone answered" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -155,7 +181,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should reopen when comment is restricted, but not to a group" {
         val updated = NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "not-a-group", visibilityValue = "helper")
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -165,7 +192,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should reopen when comment is restricted, but not to a blacklisted group" {
         val updated = NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "group", visibilityValue = "users")
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -175,7 +203,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should reopen when comment author has no groups" {
         val updated = NOW.plusSeconds(3)
         val comment = getComment(authorGroups = emptyList())
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -185,7 +214,8 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should reopen when comment author has no blacklisted groups" {
         val updated = NOW.plusSeconds(3)
         val comment = getComment(authorGroups = listOf("Users"))
-        val request = Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request =
+            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -194,7 +224,13 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all exceptions when reopening fails" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { RuntimeException().left() }
+        val request = Request(
+            "Awaiting Response",
+            NOW,
+            updated,
+            listOf(getComment()),
+            listOf(AWAITING_RESOLVE)
+        ) { RuntimeException().left() }
 
         val result = MODULE(request)
 
@@ -205,9 +241,18 @@ class ReopenAwaitingModuleTest : StringSpec({
 })
 
 private fun getComment(
-    updated: Long = NOW.toEpochMilli(),
-    created: Long = NOW.toEpochMilli(),
+    updated: Instant = NOW,
+    created: Instant = NOW,
     visibilityType: String? = null,
     visibilityValue: String? = null,
     authorGroups: List<String>? = null
-) = Comment(updated, created, visibilityType, visibilityValue) { authorGroups }
+) = Comment(
+    "",
+    "",
+    { authorGroups },
+    updated,
+    created,
+    visibilityType,
+    visibilityValue,
+    { Unit.right() },
+    { Unit.right() })

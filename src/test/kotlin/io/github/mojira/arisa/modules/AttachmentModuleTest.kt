@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.AttachmentModule.Attachment
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.modules.AttachmentModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

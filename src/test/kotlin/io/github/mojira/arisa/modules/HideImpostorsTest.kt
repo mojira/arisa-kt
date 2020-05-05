@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.HideImpostorsModule.Comment
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.modules.HideImpostorsModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

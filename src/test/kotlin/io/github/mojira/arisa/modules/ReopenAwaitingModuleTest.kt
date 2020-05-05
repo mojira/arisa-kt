@@ -2,8 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.ReopenAwaitingModule.ChangeLogItem
-import io.github.mojira.arisa.modules.ReopenAwaitingModule.Comment
+import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.modules.ReopenAwaitingModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

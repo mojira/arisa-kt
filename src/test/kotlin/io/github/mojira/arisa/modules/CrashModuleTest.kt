@@ -2,8 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import io.github.mojira.arisa.modules.CrashModule.Attachment
 import io.github.mojira.arisa.modules.CrashModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

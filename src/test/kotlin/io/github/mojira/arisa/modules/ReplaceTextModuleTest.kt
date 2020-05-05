@@ -1,7 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
-import io.github.mojira.arisa.modules.ReplaceTextModule.Comment
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.modules.ReplaceTextModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

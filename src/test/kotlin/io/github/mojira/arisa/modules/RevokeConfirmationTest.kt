@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.RevokeConfirmationModule.ChangeLogItem
+import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.modules.RevokeConfirmationModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

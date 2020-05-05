@@ -2,8 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Link
-import io.github.mojira.arisa.modules.AbstractTransferFieldModule.LinkedIssue
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

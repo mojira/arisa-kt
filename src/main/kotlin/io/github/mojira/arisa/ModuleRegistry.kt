@@ -8,6 +8,8 @@ import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkParam
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
@@ -18,6 +20,7 @@ import io.github.mojira.arisa.infrastructure.jira.addAffectedVersionById
 import io.github.mojira.arisa.infrastructure.jira.addComment
 import io.github.mojira.arisa.infrastructure.jira.addRestrictedComment
 import io.github.mojira.arisa.infrastructure.jira.createLink
+import io.github.mojira.arisa.infrastructure.jira.createLinkForTransfer
 import io.github.mojira.arisa.infrastructure.jira.deleteAttachment
 import io.github.mojira.arisa.infrastructure.jira.getAttachments
 import io.github.mojira.arisa.infrastructure.jira.getCHK
@@ -26,6 +29,7 @@ import io.github.mojira.arisa.infrastructure.jira.getComments
 import io.github.mojira.arisa.infrastructure.jira.getConfirmation
 import io.github.mojira.arisa.infrastructure.jira.getCreated
 import io.github.mojira.arisa.infrastructure.jira.getEnvironment
+import io.github.mojira.arisa.infrastructure.jira.getIssueForLink
 import io.github.mojira.arisa.infrastructure.jira.getLinked
 import io.github.mojira.arisa.infrastructure.jira.getLinks
 import io.github.mojira.arisa.infrastructure.jira.getPriority
@@ -63,6 +67,7 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
@@ -203,22 +208,24 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             )
         }
 
-        // TODO FIX THIS SOMEHOW TO REUSE THE FUNCTIONS FROM TRANSFERVERSION - NEED HELP
-        /* register(
+        register(
              "TransferLinks",
              Modules.TransferLinks,
              TransferLinksModule()
-         ) { issue ->
-             val links =
-                 issue.getLinks(jiraClient, ::createLinkForTransfer, ::getIssueForLink.partially1(jiraClient))
+        ) { issue ->
+            val links = issue.getLinks<List<Link<*, LinkParam>>, LinkParam>(
+                    jiraClient,
+                    ::createLinkForTransfer,
+                    ::getIssueForLink.partially1(jiraClient)
+                )
 
 
-             AbstractTransferFieldModule.Request(
-                 issue.key,
-                 links,
-                 links
-             )
-         }*/
+            AbstractTransferFieldModule.Request(
+                issue.key,
+                links,
+                links
+            )
+        }
 
         register("Piracy", Modules.Piracy, PiracyModule(config[Modules.Piracy.piracySignatures])) { issue ->
             PiracyModule.Request(

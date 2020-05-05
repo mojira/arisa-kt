@@ -67,7 +67,7 @@ class UpdateLinkedModule(
                 )
 
     private fun createdAfter(change: ChangeLogItem, lastUpdate: Instant) =
-       change.created.isAfter(lastUpdate)
+        change.created.isAfter(lastUpdate)
 
     private fun assertLinkNotAddedRecently(lastUpdate: Instant) =
         when {

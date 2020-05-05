@@ -14,4 +14,3 @@ data class Comment(
     val restrict: (String) -> Either<Throwable, Unit>,
     val update: (String) -> Either<Throwable, Unit>
 )
-

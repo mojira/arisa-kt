@@ -209,16 +209,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         }
 
         register(
-             "TransferLinks",
-             Modules.TransferLinks,
-             TransferLinksModule()
+            "TransferLinks",
+            Modules.TransferLinks,
+            TransferLinksModule()
         ) { issue ->
             val links = issue.getLinks<List<Link<*, LinkParam>>, LinkParam>(
                     jiraClient,
                     ::createLinkForTransfer,
                     ::getIssueForLink.partially1(jiraClient)
                 )
-
 
             AbstractTransferFieldModule.Request(
                 issue.key,

@@ -29,7 +29,7 @@ class ReopenAwaitingModule(
             val resolveTime = changeLog.last(::isAwaitingResolve)
                 .created
             val lastComment = comments.last()
-            assertGreaterThan(lastComment.created.toEpochMilli(), resolveTime).bind()
+            assertGreaterThan(lastComment.created.toEpochMilli(), resolveTime.toEpochMilli()).bind()
             assertUpdateWasNotCausedByEditingComment(
                 updated.toEpochMilli(), lastComment.updated.toEpochMilli(), lastComment.created.toEpochMilli()
             ).bind()

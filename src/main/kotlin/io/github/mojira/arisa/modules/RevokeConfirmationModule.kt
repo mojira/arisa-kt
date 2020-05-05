@@ -32,12 +32,11 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     private fun changedByVolunteer(item: ChangeLogItem) =
         !updateIsRecent(item) || item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 
-    private fun updateIsRecent(item: ChangeLogItem) = Instant.ofEpochMilli(
+    private fun updateIsRecent(item: ChangeLogItem) =
         item
             .created
-    )
-        .plus(1, ChronoUnit.DAYS)
-        .isAfter(Instant.now())
+            .plus(1, ChronoUnit.DAYS)
+            .isAfter(Instant.now())
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())

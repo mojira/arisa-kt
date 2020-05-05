@@ -144,7 +144,7 @@ fun getIssueForLink(jiraClient: JiraClient, issue: JiraIssue) =
     issue.getLinks(jiraClient, ::createLinkForTransfer, ::createLinkParam).right()
 
 fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
-    entry.created.toInstant().toEpochMilli(),
+    entry.created.toInstant(),
     field,
     toString,
     fromString,

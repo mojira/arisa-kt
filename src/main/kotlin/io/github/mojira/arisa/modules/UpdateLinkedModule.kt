@@ -23,9 +23,9 @@ class UpdateLinkedModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            val lastLinkedChange = (changeLogItems
+            val lastLinkedChange = changeLogItems
                 .lastOrNull(::isLinkedChange)
-                ?.created)?.map { Instant.ofEpochMilli(it) }
+                ?.created
                 ?: created
 
             val duplicates = changeLogItems.filter(::isDuplicateLinkChange)
@@ -41,7 +41,7 @@ class UpdateLinkedModule(
 
             val firstAddedLinkSinceLastUpdate = duplicates
                 .firstOrNull(::createdAfter.partially2(lastLinkedChange))
-                ?.created.let { Instant.ofEpochMilli(it) }
+                ?.created
 
             assertNotNull(firstAddedLinkSinceLastUpdate).bind()
             assertLinkNotAddedRecently(firstAddedLinkSinceLastUpdate!!).bind()
@@ -67,7 +67,7 @@ class UpdateLinkedModule(
                 )
 
     private fun createdAfter(change: ChangeLogItem, lastUpdate: Instant) =
-        Instant.ofEpochMilli(change.created).isAfter(lastUpdate)
+       change.created.isAfter(lastUpdate)
 
     private fun assertLinkNotAddedRecently(lastUpdate: Instant) =
         when {

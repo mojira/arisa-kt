@@ -18,7 +18,7 @@ class AttachmentModule(
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)
             val functions = attachmentsToDeleteFunction
                 .filter { (name, _) -> endsWithBlacklistedExtensionAdapter(name) }
-                .map { (_, remove) -> remove }
+                .map { it.remove }
             assertNotEmpty(functions).bind()
             tryRunAll(functions).bind()
         }

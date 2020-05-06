@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Comment
+import java.time.Instant
 
 class ReplaceTextModule(
     private val replacements: List<Pair<Regex, String>> = listOf(
@@ -13,7 +14,7 @@ class ReplaceTextModule(
     )
 ) : Module<ReplaceTextModule.Request> {
     data class Request(
-        val lastRun: Long,
+        val lastRun: Instant,
         val description: String?,
         val comments: List<Comment>,
         val updateDescription: (description: String) -> Either<Throwable, Unit>
@@ -24,7 +25,7 @@ class ReplaceTextModule(
             val needUpdateDescription = description != null && needReplacement(description)
 
             val filteredComments = comments
-                .filter { updatedAfterLastRun(it.updated.toEpochMilli(), lastRun) }
+                .filter { updatedAfterLastRun(it.updated, lastRun) }
                 .filter { needReplacement(it.body) }
 
             assertOr(
@@ -42,7 +43,7 @@ class ReplaceTextModule(
         }
     }
 
-    private fun updatedAfterLastRun(updated: Long, lastRun: Long) = updated > lastRun
+    private fun updatedAfterLastRun(updated: Instant, lastRun: Instant) = updated.isAfter(lastRun)
 
     private fun needReplacement(text: String) = replacements.any { (regex, _) -> text.contains(regex) }
 

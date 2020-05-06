@@ -79,8 +79,8 @@ import java.time.temporal.ChronoUnit
 class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
     data class Entry(
         val config: ModuleConfigSpec,
-        val getJql: (lastRun: Long) -> String,
-        val execute: (Issue, Long) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        val getJql: (lastRun: Instant) -> String,
+        val execute: (issue: Issue, lastRun: Instant) -> Pair<String, Either<ModuleError, ModuleResponse>>
     )
 
     private val modules = mutableListOf<Entry>()
@@ -92,7 +92,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
-        getJql: (lastRun: Long) -> String = { "updated > $it" },
+        getJql: (lastRun: Instant) -> String = { "updated > $it" },
         requestCreator: (Issue) -> T
     ) = register(name, config, module, getJql) { issue, _ -> requestCreator(issue) }
 
@@ -100,9 +100,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
-        getJql: (lastRun: Long) -> String = { "updated > $it" },
-        requestCreator: (Issue, Long) -> T
-    ) = { issue: Issue, lastRun: Long ->
+        getJql: (lastRun: Instant) -> String = { "updated > $it" },
+        requestCreator: (Issue, Instant) -> T
+    ) = { issue: Issue, lastRun: Instant ->
         name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
 
@@ -154,7 +154,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             CrashModule.Request(
                 issue.getAttachments { Unit.right() },
                 issue.description,
-                issue.createdDate,
+                issue.createdDate.toInstant(),
                 issue.getConfirmation(config),
                 issue.getPriority(config),
                 ::resolveAs.partially1(issue).partially1("Invalid"),
@@ -167,7 +167,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
 
         register("Empty", Modules.Empty, EmptyModule()) { issue, lastRun ->
             EmptyModule.Request(
-                issue.createdDate.toInstant().toEpochMilli(),
+                issue.createdDate.toInstant(),
                 lastRun,
                 issue.attachments.size,
                 issue.description,
@@ -240,7 +240,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             "Language", Modules.Language, LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
         ) { issue, lastRun ->
             LanguageModule.Request(
-                issue.createdDate.toInstant().toEpochMilli(),
+                issue.createdDate.toInstant(),
                 lastRun,
                 issue.summary,
                 issue.description,
@@ -334,7 +334,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             { lastRun ->
                 val now = Instant.now()
                 val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
-                val intervalEnd = intervalStart.minusMillis(now.minusMillis(lastRun).toEpochMilli())
+                val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
                 return@register "updated > $lastRun OR (updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()})"
             },
             { issue ->

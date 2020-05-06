@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.infrastructure
+package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking

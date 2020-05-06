@@ -5,6 +5,7 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
+import io.github.mojira.arisa.domain.ChangeLogItem
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -13,13 +14,6 @@ val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()
 class UpdateLinkedModule(
     private val updateInterval: Long
 ) : Module<UpdateLinkedModule.Request> {
-    data class ChangeLogItem(
-        val field: String,
-        val created: Instant,
-        val oldValue: String?,
-        val newValue: String?
-    )
-
     data class Request(
         val created: Instant,
         val changeLogItems: List<ChangeLogItem>,
@@ -61,16 +55,16 @@ class UpdateLinkedModule(
 
     private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-        change.newValue?.matches(DUPLICATE_REGEX) ?: false
+                change.changedTo?.matches(DUPLICATE_REGEX) ?: false
 
     private fun isDuplicateLinkRemovedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-        change.oldValue?.matches(DUPLICATE_REGEX) ?: false
+                change.changedFrom?.matches(DUPLICATE_REGEX) ?: false
 
     private fun isDuplicateLinkChange(change: ChangeLogItem) =
         change.field == "Link" && (
                 isDuplicateLinkAddedChange(change) || isDuplicateLinkRemovedChange(change)
-        )
+                )
 
     private fun createdAfter(change: ChangeLogItem, lastUpdate: Instant) =
         change.created.isAfter(lastUpdate)

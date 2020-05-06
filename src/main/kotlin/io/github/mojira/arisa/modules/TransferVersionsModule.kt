@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.LinkedIssue
 
 class TransferVersionsModule : AbstractTransferFieldModule<List<String>, String>() {
     override fun filterParents(issue: LinkedIssue<List<String>, *>, request: Request<List<String>, *>): Boolean {

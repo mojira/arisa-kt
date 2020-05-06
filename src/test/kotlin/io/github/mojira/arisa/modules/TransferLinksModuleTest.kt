@@ -2,10 +2,10 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Link
-import io.github.mojira.arisa.modules.AbstractTransferFieldModule.LinkedIssue
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkParam
+import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Request
-import io.github.mojira.arisa.modules.TransferLinksModule.LinkParam
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -58,7 +58,11 @@ class TransferLinksModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             false,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-1", "", { Unit.right() }, { emptyList<Link<*, LinkParam>>().right() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-1",
+                "",
+                { Unit.right() },
+                { emptyList<Link<*, LinkParam>>().right() })
         ) { Unit.right() }
         val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
@@ -91,7 +95,11 @@ class TransferLinksModuleTest : StringSpec({
         val linkToTransfer = Link(
             "Relates",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-2", "", { Unit.right() }, { emptyList<Link<*, LinkParam>>().right() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-2",
+                "",
+                { Unit.right() },
+                { emptyList<Link<*, LinkParam>>().right() })
         ) { linkRemoved = true; Unit.right() }
 
         val request = Request("", listOf(DUPLICATES_LINK, linkToTransfer), listOf(DUPLICATES_LINK, linkToTransfer))
@@ -109,7 +117,11 @@ class TransferLinksModuleTest : StringSpec({
         val duplicatesLink = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-1", "", { Unit.right() }, { listOf(RELATES_LINK).right() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-1",
+                "",
+                { Unit.right() },
+                { listOf(RELATES_LINK).right() })
         ) { parentLinkRemoved = true; Unit.right() }
         val request = Request("", listOf(duplicatesLink, RELATES_LINK), listOf(duplicatesLink, RELATES_LINK))
 
@@ -128,7 +140,11 @@ class TransferLinksModuleTest : StringSpec({
         val relatesLink2 = Link(
             "Relates",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-3", "", { Unit.right() }, { emptyList<Link<*, LinkParam>>().right() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-3",
+                "",
+                { Unit.right() },
+                { emptyList<Link<*, LinkParam>>().right() })
         ) { Unit.right() }
 
         val link = Link(
@@ -148,8 +164,12 @@ class TransferLinksModuleTest : StringSpec({
                 { emptyList<Link<*, LinkParam>>().right() }
             )
         ) { Unit.right() }
-        val request = Request("", listOf(link, RELATES_LINK, relatesLink2), listOf(link,
-            RELATES_LINK, relatesLink2))
+        val request = Request(
+            "", listOf(link, RELATES_LINK, relatesLink2), listOf(
+                link,
+                RELATES_LINK, relatesLink2
+            )
+        )
         val result = module(request)
 
         result.shouldBeRight(ModuleResponse)
@@ -191,9 +211,12 @@ class TransferLinksModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val request = Request("", listOf(duplicatesLink1, duplicatesLink2, RELATES_LINK), listOf(duplicatesLink1, duplicatesLink2,
-            RELATES_LINK
-        ))
+        val request = Request(
+            "", listOf(duplicatesLink1, duplicatesLink2, RELATES_LINK), listOf(
+                duplicatesLink1, duplicatesLink2,
+                RELATES_LINK
+            )
+        )
 
         val result = module(request)
 
@@ -352,7 +375,11 @@ class TransferLinksModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-1", "", { RuntimeException().left() }, { emptyList<Link<*, LinkParam>>().right() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-1",
+                "",
+                { RuntimeException().left() },
+                { emptyList<Link<*, LinkParam>>().right() })
         ) { Unit.right() }
         val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
@@ -369,7 +396,11 @@ class TransferLinksModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-1", "", { RuntimeException().left() }, { emptyList<Link<*, LinkParam>>().right() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-1",
+                "",
+                { RuntimeException().left() },
+                { emptyList<Link<*, LinkParam>>().right() })
         ) { Unit.right() }
 
         val request = Request(
@@ -390,7 +421,11 @@ class TransferLinksModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-1", "", { Unit.right() }, { RuntimeException().left() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-1",
+                "",
+                { Unit.right() },
+                { RuntimeException().left() })
         ) { Unit.right() }
 
         val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
@@ -408,7 +443,11 @@ class TransferLinksModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>("MC-1", "", { Unit.right() }, { RuntimeException().left() })
+            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
+                "MC-1",
+                "",
+                { Unit.right() },
+                { RuntimeException().left() })
         ) { Unit.right() }
 
         val request = Request("", listOf(link, link, RELATES_LINK), listOf(link, link, RELATES_LINK))

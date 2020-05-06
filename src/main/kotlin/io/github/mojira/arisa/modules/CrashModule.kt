@@ -11,7 +11,6 @@ import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Calendar
 import java.util.SortedMap
 
 class CrashModule(
@@ -110,14 +109,10 @@ class CrashModule(
     private fun isCrashAttachment(fileName: String) =
         crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
-    private fun isTextDocumentRecent(textDocument: TextDocument): Boolean {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -maxAttachmentAge)
-
-        return textDocument.created
+    private fun isTextDocumentRecent(textDocument: TextDocument) =
+        textDocument.created
             .plus(maxAttachmentAge.toLong(), ChronoUnit.DAYS)
             .isAfter(Instant.now())
-    }
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val getText = {

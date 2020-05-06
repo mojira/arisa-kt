@@ -42,7 +42,7 @@ git clone https://github.com/mojira/arisa-kt.git
 ```
 
 ```
-./gradlew build
+./gradlew clean build
 ```
 
 To run the bot, you need to run the following command and it will use the default configuration:
@@ -62,7 +62,7 @@ This project depends on the following projects, thanks to every developer who ma
 ## Contributing
 
 You're very welcome to contribute to this project! Please note that this project uses [ktlint](https://github.com/pinterest/ktlint) to ensure consistent code.
-It runs with `./gradlew build`, but you can also run it independently using `./gradlew ktlintCheck`.
+It runs with `./gradlew clean build`, but you can also run it independently using `./gradlew ktlintCheck`.
 
 ## Found a bug in Minecraft?
 

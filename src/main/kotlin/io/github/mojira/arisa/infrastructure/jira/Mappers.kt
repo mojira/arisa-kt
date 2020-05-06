@@ -118,7 +118,8 @@ fun <FIELD, FUNPARAM> JiraIssueLink.toDomain(
 ) = Link(
     type.name,
     outwardIssue != null,
-    (outwardIssue ?: inwardIssue).toLinkedIssue(jiraClient, setField, getField)
+    (outwardIssue ?: inwardIssue).toLinkedIssue(jiraClient, setField, getField),
+    ::deleteLink.partially1(this)
 )
 
 fun <FIELD, FUNPARAM> JiraIssue.getLinks(

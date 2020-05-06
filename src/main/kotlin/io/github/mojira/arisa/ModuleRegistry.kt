@@ -92,7 +92,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
-        getJql: (lastRun: Instant) -> String = { "updated > $it" },
+        getJql: (lastRun: Instant) -> String = { "updated > ${it.toEpochMilli()}" },
         requestCreator: (Issue) -> T
     ) = register(name, config, module, getJql) { issue, _ -> requestCreator(issue) }
 

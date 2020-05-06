@@ -25,7 +25,7 @@ class ReplaceTextModule(
             val needUpdateDescription = description != null && needReplacement(description)
 
             val filteredComments = comments
-                .filter { updatedAfterLastRun(it.updated.toEpochMilli(), lastRun) }
+                .filter { updatedAfterLastRun(it.updated, lastRun) }
                 .filter { needReplacement(it.body) }
 
             assertOr(
@@ -43,7 +43,7 @@ class ReplaceTextModule(
         }
     }
 
-    private fun updatedAfterLastRun(updated: Long, lastRun: Long) = updated > lastRun
+    private fun updatedAfterLastRun(updated: Instant, lastRun: Instant) = updated.isAfter(lastRun)
 
     private fun needReplacement(text: String) = replacements.any { (regex, _) -> text.contains(regex) }
 

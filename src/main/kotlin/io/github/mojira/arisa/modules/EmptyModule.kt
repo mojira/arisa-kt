@@ -34,7 +34,7 @@ class EmptyModule : Module<EmptyModule.Request> {
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = Either.fx {
         with(request) {
-            assertGreaterThan(created, lastRun).bind()
+            assertAfter(created, lastRun).bind()
             if (description != DESC_DEFAULT && environment != ENV_DEFAULT) {
                 assertNotBigger(description, MIN_LENGTH).bind()
                 assertNotBigger(environment, MIN_LENGTH).bind()

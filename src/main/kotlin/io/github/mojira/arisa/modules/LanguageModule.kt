@@ -25,7 +25,7 @@ class LanguageModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            assertGreaterThan(created, lastRun).bind()
+            assertAfter(created, lastRun).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
             val combinedText = "${(summary ?: "").trim()} ${(description ?: "").trim()}"

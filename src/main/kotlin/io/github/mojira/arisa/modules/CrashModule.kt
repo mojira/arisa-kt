@@ -10,8 +10,8 @@ import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
-import java.util.Date
 import java.util.SortedMap
 
 class CrashModule(
@@ -114,7 +114,11 @@ class CrashModule(
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -maxAttachmentAge)
 
-        return textDocument.created.after(calendar.time)
+        return Instant.now()
+            .isAfter(
+                textDocument.created
+                    .plus(maxAttachmentAge.toLong(), ChronoUnit.DAYS)
+            )
     }
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
@@ -128,6 +132,6 @@ class CrashModule(
 
     data class TextDocument(
         val getContent: () -> String,
-        val created: Date
+        val created: Instant
     )
 }

@@ -60,7 +60,7 @@ fun main() {
 
             lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
             lastRunTime = curRunTime
-        } else if(lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+        } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             // If last relog was more than a minute before and execution failed with an exception, relog
             jiraClient = connectToJira(
                 config[Arisa.Credentials.username],

@@ -13,7 +13,7 @@ import java.time.Instant
 class ReplaceTextModuleTest : StringSpec({
     val NOW = Instant.now()
     val A_SECOND_AGO = NOW.minusSeconds(1)
-    val TWO_SECONDS_AGO = NOW.minusSeconds(1)
+    val TWO_SECONDS_AGO = NOW.minusSeconds(2)
 
     val module = ReplaceTextModule()
     "should return OperationNotNeededModuleResponse when there is no description nor comment" {

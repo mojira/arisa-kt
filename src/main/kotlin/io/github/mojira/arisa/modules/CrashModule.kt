@@ -114,11 +114,9 @@ class CrashModule(
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -maxAttachmentAge)
 
-        return Instant.now()
-            .isAfter(
-                textDocument.created
-                    .plus(maxAttachmentAge.toLong(), ChronoUnit.DAYS)
-            )
+        return textDocument.created
+            .plus(maxAttachmentAge.toLong(), ChronoUnit.DAYS)
+            .isAfter(Instant.now())
     }
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {

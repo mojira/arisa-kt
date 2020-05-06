@@ -3,14 +3,9 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.complement
+import io.github.mojira.arisa.domain.Version
 
 class FutureVersionModule : Module<FutureVersionModule.Request> {
-    data class Version(
-        val released: Boolean,
-        val archived: Boolean,
-        val execute: () -> Either<Throwable, Unit>
-    )
-
     data class Request(
         val affectedVersions: List<Version>,
         val versions: List<Version>?,

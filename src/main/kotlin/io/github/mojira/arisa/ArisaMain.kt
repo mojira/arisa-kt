@@ -4,7 +4,7 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.connectToJira
+import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Instant

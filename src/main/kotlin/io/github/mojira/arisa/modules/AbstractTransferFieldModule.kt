@@ -5,23 +5,11 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Request
 
 abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIELD, FUNPARAM>> {
-    data class LinkedIssue<FIELD, FUNPARAM>(
-        val key: String,
-        val status: String,
-        val setField: (FUNPARAM) -> Either<Throwable, Unit>,
-        val getField: () -> Either<Throwable, FIELD>
-    )
-
-    data class Link<FIELD, FUNPARAM>(
-        val type: String,
-        val outwards: Boolean,
-        val issue: LinkedIssue<FIELD, FUNPARAM>,
-        val remove: () -> Either<Throwable, Unit> = { UnsupportedOperationException().left() }
-    )
-
     data class Request<FIELD, FUNPARAM>(
         val key: String,
         val links: List<Link<FIELD, FUNPARAM>>,

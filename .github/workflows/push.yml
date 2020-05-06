@@ -34,7 +34,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean installDist
     - name: Upload new libraries
-      uses: urielsalis/rsync-deploy@v1.1
+      uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -44,7 +44,7 @@ jobs:
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new binaries
-      uses: urielsalis/rsync-deploy@v1.1
+      uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -54,7 +54,7 @@ jobs:
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new configuration
-      uses: urielsalis/rsync-deploy@v1.3
+      uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22

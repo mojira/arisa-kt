@@ -337,7 +337,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 val now = Instant.now()
                 val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
                 val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
-                return@register "updated > $lastRun OR (updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()})"
+                return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()})"
             },
             { issue ->
                 UpdateLinkedModule.Request(

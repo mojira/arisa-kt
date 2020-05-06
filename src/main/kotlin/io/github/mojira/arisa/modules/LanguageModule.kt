@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import java.time.Instant
 
 class LanguageModule(
     val allowedLanguages: List<String> = listOf("en"),
@@ -11,8 +12,8 @@ class LanguageModule(
 ) : Module<LanguageModule.Request> {
 
     data class Request(
-        val created: Long,
-        val lastRun: Long,
+        val created: Instant,
+        val lastRun: Instant,
         val summary: String?,
         val description: String?,
         val securityLevel: String?,
@@ -24,7 +25,7 @@ class LanguageModule(
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            assertGreaterThan(created, lastRun).bind()
+            assertAfter(created, lastRun).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
             val combinedText = "${(summary ?: "").trim()} ${(description ?: "").trim()}"

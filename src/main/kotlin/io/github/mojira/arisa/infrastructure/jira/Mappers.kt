@@ -45,7 +45,7 @@ fun JiraIssue.getCreated() = getFieldAsString("created")!!.toInstant()
 fun JiraIssue.getUpdated() = getFieldAsString("created")!!.toInstant()
 
 fun JiraAttachment.toDomain(remove: (JiraAttachment) -> Either<Throwable, Unit>) = Attachment(
-    fileName, createdDate, remove.partially1(this), this::download
+    fileName, createdDate.toInstant(), remove.partially1(this), this::download
 )
 
 fun JiraIssue.getSecurityLevelId(config: Config) =

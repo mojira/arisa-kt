@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import java.time.Instant
 
 const val DESC_DEFAULT = """Put the summary of the bug you're having here
 
@@ -22,8 +23,8 @@ const val MIN_LENGTH = 5
 
 class EmptyModule : Module<EmptyModule.Request> {
     data class Request(
-        val created: Long,
-        val lastRun: Long,
+        val created: Instant,
+        val lastRun: Instant,
         val numAttachments: Int,
         val description: String?,
         val environment: String?,

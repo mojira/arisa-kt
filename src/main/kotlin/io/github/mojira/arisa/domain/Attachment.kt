@@ -1,11 +1,11 @@
 package io.github.mojira.arisa.domain
 
 import arrow.core.Either
-import java.util.Date
+import java.time.Instant
 
 data class Attachment(
     val name: String,
-    val created: Date,
+    val created: Instant,
     val remove: () -> Either<Throwable, Unit>,
     val getContent: () -> ByteArray
 )

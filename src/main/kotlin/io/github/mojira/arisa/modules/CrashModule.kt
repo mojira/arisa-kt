@@ -9,6 +9,7 @@ import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
+import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import java.util.SortedMap
@@ -23,7 +24,7 @@ class CrashModule(
     data class Request(
         val attachments: List<Attachment>,
         val body: String?,
-        val created: Date,
+        val created: Instant,
         val confirmationStatus: String?,
         val priority: String?,
         val resolveAsInvalid: () -> Either<Throwable, Unit>,

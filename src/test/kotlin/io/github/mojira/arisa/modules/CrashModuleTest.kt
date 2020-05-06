@@ -715,7 +715,7 @@ class CrashModuleTest : StringSpec({
             { EXAMPLE_CRASH.toByteArray() })
         val dupe = Attachment(
             "crash_modded.txt",
-           Instant.now().minusMillis(10000),
+            Instant.now().minusMillis(10000),
             { Unit.right() },
             { EXAMPLE_CRASH.toByteArray() })
         val request = Request(

@@ -13,7 +13,7 @@ import java.time.Instant
 class EmptyModuleTest : StringSpec({
     val NOW = Instant.now()
     val A_SECOND_AGO = NOW.minusSeconds(1)
-    
+
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
         val module = EmptyModule()
         val request = Request(

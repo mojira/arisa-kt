@@ -13,8 +13,8 @@ import java.time.Instant
 class ReplaceTextModuleTest : StringSpec({
     val NOW = Instant.now()
     val A_SECOND_AGO = NOW.minusSeconds(1)
-    val TWO_SECONDs_AGO = NOW.minusSeconds(1)
-    
+    val TWO_SECONDS_AGO = NOW.minusSeconds(1)
+
     val module = ReplaceTextModule()
     "should return OperationNotNeededModuleResponse when there is no description nor comment" {
         val request = Request(
@@ -33,7 +33,7 @@ class ReplaceTextModuleTest : StringSpec({
             A_SECOND_AGO,
             null,
             listOf(
-                getComment("https://bugs.mojang.com/browse/MC-1", TWO_SECONDs_AGO) { Unit.right() }
+                getComment("https://bugs.mojang.com/browse/MC-1", TWO_SECONDS_AGO) { Unit.right() }
             )
         ) { Unit.right() }
 

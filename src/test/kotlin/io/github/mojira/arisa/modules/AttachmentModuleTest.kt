@@ -9,10 +9,10 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import java.util.Date
+import java.time.Instant
 
 class AttachmentModuleTest : StringSpec({
-    val NOW = Date()
+    val NOW = Instant.now()
 
     "should return OperationNotNeededModuleResponse when there is no attachments" {
         val module = AttachmentModule(emptyList())

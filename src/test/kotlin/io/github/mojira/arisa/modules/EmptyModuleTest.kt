@@ -8,13 +8,17 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import java.time.Instant
 
 class EmptyModuleTest : StringSpec({
+    val NOW = Instant.now()
+    val A_SECOND_AGO = NOW.minusSeconds(1)
+    
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
         val module = EmptyModule()
         val request = Request(
-            0,
-            1,
+            A_SECOND_AGO,
+            NOW,
             0,
             null,
             null,
@@ -30,8 +34,8 @@ class EmptyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is a attachment and desc and env are correct" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             1,
             "asddsa",
             "asddsa",
@@ -47,8 +51,8 @@ class EmptyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no attachment and desc and env are correct" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             "asddsa",
             "asddsa",
@@ -64,8 +68,8 @@ class EmptyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is a attachment and no desc or env" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             1,
             null,
             null,
@@ -81,8 +85,8 @@ class EmptyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no attachment and no desc and env is correct" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             null,
             "asddsa",
@@ -98,8 +102,8 @@ class EmptyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no attachment and desc is correct and no env" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             "asdasd",
             null,
@@ -115,8 +119,8 @@ class EmptyModuleTest : StringSpec({
     "should resolve as invalid when there is no attachment and no desc or env" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             null,
             null,
@@ -132,8 +136,8 @@ class EmptyModuleTest : StringSpec({
     "should resolve as invalid when there is no attachment and desc is default and env is empty" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             DESC_DEFAULT,
             null,
@@ -149,8 +153,8 @@ class EmptyModuleTest : StringSpec({
     "should resolve as invalid when there is no attachment and desc is empty and env is default" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             null,
             ENV_DEFAULT,
@@ -166,8 +170,8 @@ class EmptyModuleTest : StringSpec({
     "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             "asd",
             "asd",
@@ -183,8 +187,8 @@ class EmptyModuleTest : StringSpec({
     "should return FailedModuleResponse when resolving fails" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             "asd",
             "asd",
@@ -202,8 +206,8 @@ class EmptyModuleTest : StringSpec({
     "should return FailedModuleResponse when adding comment fails" {
         val module = EmptyModule()
         val request = Request(
-            1,
-            0,
+            NOW,
+            A_SECOND_AGO,
             0,
             "asd",
             "asd",

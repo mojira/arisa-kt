@@ -20,12 +20,13 @@ fun main() {
         .from.env()
         .from.systemProperties()
 
-    val jiraClient =
+    var jiraClient =
         connectToJira(
             config[Arisa.Credentials.username],
             config[Arisa.Credentials.password],
             config[Arisa.Issues.url]
         )
+    var lastRelog = Instant.now()
 
     log.info("Connected to jira")
 
@@ -45,7 +46,7 @@ fun main() {
     val failedTickets = mutableSetOf<String>()
 
     val cache = QueryCache()
-    val moduleExecutor = ModuleExecutor(jiraClient, config, cache)
+    var moduleExecutor = ModuleExecutor(jiraClient, config, cache)
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
@@ -59,6 +60,14 @@ fun main() {
 
             lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
             lastRunTime = curRunTime
+        } else if(lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+            // If last relog was more than a minute before and execution failed with an exception, relog
+            jiraClient = connectToJira(
+                config[Arisa.Credentials.username],
+                config[Arisa.Credentials.password],
+                config[Arisa.Issues.url]
+            )
+            moduleExecutor = ModuleExecutor(jiraClient, config, cache)
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])

@@ -11,6 +11,7 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
+import java.time.Instant
 
 private const val MAX_RESULTS = 50
 
@@ -26,7 +27,7 @@ class ModuleExecutor(
         val failedTickets: Collection<String>
     )
 
-    fun execute(lastRun: Long, rerunTickets: Set<String>): ExecutionResults {
+    fun execute(lastRun: Instant, rerunTickets: Set<String>): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
 
         try {

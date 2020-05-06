@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import java.time.Instant
 
 interface Module<REQUEST> {
     operator fun invoke(request: REQUEST): Either<ModuleError, ModuleResponse>
@@ -87,6 +88,12 @@ fun <T> assertNotEquals(o1: T, o2: T) = if (o1 == o2) {
 }
 
 fun <T : Comparable<T>> assertGreaterThan(o1: T, o2: T) = if (o1 > o2) {
+    Unit.right()
+} else {
+    OperationNotNeededModuleResponse.left()
+}
+
+fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(instant2)) {
     Unit.right()
 } else {
     OperationNotNeededModuleResponse.left()

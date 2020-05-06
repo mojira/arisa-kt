@@ -38,8 +38,8 @@ fun main() {
 
     var lastRunTime =
         if (lastRun[0].isNotEmpty())
-            lastRun[0].toLong()
-        else Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli()
+            Instant.ofEpochMilli(lastRun[0].toLong())
+        else Instant.now().minus(5, ChronoUnit.MINUTES)
 
     var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
     val failedTickets = mutableSetOf<String>()
@@ -49,7 +49,7 @@ fun main() {
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
-        val curRunTime = Instant.now().toEpochMilli()
+        val curRunTime = Instant.now()
         val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
 
         if (executionResults.successful) {
@@ -57,7 +57,7 @@ fun main() {
             failedTickets.addAll(executionResults.failedTickets)
             val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
 
-            lastRunFile.writeText("$curRunTime$failed")
+            lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
             lastRunTime = curRunTime
         }
 

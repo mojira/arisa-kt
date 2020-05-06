@@ -42,7 +42,7 @@ fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.lin
 fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
 fun JiraIssue.getCreated() = getFieldAsString("created")!!.toInstant()
-fun JiraIssue.getUpdated() = getFieldAsString("created")!!.toInstant()
+fun JiraIssue.getUpdated() = getFieldAsString("updated")!!.toInstant()
 
 fun JiraAttachment.toDomain(remove: (JiraAttachment) -> Either<Throwable, Unit>) = Attachment(
     fileName, createdDate.toInstant(), remove.partially1(this), this::download

@@ -77,6 +77,8 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
+    val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
+
     data class Entry(
         val config: ModuleConfigSpec,
         val getJql: (lastRun: Instant) -> String,
@@ -92,7 +94,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
-        getJql: (lastRun: Instant) -> String = { "updated > ${it.toEpochMilli()}" },
+        getJql: (lastRun: Instant) -> String = DEFAULT_JQL,
         requestCreator: (Issue) -> T
     ) = register(name, config, module, getJql) { issue, _ -> requestCreator(issue) }
 
@@ -100,7 +102,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
         name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
-        getJql: (lastRun: Instant) -> String = { "updated > $it" },
+        getJql: (lastRun: Instant) -> String = DEFAULT_JQL,
         requestCreator: (Issue, Instant) -> T
     ) = { issue: Issue, lastRun: Instant ->
         name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)

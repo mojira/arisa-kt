@@ -11,6 +11,7 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
+import java.time.Instant
 
 private const val MAX_RESULTS = 50
 
@@ -26,7 +27,7 @@ class ModuleExecutor(
         val failedTickets: Collection<String>
     )
 
-    fun execute(lastRun: Long, rerunTickets: Set<String>): ExecutionResults {
+    fun execute(lastRun: Instant, rerunTickets: Set<String>): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
 
         try {
@@ -36,12 +37,12 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                registry.getModules().forEach { (config, exec) ->
+                registry.getModules().forEach { (config, getJql, exec) ->
                     executeModule(
                         config,
                         queryCache,
                         rerunTickets,
-                        lastRun,
+                        getJql(lastRun),
                         startAt,
                         failedTickets::add,
                         { missingResultsPage = true },
@@ -63,7 +64,7 @@ class ModuleExecutor(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         queryCache: QueryCache,
         rerunTickets: Collection<String>,
-        lastRun: Long,
+        moduleJql: String,
         startAt: Int,
         addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
@@ -78,7 +79,7 @@ class ModuleExecutor(
             else ""
         }
 
-        val jql = "$failedTicketsJQL(${config[moduleConfig.jql].format(lastRun)})"
+        val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
 
         queryCache.add(jql, issues)

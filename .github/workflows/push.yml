@@ -19,10 +19,22 @@ jobs:
         java-version: 1.8
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradlewrapper-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradlewrapper-
     - name: Build with Gradle
       run: ./gradlew clean installDist
     - name: Upload new libraries
-      uses: urielsalis/rsync-deploy@v1.1
+      uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -32,7 +44,7 @@ jobs:
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new binaries
-      uses: urielsalis/rsync-deploy@v1.1
+      uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -42,7 +54,7 @@ jobs:
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new configuration
-      uses: urielsalis/rsync-deploy@v1.1
+      uses: urielsalis/rsync-deploy@v1.4
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
@@ -58,9 +70,9 @@ jobs:
         user: arisakt
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |
-          /usr/bin/screen -ls | /bin/grep Detached | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
+          /usr/bin/screen -ls | /bin/egrep 'Detached|Attached' | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
           sleep 1
           cd arisa-kt
           /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'
-          
+
         args: "-tt"

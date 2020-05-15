@@ -9,7 +9,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-class ResolveTrashTest : StringSpec({
+class ResolveTrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when project is not TRASH" {
         val module = ResolveTrashModule()
         val request = Request("MC") { Unit.right() }

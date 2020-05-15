@@ -2,8 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.modules.FutureVersionModule.Request
-import io.github.mojira.arisa.modules.FutureVersionModule.Version
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec

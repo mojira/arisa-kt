@@ -4,7 +4,7 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.connectToJira
+import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Instant
@@ -20,12 +20,13 @@ fun main() {
         .from.env()
         .from.systemProperties()
 
-    val jiraClient =
+    var jiraClient =
         connectToJira(
             config[Arisa.Credentials.username],
             config[Arisa.Credentials.password],
             config[Arisa.Issues.url]
         )
+    var lastRelog = Instant.now()
 
     log.info("Connected to jira")
 
@@ -38,18 +39,18 @@ fun main() {
 
     var lastRunTime =
         if (lastRun[0].isNotEmpty())
-            lastRun[0].toLong()
-        else Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli()
+            Instant.ofEpochMilli(lastRun[0].toLong())
+        else Instant.now().minus(5, ChronoUnit.MINUTES)
 
     var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
     val failedTickets = mutableSetOf<String>()
 
     val cache = QueryCache()
-    val moduleExecutor = ModuleExecutor(jiraClient, config, cache)
+    var moduleExecutor = ModuleExecutor(jiraClient, config, cache)
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
-        val curRunTime = Instant.now().toEpochMilli()
+        val curRunTime = Instant.now()
         val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
 
         if (executionResults.successful) {
@@ -57,8 +58,16 @@ fun main() {
             failedTickets.addAll(executionResults.failedTickets)
             val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
 
-            lastRunFile.writeText("$curRunTime$failed")
+            lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
             lastRunTime = curRunTime
+        } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+            // If last relog was more than a minute before and execution failed with an exception, relog
+            jiraClient = connectToJira(
+                config[Arisa.Credentials.username],
+                config[Arisa.Credentials.password],
+                config[Arisa.Issues.url]
+            )
+            moduleExecutor = ModuleExecutor(jiraClient, config, cache)
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])

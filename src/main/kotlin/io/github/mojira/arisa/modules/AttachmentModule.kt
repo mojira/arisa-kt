@@ -3,15 +3,11 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.Attachment
 
 class AttachmentModule(
     private val extensionBlackList: List<String>
 ) : Module<AttachmentModule.Request> {
-
-    data class Attachment(
-        val name: String,
-        val remove: () -> Either<Throwable, Unit>
-    )
 
     data class Request(
         val attachmentsToDeleteFunction: List<Attachment>
@@ -22,7 +18,7 @@ class AttachmentModule(
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)
             val functions = attachmentsToDeleteFunction
                 .filter { (name, _) -> endsWithBlacklistedExtensionAdapter(name) }
-                .map { (_, remove) -> remove }
+                .map { it.remove }
             assertNotEmpty(functions).bind()
             tryRunAll(functions).bind()
         }

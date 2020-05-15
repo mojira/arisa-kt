@@ -2,28 +2,19 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.Comment
+import java.time.Instant
 
 class ReplaceTextModule(
-    private val replacements: List<Pair> = listOf(
-        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d\?/#])\]""".toRegex()),
-        Pair("""\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex()),
-        Pair("""(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex()),
-        Pair("""(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex())
+    private val replacements: List<Pair<Regex, String>> = listOf(
+        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
+        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
+        """(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
+        """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1"
     )
 ) : Module<ReplaceTextModule.Request> {
-    data class Pair(
-        val regex: Regex,
-        val replacement: String = "$1"
-    )
-
-    data class Comment(
-        val updated: Long,
-        val body: String,
-        val updateBody: (body: String) -> Either<Throwable, Unit>
-    )
-
     data class Request(
-        val lastRun: Long,
+        val lastRun: Instant,
         val description: String?,
         val comments: List<Comment>,
         val updateDescription: (description: String) -> Either<Throwable, Unit>
@@ -47,12 +38,12 @@ class ReplaceTextModule(
             }
 
             filteredComments.forEach {
-                it.updateBody(replace(it.body)).toFailedModuleEither().bind()
+                it.update(replace(it.body)).toFailedModuleEither().bind()
             }
         }
     }
 
-    private fun updatedAfterLastRun(updated: Long, lastRun: Long) = updated > lastRun
+    private fun updatedAfterLastRun(updated: Instant, lastRun: Instant) = updated.isAfter(lastRun)
 
     private fun needReplacement(text: String) = replacements.any { (regex, _) -> text.contains(regex) }
 

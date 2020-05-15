@@ -54,6 +54,9 @@ tasks {
 
     test {
         useJUnitPlatform()
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1 // Run with same number of cores
+        reports.html.isEnabled = false
+        reports.junitXml.isEnabled = false
     }
 }
 

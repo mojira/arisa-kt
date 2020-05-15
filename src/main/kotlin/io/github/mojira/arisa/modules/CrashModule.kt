@@ -4,12 +4,13 @@ import arrow.core.Either
 import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
-import java.util.Calendar
-import java.util.Date
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.SortedMap
 
 class CrashModule(
@@ -18,16 +19,11 @@ class CrashModule(
     private val maxAttachmentAge: Int,
     private val crashReader: CrashReader
 ) : Module<CrashModule.Request> {
-    data class Attachment(
-        val name: String,
-        val created: Date,
-        val getContent: () -> ByteArray
-    )
 
     data class Request(
         val attachments: List<Attachment>,
         val body: String?,
-        val created: Date,
+        val created: Instant,
         val confirmationStatus: String?,
         val priority: String?,
         val resolveAsInvalid: () -> Either<Throwable, Unit>,
@@ -113,12 +109,10 @@ class CrashModule(
     private fun isCrashAttachment(fileName: String) =
         crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
-    private fun isTextDocumentRecent(textDocument: TextDocument): Boolean {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -maxAttachmentAge)
-
-        return textDocument.created.after(calendar.time)
-    }
+    private fun isTextDocumentRecent(textDocument: TextDocument) =
+        textDocument.created
+            .plus(maxAttachmentAge.toLong(), ChronoUnit.DAYS)
+            .isAfter(Instant.now())
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val getText = {
@@ -131,6 +125,6 @@ class CrashModule(
 
     data class TextDocument(
         val getContent: () -> String,
-        val created: Date
+        val created: Instant
     )
 }

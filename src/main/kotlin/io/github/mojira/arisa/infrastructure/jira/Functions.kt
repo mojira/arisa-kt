@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.infrastructure
+package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import kotlinx.coroutines.runBlocking
@@ -6,6 +6,7 @@ import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
+import net.rcarz.jiraclient.IssueLink
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
@@ -102,9 +103,15 @@ fun resolveAs(issue: Issue, resolution: String) = runBlocking {
     }
 }
 
-fun link(issue: Issue, linkType: String, linkKey: String) = runBlocking {
+fun createLink(issue: Issue, linkType: String, linkKey: String) = runBlocking {
     Either.catch {
         issue.link(linkKey, linkType)
+    }
+}
+
+fun deleteLink(link: IssueLink) = runBlocking {
+    Either.catch {
+        link.delete()
     }
 }
 

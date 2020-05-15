@@ -3,15 +3,9 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.Comment
 
 class RemoveNonStaffMeqsModule(private val removalReason: String) : Module<RemoveNonStaffMeqsModule.Request> {
-    data class Comment(
-        val body: String,
-        val visibilityType: String?,
-        val visibilityValue: String?,
-        val update: (String) -> Either<Throwable, Unit>
-    )
-
     data class Request(
         val comments: List<Comment>
     )

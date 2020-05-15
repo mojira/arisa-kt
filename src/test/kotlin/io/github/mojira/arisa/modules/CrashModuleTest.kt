@@ -2,8 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import io.github.mojira.arisa.modules.CrashModule.Attachment
 import io.github.mojira.arisa.modules.CrashModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -13,9 +13,8 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import me.urielsalis.mccrashlib.CrashReader
-import java.util.Calendar
-import java.util.Calendar.DAY_OF_YEAR
-import java.util.Date
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 const val EXAMPLE_CRASH = """---- Minecraft Crash Report ----
 // Daisy, daisy...
@@ -173,7 +172,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -196,14 +195,10 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val calendar = Calendar.getInstance()
-        calendar.add(DAY_OF_YEAR, -42)
-        val time = calendar.time
-
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            time,
+            Instant.now().minus(42, ChronoUnit.DAYS),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -228,7 +223,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -254,7 +249,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -280,7 +275,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -303,15 +298,17 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val calendar = Calendar.getInstance()
-        calendar.add(DAY_OF_YEAR, -42)
-        val time = calendar.time
-        val attachment = Attachment("crash.txt", time) { EXAMPLE_CRASH.toByteArray() }
+        val attachment = Attachment(
+            "crash.txt",
+            Instant.now().minus(42, ChronoUnit.DAYS),
+            { Unit.right() },
+            { EXAMPLE_CRASH.toByteArray() }
+        )
 
         val request = Request(
             listOf(attachment),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -333,11 +330,12 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+        val attachment =
+            Attachment("crash.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
         val request = Request(
             listOf(attachment),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -360,11 +358,12 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.png", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+        val attachment =
+            Attachment("crash.png", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
         val request = Request(
             listOf(attachment),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -387,11 +386,15 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { SERVER_UNMODDED_CRASH.toByteArray() }
+        val attachment = Attachment(
+            "crash.txt",
+            Instant.now(),
+            { Unit.right() },
+            { SERVER_UNMODDED_CRASH.toByteArray() })
         val request = Request(
             listOf(attachment),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -418,7 +421,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             SERVER_MODDED_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -446,7 +449,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             SERVER_MODDED_CRASH_2,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -474,7 +477,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             MODDED_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -500,11 +503,12 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { MODDED_CRASH.toByteArray() }
+        val attachment =
+            Attachment("crash.txt", Instant.now(), { Unit.right() }, { MODDED_CRASH.toByteArray() })
         val request = Request(
             listOf(attachment),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -532,7 +536,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -557,11 +561,13 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val attachment = Attachment("crash.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+
+        val attachment =
+            Attachment("crash.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
         val request = Request(
             listOf(attachment),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -589,7 +595,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             JAVA_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -617,7 +623,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             JAVA_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -643,7 +649,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -669,13 +675,15 @@ class CrashModuleTest : StringSpec({
         )
         val modded = Attachment(
             "crash_modded.txt",
-            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000))
-        ) { EXAMPLE_CRASH.toByteArray() }
-        val dupe = Attachment("crash_dupe.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+            Instant.now().minusMillis(10000),
+            { Unit.right() },
+            { EXAMPLE_CRASH.toByteArray() })
+        val dupe =
+            Attachment("crash_dupe.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
         val request = Request(
             listOf(modded, dupe),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -700,15 +708,20 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val modded = Attachment("crash_modded.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
+        val modded = Attachment(
+            "crash_modded.txt",
+            Instant.now(),
+            { Unit.right() },
+            { EXAMPLE_CRASH.toByteArray() })
         val dupe = Attachment(
-            "crash_dupe.txt",
-            Date.from(Calendar.getInstance().time.toInstant().minusMillis(10000))
-        ) { EXAMPLE_CRASH.toByteArray() }
+            "crash_modded.txt",
+            Instant.now().minusMillis(10000),
+            { Unit.right() },
+            { EXAMPLE_CRASH.toByteArray() })
         val request = Request(
             listOf(dupe, modded),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -734,16 +747,19 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val calendar = Calendar.getInstance()
-        calendar.add(DAY_OF_YEAR, -1)
-        val yesterday = calendar.time
 
-        val fromNow = Attachment("recent.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
-        val fromYesterday = Attachment("crash_dupe.txt", yesterday) { EXAMPLE_CRASH_2.toByteArray() }
+        val fromNow =
+            Attachment("recent.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
+        val fromYesterday = Attachment(
+            "crash_dupe.txt",
+            Instant.now().minus(1, ChronoUnit.DAYS),
+            { Unit.right() },
+            { EXAMPLE_CRASH_2.toByteArray() }
+        )
         val request = Request(
             listOf(fromYesterday, fromNow),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -768,16 +784,18 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val calendar = Calendar.getInstance()
-        calendar.add(DAY_OF_YEAR, -1)
-        val yesterday = calendar.time
 
-        val fromNow = Attachment("recent.txt", Calendar.getInstance().time) { EXAMPLE_CRASH.toByteArray() }
-        val fromYesterday = Attachment("crash_dupe.txt", yesterday) { EXAMPLE_CRASH_2.toByteArray() }
+        val fromNow = Attachment("recent.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
+        val fromYesterday = Attachment(
+            "crash_dupe.txt",
+            Instant.now().minus(1, ChronoUnit.DAYS),
+            { Unit.right() },
+            { EXAMPLE_CRASH_2.toByteArray() }
+        )
         val request = Request(
             listOf(fromNow, fromYesterday),
             "",
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -802,7 +820,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             MODDED_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { RuntimeException().left() },
@@ -829,7 +847,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             MODDED_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -856,7 +874,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -883,7 +901,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -910,7 +928,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -939,7 +957,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             "Confirmed",
             NoPriority,
             { Unit.right() },
@@ -967,7 +985,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Calendar.getInstance().time,
+            Instant.now(),
             Unconfirmed,
             "Medium",
             { Unit.right() },

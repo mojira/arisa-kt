@@ -35,7 +35,6 @@ object Arisa : ConfigSpec() {
             val whitelist by optional<List<String>?>(null, description = "Optional. The projects this module should operate on. Default is arisa.issues.projects")
             val resolutions by optional(listOf("unresolved"), description = "Optional. The resolutions that should be considered for this module. Default is unresolved.")
             val excludedStatuses by optional(emptyList<String>(), description = "A list of statuses that are not considered for this module. Important for modules that resolve or update, as those transitions do not exist for Postponed.")
-            val jql by optional("updated > %s", description = "Optional. Jql query that should be used to fetch issues from this module %s will be replaced by the last time all queries successfully ran. Default is updated since last run.")
         }
 
         object Attachment : ModuleConfigSpec() {
@@ -103,9 +102,13 @@ object Arisa : ConfigSpec() {
 
         object ResolveTrash : ModuleConfigSpec()
 
-        object UpdateLinked : ModuleConfigSpec()
+        object UpdateLinked : ModuleConfigSpec() {
+            val updateInterval by optional(0L, description = "Interval in which the module should update the Linked field in hours")
+        }
 
         object TransferVersions : ModuleConfigSpec()
+
+        object TransferLinks : ModuleConfigSpec()
 
         object ReplaceText : ModuleConfigSpec()
     }

@@ -2,17 +2,11 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.ChangeLogItem
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
-    data class ChangeLogItem(
-        val field: String,
-        val newValue: String?,
-        val created: Instant,
-        val getAuthorGroups: () -> List<String>?
-    )
-
     data class Request(
         val confirmationStatus: String?,
         val changeLog: List<ChangeLogItem>,
@@ -25,7 +19,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
                 .filter(::isConfirmationChange)
                 .filter(::changedByVolunteer)
                 .lastOrNull()
-                ?.newValue.getOrDefault("Unconfirmed")
+                ?.changedTo.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()
             setConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
@@ -38,10 +32,11 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     private fun changedByVolunteer(item: ChangeLogItem) =
         !updateIsRecent(item) || item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 
-    private fun updateIsRecent(item: ChangeLogItem) = item
-        .created
-        .plus(1, ChronoUnit.DAYS)
-        .isAfter(Instant.now())
+    private fun updateIsRecent(item: ChangeLogItem) =
+        item
+            .created
+            .plus(1, ChronoUnit.DAYS)
+            .isAfter(Instant.now())
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())

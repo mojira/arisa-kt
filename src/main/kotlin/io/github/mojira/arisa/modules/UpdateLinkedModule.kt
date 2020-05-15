@@ -2,23 +2,79 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.core.left
+import arrow.core.right
+import arrow.syntax.function.partially2
+import io.github.mojira.arisa.domain.ChangeLogItem
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-class UpdateLinkedModule : Module<UpdateLinkedModule.Request> {
+val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()
+
+class UpdateLinkedModule(
+    private val updateInterval: Long
+) : Module<UpdateLinkedModule.Request> {
     data class Request(
-        val links: List<String>,
+        val created: Instant,
+        val changeLogItems: List<ChangeLogItem>,
         val linkedField: Double?,
-        val setLinks: (Double) -> Either<Throwable, Unit>
+        val setLinked: (Double) -> Either<Throwable, Unit>
     )
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
         Either.fx {
-            val duplicates = links.filter(::isDuplicate).size.toDouble()
-            assertNotEquals(duplicates, linkedField ?: 0.0).bind()
+            val lastLinkedChange = changeLogItems
+                .lastOrNull(::isLinkedChange)
+                ?.created
+                ?: created
 
-            setLinks(duplicates).toFailedModuleEither().bind()
+            val duplicates = changeLogItems.filter(::isDuplicateLinkChange)
+            val duplicatesAdded = duplicates
+                .filter(::isDuplicateLinkAddedChange)
+                .size
+            val duplicatesRemoved = duplicates
+                .filter(::isDuplicateLinkRemovedChange)
+                .size
+            val duplicateAmount = (duplicatesAdded - duplicatesRemoved).toDouble()
+
+            assertNotEquals(duplicateAmount, linkedField ?: 0.0).bind()
+
+            val firstAddedLinkSinceLastUpdate = duplicates
+                .firstOrNull(::createdAfter.partially2(lastLinkedChange))
+                ?.created
+
+            assertNotNull(firstAddedLinkSinceLastUpdate).bind()
+            assertLinkNotAddedRecently(firstAddedLinkSinceLastUpdate!!).bind()
+
+            setLinked(duplicateAmount).toFailedModuleEither().bind()
         }
     }
 
-    private fun isDuplicate(link: String) =
-        link == "Duplicate"
+    private fun isLinkedChange(change: ChangeLogItem) =
+        change.field == "Linked"
+
+    private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
+        change.field == "Link" &&
+                change.changedTo?.matches(DUPLICATE_REGEX) ?: false
+
+    private fun isDuplicateLinkRemovedChange(change: ChangeLogItem) =
+        change.field == "Link" &&
+                change.changedFrom?.matches(DUPLICATE_REGEX) ?: false
+
+    private fun isDuplicateLinkChange(change: ChangeLogItem) =
+        change.field == "Link" && (
+                isDuplicateLinkAddedChange(change) || isDuplicateLinkRemovedChange(change)
+                )
+
+    private fun createdAfter(change: ChangeLogItem, lastUpdate: Instant) =
+        change.created.isAfter(lastUpdate)
+
+    private fun assertLinkNotAddedRecently(lastUpdate: Instant) =
+        when {
+            lastUpdate
+                .isBefore(
+                    Instant.now().minus(updateInterval, ChronoUnit.HOURS)
+                ) -> Unit.right()
+            else -> OperationNotNeededModuleResponse.left()
+        }
 }

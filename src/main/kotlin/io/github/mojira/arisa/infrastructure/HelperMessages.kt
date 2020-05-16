@@ -63,6 +63,14 @@ data class HelperMessages(
         message
     }
 
+    /**
+     * Get a single message from helper messages.
+     * @param project The key of the project where the comment will be sent.
+     * @param key The key of the message in helper messages.
+     * @param filledText A string which will be used to replace all occurrences of `%s%` in the message.
+     * @param lang The language that should be used to localize the message. Defaults to `en`.
+     * In case the message hasn't been localized for the specific language, the default text will be used.
+     */
     fun getSingleMessage(
         project: String,
         key: String,
@@ -76,6 +84,16 @@ data class HelperMessages(
             .map { resolveVariables(it, project, lang) }
     }
 
+    /**
+     * Get a message combined from different message keys and localized languages that is ready for actual comment.
+     * @param project The key of the project where the comment will be sent.
+     * @param keys A list of messages keys in helper messages. These messages will be joined with a LF character (`\n`)
+     * @param filledTexts A list of texts that will be used to replace all occurrences of `%s%` in the corresponding
+     * message specified in `keys` with the same index as the text.
+     * @param lang The language that should be used to localize the message. Defaults to `en`.
+     * If the message for the specific language has a different value than the default message, the result will contain
+     * both the message for the specific language and the original message, joined by a horizontal ruler (`\n----\n`).
+     */
     fun getMessage(
         project: String,
         keys: List<String>,
@@ -90,7 +108,7 @@ data class HelperMessages(
         } else {
             val origin = getMessage(project, keys, filledTexts, "en")
             if (origin == target) {
-                target
+                origin
             } else {
                 "$target\n----\n$origin"
             }

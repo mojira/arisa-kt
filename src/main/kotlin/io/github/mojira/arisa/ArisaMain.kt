@@ -2,8 +2,8 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
-import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import org.slf4j.LoggerFactory
@@ -47,10 +47,9 @@ fun main() {
     val failedTickets = mutableSetOf<String>()
 
     val cache = QueryCache()
-    var moduleExecutor = ModuleExecutor(jiraClient, config, cache)
 
     val helperMessagesFile = File("helper-messages.json")
-    val helperMessages = HelperMessages.download().fold(
+    val helperMessages = HelperMessages.fetch().fold(
         {
             HelperMessages.deserialize(
                 if (helperMessagesFile.exists()) {
@@ -60,8 +59,13 @@ fun main() {
                 }
             )!!
         },
-        { it }
+        {
+            helperMessagesFile.writeText(it.serialize())
+            it
+        }
     )
+
+    var moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
@@ -82,7 +86,7 @@ fun main() {
                 config[Arisa.Credentials.password],
                 config[Arisa.Issues.url]
             )
-            moduleExecutor = ModuleExecutor(jiraClient, config, cache)
+            moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])

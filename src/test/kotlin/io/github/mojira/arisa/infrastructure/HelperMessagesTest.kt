@@ -7,132 +7,150 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class HelperMessagesTest : StringSpec({
-    val messages = HelperMessages.deserialize("""
+    val messages = HelperMessages.deserialize(
+        """
         {
             "variables": {
-                "quick_links": [
+                "variable": [
                     {
                         "project": "mc",
-                        "value": "*Quick Links*:\n📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]",
-                        "localedValue": {
-                            "ab": "XYZ"
+                        "value": "variable for MC",
+                        "localizedValues": {
+                            "ab": "abababab aba MC"
                         }
                     },
                     {
                         "project": "mcd",
-                        "value": "*Quick Links*:\n📓 [Issue Guidelines|https://bugs.mojang.com/projects/MCD/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki] -- 📖 [FAQs|https://help.minecraft.net/hc/en-us/articles/360041345271]"
-                    }
-                ],
-                "project_id": [
-                    {
-                        "project": "mc",
-                        "value": "MC"
-                    },
-                    {
-                        "project": "mcd",
-                        "value": "MCD"
+                        "value": "variable for MCD"
                     }
                 ]
             },
             "messages": {
-                "account-issue": [
+                "normal": [
                     {
-                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
-                        "name": "Account issue",
-                        "message": "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n%quick_links%",
-                        "localedMessage": {
-                            "ab": "ABC %quick_links%"
+                        "project": "mc",
+                        "name": "Normal message",
+                        "message": "Normal message",
+                        "localizedMessages": {
+                            "ab": "Ababab abababa"
                         },
                         "fillname": []
                     }
                 ],
-                "duplicate-fixed": [
+                "normal-list-filter": [
                     {
                         "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
-                        "name": "Duplicate (fixed)",
-                        "message": "*Thank you for your report!*\nWe're actually already tracking this issue in *%s%*, so I've resolved and linked this ticket as a duplicate.\n\nThat ticket has already been resolved as Fixed. The fix will arrive in the next version or is already included in the latest development version of the game, you can check the Fix Version/s field in that ticket to learn more.\n\nIf you haven't already, you might like to make use of the [*+search feature+*|https://bugs.mojang.com/issues/?jql=project=%project_id%] to see if the issue has already been mentioned.\n\n%quick_links%",
-                        "fillname": ["Enter parent issue ID"]
-                    }
-                ],
-                "panel-private-issue": [
-                    {
-                        "project": "mc",
-                        "name": "Panel - Private issue",
-                        "message": "{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}\n",
+                        "name": "Normal message with a list filter",
+                        "message": "Normal message with a list filter",
                         "fillname": []
                     }
                 ],
-                "panel-future-version": [
+                "with-variable": [
                     {
-                        "project": ["mc", "mcpe", "mcl", "mce"],
-                        "name": "Panel - Future Version",
-                        "message": "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n",
+                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "name": "With variable",
+                        "message": "With %variable%",
+                        "localizedMessages": {
+                            "ab": "Abab %variable%"
+                        },
+                        "fillname": []
+                    }
+                ],
+                "with-placeholder": [
+                    {
+                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "name": "With placeholder",
+                        "message": "With %s%",
+                        "fillname": ["Placeholder"]
+                    }
+                ],
+                "i-am-a-bot": [
+                    {
+                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "name": "I am a Bot",
+                        "message": "~{color:#888}-- I am a bot.{color}~",
+                        "localizedMessages": {
+                            "ab": "~{color:#888}-- A ba b aba.{color}~"
+                        },
                         "fillname": []
                     }
                 ]
             }
         }
-    """.trimIndent())!!
+    """.trimIndent()
+    )!!
     "should return Error when there is no such message" {
-        val result = messages.getMessage("!@#%^&*", "MC")
+        val result = messages.getSingleMessage("MC", "!@#%^&*")
 
         result.shouldBeLeft()
         result.a should { it is Error }
         (result.a as Error).message shouldBe "Failed to find message for key !@#%^&* under project MC"
     }
     "should return Error when the message doesn't have a value for the project" {
-        val result = messages.getMessage("panel-private-issue", "MCTEST")
+        val result = messages.getSingleMessage("MCTEST", "normal")
 
         result.shouldBeLeft()
         result.a should { it is Error }
-        (result.a as Error).message shouldBe "Failed to find message for key panel-private-issue under project MCTEST"
+        (result.a as Error).message shouldBe "Failed to find message for key normal under project MCTEST"
     }
     "should return the message when the project matches a string filter" {
-        val result = messages.getMessage("panel-private-issue", "MC")
+        val result = messages.getSingleMessage("MC", "normal")
 
         result.shouldBeRight()
-        result.b shouldBe "{panel:borderColor=orange}(!) Please do not mark issues as _private_, unless your bug report is an exploit or contains information about your username or server.{panel}\n"
+        result.b shouldBe "Normal message"
     }
     "should return the message when the project matches a list filter" {
-        val result = messages.getMessage("panel-future-version", "MC")
+        val result = messages.getSingleMessage("MC", "normal-list-filter")
 
         result.shouldBeRight()
-        result.b shouldBe "{panel:borderColor=orange}(!) Please do not mark _Unreleased Versions_ as affected. You don't have access to them yet.{panel}\n"
+        result.b shouldBe "Normal message with a list filter"
     }
     "should replace the variable with the value for MC project" {
-        val result = messages.getMessage("account-issue", "MC")
+        val result = messages.getSingleMessage("MC", "with-variable")
 
         result.shouldBeRight()
-        result.b shouldBe "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
+        result.b shouldBe "With variable for MC"
     }
     "should replace the variable with the value for MCD project" {
-        val result = messages.getMessage("account-issue", "MCD")
+        val result = messages.getSingleMessage("MCD", "with-variable")
 
         result.shouldBeRight()
-        result.b shouldBe "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MCD/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki] -- \uD83D\uDCD6 [FAQs|https://help.minecraft.net/hc/en-us/articles/360041345271]"
+        result.b shouldBe "With variable for MCD"
     }
     "should replace the variable with an empty string for MCPE project" {
-        val result = messages.getMessage("account-issue", "MCPE")
+        val result = messages.getSingleMessage("MCPE", "with-variable")
 
         result.shouldBeRight()
-        result.b shouldBe "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n"
+        result.b shouldBe "With "
     }
     "should replace the placeholder with filled text" {
-        val result = messages.getMessage("duplicate-fixed", "MC", "MC-4")
+        val result = messages.getSingleMessage("MC", "with-placeholder", "MC-4")
 
         result.shouldBeRight()
-        result.b shouldBe "*Thank you for your report!*\nWe're actually already tracking this issue in *MC-4*, so I've resolved and linked this ticket as a duplicate.\n\nThat ticket has already been resolved as Fixed. The fix will arrive in the next version or is already included in the latest development version of the game, you can check the Fix Version/s field in that ticket to learn more.\n\nIf you haven't already, you might like to make use of the [*+search feature+*|https://bugs.mojang.com/issues/?jql=project=MC] to see if the issue has already been mentioned.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
+        result.b shouldBe "With MC-4"
     }
     "should use the original value when the lang doesn't exist" {
-        val result = messages.getMessage("account-issue", "MC", lang = "cd")
+        val result = messages.getSingleMessage("MC", "normal", lang = "cd")
 
         result.shouldBeRight()
-        result.b shouldBe "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
+        result.b shouldBe "Normal message"
     }
-    "should use the corresponding localed value" {
-        val result = messages.getMessage("account-issue", "MC", lang = "ab")
 
-        result.shouldBeRight()
-        result.b shouldBe "ABC XYZ"
+    "should combine multiple messages correctly" {
+        val result = messages.getMessage("MC", listOf("normal", "i-am-a-bot"))
+
+        result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
+    }
+    "should prepend localized messages" {
+        val result = messages.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "ab")
+
+        result shouldBe "Ababab abababa\n~{color:#888}-- A ba b aba.{color}~" +
+                "\n----\n" +
+                "Normal message\n~{color:#888}-- I am a bot.{color}~"
+    }
+    "should only contain original message when the lang doesn't exist" {
+        val result = messages.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "cd")
+
+        result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
 })

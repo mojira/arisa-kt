@@ -7,7 +7,7 @@ import java.net.URL
 import java.net.URLConnection
 
 typealias ProjectFilter = Any
-typealias LocaledValue = Map<String, String>
+typealias LocalizedValues = Map<String, String>
 
 data class HelperMessages(
     val variables: Map<String, List<Variable>>,
@@ -16,14 +16,15 @@ data class HelperMessages(
     data class Variable(
         val project: ProjectFilter,
         val value: String,
-        val localedValue: LocaledValue? = null
+        val localizedValues: LocalizedValues? = null
     )
+
     data class Message(
         val project: ProjectFilter,
         val name: String,
         val message: String,
         val fillname: List<String>,
-        val localedMessage: LocaledValue? = null
+        val localizedMessages: LocalizedValues? = null
     )
 
     private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {
@@ -32,9 +33,9 @@ data class HelperMessages(
         else -> false
     }
 
-    private fun localeValue(value: String, localedValue: LocaledValue?, lang: String) =
-        if (lang != "en" && localedValue != null) {
-            localedValue[lang] ?: value
+    private fun localizeValue(value: String, localizedValues: LocalizedValues?, lang: String) =
+        if (lang != "en" && localizedValues != null) {
+            localizedValues[lang] ?: value
         } else {
             value
         }
@@ -42,7 +43,7 @@ data class HelperMessages(
     private fun resolveVariables(message: String, project: String, lang: String): String {
         return variables.entries.fold(message) { message, (key, list) ->
             val variable = list.find { isProjectMatch(project, it.project) }
-            message.replace("%$key%", localeValue(variable?.value ?: "", variable?.localedValue, lang))
+            message.replace("%$key%", localizeValue(variable?.value ?: "", variable?.localizedValues, lang))
         }
     }
 
@@ -50,19 +51,61 @@ data class HelperMessages(
         return message.replace("%s%", filledText ?: "")
     }
 
-    fun getMessage(key: String, project: String, filledText: String? = null, lang: String = "en"): Either<Error, String> =
-        messages[key]?.find { isProjectMatch(project, it.project) }
+    private fun appendOriginalMessageIfLocalized(
+        message: String,
+        project: String,
+        key: String,
+        filledText: String? = null,
+        isLocalized: Boolean
+    ) = if (isLocalized) {
+        "$message\n${getSingleMessage(project, key, filledText).fold({ "" }, { it })}"
+    } else {
+        message
+    }
+
+    fun getSingleMessage(
+        project: String,
+        key: String,
+        filledText: String? = null,
+        lang: String = "en"
+    ): Either<Error, String> {
+        return messages[key]?.find { isProjectMatch(project, it.project) }
             .rightIfNotNull { Error("Failed to find message for key $key under project $project") }
-            .map { localeValue(it.message, it.localedMessage, lang) }
-            .map { resolveVariables(it, project, lang) }
+            .map { localizeValue(it.message, it.localizedMessages, lang) }
             .map { resolvePlaceholder(it, filledText) }
+            .map { resolveVariables(it, project, lang) }
+    }
+
+    fun getMessage(
+        project: String,
+        keys: List<String>,
+        filledTexts: List<String?> = emptyList<String?>(),
+        lang: String = "en"
+    ): String {
+        val target = keys.mapIndexed { i, key -> getSingleMessage(project, key, filledTexts.getOrNull(i), lang) }
+            .map { either -> either.fold({ "" }, { it }) }
+            .joinToString("\n")
+        return if (lang == "en") {
+            target
+        } else {
+            val origin = getMessage(project, keys, filledTexts, "en")
+            if (origin == target) {
+                target
+            } else {
+                "$target\n----\n$origin"
+            }
+        }
+    }
+
+    fun serialize() = Klaxon().toJsonString(this)
 
     companion object {
-        private const val url = "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
+        private const val url =
+            "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
 
         fun deserialize(json: String) = Klaxon().parse<HelperMessages>(json)
 
-        fun download() = with(URL(url).openConnection() as URLConnection) {
+        fun fetch() = with(URL(url).openConnection() as URLConnection) {
             deserialize(content as String).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
         }
     }

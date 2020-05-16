@@ -58,7 +58,7 @@
       },
       "piracy": {
         "excludedStatuses": ["Postponed"],
-        "message": ["pirated-minecraft", "i-am-a-bot"],
+        "message": "pirated-minecraft",
         "piracySignatures": [
           "Minecraft Launcher null",
           "Bootstrap 0",
@@ -99,7 +99,7 @@
         "removalReason": "Ticket has been triaged."
       },
       "futureVersion": {
-        "message": ["panel-future-version", "i-am-a-bot"]
+        "message": "panel-future-version"
       },
       "chk": {
         "excludedStatuses": ["Postponed"],
@@ -138,7 +138,7 @@
       },
       "empty": {
         "excludedStatuses": ["Postponed"],
-        "message": ["incomplete", "i-am-a-bot"]
+        "message": "incomplete"
       },
       "crash": {
         "excludedStatuses": ["Postponed"],
@@ -152,8 +152,8 @@
           "MCL",
           "MCTEST"
         ],
-        "duplicateMessage": ["duplicate-tech", "i-am-a-bot"],
-        "moddedMessage": ["modified-game", "i-am-a-bot"],
+        "duplicateMessage": "duplicate-tech",
+        "moddedMessage": "modified-game",
         "duplicates": [
           {
             "type": "minecraft",
@@ -232,7 +232,7 @@
           "Works As Intended"
         ],
         "tag": "MEQS_KEEP_PRIVATE",
-        "message": ["panel-unmark-private-issue", "i-am-a-bot"]
+        "message": "panel-unmark-private-issue"
       },
       "language": {
         "excludedStatuses": ["Postponed"],

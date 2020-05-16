@@ -51,18 +51,6 @@ data class HelperMessages(
         return message.replace("%s%", filledText ?: "")
     }
 
-    private fun appendOriginalMessageIfLocalized(
-        message: String,
-        project: String,
-        key: String,
-        filledText: String? = null,
-        isLocalized: Boolean
-    ) = if (isLocalized) {
-        "$message\n${getSingleMessage(project, key, filledText).fold({ "" }, { it })}"
-    } else {
-        message
-    }
-
     /**
      * Get a single message from helper messages.
      * @param project The key of the project where the comment will be sent.

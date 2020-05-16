@@ -1,10 +1,8 @@
 package io.github.mojira.arisa.infrastructure
 
-import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.equality.shouldBeEqualToUsingFields
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
@@ -15,7 +13,10 @@ class HelperMessagesTest : StringSpec({
                 "quick_links": [
                     {
                         "project": "mc",
-                        "value": "*Quick Links*:\n📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
+                        "value": "*Quick Links*:\n📓 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- 💬 [Community Support|https://discord.gg/58Sxm23] -- 📧 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- 📖 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]",
+                        "localedValue": {
+                            "ab": "XYZ"
+                        }
                     },
                     {
                         "project": "mcd",
@@ -39,6 +40,9 @@ class HelperMessagesTest : StringSpec({
                         "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
                         "name": "Account issue",
                         "message": "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n%quick_links%",
+                        "localedMessage": {
+                            "ab": "ABC %quick_links%"
+                        },
                         "fillname": []
                     }
                 ],
@@ -118,5 +122,17 @@ class HelperMessagesTest : StringSpec({
 
         result.shouldBeRight()
         result.b shouldBe "*Thank you for your report!*\nWe're actually already tracking this issue in *MC-4*, so I've resolved and linked this ticket as a duplicate.\n\nThat ticket has already been resolved as Fixed. The fix will arrive in the next version or is already included in the latest development version of the game, you can check the Fix Version/s field in that ticket to learn more.\n\nIf you haven't already, you might like to make use of the [*+search feature+*|https://bugs.mojang.com/issues/?jql=project=MC] to see if the issue has already been mentioned.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
+    }
+    "should use the original value when the lang doesn't exist" {
+        val result = messages.getMessage("account-issue", "MC", lang = "cd")
+
+        result.shouldBeRight()
+        result.b shouldBe "*Thank you for your report!*\nHowever, this issue is {color:#FF5722}*Invalid*{color}.\n\nThis is an account issue. We do not have the tools to help you on this tracker.\nPlease contact the *[Customer Support|https://help.minecraft.net/hc/en-us/requests/new]*.\n\n*Quick Links*:\n\uD83D\uDCD3 [Issue Guidelines|https://bugs.mojang.com/projects/MC/summary] -- \uD83D\uDCAC [Community Support|https://discord.gg/58Sxm23] -- \uD83D\uDCE7 [Customer Support|https://help.minecraft.net/hc/en-us/requests/new] -- ✍️ [Feedback and Suggestions|https://feedback.minecraft.net/] -- \uD83D\uDCD6 [Game Wiki|https://minecraft.gamepedia.com/Minecraft_Wiki]"
+    }
+    "should use the corresponding localed value" {
+        val result = messages.getMessage("account-issue", "MC", lang = "ab")
+
+        result.shouldBeRight()
+        result.b shouldBe "ABC XYZ"
     }
 })

@@ -30,6 +30,9 @@
         "MCAPI": "10313"
       }
     },
+    "helperMessages": {
+      "updateInterval": 3600
+    },
     "modules": {
       "attachment": {
         "resolutions": [

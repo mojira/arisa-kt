@@ -30,6 +30,10 @@ object Arisa : ConfigSpec() {
         val special by optional<Map<String, String>>(emptyMap(), description = "Some projects define their own security level. These projects need to be defined here with their own ID.. Default is all projects use the default ID")
     }
 
+    object HelperMessages : ConfigSpec() {
+        val updateInterval by required<Long>(description = "The interval in which the messages.json file is updated")
+    }
+
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
             val whitelist by optional<List<String>?>(null, description = "Optional. The projects this module should operate on. Default is arisa.issues.projects")

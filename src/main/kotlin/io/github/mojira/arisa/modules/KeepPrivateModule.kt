@@ -39,7 +39,7 @@ class KeepPrivateModule(private val keepPrivateTag: String?) : Module<KeepPrivat
     private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
 
     private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {
-        comments.any { isKeepPrivateTag(it) } -> Unit.right()
+        comments.any(::isKeepPrivateTag) -> Unit.right()
         else -> OperationNotNeededModuleResponse.left()
     }
 

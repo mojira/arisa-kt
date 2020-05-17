@@ -65,14 +65,23 @@ class KeepPrivateModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should set to private when security level is null" {
+    "should both set to private and comment when security level is null" {
+        var didSetToPrivate = false
+        var didComment = false
+
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
         val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
-        val request = KeepPrivateModule.Request(null, "private", listOf(comment), listOf(REMOVE_SECURITY), { Unit.right() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            null, "private", listOf(comment), listOf(REMOVE_SECURITY),
+            { didSetToPrivate = true; Unit.right() },
+            { didComment = true; Unit.right() }
+        )
 
         val result = module(request)
 
         result.shouldBeRight(ModuleResponse)
+        didSetToPrivate shouldBe true
+        didComment shouldBe true
     }
 
     "should both set to private and comment when security level is not private" {
@@ -94,14 +103,14 @@ class KeepPrivateModuleTest : StringSpec({
         didComment shouldBe true
     }
 
-    "should set to private but not comment when security level has neven been changed" {
+    "should set to private but not comment when security level has never been changed" {
         var didSetToPrivate = false
         var didComment = false
 
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
-        val comment = getComment("MEQS_KEEP_PRIVATE", NOW.minusSeconds(2), "group", "staff")
+        val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
         val request = KeepPrivateModule.Request(
-            null, "private", listOf(comment), listOf(REMOVE_SECURITY),
+            null, "private", listOf(comment), emptyList(),
             { didSetToPrivate = true; Unit.right() },
             { didComment = true; Unit.right() }
         )
@@ -113,12 +122,12 @@ class KeepPrivateModuleTest : StringSpec({
         didComment shouldBe false
     }
 
-    "should set to private but not comment when security level has neven been changed since the ticket was marked" {
+    "should set to private but not comment when security level hasn't been changed since the ticket was marked" {
         var didSetToPrivate = false
         var didComment = false
 
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
-        val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
+        val comment = getComment("MEQS_KEEP_PRIVATE", NOW.minusSeconds(2), "group", "staff")
         val request = KeepPrivateModule.Request(
             null, "private", listOf(comment), emptyList(),
             { didSetToPrivate = true; Unit.right() },

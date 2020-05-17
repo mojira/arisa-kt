@@ -115,7 +115,9 @@ data class HelperMessages(
         fun deserialize(json: String) = Klaxon().parse<HelperMessages>(json)
 
         fun fetch() = with(URL(url).openConnection() as URLConnection) {
-            deserialize(content as String).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
+            Klaxon().parse<HelperMessages>(inputStream).rightIfNotNull {
+                Error("Couldn't download or deserialize helper messages")
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = NOW.plusSeconds(3)
-        val request = Request(null, NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request(null, NOW.minusSeconds(10), NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -32,7 +32,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Test", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Test", NOW.minusSeconds(10), NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -42,7 +42,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when ticket is less than 2 seconds old" {
         val updated = NOW.plusSeconds(1)
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -51,7 +51,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there are no comments" {
         val updated = NOW.plusSeconds(3)
-        val request = Request("Awaiting Response", NOW, updated, emptyList(), listOf(AWAITING_RESOLVE)) { Unit.right() }
+        val request = Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, emptyList(), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -65,7 +65,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             NOW.minusSeconds(20)
         )
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -81,6 +81,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         )
         val request = Request(
             "Awaiting Response",
+            NOW.minusSeconds(10),
             NOW,
             updated,
             listOf(comment),
@@ -93,10 +94,10 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
-        val comment = getComment(NOW.plusSeconds(3))
+        val comment = getComment(NOW.plusSeconds(3), NOW.minusSeconds(20))
         val updated = NOW.plusSeconds(3)
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -107,7 +108,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val comment = getComment(visibilityType = "group", visibilityValue = "helper")
         val updated = NOW.plusSeconds(3)
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -118,7 +119,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val comment = getComment(authorGroups = listOf("staff"))
         val updated = NOW.plusSeconds(3)
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -128,7 +129,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return ModuleResponse when ticket is reopened" {
         val updated = NOW.plusSeconds(3)
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -137,10 +138,11 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should grab the last comment" {
         val updated = NOW.plusSeconds(3)
-        val commentFail = getComment(NOW.plusSeconds(3))
+        val commentFail = getComment(NOW.plusSeconds(3), NOW.minusSeconds(20))
         val commentSuccess = getComment()
         val request = Request(
             "Awaiting Response",
+            NOW.minusSeconds(10),
             NOW,
             updated,
             listOf(commentSuccess, commentFail),
@@ -157,6 +159,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val change = ChangeLogItem(NOW.plusSeconds(3), "", "", "Confirmed") { emptyList() }
         val request = Request(
             "Awaiting Response",
+            NOW.minusSeconds(10),
             NOW,
             updated,
             listOf(getComment()),
@@ -171,7 +174,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should reopen when someone answered" {
         val updated = NOW.plusSeconds(3)
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(getComment()), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -182,7 +185,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "not-a-group", visibilityValue = "helper")
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -193,7 +196,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "group", visibilityValue = "users")
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -204,7 +207,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = NOW.plusSeconds(3)
         val comment = getComment(authorGroups = emptyList())
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -215,7 +218,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = NOW.plusSeconds(3)
         val comment = getComment(authorGroups = listOf("Users"))
         val request =
-            Request("Awaiting Response", NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
 
         val result = MODULE(request)
 
@@ -226,6 +229,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = NOW.plusSeconds(3)
         val request = Request(
             "Awaiting Response",
+            NOW.minusSeconds(10),
             NOW,
             updated,
             listOf(getComment()),

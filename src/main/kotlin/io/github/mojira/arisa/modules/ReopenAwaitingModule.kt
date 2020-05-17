@@ -14,6 +14,7 @@ class ReopenAwaitingModule(
 ) : Module<ReopenAwaitingModule.Request> {
     data class Request(
         val resolution: String?,
+        val lastRun: Instant,
         val created: Instant,
         val updated: Instant,
         val comments: List<Comment>,
@@ -30,9 +31,7 @@ class ReopenAwaitingModule(
                 .created
             val lastComment = comments.last()
             assertGreaterThan(lastComment.created.toEpochMilli(), resolveTime.toEpochMilli()).bind()
-            assertUpdateWasNotCausedByEditingComment(
-                updated.toEpochMilli(), lastComment.updated.toEpochMilli(), lastComment.created.toEpochMilli()
-            ).bind()
+            assertGreaterThan(lastComment.created.toEpochMilli(), lastRun.toEpochMilli()).bind()
             assertCommentIsNotRestrictedToABlacklistedLevel(lastComment.visibilityType, lastComment.visibilityValue).bind()
             assertCommentWasNotAddedByABlacklistedRole(lastComment.getAuthorGroups()).bind()
 
@@ -44,14 +43,8 @@ class ReopenAwaitingModule(
         change.changedTo == "Awaiting Response"
 
     private fun assertCreationIsNotRecent(updated: Long, created: Long) = when {
-            (updated - created) < 2000 -> OperationNotNeededModuleResponse.left()
-            else -> Unit.right()
-        }
-
-    private fun assertUpdateWasNotCausedByEditingComment(updated: Long, commentUpdated: Long, commentCreated: Long) = when {
-        updated - commentUpdated >= 2000 -> Unit.right()
-        commentUpdated - commentCreated <= 2000 -> Unit.right()
-        else -> OperationNotNeededModuleResponse.left()
+        (updated - created) < 2000 -> OperationNotNeededModuleResponse.left()
+        else -> Unit.right()
     }
 
     private fun assertCommentWasNotAddedByABlacklistedRole(roles: List<String>?) = when {

@@ -1,8 +1,10 @@
 package io.github.mojira.arisa.infrastructure
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.rightIfNotNull
 import com.beust.klaxon.Klaxon
+import java.io.InputStream
 import java.net.URL
 import java.net.URLConnection
 
@@ -112,12 +114,16 @@ data class HelperMessages(
         private const val url =
             "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
 
+        fun fetch() = try {
+            with(URL(url).openConnection() as URLConnection) {
+                deserialize(inputStream).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
+            }
+        } catch (e: Error) {
+            e.left()
+        }
+
         fun deserialize(json: String) = Klaxon().parse<HelperMessages>(json)
 
-        fun fetch() = with(URL(url).openConnection() as URLConnection) {
-            Klaxon().parse<HelperMessages>(inputStream).rightIfNotNull {
-                Error("Couldn't download or deserialize helper messages")
-            }
-        }
+        private fun deserialize(stream: InputStream) = Klaxon().parse<HelperMessages>(stream)
     }
 }

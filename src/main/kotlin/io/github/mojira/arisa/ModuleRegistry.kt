@@ -314,9 +314,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 config[Modules.ReopenAwaiting.blacklistedRoles],
                 config[Modules.ReopenAwaiting.blacklistedVisibilities]
             )
-        ) { issue ->
+        ) { issue, lastRun ->
             ReopenAwaitingModule.Request(
                 issue.resolution?.name,
+                lastRun,
                 issue.getCreated(),
                 issue.getUpdated(),
                 issue.getComments(jiraClient),

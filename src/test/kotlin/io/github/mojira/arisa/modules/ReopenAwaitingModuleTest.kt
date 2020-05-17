@@ -181,6 +181,17 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
+    "should reopen when the comment was both created and updated" {
+        val comment = getComment(NOW.plusSeconds(3), NOW.minusSeconds(5))
+        val updated = NOW.plusSeconds(3)
+        val request =
+            Request("Awaiting Response", NOW.minusSeconds(10), NOW, updated, listOf(comment), listOf(AWAITING_RESOLVE)) { Unit.right() }
+
+        val result = MODULE(request)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
     "should reopen when comment is restricted, but not to a group" {
         val updated = NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "not-a-group", visibilityValue = "helper")

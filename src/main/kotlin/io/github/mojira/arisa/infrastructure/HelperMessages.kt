@@ -27,30 +27,6 @@ data class HelperMessages(
         val localizedMessages: LocalizedValues? = null
     )
 
-    private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {
-        is String -> project.toLowerCase() == filter.toLowerCase()
-        is List<*> -> project.toLowerCase() in filter.map { (it as String).toLowerCase() }
-        else -> false
-    }
-
-    private fun localizeValue(value: String, localizedValues: LocalizedValues?, lang: String) =
-        if (lang != "en" && localizedValues != null) {
-            localizedValues[lang] ?: value
-        } else {
-            value
-        }
-
-    private fun resolveVariables(message: String, project: String, lang: String): String {
-        return variables.entries.fold(message) { message, (key, list) ->
-            val variable = list.find { isProjectMatch(project, it.project) }
-            message.replace("%$key%", localizeValue(variable?.value ?: "", variable?.localizedValues, lang))
-        }
-    }
-
-    private fun resolvePlaceholder(message: String, filledText: String? = null): String {
-        return message.replace("%s%", filledText ?: "")
-    }
-
     /**
      * Get a single message from helper messages.
      * @param project The key of the project where the comment will be sent.
@@ -103,7 +79,34 @@ data class HelperMessages(
         }
     }
 
+    fun getMessageWithBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
+        getMessage(project, listOf(key, "i-am-a-bot"), listOf(filledText), lang)
+
     fun serialize() = Klaxon().toJsonString(this)
+
+    private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {
+        is String -> project.toLowerCase() == filter.toLowerCase()
+        is List<*> -> project.toLowerCase() in filter.map { (it as String).toLowerCase() }
+        else -> false
+    }
+
+    private fun localizeValue(value: String, localizedValues: LocalizedValues?, lang: String) =
+        if (lang != "en" && localizedValues != null) {
+            localizedValues[lang] ?: value
+        } else {
+            value
+        }
+
+    private fun resolveVariables(message: String, project: String, lang: String): String {
+        return variables.entries.fold(message) { message, (key, list) ->
+            val variable = list.find { isProjectMatch(project, it.project) }
+            message.replace("%$key%", localizeValue(variable?.value ?: "", variable?.localizedValues, lang))
+        }
+    }
+
+    private fun resolvePlaceholder(message: String, filledText: String? = null): String {
+        return message.replace("%s%", filledText ?: "")
+    }
 
     companion object {
         private const val url =

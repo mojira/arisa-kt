@@ -79,6 +79,7 @@ class HelperMessagesTest : StringSpec({
         }
     """.trimIndent()
     )!!
+
     "should return Error when there is no such message" {
         val result = messages.getSingleMessage("MC", "!@#%^&*")
 
@@ -86,6 +87,7 @@ class HelperMessagesTest : StringSpec({
         result.a should { it is Error }
         (result.a as Error).message shouldBe "Failed to find message for key !@#%^&* under project MC"
     }
+
     "should return Error when the message doesn't have a value for the project" {
         val result = messages.getSingleMessage("MCTEST", "normal")
 
@@ -93,42 +95,49 @@ class HelperMessagesTest : StringSpec({
         result.a should { it is Error }
         (result.a as Error).message shouldBe "Failed to find message for key normal under project MCTEST"
     }
+
     "should return the message when the project matches a string filter" {
         val result = messages.getSingleMessage("MC", "normal")
 
         result.shouldBeRight()
         result.b shouldBe "Normal message"
     }
+
     "should return the message when the project matches a list filter" {
         val result = messages.getSingleMessage("MC", "normal-list-filter")
 
         result.shouldBeRight()
         result.b shouldBe "Normal message with a list filter"
     }
+
     "should replace the variable with the value for MC project" {
         val result = messages.getSingleMessage("MC", "with-variable")
 
         result.shouldBeRight()
         result.b shouldBe "With variable for MC"
     }
+
     "should replace the variable with the value for MCD project" {
         val result = messages.getSingleMessage("MCD", "with-variable")
 
         result.shouldBeRight()
         result.b shouldBe "With variable for MCD"
     }
+
     "should replace the variable with an empty string for MCPE project" {
         val result = messages.getSingleMessage("MCPE", "with-variable")
 
         result.shouldBeRight()
         result.b shouldBe "With "
     }
+
     "should replace the placeholder with filled text" {
         val result = messages.getSingleMessage("MC", "with-placeholder", "MC-4")
 
         result.shouldBeRight()
         result.b shouldBe "With MC-4"
     }
+
     "should use the original value when the lang doesn't exist" {
         val result = messages.getSingleMessage("MC", "normal", lang = "cd")
 
@@ -141,6 +150,7 @@ class HelperMessagesTest : StringSpec({
 
         result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
+
     "should prepend localized messages" {
         val result = messages.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "ab")
 
@@ -148,8 +158,15 @@ class HelperMessagesTest : StringSpec({
                 "\n----\n" +
                 "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
+
     "should only contain original message when the lang doesn't exist" {
         val result = messages.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "cd")
+
+        result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
+    }
+
+    "should append the bot signature correctly" {
+        val result = messages.getMessageWithBotSignature("MC", "normal")
 
         result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }

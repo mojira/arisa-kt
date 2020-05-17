@@ -14,7 +14,7 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module<Remov
         val updateMeqsComments = request.comments
             .filter(::hasMeqsTag)
             .filter(::isNotStaffRestricted)
-            .map { it.update.partially1(removeMeqsTags(it.body)) }
+            .map { it.restrict.partially1(removeMeqsTags(it.body)) }
         assertNotEmpty(updateMeqsComments).bind()
 
         tryRunAll(updateMeqsComments).bind()

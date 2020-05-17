@@ -49,21 +49,9 @@ fun main() {
     val cache = QueryCache()
 
     val helperMessagesFile = File("helper-messages.json")
-    val helperMessages = HelperMessages.fetch().fold(
-        {
-            HelperMessages.deserialize(
-                if (helperMessagesFile.exists()) {
-                    helperMessagesFile.readText()
-                } else {
-                    """{"variables":{},"messages":{}}"""
-                }
-            )!!
-        },
-        {
-            helperMessagesFile.writeText(it.serialize())
-            it
-        }
-    )
+    val helperMessagesInterval = config[Arisa.HelperMessages.updateInterval]
+    var helperMessages = getHelperMessages(helperMessagesFile)
+    var helperMessagesLastFetch = Instant.now()
 
     var moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
 
@@ -89,6 +77,26 @@ fun main() {
             moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
         }
 
+        if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
+            helperMessages = getHelperMessages(helperMessagesFile, helperMessages)
+            moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
+            helperMessagesLastFetch = curRunTime
+        }
+
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
     }
 }
+
+private fun getHelperMessages(file: File, old: HelperMessages? = null) = HelperMessages.fetch().fold(
+    {
+        if (file.exists()) {
+            HelperMessages.deserialize(file.readText())!!
+        } else {
+            old ?: HelperMessages(emptyMap(), emptyMap())
+        }
+    },
+    {
+        file.writeText(it.serialize())
+        it
+    }
+)

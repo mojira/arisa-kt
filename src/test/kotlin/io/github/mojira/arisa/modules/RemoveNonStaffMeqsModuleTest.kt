@@ -195,8 +195,8 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             Instant.now(),
             null,
             null,
-            { Unit.right() },
-            { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }
+            { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."); Unit.right() },
+            { Unit.right() }
         )
         val request = Request(listOf(comment))
 
@@ -204,5 +204,4 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
     }
-}
-        )
+})

@@ -196,7 +196,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             KeepPrivateModule.Request(
                 issue.security?.id,
                 issue.getSecurityLevelId(config),
-                issue.comments.map { c -> c.body },
+                issue.getComments(jiraClient),
+                issue.getChangeLogEntries(jiraClient),
                 ::updateSecurity.partially1(issue).partially1(issue.getSecurityLevelId(config)),
                 ::addComment.partially1(issue).partially1(config[Modules.KeepPrivate.message])
             )

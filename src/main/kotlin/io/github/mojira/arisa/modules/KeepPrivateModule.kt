@@ -4,12 +4,15 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Comment
 
 class KeepPrivateModule(private val keepPrivateTag: String?) : Module<KeepPrivateModule.Request> {
     data class Request(
         val securityLevel: String?,
         val privateLevel: String,
-        val comments: List<String>,
+        val comments: List<Comment>,
+        val changeLog: List<ChangeLogItem>,
         val setPrivate: () -> Either<Throwable, Unit>,
         val addSecurityComment: () -> Either<Throwable, Unit>
     )
@@ -20,13 +23,23 @@ class KeepPrivateModule(private val keepPrivateTag: String?) : Module<KeepPrivat
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
-            addSecurityComment().toFailedModuleEither().bind()
+            val markedTime = comments.last(::isKeepPrivateTag).created.toEpochMilli()
+            val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created?.toEpochMilli()
+            if (changedTime != null && changedTime > markedTime) {
+                addSecurityComment().toFailedModuleEither().bind()
+            }
             setPrivate().toFailedModuleEither().bind()
         }
     }
 
-    private fun assertContainsKeepPrivateTag(comments: List<String>) = when {
-        comments.any { it.contains(keepPrivateTag!!) } -> Unit.right()
+    private fun isKeepPrivateTag(comment: Comment) = comment.visibilityType == "group" &&
+            comment.visibilityValue == "staff" &&
+            comment.body.contains(keepPrivateTag!!)
+
+    private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
+
+    private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {
+        comments.any { isKeepPrivateTag(it) } -> Unit.right()
         else -> OperationNotNeededModuleResponse.left()
     }
 

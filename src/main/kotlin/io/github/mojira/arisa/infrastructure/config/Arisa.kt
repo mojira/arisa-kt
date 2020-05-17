@@ -42,7 +42,7 @@ object Arisa : ConfigSpec() {
         }
 
         object Piracy : ModuleConfigSpec() {
-            val message by optional("", description = "The message that is posted when this module succeeds.")
+            val message by optional("", description = "The key of the message that is posted when this module succeeds.")
             val piracySignatures by optional(emptyList<String>(), description = "Signatures that indicate a pirated version of Minecraft. Default is no signatures.")
         }
 
@@ -59,7 +59,7 @@ object Arisa : ConfigSpec() {
         }
 
         object FutureVersion : ModuleConfigSpec() {
-            val message by optional("", description = "The message that is posted when this module succeeds.")
+            val message by optional("", description = "The key of the message that is posted when this module succeeds.")
         }
 
         object CHK : ModuleConfigSpec()
@@ -80,21 +80,21 @@ object Arisa : ConfigSpec() {
         }
 
         object Empty : ModuleConfigSpec() {
-            val message by optional("", description = "The message that is posted when this module succeeds.")
+            val message by optional("", description = "The key of the message that is posted when this module succeeds.")
         }
 
         object Crash : ModuleConfigSpec() {
             val maxAttachmentAge by optional(0, description = "Max age in days the attachment can have to be considered")
             val crashExtensions by optional(emptyList<String>(), description = "File extensions that should be checked for crash reports.")
-            val duplicateMessage by optional("", description = "Message to be send when resolving a duplicate. {DUPLICATE} will be replaced by the ticket key")
-            val moddedMessage by optional("", description = "Message to be send when resolving a duplicate. %s will be replaced by the ticket key")
+            val duplicateMessage by optional("", description = "The key of the message to be sent when resolving a duplicate.")
+            val moddedMessage by optional("", description = "The key of the message to be sent when resolving a duplicate.")
             val duplicates by optional(emptyList<CrashDupeConfig>(), description = "List of exception details that are resolved as duplicates for a specific ticket key.")
         }
 
         object RevokeConfirmation : ModuleConfigSpec()
 
         object KeepPrivate : ModuleConfigSpec() {
-            val message by optional("", description = "The message that is posted when this module succeeds.")
+            val message by optional("", description = "The key of the message that is posted when this module succeeds.")
             val tag by optional<String?>(null)
         }
 

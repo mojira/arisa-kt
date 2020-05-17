@@ -10,6 +10,7 @@ import arrow.syntax.function.pipe3
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkParam
+import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
@@ -76,8 +77,8 @@ import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
-    val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
+class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private val messages: HelperMessages) {
+    private val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
 
     data class Entry(
         val config: ModuleConfigSpec,
@@ -162,8 +163,12 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
                 ::createLink.partially1(issue).partially1("Duplicate"),
-                ::addComment.partially1(issue).partially1(config[Modules.Crash.moddedMessage]),
-                { key -> addComment(issue, config[Modules.Crash.duplicateMessage].format(key)) }
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Crash.moddedMessage]
+                )),
+                { key -> addComment(issue, messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Crash.duplicateMessage], key
+                )) }
             )
         }
 
@@ -175,7 +180,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.description,
                 issue.getEnvironment(),
                 ::resolveAs.partially1(issue).partially1("Incomplete"),
-                ::addComment.partially1(issue).partially1(config[Modules.Empty.message])
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Empty.message]
+                ))
             )
         }
 
@@ -184,7 +191,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
             FutureVersionModule.Request(
                 issue.getVersions(::removeAffectedVersion.partially1(issue)),
                 project.getVersions(::addAffectedVersion.partially1(issue)),
-                ::addComment.partially1(issue).partially1(config[Modules.FutureVersion.message])
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.FutureVersion.message]
+                ))
             )
         }
 
@@ -198,7 +207,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.getSecurityLevelId(config),
                 issue.comments.map { c -> c.body },
                 ::updateSecurity.partially1(issue).partially1(issue.getSecurityLevelId(config)),
-                ::addComment.partially1(issue).partially1(config[Modules.KeepPrivate.message])
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.KeepPrivate.message]
+                ))
             )
         }
 
@@ -234,7 +245,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 issue.summary,
                 issue.description,
                 ::resolveAs.partially1(issue).partially1("Invalid"),
-                ::addComment.partially1(issue).partially1(config[Modules.Piracy.message])
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Piracy.message]
+                ))
             )
         }
 
@@ -252,6 +265,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config) {
                 { Unit.right() }, // ::resolveAs.partially1(issue).partially1("Invalid"),
                 { language ->
                     // Should we move this?
+                    // Most likely, no ;D
+                    // addRestrictedComment(issue, messages.getMessageWithBotSignature(
+                    //     issue.project.key, config[Modules.Language.message], lang = language
+                    // ), "helper")
                     val translatedMessage = config[Modules.Language.messages][language]
                     val defaultMessage = config[Modules.Language.defaultMessage]
                     val text =

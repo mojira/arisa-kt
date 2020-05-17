@@ -3,6 +3,7 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -18,9 +19,10 @@ private const val MAX_RESULTS = 50
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
-    private val queryCache: QueryCache
+    private val queryCache: QueryCache,
+    helperMessages: HelperMessages
 ) {
-    private val registry = ModuleRegistry(jiraClient, config)
+    private val registry = ModuleRegistry(jiraClient, config, helperMessages)
 
     data class ExecutionResults(
         val successful: Boolean,

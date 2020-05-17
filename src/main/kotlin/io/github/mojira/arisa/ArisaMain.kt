@@ -80,7 +80,7 @@ fun main() {
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             helperMessages = getHelperMessages(helperMessagesFile, helperMessages)
             moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
-            helperMessagesLastFetch = Instant.now()
+            helperMessagesLastFetch = curRunTime
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])

@@ -30,8 +30,8 @@ class ReopenAwaitingModule(
             val resolveTime = changeLog.last(::isAwaitingResolve)
                 .created
             val lastComment = comments.last()
-            assertGreaterThan(lastComment.created.toEpochMilli(), resolveTime.toEpochMilli()).bind()
-            assertGreaterThan(lastComment.created.toEpochMilli(), lastRun.toEpochMilli()).bind()
+            assertAfter(lastComment.created, resolveTime).bind()
+            assertAfter(lastComment.created, lastRun).bind()
             assertCommentIsNotRestrictedToABlacklistedLevel(lastComment.visibilityType, lastComment.visibilityValue).bind()
             assertCommentWasNotAddedByABlacklistedRole(lastComment.getAuthorGroups()).bind()
 

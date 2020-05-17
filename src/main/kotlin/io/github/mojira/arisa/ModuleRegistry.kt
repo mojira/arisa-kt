@@ -164,7 +164,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
                 ::createLink.partially1(issue).partially1("Duplicate"),
                 ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.Crash.moddedMessage
+                    issue.project.key, config[Modules.Crash.moddedMessage]
                 )),
                 { key -> addComment(issue, messages.getMessageWithBotSignature(
                     issue.project.key, config[Modules.Crash.duplicateMessage], key

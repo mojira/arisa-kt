@@ -163,13 +163,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
                 ::createLink.partially1(issue).partially1("Duplicate"),
-                ::addComment.partially1(issue).partially1(messages.getMessage(
-                    issue.project.key, listOf(config[Modules.Crash.moddedMessage], "i-am-a-bot")
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Crash.moddedMessage
                 )),
-                { key -> addComment(issue, messages.getMessage(
-                    issue.project.key,
-                    listOf(config[Modules.Crash.duplicateMessage], "i-am-a-bot"),
-                    listOf(key)
+                { key -> addComment(issue, messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Crash.duplicateMessage], key
                 )) }
             )
         }
@@ -182,8 +180,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 issue.description,
                 issue.getEnvironment(),
                 ::resolveAs.partially1(issue).partially1("Incomplete"),
-                ::addComment.partially1(issue).partially1(messages.getMessage(
-                    issue.project.key, listOf(config[Modules.Empty.message], "i-am-a-bot")
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Empty.message]
                 ))
             )
         }
@@ -193,8 +191,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             FutureVersionModule.Request(
                 issue.getVersions(::removeAffectedVersion.partially1(issue)),
                 project.getVersions(::addAffectedVersion.partially1(issue)),
-                ::addComment.partially1(issue).partially1(messages.getMessage(
-                    issue.project.key, listOf(config[Modules.FutureVersion.message], "i-am-a-bot")
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.FutureVersion.message]
                 ))
             )
         }
@@ -209,8 +207,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 issue.getSecurityLevelId(config),
                 issue.comments.map { c -> c.body },
                 ::updateSecurity.partially1(issue).partially1(issue.getSecurityLevelId(config)),
-                ::addComment.partially1(issue).partially1(messages.getMessage(
-                    issue.project.key, listOf(config[Modules.KeepPrivate.message], "i-am-a-bot")
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.KeepPrivate.message]
                 ))
             )
         }
@@ -247,8 +245,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 issue.summary,
                 issue.description,
                 ::resolveAs.partially1(issue).partially1("Invalid"),
-                ::addComment.partially1(issue).partially1(messages.getMessage(
-                    issue.project.key, listOf(config[Modules.Piracy.message], "i-am-a-bot")
+                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
+                    issue.project.key, config[Modules.Piracy.message]
                 ))
             )
         }
@@ -268,8 +266,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 { language ->
                     // Should we move this?
                     // Most likely, no ;D
-                    // addRestrictedComment(issue, messages.getMessage(
-                    //     issue.project.key, listOf(config[Modules.Language.message], "i-am-a-bot"), lang = language
+                    // addRestrictedComment(issue, messages.getMessageWithBotSignature(
+                    //     issue.project.key, config[Modules.Language.message], lang = language
                     // ), "helper")
                     val translatedMessage = config[Modules.Language.messages][language]
                     val defaultMessage = config[Modules.Language.defaultMessage]

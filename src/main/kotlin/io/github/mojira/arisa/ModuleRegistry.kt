@@ -92,21 +92,19 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         modules
 
     private fun <T> register(
-        name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
         getJql: (lastRun: Instant) -> String = DEFAULT_JQL,
         requestCreator: (Issue) -> T
-    ) = register(name, config, module, getJql) { issue, _ -> requestCreator(issue) }
+    ) = register(config, module, getJql) { issue, _ -> requestCreator(issue) }
 
     private fun <T> register(
-        name: String,
         config: ModuleConfigSpec,
         module: Module<T>,
         getJql: (lastRun: Instant) -> String = DEFAULT_JQL,
         requestCreator: (Issue, Instant) -> T
     ) = { issue: Issue, lastRun: Instant ->
-        name to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
+        config::class.simpleName!! to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
 
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
@@ -117,10 +115,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
 
     init {
         register(
-            "Attachment", Modules.Attachment, AttachmentModule(config[Modules.Attachment.extensionBlacklist])
+            Modules.Attachment, AttachmentModule(config[Modules.Attachment.extensionBlacklist])
         ) { issue -> AttachmentModule.Request(issue.getAttachments(::deleteAttachment.partially1(jiraClient))) }
 
-        register("CHK", Modules.CHK, CHKModule()) { issue ->
+        register(Modules.CHK, CHKModule()) { issue ->
             CHKModule.Request(
                 issue.getCHK(config),
                 issue.getConfirmation(config),
@@ -129,7 +127,6 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         }
 
         register(
-            "ConfirmParent",
             Modules.ConfirmParent,
             ConfirmParentModule(
                 config[Modules.ConfirmParent.confirmationStatusWhitelist],
@@ -145,7 +142,6 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         }
 
         register(
-            "Crash",
             Modules.Crash,
             CrashModule(
                 config[Modules.Crash.crashExtensions],
@@ -163,16 +159,22 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 ::resolveAs.partially1(issue).partially1("Invalid"),
                 ::resolveAs.partially1(issue).partially1("Duplicate"),
                 ::createLink.partially1(issue).partially1("Duplicate"),
-                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.Crash.moddedMessage]
-                )),
-                { key -> addComment(issue, messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.Crash.duplicateMessage], key
-                )) }
+                ::addComment.partially1(issue).partially1(
+                    messages.getMessageWithBotSignature(
+                        issue.project.key, config[Modules.Crash.moddedMessage]
+                    )
+                ),
+                { key ->
+                    addComment(
+                        issue, messages.getMessageWithBotSignature(
+                            issue.project.key, config[Modules.Crash.duplicateMessage], key
+                        )
+                    )
+                }
             )
         }
 
-        register("Empty", Modules.Empty, EmptyModule()) { issue, lastRun ->
+        register(Modules.Empty, EmptyModule()) { issue, lastRun ->
             EmptyModule.Request(
                 issue.createdDate.toInstant(),
                 lastRun,
@@ -180,41 +182,47 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 issue.description,
                 issue.getEnvironment(),
                 ::resolveAs.partially1(issue).partially1("Incomplete"),
-                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.Empty.message]
-                ))
+                ::addComment.partially1(issue).partially1(
+                    messages.getMessageWithBotSignature(
+                        issue.project.key, config[Modules.Empty.message]
+                    )
+                )
             )
         }
 
-        register("FutureVersion", Modules.FutureVersion, FutureVersionModule()) { issue ->
+        register(Modules.FutureVersion, FutureVersionModule()) { issue ->
             val project = jiraClient.getProject(issue.project.key)
             FutureVersionModule.Request(
                 issue.getVersions(::removeAffectedVersion.partially1(issue)),
                 project.getVersions(::addAffectedVersion.partially1(issue)),
-                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.FutureVersion.message]
-                ))
+                ::addComment.partially1(issue).partially1(
+                    messages.getMessageWithBotSignature(
+                        issue.project.key, config[Modules.FutureVersion.message]
+                    )
+                )
             )
         }
 
-        register("HideImpostors", Modules.HideImpostors, HideImpostorsModule()) { issue ->
+        register(Modules.HideImpostors, HideImpostorsModule()) { issue ->
             HideImpostorsModule.Request(issue.getComments(jiraClient))
         }
 
-        register("KeepPrivate", Modules.KeepPrivate, KeepPrivateModule(config[Modules.KeepPrivate.tag])) { issue ->
+        register(Modules.KeepPrivate, KeepPrivateModule(config[Modules.KeepPrivate.tag])) { issue ->
             KeepPrivateModule.Request(
                 issue.security?.id,
                 issue.getSecurityLevelId(config),
                 issue.getComments(jiraClient),
                 issue.getChangeLogEntries(jiraClient),
                 ::updateSecurity.partially1(issue).partially1(issue.getSecurityLevelId(config)),
-                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.KeepPrivate.message]
-                ))
+                ::addComment.partially1(issue).partially1(
+                    messages.getMessageWithBotSignature(
+                        issue.project.key, config[Modules.KeepPrivate.message]
+                    )
+                )
             )
         }
 
-        register("TransferVersions", Modules.TransferVersions, TransferVersionsModule()) { issue ->
+        register(Modules.TransferVersions, TransferVersionsModule()) { issue ->
             AbstractTransferFieldModule.Request(
                 issue.key,
                 issue.getLinks(jiraClient, ::addAffectedVersionById, ::getVersionsGetField),
@@ -223,15 +231,14 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         }
 
         register(
-            "TransferLinks",
             Modules.TransferLinks,
             TransferLinksModule()
         ) { issue ->
             val links = issue.getLinks<List<Link<*, LinkParam>>, LinkParam>(
-                    jiraClient,
-                    ::createLinkForTransfer,
-                    ::getIssueForLink.partially1(jiraClient)
-                )
+                jiraClient,
+                ::createLinkForTransfer,
+                ::getIssueForLink.partially1(jiraClient)
+            )
 
             AbstractTransferFieldModule.Request(
                 issue.key,
@@ -240,20 +247,22 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             )
         }
 
-        register("Piracy", Modules.Piracy, PiracyModule(config[Modules.Piracy.piracySignatures])) { issue ->
+        register(Modules.Piracy, PiracyModule(config[Modules.Piracy.piracySignatures])) { issue ->
             PiracyModule.Request(
                 issue.getEnvironment(),
                 issue.summary,
                 issue.description,
                 ::resolveAs.partially1(issue).partially1("Invalid"),
-                ::addComment.partially1(issue).partially1(messages.getMessageWithBotSignature(
-                    issue.project.key, config[Modules.Piracy.message]
-                ))
+                ::addComment.partially1(issue).partially1(
+                    messages.getMessageWithBotSignature(
+                        issue.project.key, config[Modules.Piracy.message]
+                    )
+                )
             )
         }
 
         register(
-            "Language", Modules.Language, LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
+            Modules.Language, LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
         ) { issue, lastRun ->
             LanguageModule.Request(
                 issue.createdDate.toInstant(),
@@ -288,13 +297,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         }
 
         register(
-            "RemoveNonStaffMeqs",
             Modules.RemoveNonStaffMeqs,
             RemoveNonStaffMeqsModule(config[Modules.RemoveNonStaffMeqs.removalReason])
         ) { issue -> RemoveNonStaffMeqsModule.Request(issue.getComments(jiraClient)) }
 
         register(
-            "RemoveTriagedMeqs",
             Modules.RemoveTriagedMeqs,
             RemoveTriagedMeqsModule(
                 config[Modules.RemoveTriagedMeqs.meqsTags],
@@ -309,7 +316,6 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         }
 
         register(
-            "ReopenAwaiting",
             Modules.ReopenAwaiting,
             ReopenAwaitingModule(
                 config[Modules.ReopenAwaiting.blacklistedRoles],
@@ -327,7 +333,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             )
         }
 
-        register("ReplaceText", Modules.ReplaceText, ReplaceTextModule()) { issue, lastRun ->
+        register(Modules.ReplaceText, ReplaceTextModule()) { issue, lastRun ->
             ReplaceTextModule.Request(
                 lastRun,
                 issue.description,
@@ -336,7 +342,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             )
         }
 
-        register("RevokeConfirmation", Modules.RevokeConfirmation, RevokeConfirmationModule()) { issue ->
+        register(Modules.RevokeConfirmation, RevokeConfirmationModule()) { issue ->
             RevokeConfirmationModule.Request(
                 issue.getConfirmation(config),
                 issue.getChangeLogEntries(jiraClient),
@@ -344,12 +350,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             )
         }
 
-        register("ResolveTrash", Modules.ResolveTrash, ResolveTrashModule()) { issue ->
+        register(Modules.ResolveTrash, ResolveTrashModule()) { issue ->
             ResolveTrashModule.Request(issue.project.key, ::resolveAs.partially1(issue).partially1("Invalid"))
         }
 
         register(
-            "UpdateLinked",
             Modules.UpdateLinked,
             UpdateLinkedModule(config[Modules.UpdateLinked.updateInterval]),
             { lastRun ->

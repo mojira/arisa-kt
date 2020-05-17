@@ -23,9 +23,9 @@ class KeepPrivateModule(private val keepPrivateTag: String?) : Module<KeepPrivat
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
-            val markedTime = comments.last(::isKeepPrivateTag).created.toEpochMilli()
-            val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created?.toEpochMilli()
-            if (changedTime != null && changedTime > markedTime) {
+            val markedTime = comments.last(::isKeepPrivateTag).created
+            val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
+            if (changedTime != null && changedTime.isAfter(markedTime)) {
                 addSecurityComment().toFailedModuleEither().bind()
             }
             setPrivate().toFailedModuleEither().bind()

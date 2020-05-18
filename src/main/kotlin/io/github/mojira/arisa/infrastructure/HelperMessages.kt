@@ -100,9 +100,9 @@ data class HelperMessages(
         }
 
     private fun resolveVariables(message: String, project: String, lang: String): String {
-        return variables.entries.fold(message) { message, (key, list) ->
+        return variables.entries.fold(message) { msg, (key, list) ->
             val variable = list.find { isProjectMatch(project, it.project) }
-            message.replace("%$key%", localizeValue(variable?.value ?: "", variable?.localizedValues, lang))
+            msg.replace("%$key%", localizeValue(variable?.value ?: "", variable?.localizedValues, lang))
         }
     }
 

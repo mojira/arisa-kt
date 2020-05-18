@@ -6,17 +6,12 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.pipe
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.Attachment
-import io.github.mojira.arisa.domain.ChangeLogItem
-import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Link
-import io.github.mojira.arisa.domain.LinkParam
-import io.github.mojira.arisa.domain.LinkedIssue
-import io.github.mojira.arisa.domain.Version
+import io.github.mojira.arisa.domain.*
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
+import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
@@ -24,6 +19,7 @@ import net.rcarz.jiraclient.Comment as JiraComment
 import net.rcarz.jiraclient.Issue as JiraIssue
 import net.rcarz.jiraclient.IssueLink as JiraIssueLink
 import net.rcarz.jiraclient.Project as JiraProject
+import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
@@ -41,8 +37,9 @@ fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.Cust
 fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
-fun JiraIssue.getCreated() = getFieldAsString("created")!!.toInstant()
-fun JiraIssue.getUpdated() = getFieldAsString("updated")!!.toInstant()
+fun JiraIssue.getCreated(): Instant = getFieldAsString("created")!!.toInstant()
+fun JiraIssue.getUpdated(): Instant = getFieldAsString("updated")!!.toInstant()
+fun JiraIssue.getReporterUser() = reporter.toDomain()
 
 fun JiraAttachment.toDomain(remove: (JiraAttachment) -> Either<Throwable, Unit>) = Attachment(
     fileName, createdDate.toInstant(), remove.partially1(this), this::download
@@ -69,7 +66,7 @@ fun JiraComment.toDomain(
     update: (JiraComment, String) -> Either<Throwable, Unit>
 ) = Comment(
     body,
-    author.displayName,
+    author.toDomain(),
     getGroups.partially1(author.name),
     createdDate.toInstant(),
     updatedDate.toInstant(),
@@ -77,6 +74,10 @@ fun JiraComment.toDomain(
     visibility?.value,
     restrict.partially1(this).partially1("staff"),
     update.partially1(this)
+)
+
+fun JiraUser.toDomain() = User(
+    name, displayName
 )
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
@@ -149,6 +150,7 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
     field,
     fromString,
     toString,
+    entry.author.toDomain(),
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 

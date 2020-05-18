@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.right
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.ReplaceTextModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -466,4 +467,4 @@ private fun getComment(
     updated: Instant,
     update: (String) -> Either<Throwable, Unit>
 ) =
-    Comment(body, "", { null }, Instant.now(), updated, null, null, { Unit.right() }, update)
+    Comment(body, User("user", ""), { null }, Instant.now(), updated, null, null, { Unit.right() }, update)

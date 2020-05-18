@@ -16,37 +16,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.CustomFields
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.getLanguage
-import io.github.mojira.arisa.infrastructure.jira.addAffectedVersion
-import io.github.mojira.arisa.infrastructure.jira.addAffectedVersionById
-import io.github.mojira.arisa.infrastructure.jira.addComment
-import io.github.mojira.arisa.infrastructure.jira.addRestrictedComment
-import io.github.mojira.arisa.infrastructure.jira.createLink
-import io.github.mojira.arisa.infrastructure.jira.createLinkForTransfer
-import io.github.mojira.arisa.infrastructure.jira.deleteAttachment
-import io.github.mojira.arisa.infrastructure.jira.getAttachments
-import io.github.mojira.arisa.infrastructure.jira.getCHK
-import io.github.mojira.arisa.infrastructure.jira.getChangeLogEntries
-import io.github.mojira.arisa.infrastructure.jira.getComments
-import io.github.mojira.arisa.infrastructure.jira.getConfirmation
-import io.github.mojira.arisa.infrastructure.jira.getCreated
-import io.github.mojira.arisa.infrastructure.jira.getEnvironment
-import io.github.mojira.arisa.infrastructure.jira.getIssueForLink
-import io.github.mojira.arisa.infrastructure.jira.getLinked
-import io.github.mojira.arisa.infrastructure.jira.getLinks
-import io.github.mojira.arisa.infrastructure.jira.getPriority
-import io.github.mojira.arisa.infrastructure.jira.getSecurityLevelId
-import io.github.mojira.arisa.infrastructure.jira.getTriagedTime
-import io.github.mojira.arisa.infrastructure.jira.getUpdated
-import io.github.mojira.arisa.infrastructure.jira.getVersions
-import io.github.mojira.arisa.infrastructure.jira.getVersionsGetField
-import io.github.mojira.arisa.infrastructure.jira.removeAffectedVersion
-import io.github.mojira.arisa.infrastructure.jira.reopenIssue
-import io.github.mojira.arisa.infrastructure.jira.resolveAs
-import io.github.mojira.arisa.infrastructure.jira.updateCHK
-import io.github.mojira.arisa.infrastructure.jira.updateConfirmation
-import io.github.mojira.arisa.infrastructure.jira.updateDescription
-import io.github.mojira.arisa.infrastructure.jira.updateLinked
-import io.github.mojira.arisa.infrastructure.jira.updateSecurity
+import io.github.mojira.arisa.infrastructure.jira.*
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -319,7 +289,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             Modules.ReopenAwaiting,
             ReopenAwaitingModule(
                 config[Modules.ReopenAwaiting.blacklistedRoles],
-                config[Modules.ReopenAwaiting.blacklistedVisibilities]
+                config[Modules.ReopenAwaiting.blacklistedVisibilities],
+                config[Modules.ReopenAwaiting.keepARTag]
             )
         ) { issue, lastRun ->
             ReopenAwaitingModule.Request(
@@ -327,6 +298,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 lastRun,
                 issue.getCreated(),
                 issue.getUpdated(),
+                issue.getReporterUser(),
                 issue.getComments(jiraClient),
                 issue.getChangeLogEntries(jiraClient),
                 ::reopenIssue.partially1(issue)

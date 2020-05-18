@@ -32,6 +32,11 @@ fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleErro
     }
 }
 
+fun assertEmpty(c: Collection<*>) = when {
+    c.isEmpty() -> Unit.right()
+    else -> OperationNotNeededModuleResponse.left()
+}
+
 fun assertNotEmpty(c: Collection<*>) = when {
     c.isEmpty() -> OperationNotNeededModuleResponse.left()
     else -> Unit.right()
@@ -47,8 +52,8 @@ fun <T> assertNotNull(e: T?) = when (e) {
     else -> Unit.right()
 }
 
-fun assertOr(vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
-    if (list.any { it.isRight() }) {
+fun assertEither(vararg list: () -> Either<OperationNotNeededModuleResponse, ModuleResponse>) =
+    if (list.any { it().isRight() }) {
         Unit.right()
     } else {
         OperationNotNeededModuleResponse.left()

@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -25,7 +26,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -45,7 +46,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -65,7 +66,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "My server has 1 MEQS of RAM and it's crashing. Also I don't know how to spell MEGS",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -85,7 +86,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -107,7 +108,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -129,7 +130,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -149,7 +150,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -169,7 +170,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -189,7 +190,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("Test.")
         val comment = Comment(
             "MEQS_WAI\nI like QC.",
-            "",
+            User("user", ""),
             { emptyList() },
             Instant.now(),
             Instant.now(),

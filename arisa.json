@@ -134,7 +134,8 @@
           "helper",
           "staff",
           "global-moderators"
-        ]
+        ],
+        "keepARTag": "MEQS_KEEP_AR"
       },
       "removeNonStaffMeqs": {
         "resolutions": [

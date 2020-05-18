@@ -77,6 +77,7 @@ object Arisa : ConfigSpec() {
         object ReopenAwaiting : ModuleConfigSpec() {
             val blacklistedRoles by optional(emptyList<String>(), description = "Comments that were posted by someone who is member of this role should be ignored.")
             val blacklistedVisibilities by optional(emptyList<String>(), description = "Comments that are restricted to one of these roles should be ignored")
+            val keepARTag by optional<String?>(null, description = "A tag used to indicate that Arisa should keep the ticket Awaiting Response")
         }
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {

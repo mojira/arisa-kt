@@ -6,7 +6,13 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import arrow.syntax.function.pipe
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.*
+import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkParam
+import io.github.mojira.arisa.domain.LinkedIssue
+import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject

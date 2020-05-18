@@ -27,7 +27,8 @@ class KeepPrivateModuleTest : StringSpec({
             listOf(comment),
             listOf(REMOVE_SECURITY),
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -42,7 +43,8 @@ class KeepPrivateModuleTest : StringSpec({
             emptyList(),
             listOf(REMOVE_SECURITY),
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -58,7 +60,8 @@ class KeepPrivateModuleTest : StringSpec({
             listOf(comment),
             listOf(REMOVE_SECURITY),
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -74,7 +77,8 @@ class KeepPrivateModuleTest : StringSpec({
             listOf(comment),
             listOf(REMOVE_SECURITY),
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -90,7 +94,8 @@ class KeepPrivateModuleTest : StringSpec({
             listOf(comment),
             emptyList(),
             { Unit.right() },
-            { Unit.right() })
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -182,7 +187,8 @@ class KeepPrivateModuleTest : StringSpec({
             listOf(comment),
             listOf(REMOVE_SECURITY),
             { RuntimeException().left() },
-            { Unit.right() })
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -200,7 +206,8 @@ class KeepPrivateModuleTest : StringSpec({
             listOf(comment),
             listOf(REMOVE_SECURITY),
             { Unit.right() },
-            { RuntimeException().left() })
+            { RuntimeException().left() }
+        )
 
         val result = module(request)
 

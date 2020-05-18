@@ -1,9 +1,13 @@
+@file:Suppress("TooManyFunctions")
+
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
+import kotlin.reflect.KFunction1
 
 interface Module<REQUEST> {
     operator fun invoke(request: REQUEST): Either<ModuleError, ModuleResponse>
@@ -32,6 +36,18 @@ fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleErro
     }
 }
 
+fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert(e: Either<OperationNotNeededModuleResponse, Unit>) =
+    if (e.isLeft()) {
+        Unit.right()
+    } else {
+        OperationNotNeededModuleResponse.left()
+    }
+
+fun <E>assertNotContains(c: Collection<E>, predicate: KFunction1<E, Boolean>) = when {
+    c.none(predicate) -> Unit.right()
+    else -> OperationNotNeededModuleResponse.left()
+}
+
 fun assertEmpty(c: Collection<*>) = when {
     c.isEmpty() -> Unit.right()
     else -> OperationNotNeededModuleResponse.left()
@@ -52,8 +68,8 @@ fun <T> assertNotNull(e: T?) = when (e) {
     else -> Unit.right()
 }
 
-fun assertEither(vararg list: () -> Either<OperationNotNeededModuleResponse, ModuleResponse>) =
-    if (list.any { it().isRight() }) {
+fun assertEither(vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
+    if (list.any { it.isRight() }) {
         Unit.right()
     } else {
         OperationNotNeededModuleResponse.left()

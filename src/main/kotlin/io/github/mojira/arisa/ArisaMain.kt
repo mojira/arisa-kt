@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit
 
 val log = LoggerFactory.getLogger("Arisa")
 
+const val TIME_MINUTES = 5L
+
 fun main() {
     val config = Config { addSpec(Arisa) }
         .from.yaml.watchFile("arisa.yml")
@@ -41,7 +43,7 @@ fun main() {
     var lastRunTime =
         if (lastRun[0].isNotEmpty())
             Instant.ofEpochMilli(lastRun[0].toLong())
-        else Instant.now().minus(5, ChronoUnit.MINUTES)
+        else Instant.now().minus(TIME_MINUTES, ChronoUnit.MINUTES)
 
     var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
     val failedTickets = mutableSetOf<String>()

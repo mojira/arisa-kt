@@ -29,8 +29,8 @@ class ReplaceTextModule(
                 .filter { needReplacement(it.body) }
 
             assertEither(
-                { assertTrue(needUpdateDescription) },
-                { assertNotEmpty(filteredComments) }
+                assertTrue(needUpdateDescription),
+                assertNotEmpty(filteredComments)
             ).bind()
 
             if (needUpdateDescription) {

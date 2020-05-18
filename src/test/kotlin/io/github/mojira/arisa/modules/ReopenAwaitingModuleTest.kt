@@ -163,6 +163,25 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when there were multiple resolves, but no changes after the last resolve." {
+        val updated = NOW.plusSeconds(3)
+        val oldResolve = ChangeLogItem(NOW.minusSeconds(30), "", "", "Awaiting Response", RANDOM_USER) { emptyList() }
+        val changeLog = ChangeLogItem(NOW.minusSeconds(15), "", "", "Confirmed", RANDOM_USER) { emptyList() }
+        val request = Request(
+            "Awaiting Response",
+            NOW.minusSeconds(10),
+            NOW,
+            updated,
+            REPORTER,
+            emptyList(),
+            listOf(oldResolve, changeLog, AWAITING_RESOLVE)
+        ) { Unit.right() }
+
+        val result = MODULE(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
         val comment = getComment(NOW.plusSeconds(3), NOW.minusSeconds(20))
         val updated = NOW.plusSeconds(3)

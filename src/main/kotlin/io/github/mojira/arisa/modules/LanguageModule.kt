@@ -6,6 +6,8 @@ import arrow.core.left
 import arrow.core.right
 import java.time.Instant
 
+const val MINIMUM_PERCENTAGE = 0.7
+
 class LanguageModule(
     val allowedLanguages: List<String> = listOf("en"),
     val lengthThreshold: Int = 0
@@ -51,7 +53,7 @@ class LanguageModule(
         return detected.fold(
             { null },
             {
-                it.filter { it.value > 0.7 }.maxBy { it.value }?.key
+                it.filter { it.value > MINIMUM_PERCENTAGE }.maxBy { it.value }?.key
             }
         )
     }

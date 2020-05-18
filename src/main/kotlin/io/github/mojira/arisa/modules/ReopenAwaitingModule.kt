@@ -9,6 +9,8 @@ import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.User
 import java.time.Instant
 
+const val TWO_SECONDS_IN_MILLIS = 2000
+
 class ReopenAwaitingModule(
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>,
@@ -34,20 +36,20 @@ class ReopenAwaitingModule(
             val resolveTime = changeLog.last(::isAwaitingResolve).created
 
             assertEither(
-                { assertUpdatedByAddingComment(comments, resolveTime, lastRun) },
-                { assertUpdatedByReporterChangingTicket(changeLog, reporter, resolveTime) }
+                assertUpdatedByAddingComment(comments, resolveTime, lastRun),
+                assertUpdatedByReporterChangingTicket(changeLog, reporter, resolveTime)
             ).bind()
 
             reopen().toFailedModuleEither().bind()
         }
     }
 
-    private fun assertShouldNotKeepAR(comments: List<Comment>) = assertEmpty(comments.filter(::isKeepARTag))
+    private fun assertShouldNotKeepAR(comments: List<Comment>) = assertNotContains(comments, ::isKeepARTag)
 
     private fun isKeepARTag(comment: Comment) = keepARTag != null &&
-            comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            comment.body.contains(keepARTag)
+        comment.visibilityType == "group" &&
+        comment.visibilityValue == "staff" &&
+        comment.body.contains(keepARTag)
 
     private fun assertUpdatedByAddingComment(
         comments: List<Comment>,
@@ -80,7 +82,7 @@ class ReopenAwaitingModule(
         change.changedTo == "Awaiting Response"
 
     private fun assertCreationIsNotRecent(updated: Long, created: Long) = when {
-        (updated - created) < 2000 -> OperationNotNeededModuleResponse.left()
+        (updated - created) < TWO_SECONDS_IN_MILLIS -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
 }

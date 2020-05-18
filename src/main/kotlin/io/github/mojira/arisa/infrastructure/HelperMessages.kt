@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.rightIfNotNull
 import com.beust.klaxon.Klaxon
+import java.io.IOException
 import java.io.InputStream
 import java.net.URL
 import java.net.URLConnection
@@ -118,7 +119,7 @@ data class HelperMessages(
             with(URL(url).openConnection() as URLConnection) {
                 deserialize(inputStream).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
             }
-        } catch (e: Error) {
+        } catch (e: IOException) {
             e.left()
         }
 

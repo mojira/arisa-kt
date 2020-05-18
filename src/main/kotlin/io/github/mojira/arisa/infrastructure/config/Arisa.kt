@@ -34,7 +34,7 @@ object Arisa : ConfigSpec() {
         val special by optional<Map<String, String>>(
             emptyMap(),
             description = "Some projects define their own security level. These projects need to be defined here with" +
-                    " their own ID.. Default is all projects use the default ID"
+                " their own ID.. Default is all projects use the default ID"
         )
     }
 
@@ -51,12 +51,12 @@ object Arisa : ConfigSpec() {
             val resolutions by optional(
                 listOf("unresolved"),
                 description = "Optional. The resolutions that should be considered for this module." +
-                        " Default is unresolved."
+                    " Default is unresolved."
             )
             val excludedStatuses by optional(
                 emptyList<String>(),
                 description = "A list of statuses that are not considered for this module. Important for modules" +
-                        " that resolve or update, as those transitions do not exist for Postponed."
+                    " that resolve or update, as those transitions do not exist for Postponed."
             )
         }
 
@@ -82,7 +82,7 @@ object Arisa : ConfigSpec() {
             val messages by optional(
                 emptyMap<String, String>(),
                 description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys." +
-                        " Default is no translated messages."
+                    " Default is no translated messages."
             )
             val defaultMessage by optional(
                 "", description = "The message that is posted when this module succeeds."
@@ -90,12 +90,12 @@ object Arisa : ConfigSpec() {
             val messageFormat by optional(
                 "%s\n----\n%s",
                 description = "The message format to be used if the translated message is present." +
-                        " First argument is translated message, second is default message."
+                    " First argument is translated message, second is default message."
             )
             val lengthThreshold by optional(
                 0,
                 description = "The minimum string length that the combined summary and description text must exceed" +
-                        " before they can be detected by this module (inclusive)."
+                    " before they can be detected by this module (inclusive)."
             )
         }
 
@@ -122,12 +122,12 @@ object Arisa : ConfigSpec() {
             val confirmationStatusWhitelist by optional(
                 emptyList<String>(),
                 description = "List of confirmation status that can be replaced by the target status if Linked is" +
-                        " greater than or equal to the threshold."
+                    " greater than or equal to the threshold."
             )
             val targetConfirmationStatus by optional(
                 "",
                 description = "The target confirmation status for tickets whose Linked is greater than or equal" +
-                        " to the threshold."
+                    " to the threshold."
             )
             val linkedThreshold by optional(
                 0.0,
@@ -144,12 +144,17 @@ object Arisa : ConfigSpec() {
                 emptyList<String>(),
                 description = "Comments that are restricted to one of these roles should be ignored"
             )
-            val keepARTag by optional<String?>(null, description = "A tag used to indicate that Arisa should keep the ticket Awaiting Response")
+            val keepARTag by optional<String?>(
+                null,
+                description = "A tag used to indicate that Arisa should keep the ticket Awaiting Response"
+            )
         }
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {
-            val removalReason by required<String>(description = "Reason Arisa should add to the edited comment for" +
-                    " removing the tag. Default is no reason.")
+            val removalReason by required<String>(
+                description = "Reason Arisa should add to the edited comment for" +
+                    " removing the tag. Default is no reason."
+            )
         }
 
         object Empty : ModuleConfigSpec() {

@@ -29,7 +29,7 @@ class HideImpostorsModule : Module<HideImpostorsModule.Request> {
         .plus(1, ChronoUnit.DAYS)
         .isAfter(Instant.now())
 
-    private fun userContainsBrackets(comment: Comment) = with(comment.authorDisplayName) {
+    private fun userContainsBrackets(comment: Comment) = with(comment.author.displayName) {
         matches("""\[(?:\p{L}|\p{N}|\s)+\]\s.+""".toRegex())
     }
 

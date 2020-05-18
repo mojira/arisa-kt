@@ -5,7 +5,7 @@ import java.time.Instant
 
 data class Comment(
     val body: String,
-    val authorDisplayName: String,
+    val author: User,
     val getAuthorGroups: () -> List<String>?,
     val created: Instant,
     val updated: Instant,

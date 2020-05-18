@@ -34,6 +34,7 @@ import io.github.mojira.arisa.infrastructure.jira.getIssueForLink
 import io.github.mojira.arisa.infrastructure.jira.getLinked
 import io.github.mojira.arisa.infrastructure.jira.getLinks
 import io.github.mojira.arisa.infrastructure.jira.getPriority
+import io.github.mojira.arisa.infrastructure.jira.getReporterUser
 import io.github.mojira.arisa.infrastructure.jira.getSecurityLevelId
 import io.github.mojira.arisa.infrastructure.jira.getTriagedTime
 import io.github.mojira.arisa.infrastructure.jira.getUpdated
@@ -322,7 +323,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             Modules.ReopenAwaiting,
             ReopenAwaitingModule(
                 config[Modules.ReopenAwaiting.blacklistedRoles],
-                config[Modules.ReopenAwaiting.blacklistedVisibilities]
+                config[Modules.ReopenAwaiting.blacklistedVisibilities],
+                config[Modules.ReopenAwaiting.keepARTag]
             )
         ) { issue, lastRun ->
             ReopenAwaitingModule.Request(
@@ -330,6 +332,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 lastRun,
                 issue.getCreated(),
                 issue.getUpdated(),
+                issue.getReporterUser(),
                 issue.getComments(jiraClient),
                 issue.getChangeLogEntries(jiraClient),
                 ::reopenIssue.partially1(issue)

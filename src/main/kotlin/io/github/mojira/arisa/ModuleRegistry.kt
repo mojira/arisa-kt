@@ -108,7 +108,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         requestCreator: (Issue, Instant) -> T
     ) = { issue: Issue, lastRun: Instant ->
         config::class.simpleName!! to
-            ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
+                ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
 
     @Suppress("TooGenericExceptionCaught")
@@ -369,7 +369,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
                 val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
                 return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
-                    " AND updated > ${intervalEnd.toEpochMilli()})"
+                        " AND updated > ${intervalEnd.toEpochMilli()})"
             },
             { issue ->
                 UpdateLinkedModule.Request(

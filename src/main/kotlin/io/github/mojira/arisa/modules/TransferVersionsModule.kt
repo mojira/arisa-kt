@@ -26,8 +26,6 @@ class TransferVersionsModule : AbstractTransferFieldModule<List<Version>, String
         .sortedBy { it.releaseDate }
         .getOrNull(0)
 
-    private operator fun List<Version>.get(version: String) = this.find { it.name == version }
-
     private infix fun Version.isReleasedAfter(other: Version?) =
         other == null || this.releaseDate.isAfter(other.releaseDate)
 

@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
+import arrow.syntax.function.partially2
 import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
@@ -107,7 +108,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         requestCreator: (Issue, Instant) -> T
     ) = { issue: Issue, lastRun: Instant ->
         config::class.simpleName!! to
-                ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
+            ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
 
     @Suppress("TooGenericExceptionCaught")
@@ -229,8 +230,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         register(Modules.TransferVersions, TransferVersionsModule()) { issue ->
             AbstractTransferFieldModule.Request(
                 issue.key,
-                issue.getLinks(jiraClient, ::addAffectedVersionById, ::getVersionsGetField),
-                issue.versions.map { it.id }
+                issue.getLinks(jiraClient, ::addAffectedVersionById, ::getVersionsGetField.partially2 { Unit.right() }),
+                issue.getVersions { Unit.right() }
             )
         }
 
@@ -368,7 +369,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
                 val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
                 return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
-                        " AND updated > ${intervalEnd.toEpochMilli()})"
+                    " AND updated > ${intervalEnd.toEpochMilli()})"
             },
             { issue ->
                 UpdateLinkedModule.Request(

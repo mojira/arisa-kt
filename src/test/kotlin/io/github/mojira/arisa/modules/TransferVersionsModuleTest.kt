@@ -4,18 +4,26 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
+import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import java.time.Instant
+
+private val NOW = Instant.now()
+private val VERSION_1 = getVersion("v1", NOW.minusSeconds(300))
+private val VERSION_2 = getVersion("v2", NOW.minusSeconds(200))
+private val VERSION_3 = getVersion("v3", NOW.minusSeconds(100))
 
 class TransferVersionsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferVersionsModule()
-        val request = Request<List<String>, String>("MC-1", emptyList(), listOf("v1"))
+        val request = Request<List<Version>, String>("MC-1", emptyList(), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -27,9 +35,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Relates",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -41,9 +49,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             false,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -55,9 +63,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Resolved", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Resolved", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -69,7 +77,7 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
         val request = Request("MC-1", listOf(link), emptyList())
 
@@ -83,9 +91,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { listOf("v1").right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { listOf(VERSION_1).right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -97,10 +105,28 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MCL-1", "Open", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MCL-1", "Open", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the version is released before the parent's oldest version (#229)" {
+        val module = TransferVersionsModule()
+        val link = Link(
+            "Duplicate",
+            true,
+            LinkedIssue<List<Version>, String>(
+                "MC-1",
+                "Open",
+                { Unit.right() },
+                { listOf(VERSION_2).right() }
+            )
+        ) { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
         val result = module(request)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
@@ -111,9 +137,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -125,9 +151,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Reopened", { Unit.right() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Reopened", { Unit.right() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -141,7 +167,7 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>(
+            LinkedIssue<List<Version>, String>(
                 "MC-1",
                 "Open",
                 { v ->
@@ -151,15 +177,43 @@ class TransferVersionsModuleTest : StringSpec({
                     }
                     Unit.right()
                 },
-                { emptyList<String>().right() }
+                { emptyList<Version>().right() }
             )
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1", "v2"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
         val result = module(request)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
         secondVersionAdded.shouldBeTrue()
+    }
+
+    "should only add versions released after the oldest version to parent (#229)" {
+        var version1Added = false
+        var version3Added = false
+        val module = TransferVersionsModule()
+        val link = Link(
+            "Duplicate",
+            true,
+            LinkedIssue<List<Version>, String>(
+                "MC-1",
+                "Open",
+                { v ->
+                    when (v) {
+                        "v1" -> version1Added = true
+                        "v3" -> version3Added = true
+                    }
+                    Unit.right()
+                },
+                { listOf(VERSION_2).right() }
+            )
+        ) { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        version1Added.shouldBeFalse()
+        version3Added.shouldBeTrue()
     }
 
     "should add versions to all parents" {
@@ -169,32 +223,32 @@ class TransferVersionsModuleTest : StringSpec({
         val link1 = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>(
+            LinkedIssue<List<Version>, String>(
                 "MC-1",
                 "Open",
                 {
                     addedToFirstParent = true
                     Unit.right()
                 },
-                { emptyList<String>().right() }
+                { emptyList<Version>().right() }
             )
         ) { RuntimeException().left() }
 
         val link2 = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>(
+            LinkedIssue<List<Version>, String>(
                 "MC-1",
                 "Open",
                 {
                     addedToSecondParent = true
                     Unit.right()
                 },
-                { emptyList<String>().right() }
+                { emptyList<Version>().right() }
             )
         ) { RuntimeException().left() }
 
-        val request = Request("MC-1", listOf(link1, link2), listOf("v1"))
+        val request = Request("MC-1", listOf(link1, link2), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -208,9 +262,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { RuntimeException().left() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { RuntimeException().left() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf(""))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -224,9 +278,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { RuntimeException().left() }, { emptyList<String>().right() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { RuntimeException().left() }, { emptyList<Version>().right() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1", "v2"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
 
         val result = module(request)
 
@@ -240,9 +294,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { RuntimeException().left() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { RuntimeException().left() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link), listOf("v1"))
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -256,9 +310,9 @@ class TransferVersionsModuleTest : StringSpec({
         val link = Link(
             "Duplicate",
             true,
-            LinkedIssue<List<String>, String>("MC-1", "Open", { Unit.right() }, { RuntimeException().left() })
+            LinkedIssue<List<Version>, String>("MC-1", "Open", { Unit.right() }, { RuntimeException().left() })
         ) { RuntimeException().left() }
-        val request = Request("MC-1", listOf(link, link), listOf("v1"))
+        val request = Request("MC-1", listOf(link, link), listOf(VERSION_1))
 
         val result = module(request)
 
@@ -267,3 +321,10 @@ class TransferVersionsModuleTest : StringSpec({
         (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 })
+
+private fun getVersion(name: String, releaseDate: Instant = NOW) = Version(
+    name,
+    released = true,
+    archived = false,
+    releaseDate = releaseDate
+) { Unit.right() }

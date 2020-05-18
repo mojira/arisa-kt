@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either

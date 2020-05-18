@@ -29,6 +29,7 @@ class ModuleExecutor(
         val failedTickets: Collection<String>
     )
 
+    @Suppress("TooGenericExceptionCaught")
     fun execute(lastRun: Instant, rerunTickets: Set<String>): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
 
@@ -62,6 +63,7 @@ class ModuleExecutor(
         }
     }
 
+    @Suppress("LongParameterList")
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         queryCache: QueryCache,
@@ -94,7 +96,9 @@ class ModuleExecutor(
             .forEach { (issue, response) ->
                 response.second.fold({
                     when (it) {
-                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) {
+                            log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        }
                         is FailedModuleResponse -> {
                             addFailedTicket(issue)
 

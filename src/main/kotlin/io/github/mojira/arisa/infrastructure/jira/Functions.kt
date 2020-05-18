@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
@@ -16,13 +18,12 @@ import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
-typealias IssueId = String
-
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {
         jiraClient.getIssue(key)
     }
 }
+const val MILLI_FOR_FORMAT = 123L
 
 fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBlocking {
     Either.catch {
@@ -33,7 +34,7 @@ fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBloc
                 Instant
                     .now()
                     .with(ChronoField.NANO_OF_SECOND, 0)
-                    .with(ChronoField.MILLI_OF_SECOND, 123)
+                    .with(ChronoField.MILLI_OF_SECOND, MILLI_FOR_FORMAT)
                     .toString()
                     .replace("Z", "-0000")
             )
@@ -160,7 +161,10 @@ fun addAffectedVersion(issue: Issue, version: Version) = runBlocking {
 fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
     Either.catch {
         // Mojira does not seem to provide any accountIds, hence the endpoint GET /user/groups cannot be used.
-        (jiraClient.restClient.get(User.getBaseUri() + "user/", mapOf(Pair("username", username), Pair("expand", "groups"))) as JSONObject)
+        (jiraClient.restClient.get(
+            User.getBaseUri() + "user/",
+            mapOf(Pair("username", username), Pair("expand", "groups"))
+        ) as JSONObject)
             .getJSONObject("groups")
             .getJSONArray("items")
             .map { (it as JSONObject)["name"] as String }

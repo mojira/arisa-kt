@@ -77,8 +77,9 @@ import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
+
 class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private val messages: HelperMessages) {
-    private val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
 
     data class Entry(
         val config: ModuleConfigSpec,
@@ -104,9 +105,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         getJql: (lastRun: Instant) -> String = DEFAULT_JQL,
         requestCreator: (Issue, Instant) -> T
     ) = { issue: Issue, lastRun: Instant ->
-        config::class.simpleName!! to ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
+        config::class.simpleName!! to
+                ({ lastRun pipe (issue pipe2 requestCreator) pipe module::invoke } pipe ::tryExecuteModule)
     } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
 
+    @Suppress("TooGenericExceptionCaught")
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
         executeModule()
     } catch (e: Throwable) {
@@ -361,7 +364,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 val now = Instant.now()
                 val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
                 val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
-                return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()})"
+                return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
+                        " AND updated > ${intervalEnd.toEpochMilli()})"
             },
             { issue ->
                 UpdateLinkedModule.Request(

@@ -29,8 +29,8 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
     private fun isConfirmationChange(item: ChangeLogItem) =
         item.field == "Confirmation Status"
 
-    private fun changedByVolunteer(item: ChangeLogItem) =
-        !updateIsRecent(item) || item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+    private fun changedByVolunteer(item: ChangeLogItem) = !updateIsRecent(item) ||
+            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 
     private fun updateIsRecent(item: ChangeLogItem) =
         item

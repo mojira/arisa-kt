@@ -79,6 +79,7 @@ class CrashModule(
 
     private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.getContent().lines())
 
+    @Suppress("ReturnCount")
     private fun findDuplicate(
         sortedMap: SortedMap<TextDocument, Crash>,
         crashDupeConfigs: List<CrashDupeConfig>

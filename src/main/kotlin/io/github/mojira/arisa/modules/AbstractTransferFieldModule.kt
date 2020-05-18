@@ -38,7 +38,9 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
         }
     }
 
-    private fun toIssueVersionPair(issue: LinkedIssue<FIELD, FUNPARAM>): Either<Throwable, Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>> {
+    private fun toIssueVersionPair(
+        issue: LinkedIssue<FIELD, FUNPARAM>
+    ): Either<Throwable, Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>> {
         val details = issue.getField()
         return details.fold(
             { it.left() },
@@ -49,7 +51,10 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
     protected open fun filterParents(issue: LinkedIssue<FIELD, *>, request: Request<FIELD, *>) =
         true
 
-    protected abstract fun getFunctions(parents: Collection<Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>>, field: FIELD): Collection<() -> Either<Throwable, Unit>>
+    protected abstract fun getFunctions(
+        parents: Collection<Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>>,
+        field: FIELD
+    ): Collection<() -> Either<Throwable, Unit>>
 
     protected fun isDuplicatesLink(link: Link<*, *>) =
         link.type.toLowerCase() == "duplicate" && link.outwards

@@ -8,6 +8,8 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
 
+const val TWO_SECONDS_IN_MILLIS = 2000
+
 class ReopenAwaitingModule(
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>
@@ -32,7 +34,10 @@ class ReopenAwaitingModule(
             val lastComment = comments.last()
             assertAfter(lastComment.created, resolveTime).bind()
             assertAfter(lastComment.created, lastRun).bind()
-            assertCommentIsNotRestrictedToABlacklistedLevel(lastComment.visibilityType, lastComment.visibilityValue).bind()
+            assertCommentIsNotRestrictedToABlacklistedLevel(
+                lastComment.visibilityType,
+                lastComment.visibilityValue
+            ).bind()
             assertCommentWasNotAddedByABlacklistedRole(lastComment.getAuthorGroups()).bind()
 
             reopen().toFailedModuleEither().bind()
@@ -43,7 +48,7 @@ class ReopenAwaitingModule(
         change.changedTo == "Awaiting Response"
 
     private fun assertCreationIsNotRecent(updated: Long, created: Long) = when {
-        (updated - created) < 2000 -> OperationNotNeededModuleResponse.left()
+        (updated - created) < TWO_SECONDS_IN_MILLIS -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
 
@@ -53,9 +58,10 @@ class ReopenAwaitingModule(
         else -> OperationNotNeededModuleResponse.left()
     }
 
-    private fun assertCommentIsNotRestrictedToABlacklistedLevel(visibilityType: String?, visibilityValue: String?) = when {
-        visibilityType != "group" -> Unit.right()
-        blacklistedVisibilities.none { it == visibilityValue } -> Unit.right()
-        else -> OperationNotNeededModuleResponse.left()
-    }
+    private fun assertCommentIsNotRestrictedToABlacklistedLevel(visibilityType: String?, visibilityValue: String?) =
+        when {
+            visibilityType != "group" -> Unit.right()
+            blacklistedVisibilities.none { it == visibilityValue } -> Unit.right()
+            else -> OperationNotNeededModuleResponse.left()
+        }
 }

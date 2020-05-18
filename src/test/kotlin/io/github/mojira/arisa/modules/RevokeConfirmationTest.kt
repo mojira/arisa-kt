@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.RevokeConfirmationModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -200,4 +201,4 @@ private fun getChangeLogItem(
     value: String = "Confirmed",
     getAuthorGroups: () -> List<String>? = { emptyList() }
 ) =
-    ChangeLogItem(created, field, null, value, getAuthorGroups)
+    ChangeLogItem(created, field, null, value, User("user", "User"), getAuthorGroups)

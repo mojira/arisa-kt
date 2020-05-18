@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.HideImpostorsModule.Request
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -26,7 +27,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "test] test",
+            User("user", "test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -45,7 +46,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test test",
+            User("user", "[test test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -64,7 +65,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[}[{]] test",
+            User("user", "[}[{]] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -83,7 +84,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test]",
+            User("user", "[test]"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -102,7 +103,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "test [test]",
+            User("user", "test [test]"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -121,7 +122,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { listOf("staff") },
             Instant.now(),
             Instant.now(),
@@ -140,7 +141,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { listOf("helper") },
             Instant.now(),
             Instant.now(),
@@ -159,7 +160,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { listOf("global-moderators") },
             Instant.now(),
             Instant.now(),
@@ -178,7 +179,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -197,7 +198,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { listOf("staff") },
             Instant.now(),
             Instant.now().minus(2, ChronoUnit.DAYS),
@@ -216,7 +217,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -235,7 +236,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[t3st] test",
+            User("user", "[t3st] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -254,7 +255,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[tést] test",
+            User("user", "[tést] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -273,7 +274,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[Mojang Overlord] test",
+            User("user", "[Mojang Overlord] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -292,7 +293,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -311,7 +312,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -330,7 +331,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            "[test] test",
+            User("user", "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),

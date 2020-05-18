@@ -7,5 +7,6 @@ data class ChangeLogItem(
     val field: String,
     val changedFrom: String?,
     val changedTo: String?,
+    val author: User,
     val getAuthorGroups: () -> List<String>?
 )

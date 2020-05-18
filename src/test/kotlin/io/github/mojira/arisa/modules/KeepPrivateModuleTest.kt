@@ -4,6 +4,7 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.User
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -12,14 +13,22 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 
 private val NOW = Instant.now()
+private val RANDOM_USER = User("randomUser", "Random User")
 
 class KeepPrivateModuleTest : StringSpec({
-    val REMOVE_SECURITY = ChangeLogItem(NOW.minusSeconds(10), "security", "10318", null) { emptyList() }
+    val REMOVE_SECURITY = ChangeLogItem(NOW.minusSeconds(10), "security", "10318", null, RANDOM_USER) { emptyList() }
 
     "should return OperationNotNeededModuleResponse when keep private tag is null" {
         val module = KeepPrivateModule(null)
         val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
-        val request = KeepPrivateModule.Request(null, "private", listOf(comment), listOf(REMOVE_SECURITY), { Unit.right() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            null,
+            "private",
+            listOf(comment),
+            listOf(REMOVE_SECURITY),
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -28,7 +37,14 @@ class KeepPrivateModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when comments are empty" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModule.Request(null, "private", emptyList(), listOf(REMOVE_SECURITY), { Unit.right() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            null,
+            "private",
+            emptyList(),
+            listOf(REMOVE_SECURITY),
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -38,7 +54,14 @@ class KeepPrivateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no comment contains private tag" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
         val comment = getComment("Hello world!", visibilityType = "group", visibilityValue = "staff")
-        val request = KeepPrivateModule.Request(null, "private", listOf(comment), listOf(REMOVE_SECURITY), { Unit.right() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            null,
+            "private",
+            listOf(comment),
+            listOf(REMOVE_SECURITY),
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -48,7 +71,14 @@ class KeepPrivateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the comment isn't restricted to staff group" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
         val comment = getComment("MEQS_KEEP_PRIVATE")
-        val request = KeepPrivateModule.Request(null, "private", listOf(comment), listOf(REMOVE_SECURITY), { Unit.right() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            null,
+            "private",
+            listOf(comment),
+            listOf(REMOVE_SECURITY),
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -58,7 +88,14 @@ class KeepPrivateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when security level is set to private" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
         val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
-        val request = KeepPrivateModule.Request("private", "private", listOf(comment), emptyList(), { Unit.right() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            "private",
+            "private",
+            listOf(comment),
+            emptyList(),
+            { Unit.right() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -144,7 +181,14 @@ class KeepPrivateModuleTest : StringSpec({
     "should return FailedModuleResponse when setting security level fails" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
         val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
-        val request = KeepPrivateModule.Request(null, "private", listOf(comment), listOf(REMOVE_SECURITY), { RuntimeException().left() }, { Unit.right() })
+        val request = KeepPrivateModule.Request(
+            null,
+            "private",
+            listOf(comment),
+            listOf(REMOVE_SECURITY),
+            { RuntimeException().left() },
+            { Unit.right() }
+        )
 
         val result = module(request)
 
@@ -156,7 +200,14 @@ class KeepPrivateModuleTest : StringSpec({
     "should return FailedModuleResponse when posting comment" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE")
         val comment = getComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
-        val request = KeepPrivateModule.Request(null, "private", listOf(comment), listOf(REMOVE_SECURITY), { Unit.right() }, { RuntimeException().left() })
+        val request = KeepPrivateModule.Request(
+            null,
+            "private",
+            listOf(comment),
+            listOf(REMOVE_SECURITY),
+            { Unit.right() },
+            { RuntimeException().left() }
+        )
 
         val result = module(request)
 
@@ -173,11 +224,12 @@ private fun getComment(
     visibilityValue: String? = null
 ) = Comment(
     body,
-    "",
+    RANDOM_USER,
     { null },
     created,
     created,
     visibilityType,
     visibilityValue,
     { Unit.right() },
-    { Unit.right() })
+    { Unit.right() }
+)

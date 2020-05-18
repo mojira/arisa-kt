@@ -32,9 +32,7 @@ import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-private val yearFormat = SimpleDateFormat("yyyy-MM-dd")
 private fun String.toInstant() = isoFormat.parse(this).toInstant()
-private fun String.toYearInstant() = yearFormat.parse(this).toInstant()
 
 private fun JiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
 
@@ -63,10 +61,11 @@ fun JiraIssue.getAttachments(remove: (JiraAttachment) -> Either<Throwable, Unit>
     attachments.map { it.toDomain(remove) }
 
 fun JiraVersion.toDomain(execute: (JiraVersion) -> Either<Throwable, Unit>) = Version(
+    id,
     name,
     isReleased,
     isArchived,
-    releaseDate.toYearInstant(),
+    releaseDate.toInstant(),
     execute.partially1(this)
 )
 

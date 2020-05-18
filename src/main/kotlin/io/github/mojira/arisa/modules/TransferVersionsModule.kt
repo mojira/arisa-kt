@@ -18,7 +18,7 @@ class TransferVersionsModule : AbstractTransferFieldModule<List<Version>, String
             field
                 .filter { it !in parentField }
                 .filter { it isReleasedAfter oldestVersionOnParent }
-                .map { it.name }
+                .map { it.id }
                 .map(parentIssue.setField::partially1)
         }
 

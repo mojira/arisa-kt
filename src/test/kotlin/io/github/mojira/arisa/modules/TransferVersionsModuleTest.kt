@@ -324,6 +324,7 @@ class TransferVersionsModuleTest : StringSpec({
 
 private fun getVersion(name: String, releaseDate: Instant = NOW) = Version(
     name,
+    name,
     released = true,
     archived = false,
     releaseDate = releaseDate

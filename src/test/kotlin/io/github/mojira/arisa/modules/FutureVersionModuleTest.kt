@@ -142,6 +142,7 @@ class FutureVersionModuleTest : StringSpec({
 
 private fun getVersion(released: Boolean, archived: Boolean, execute: () -> Either<Throwable, Unit>) = Version(
     "",
+    "",
     released,
     archived,
     NOW,

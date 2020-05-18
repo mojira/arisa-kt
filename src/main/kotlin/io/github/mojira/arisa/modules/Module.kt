@@ -5,7 +5,6 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
 import kotlin.reflect.KFunction1
 
@@ -27,7 +26,7 @@ fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
 fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleError, ModuleResponse> {
     val errors =
         filter(Either<Throwable, Any>::isLeft)
-        .map { (it as Either.Left).a }
+            .map { (it as Either.Left).a }
 
     return if (errors.isEmpty()) {
         ModuleResponse.right()
@@ -43,7 +42,7 @@ fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert(e: Either<Op
         OperationNotNeededModuleResponse.left()
     }
 
-fun <E>assertNotContains(c: Collection<E>, predicate: KFunction1<E, Boolean>) = when {
+fun <E> assertNotContains(c: Collection<E>, predicate: KFunction1<E, Boolean>) = when {
     c.none(predicate) -> Unit.right()
     else -> OperationNotNeededModuleResponse.left()
 }

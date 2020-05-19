@@ -252,6 +252,7 @@
       },
       "language": {
         "excludedStatuses": ["Postponed"],
+        "allowedLanguages": ["en", "nl"],
         "messages": {
           "zh": "I have detected that this ticket is in *Chinese*.",
           "fr": "I have detected that this ticket is in *French*.",
@@ -265,7 +266,7 @@
           "it": "I have detected that this ticket is in *Italian*."
         },
         "defaultMessage": "I would have closed this ticket as Invalid. This module is currently in the testing phase. If you find any issues, please [report them on GitHub|https://github.com/mojira/arisa-kt/issues].\nARISA_LANGUAGE_MODULE_TEST\n\n~{color:#888}-- I am a bot. This action was performed automagically!{color}~",
-        "lengthThreshold": 160
+        "lengthThreshold": 80
       },
       "hideImpostors": {},
       "resolveTrash": {

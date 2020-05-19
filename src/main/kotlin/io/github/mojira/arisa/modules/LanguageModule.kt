@@ -9,7 +9,7 @@ import java.time.Instant
 const val MINIMUM_PERCENTAGE = 0.7
 
 class LanguageModule(
-    val allowedLanguages: List<String> = listOf("en"),
+    private val allowedLanguages: List<String> = listOf("en"),
     val lengthThreshold: Int = 0
 ) : Module<LanguageModule.Request> {
 
@@ -30,7 +30,7 @@ class LanguageModule(
             assertAfter(created, lastRun).bind()
             assertIsPublic(securityLevel, privateLevel).bind()
 
-            val combinedText = "${(summary ?: "").trim()} ${(description ?: "").trim()}"
+            val combinedText = combineSummaryAndDescription(summary, description)
 
             assertExceedLengthThreshold(combinedText).bind()
 
@@ -45,6 +45,22 @@ class LanguageModule(
         }
     }
 
+    private fun combineSummaryAndDescription(summary: String?, description: String?): String {
+        val trimmedSummary = (summary ?: "").trim()
+        val trimmedDescription = (description ?: "").trim()
+        return when {
+            trimmedDescription.contains(trimmedSummary, ignoreCase = true) -> trimmedDescription.completeDot()
+            trimmedSummary.contains(trimmedDescription, ignoreCase = true) -> trimmedSummary.completeDot()
+            else -> "${trimmedSummary.completeDot()} ${trimmedDescription.completeDot()}"
+        }
+    }
+
+    private fun String.completeDot() = if (this.endsWith(".")) {
+        this
+    } else {
+        "$this."
+    }
+
     private fun getDetectedLanguage(
         getLanguage: (String) -> Either<Any, Map<String, Double>>,
         text: String
@@ -52,8 +68,8 @@ class LanguageModule(
         val detected = getLanguage(text)
         return detected.fold(
             { null },
-            {
-                it.filter { it.value > MINIMUM_PERCENTAGE }.maxBy { it.value }?.key
+            { languages ->
+                languages.filter { it.value > MINIMUM_PERCENTAGE }.maxBy { it.value }?.key
             }
         )
     }

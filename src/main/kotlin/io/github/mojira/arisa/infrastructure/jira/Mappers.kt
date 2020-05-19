@@ -33,6 +33,8 @@ import net.rcarz.jiraclient.Version as JiraVersion
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 private fun String.toInstant() = isoFormat.parse(this).toInstant()
+private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
+private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 
 private fun JiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
 
@@ -65,7 +67,7 @@ fun JiraVersion.toDomain(execute: (JiraVersion) -> Either<Throwable, Unit>) = Ve
     name,
     isReleased,
     isArchived,
-    releaseDate.toInstant(),
+    releaseDate.toVersionReleaseInstant(),
     execute.partially1(this)
 )
 

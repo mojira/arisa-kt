@@ -184,6 +184,8 @@ class LanguageModuleTest : StringSpec({
     }
 
     "should pass the combined text to the API" {
+        var isApiExecuted = false
+
         val module = LanguageModule()
         val request = Request(
             NOW,
@@ -192,15 +194,19 @@ class LanguageModuleTest : StringSpec({
             "Description.",
             "not private",
             "private",
-            { it shouldBe "Summary. Description."; emptyMap<String, Double>().right() },
+            { it shouldBe "Summary. Description."; isApiExecuted = true; emptyMap<String, Double>().right() },
             { Unit.right() },
             { Unit.right() }
         )
 
         module(request)
+
+        isApiExecuted shouldBe true
     }
 
     "should pass the combined text with punctuations to the API" {
+        var isApiExecuted = false
+
         val module = LanguageModule()
         val request = Request(
             NOW,
@@ -209,15 +215,19 @@ class LanguageModuleTest : StringSpec({
             "Description",
             "not private",
             "private",
-            { it shouldBe "Summary. Description."; emptyMap<String, Double>().right() },
+            { it shouldBe "Summary. Description."; isApiExecuted = true; emptyMap<String, Double>().right() },
             { Unit.right() },
             { Unit.right() }
         )
 
         module(request)
+
+        isApiExecuted shouldBe true
     }
 
     "should pass only the summary to the API when description is null" {
+        var isApiExecuted = false
+
         val module = LanguageModule()
         val request = Request(
             NOW,
@@ -226,15 +236,19 @@ class LanguageModuleTest : StringSpec({
             null,
             "not private",
             "private",
-            { it shouldBe "Summary."; emptyMap<String, Double>().right() },
+            { it shouldBe "Summary."; isApiExecuted = true; emptyMap<String, Double>().right() },
             { Unit.right() },
             { Unit.right() }
         )
 
         module(request)
+
+        isApiExecuted shouldBe true
     }
 
     "should pass only the description to the API when summary is null" {
+        var isApiExecuted = false
+
         val module = LanguageModule()
         val request = Request(
             NOW,
@@ -243,15 +257,19 @@ class LanguageModuleTest : StringSpec({
             "Description.",
             "not private",
             "private",
-            { it shouldBe "Description."; emptyMap<String, Double>().right() },
+            { it shouldBe "Description."; isApiExecuted = true; emptyMap<String, Double>().right() },
             { Unit.right() },
             { Unit.right() }
         )
 
         module(request)
+
+        isApiExecuted shouldBe true
     }
 
     "should pass only the summary to the API when it contains the description" {
+        var isApiExecuted = false
+
         val module = LanguageModule()
         val request = Request(
             NOW,
@@ -262,6 +280,7 @@ class LanguageModuleTest : StringSpec({
             "private",
             {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
+                isApiExecuted = true
                 emptyMap<String, Double>().right()
             },
             { Unit.right() },
@@ -269,9 +288,13 @@ class LanguageModuleTest : StringSpec({
         )
 
         module(request)
+
+        isApiExecuted shouldBe true
     }
 
     "should pass only the description to the API when it contains the summary" {
+        var isApiExecuted = false
+
         val module = LanguageModule()
         val request = Request(
             NOW,
@@ -282,6 +305,7 @@ class LanguageModuleTest : StringSpec({
             "private",
             {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
+                isApiExecuted = true
                 emptyMap<String, Double>().right()
             },
             { Unit.right() },
@@ -289,6 +313,8 @@ class LanguageModuleTest : StringSpec({
         )
 
         module(request)
+
+        isApiExecuted shouldBe true
     }
 
     "should return OperationNotNeeded if ticket is private" {

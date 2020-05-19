@@ -13,7 +13,7 @@ import java.net.URLConnection
 typealias ProjectFilter = Any
 typealias LocalizedValues = Map<String, String>
 
-private const val url =
+private const val URL =
     "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
 
 data class HelperMessages(
@@ -117,7 +117,7 @@ data class HelperMessages(
 }
 
 private fun fetch() = try {
-    with(URL(url).openConnection() as URLConnection) {
+    with(URL(URL).openConnection() as URLConnection) {
         deserialize(inputStream).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
     }
 } catch (e: IOException) {

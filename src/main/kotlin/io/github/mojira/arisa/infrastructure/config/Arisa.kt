@@ -44,6 +44,10 @@ object Arisa : ConfigSpec() {
 
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
+            val only by optional<Boolean?>(
+                null,
+                description = "Optional. If set to true, only this module will be executed."
+            )
             val whitelist by optional<List<String>?>(
                 null,
                 description = "Optional. The projects this module should operate on. Default is arisa.issues.projects"

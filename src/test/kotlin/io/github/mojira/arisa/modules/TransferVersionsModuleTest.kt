@@ -16,9 +16,10 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 
 private val NOW = Instant.now()
-private val VERSION_1 = getVersion("v1", NOW.minusSeconds(300))
-private val VERSION_2 = getVersion("v2", NOW.minusSeconds(200))
-private val VERSION_3 = getVersion("v3", NOW.minusSeconds(100))
+private val VERSION_1 = getVersion(name = "v1", releaseDate = NOW.minusSeconds(300))
+private val VERSION_2 = getVersion(name = "v2", releaseDate = NOW.minusSeconds(200))
+private val VERSION_3 = getVersion(name = "v3", releaseDate = NOW.minusSeconds(100))
+private val VERSION_X = getVersion(name = "vX", releaseDate = null)
 
 class TransferVersionsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no issue links" {
@@ -132,6 +133,24 @@ class TransferVersionsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the version's releaseDate is null (#250)" {
+        val module = TransferVersionsModule()
+        val link = Link(
+            "Duplicate",
+            true,
+            LinkedIssue<List<Version>, String>(
+                "MC-1",
+                "Open",
+                { Unit.right() },
+                { listOf(VERSION_1).right() }
+            )
+        ) { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf(VERSION_X))
+        val result = module(request)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should transfer missing versions to open parents" {
         val module = TransferVersionsModule()
         val link = Link(
@@ -188,6 +207,34 @@ class TransferVersionsModuleTest : StringSpec({
         secondVersionAdded.shouldBeTrue()
     }
 
+    "should add all versions to parent if the only version it has has a null releaseDate (#250)" {
+        var firstVersionAdded = false
+        var secondVersionAdded = false
+        val module = TransferVersionsModule()
+        val link = Link(
+            "Duplicate",
+            true,
+            LinkedIssue<List<Version>, String>(
+                "MC-1",
+                "Open",
+                { v ->
+                    when (v) {
+                        "v1" -> firstVersionAdded = true
+                        "v2" -> secondVersionAdded = true
+                    }
+                    Unit.right()
+                },
+                { listOf(VERSION_X).right() }
+            )
+        ) { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        firstVersionAdded.shouldBeTrue()
+        secondVersionAdded.shouldBeTrue()
+    }
+
     "should only add versions released after the oldest version to parent (#229)" {
         var version1Added = false
         var version3Added = false
@@ -206,6 +253,62 @@ class TransferVersionsModuleTest : StringSpec({
                     Unit.right()
                 },
                 { listOf(VERSION_2).right() }
+            )
+        ) { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        version1Added.shouldBeFalse()
+        version3Added.shouldBeTrue()
+    }
+
+    "should only add versions which has a non-null releaseDate (#250)" {
+        var versionXAdded = false
+        var version2Added = false
+        val module = TransferVersionsModule()
+        val link = Link(
+            "Duplicate",
+            true,
+            LinkedIssue<List<Version>, String>(
+                "MC-1",
+                "Open",
+                { v ->
+                    when (v) {
+                        "vx" -> versionXAdded = true
+                        "v2" -> version2Added = true
+                    }
+                    Unit.right()
+                },
+                { listOf(VERSION_1).right() }
+            )
+        ) { RuntimeException().left() }
+        val request = Request("MC-1", listOf(link), listOf(VERSION_X, VERSION_2))
+        val result = module(request)
+
+        result.shouldBeRight(ModuleResponse)
+        versionXAdded.shouldBeFalse()
+        version2Added.shouldBeTrue()
+    }
+
+    "should only add versions released after the oldest version with a known releaseData to parent (#250)" {
+        var version1Added = false
+        var version3Added = false
+        val module = TransferVersionsModule()
+        val link = Link(
+            "Duplicate",
+            true,
+            LinkedIssue<List<Version>, String>(
+                "MC-1",
+                "Open",
+                { v ->
+                    when (v) {
+                        "v1" -> version1Added = true
+                        "v3" -> version3Added = true
+                    }
+                    Unit.right()
+                },
+                { listOf(VERSION_X, VERSION_2).right() }
             )
         ) { RuntimeException().left() }
         val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
@@ -322,7 +425,7 @@ class TransferVersionsModuleTest : StringSpec({
     }
 })
 
-private fun getVersion(name: String, releaseDate: Instant = NOW) = Version(
+private fun getVersion(name: String, releaseDate: Instant? = NOW) = Version(
     name,
     name,
     released = true,

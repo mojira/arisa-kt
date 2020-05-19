@@ -9,7 +9,8 @@ class FutureVersionModule : Module<FutureVersionModule.Request> {
     data class Request(
         val affectedVersions: List<Version>,
         val versions: List<Version>?,
-        val addFutureVersionComment: () -> Either<Throwable, Unit>
+        val addFutureVersionComment: () -> Either<Throwable, Unit>,
+        val resolveAsAwaitingResponse: () -> Either<Throwable, Unit>
     )
 
     override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
@@ -25,6 +26,7 @@ class FutureVersionModule : Module<FutureVersionModule.Request> {
             latestVersion!!.execute().toFailedModuleEither().bind()
             tryRunAll(removeFutureVersions).bind()
             addFutureVersionComment().toFailedModuleEither().bind()
+            resolveAsAwaitingResponse().toFailedModuleEither().bind()
         }
     }
 

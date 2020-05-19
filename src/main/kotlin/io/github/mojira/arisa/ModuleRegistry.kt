@@ -211,7 +211,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                     messages.getMessageWithBotSignature(
                         issue.project.key, config[Modules.FutureVersion.message]
                     )
-                )
+                ),
+                ::resolveAs.partially1(issue).partially1("Awaiting Response")
             )
         }
 

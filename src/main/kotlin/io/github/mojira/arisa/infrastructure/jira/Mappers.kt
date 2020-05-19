@@ -61,8 +61,11 @@ fun JiraIssue.getAttachments(remove: (JiraAttachment) -> Either<Throwable, Unit>
     attachments.map { it.toDomain(remove) }
 
 fun JiraVersion.toDomain(execute: (JiraVersion) -> Either<Throwable, Unit>) = Version(
+    id,
+    name,
     isReleased,
     isArchived,
+    releaseDate.toInstant(),
     execute.partially1(this)
 )
 
@@ -119,7 +122,8 @@ fun <FIELD, FUNPARAM> JiraIssue.toLinkedIssue(
     }
 )
 
-fun getVersionsGetField(issue: JiraIssue) = issue.versions.map { it.id }.right()
+fun getVersionsGetField(issue: JiraIssue, execute: (JiraVersion) -> Either<Throwable, Unit>) =
+    issue.versions.map { it.toDomain(execute) }.right()
 
 fun <FIELD, FUNPARAM> JiraIssueLink.toDomain(
     jiraClient: JiraClient,

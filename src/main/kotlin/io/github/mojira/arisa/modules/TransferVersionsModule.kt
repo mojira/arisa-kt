@@ -2,21 +2,32 @@ package io.github.mojira.arisa.modules
 
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.LinkedIssue
+import io.github.mojira.arisa.domain.Version
 
-class TransferVersionsModule : AbstractTransferFieldModule<List<String>, String>() {
-    override fun filterParents(issue: LinkedIssue<List<String>, *>, request: Request<List<String>, *>): Boolean {
+class TransferVersionsModule : AbstractTransferFieldModule<List<Version>, String>() {
+    override fun filterParents(issue: LinkedIssue<List<Version>, *>, request: Request<List<Version>, *>): Boolean {
         return issue.isSameProject(request.key) && issue.isUnresolved()
     }
 
     override fun getFunctions(
-        parents: Collection<Pair<LinkedIssue<List<String>, String>, List<String>>>,
-        field: List<String>
+        parents: Collection<Pair<LinkedIssue<List<Version>, String>, List<Version>>>,
+        field: List<Version>
     ) =
-        parents.flatMap { parent ->
+        parents.flatMap { (parentIssue, parentField) ->
+            val oldestVersionOnParent = getOldestVersion(parentField)
             field
-                .filter { it !in parent.second }
-                .map(parent.first.setField::partially1)
+                .filter { it !in parentField }
+                .filter { it isReleasedAfter oldestVersionOnParent }
+                .map { it.id }
+                .map(parentIssue.setField::partially1)
         }
+
+    private fun getOldestVersion(field: List<Version>) = field
+        .sortedBy { it.releaseDate }
+        .getOrNull(0)
+
+    private infix fun Version.isReleasedAfter(other: Version?) =
+        other == null || this.releaseDate.isAfter(other.releaseDate)
 
     private fun LinkedIssue<*, *>.isSameProject(otherKey: String) =
         key.getProject() == otherKey.getProject()

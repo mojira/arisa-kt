@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
+import arrow.syntax.function.partially2
 import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
@@ -229,8 +230,8 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         register(Modules.TransferVersions, TransferVersionsModule()) { issue ->
             AbstractTransferFieldModule.Request(
                 issue.key,
-                issue.getLinks(jiraClient, ::addAffectedVersionById, ::getVersionsGetField),
-                issue.versions.map { it.id }
+                issue.getLinks(jiraClient, ::addAffectedVersionById, ::getVersionsGetField.partially2 { Unit.right() }),
+                issue.getVersions { Unit.right() }
             )
         }
 

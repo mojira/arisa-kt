@@ -35,7 +35,7 @@ class TransferVersionsModule : AbstractTransferFieldModule<List<Version>, String
      */
     private infix fun Version.isReleasedAfter(other: Version?) =
         other?.releaseDate == null ||
-                this.releaseDate?.isAfter(other.releaseDate)
+            (releaseDate != null && releaseDate.isAfter(other.releaseDate))
 
     private fun LinkedIssue<*, *>.isSameProject(otherKey: String) =
         key.getProject() == otherKey.getProject()

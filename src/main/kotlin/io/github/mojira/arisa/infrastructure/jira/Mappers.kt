@@ -216,7 +216,7 @@ private fun JiraIssue.mapAttachments(jiraClient: JiraClient) =
 
 private fun JiraIssue.mapVersions() = versions.map { it.toDomain(this) }
 
-fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
+private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
     changeLog.entries.flatMap { e ->
         e.items.map { i ->
             i.toDomain(jiraClient, e)
@@ -228,17 +228,17 @@ private fun JiraIssue.getFieldAsString(field: String) = this.getField(field) as?
 private fun JiraIssue.getCustomField(customField: String): String? =
     ((getField(customField)) as? JSONObject)?.get("value") as? String?
 
-fun JiraIssue.getEnvironment() = getFieldAsString("environment")
+private fun JiraIssue.getEnvironment() = getFieldAsString("environment")
 
-fun JiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.CustomFields.chkField])
-fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
-fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
-fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
-fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
+private fun JiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.CustomFields.chkField])
+private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
+private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
+private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
+private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
 private val releaseDateFormat = SimpleDateFormat("yyyy-MM-dd")
-fun String.toReleaseDateInstant() = releaseDateFormat.parse(this).toInstant()
+private fun String.toReleaseDateInstant() = releaseDateFormat.parse(this).toInstant()
 
-fun JiraIssue.getFullIssue(
+private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config

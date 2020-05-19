@@ -20,7 +20,7 @@ abstract class AbstractTransferFieldModule : Module {
             assertGreaterThan(relevantParents.size, 0).bind()
 
             val parentEithers = relevantParents
-                .map(::toIssueFieldPair)
+                .map(::toFullIssue)
 
             parentEithers.toFailedModuleEither().bind()
             val parents = parentEithers
@@ -33,13 +33,13 @@ abstract class AbstractTransferFieldModule : Module {
         }
     }
 
-    private fun toIssueFieldPair(
+    private fun toFullIssue(
         issue: LinkedIssue
-    ): Either<Throwable, Pair<LinkedIssue, Issue>> {
+    ): Either<Throwable, Issue> {
         val fullIssue = issue.getFullIssue()
         return fullIssue.fold(
             { it.left() },
-            { (issue to it).right() }
+            { it.right() }
         )
     }
 
@@ -47,7 +47,7 @@ abstract class AbstractTransferFieldModule : Module {
         true
 
     protected abstract fun getFunctions(
-        parents: Collection<Pair<LinkedIssue, Issue>>,
+        parents: Collection<Issue>,
         issue: Issue
     ): Collection<() -> Either<Throwable, Unit>>
 

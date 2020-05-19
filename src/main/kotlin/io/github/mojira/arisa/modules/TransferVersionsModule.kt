@@ -11,22 +11,19 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
         return linkedIssue.isSameProject(issue) && linkedIssue.isUnresolved()
     }
 
-    override fun getFunctions(
-        parents: Collection<Pair<LinkedIssue, Issue>>,
-        issue: Issue
-    ): Collection<() -> Either<Throwable, Unit>> =
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> =
 
         parents.flatMap { parent ->
-            val parentVersionIds = parent.second.affectedVersions
+            val parentVersionIds = parent.affectedVersions
                 .map { it.id }
 
-            val oldestVersionOnParent = getOldestVersion(parent.second.affectedVersions)
+            val oldestVersionOnParent = getOldestVersion(parent.affectedVersions)
 
             issue.affectedVersions
                 .filter { it isReleasedAfter oldestVersionOnParent }
                 .map { it.id }
                 .filter { it !in parentVersionIds }
-                .map(parent.first.addAffectedVersion::partially1)
+                .map(parent.addAffectedVersion::partially1)
         }
 
     private fun getOldestVersion(field: List<Version>) = field

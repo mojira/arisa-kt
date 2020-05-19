@@ -57,7 +57,7 @@ class CrashModule(
             } else {
                 addCrashDupeComment(key).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
-                createDuplicateLink(key).toFailedModuleEither().bind()
+                createLink(key, "Duplicate").toFailedModuleEither().bind()
             }
         }
     }

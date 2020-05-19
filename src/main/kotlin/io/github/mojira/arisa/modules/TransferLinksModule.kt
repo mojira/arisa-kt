@@ -6,13 +6,9 @@ import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
-import io.github.mojira.arisa.domain.LinkedIssue
 
 class TransferLinksModule : AbstractTransferFieldModule() {
-    override fun getFunctions(
-        parents: Collection<Pair<LinkedIssue, Issue>>,
-        issue: Issue
-    ): Collection<() -> Either<Throwable, Unit>> {
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> {
         val links = issue.links
             .filter(::isDuplicatesLink.complement())
 
@@ -22,7 +18,7 @@ class TransferLinksModule : AbstractTransferFieldModule() {
         val linkAdders = parents
             .flatMap { parent ->
                 links
-                    .filter(::parentDoesNotHaveLink.partially1(parent.second.links))
+                    .filter(::parentDoesNotHaveLink.partially1(parent.links))
                     .map(::toLinkAdder.partially2(parent))
             }
 
@@ -38,10 +34,10 @@ class TransferLinksModule : AbstractTransferFieldModule() {
 
     private fun toLinkAdder(
         link: Link,
-        parent: Pair<LinkedIssue, Issue>
+        parent: Issue
     ) =
         when {
-            link.outwards -> parent.first.createLink.partially1(link.type).partially1(link.issue.key)
-            else -> link.issue.createLink.partially1(link.type).partially1(parent.first.key)
+            link.outwards -> parent.createLink.partially1(link.type).partially1(link.issue.key)
+            else -> link.issue.createLink.partially1(link.type).partially1(parent.key)
         }
 }

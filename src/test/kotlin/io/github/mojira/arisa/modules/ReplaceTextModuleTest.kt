@@ -466,5 +466,14 @@ private fun getComment(
     body: String,
     updated: Instant,
     update: (String) -> Either<Throwable, Unit>
-) =
-    Comment(body, User("user", ""), { null }, Instant.now(), updated, null, null, { Unit.right() }, update)
+) = Comment(
+    body,
+    User("user", ""),
+    { null },
+    Instant.now(),
+    updated,
+    null,
+    null,
+    { Unit.right() },
+    update
+)

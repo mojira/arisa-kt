@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 const val DESC_DEFAULT = """Put the summary of the bug you're having here
@@ -21,19 +22,9 @@ Describe what happened here
 const val ENV_DEFAULT = "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
 const val MIN_LENGTH = 5
 
-class EmptyModule : Module<EmptyModule.Request> {
-    data class Request(
-        val created: Instant,
-        val lastRun: Instant,
-        val numAttachments: Int,
-        val description: String?,
-        val environment: String?,
-        val resolveAsIncomplete: () -> Either<Throwable, Unit>,
-        val addEmptyComment: () -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = Either.fx {
-        with(request) {
+class EmptyModule : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
+        with(issue) {
             assertAfter(created, lastRun).bind()
             if (description != DESC_DEFAULT && environment != ENV_DEFAULT) {
                 assertNotBigger(description, MIN_LENGTH).bind()
@@ -42,15 +33,10 @@ class EmptyModule : Module<EmptyModule.Request> {
                 assertNotEqual(description, DESC_DEFAULT).bind()
                 assertNotEqual(environment, ENV_DEFAULT).bind()
             }
-            assertNoAttachments(numAttachments).bind()
+            assertNotEmpty(attachments)
             addEmptyComment().toFailedModuleEither().bind()
             resolveAsIncomplete().toFailedModuleEither().bind()
         }
-    }
-
-    private fun assertNoAttachments(i: Int) = when {
-        i != 0 -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
     }
 
     private fun assertNotBigger(s: String?, size: Int) = when {

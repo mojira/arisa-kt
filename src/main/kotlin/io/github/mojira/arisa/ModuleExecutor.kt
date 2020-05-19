@@ -3,16 +3,18 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
-import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
+import net.rcarz.jiraclient.Issue as JiraIssue
 
 private const val MAX_RESULTS = 50
 
@@ -20,7 +22,7 @@ class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
     private val queryCache: QueryCache,
-    helperMessages: HelperMessages
+    private val helperMessages: HelperMessages
 ) {
     private val registry = ModuleRegistry(jiraClient, config, helperMessages)
 
@@ -85,13 +87,14 @@ class ModuleExecutor(
 
         val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
+            .map { it.toDomain(jiraClient, helperMessages, config) }
 
         queryCache.add(jql, issues)
 
         issues
             .filter { it.project.key in projects }
-            .filter { it.status.name.toLowerCase() !in excludedStatuses }
-            .filter { it.resolution?.name?.toLowerCase() ?: "unresolved" in resolutions }
+            .filter { it.status.toLowerCase() !in excludedStatuses }
+            .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
@@ -117,7 +120,7 @@ class ModuleExecutor(
         jql: String,
         startAt: Int,
         onQueryPaginated: () -> Unit
-    ): List<Issue> {
+    ): List<JiraIssue> {
         val searchResult = jiraClient
             .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
 

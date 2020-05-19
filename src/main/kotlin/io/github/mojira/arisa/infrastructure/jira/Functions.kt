@@ -79,7 +79,7 @@ fun reopenIssue(issue: Issue) = runBlocking {
     }
 }
 
-fun addComment(issue: Issue, comment: String) = runBlocking {
+fun createComment(issue: Issue, comment: String) = runBlocking {
     Either.catch {
         issue.addComment(comment)
         Unit

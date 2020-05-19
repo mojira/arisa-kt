@@ -5,6 +5,7 @@ import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
 import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
@@ -18,22 +19,8 @@ class CrashModule(
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val maxAttachmentAge: Int,
     private val crashReader: CrashReader
-) : Module<CrashModule.Request> {
-
-    data class Request(
-        val attachments: List<Attachment>,
-        val body: String?,
-        val created: Instant,
-        val confirmationStatus: String?,
-        val priority: String?,
-        val resolveAsInvalid: () -> Either<Throwable, Unit>,
-        val resolveAsDuplicate: () -> Either<Throwable, Unit>,
-        val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
-        val addModdedComment: () -> Either<Throwable, Unit>,
-        val addDuplicateComment: (key: String) -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
             assertNull(priority).bind()
@@ -42,7 +29,8 @@ class CrashModule(
                 .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
-            textDocuments.add(TextDocument({ body ?: "" }, created))
+            // also add description, so it's searched for crash reports
+            textDocuments.add(TextDocument({ description ?: "" }, created))
 
             val crashes = textDocuments
                 .asSequence()
@@ -67,9 +55,9 @@ class CrashModule(
                     assertNotNull(key).bind()
                 }
             } else {
-                addDuplicateComment(key).toFailedModuleEither().bind()
+                addCrashDupeComment(key).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
-                linkDuplicate(key).toFailedModuleEither().bind()
+                createDuplicateLink(key).toFailedModuleEither().bind()
             }
         }
     }

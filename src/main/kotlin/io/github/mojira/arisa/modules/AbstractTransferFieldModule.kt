@@ -5,23 +5,18 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
+import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
-import io.github.mojira.arisa.modules.AbstractTransferFieldModule.Request
+import java.time.Instant
 
-abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIELD, FUNPARAM>> {
-    data class Request<FIELD, FUNPARAM>(
-        val key: String,
-        val links: List<Link<FIELD, FUNPARAM>>,
-        val field: FIELD
-    )
-
-    override fun invoke(request: Request<FIELD, FUNPARAM>): Either<ModuleError, ModuleResponse> = with(request) {
+abstract class AbstractTransferFieldModule : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val relevantParents = links
                 .filter(::isDuplicatesLink)
                 .map { it.issue }
-                .filter(::filterParents.partially2(request))
+                .filter(::filterParents.partially2(issue))
             assertGreaterThan(relevantParents.size, 0).bind()
 
             val parentEithers = relevantParents
@@ -31,7 +26,7 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
             val parents = parentEithers
                 .map { (it as Either.Right).b }
 
-            val functions = getFunctions(parents, field)
+            val functions = getFunctions(parents, issue)
 
             assertNotEmpty(functions).bind()
             tryRunAll(functions).bind()
@@ -39,23 +34,23 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
     }
 
     private fun toIssueVersionPair(
-        issue: LinkedIssue<FIELD, FUNPARAM>
-    ): Either<Throwable, Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>> {
-        val details = issue.getField()
-        return details.fold(
+        issue: LinkedIssue
+    ): Either<Throwable, Pair<LinkedIssue, Issue>> {
+        val fullIssue = issue.getFullIssue()
+        return fullIssue.fold(
             { it.left() },
             { (issue to it).right() }
         )
     }
 
-    protected open fun filterParents(issue: LinkedIssue<FIELD, *>, request: Request<FIELD, *>) =
+    protected open fun filterParents(linkedIssue: LinkedIssue, issue: Issue) =
         true
 
     protected abstract fun getFunctions(
-        parents: Collection<Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>>,
-        field: FIELD
+        parents: Collection<Pair<LinkedIssue, Issue>>,
+        issue: Issue
     ): Collection<() -> Either<Throwable, Unit>>
 
-    protected fun isDuplicatesLink(link: Link<*, *>) =
+    protected fun isDuplicatesLink(link: Link) =
         link.type.toLowerCase() == "duplicate" && link.outwards
 }

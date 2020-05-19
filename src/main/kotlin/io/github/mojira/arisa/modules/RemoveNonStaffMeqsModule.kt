@@ -4,20 +4,20 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
+import java.time.Instant
 
-class RemoveNonStaffMeqsModule(private val removalReason: String) : Module<RemoveNonStaffMeqsModule.Request> {
-    data class Request(
-        val comments: List<Comment>
-    )
+class RemoveNonStaffMeqsModule(private val removalReason: String) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+        Either.fx {
+            val updateMeqsComments = comments
+                .filter(::hasMeqsTag)
+                .filter(::isNotStaffRestricted)
+                .map { it.restrict.partially1(removeMeqsTags(it.body)) }
+            assertNotEmpty(updateMeqsComments).bind()
 
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = Either.fx {
-        val updateMeqsComments = request.comments
-            .filter(::hasMeqsTag)
-            .filter(::isNotStaffRestricted)
-            .map { it.restrict.partially1(removeMeqsTags(it.body)) }
-        assertNotEmpty(updateMeqsComments).bind()
-
-        tryRunAll(updateMeqsComments).bind()
+            tryRunAll(updateMeqsComments).bind()
+        }
     }
 
     private fun hasMeqsTag(comment: Comment) =

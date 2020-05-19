@@ -2,16 +2,13 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.Issue
+import java.time.Instant
 
-class ResolveTrashModule : Module<ResolveTrashModule.Request> {
-    data class Request(
-        val projectKey: String,
-        val resolveAsInvalid: () -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+class ResolveTrashModule : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertEquals(projectKey, "TRASH").bind()
+            assertEquals(project.key, "TRASH").bind()
             resolveAsInvalid().toFailedModuleEither().bind()
         }
     }

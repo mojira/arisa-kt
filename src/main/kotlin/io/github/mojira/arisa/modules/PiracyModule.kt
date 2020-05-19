@@ -4,18 +4,13 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Issue
+import java.time.Instant
 
-class PiracyModule(private val piracySignatures: List<String>) : Module<PiracyModule.Request> {
-
-    data class Request(
-        val environment: String?,
-        val summary: String?,
-        val description: String?,
-        val resolveAsInvalid: () -> Either<Throwable, Unit>,
-        val addPiracyComment: () -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+class PiracyModule(
+    private val piracySignatures: List<String>
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertContainsSignatures(
                 piracySignatures,

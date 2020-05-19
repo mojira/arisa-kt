@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
 import java.time.Instant
 
@@ -15,19 +16,8 @@ class ReopenAwaitingModule(
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>,
     private val keepARTag: String?
-) : Module<ReopenAwaitingModule.Request> {
-    data class Request(
-        val resolution: String?,
-        val lastRun: Instant,
-        val created: Instant,
-        val updated: Instant,
-        val reporter: User?,
-        val comments: List<Comment>,
-        val changeLog: List<ChangeLogItem>,
-        val reopen: () -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(resolution, "Awaiting Response").bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()

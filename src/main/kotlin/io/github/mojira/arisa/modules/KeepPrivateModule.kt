@@ -6,27 +6,22 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
+import java.time.Instant
 
-class KeepPrivateModule(private val keepPrivateTag: String?) : Module<KeepPrivateModule.Request> {
-    data class Request(
-        val securityLevel: String?,
-        val privateLevel: String,
-        val comments: List<Comment>,
-        val changeLog: List<ChangeLogItem>,
-        val setPrivate: () -> Either<Throwable, Unit>,
-        val addSecurityComment: () -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+class KeepPrivateModule(
+    private val keepPrivateTag: String?
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotNull(keepPrivateTag).bind()
             assertContainsKeepPrivateTag(comments).bind()
-            assertIsPublic(securityLevel, privateLevel).bind()
+            assertIsPublic(securityLevel, project.privateSecurity).bind()
 
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addSecurityComment().toFailedModuleEither().bind()
+                addKeepPrivateComment().toFailedModuleEither().bind()
             }
             setPrivate().toFailedModuleEither().bind()
         }

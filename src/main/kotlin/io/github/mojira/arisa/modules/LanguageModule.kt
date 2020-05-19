@@ -4,43 +4,29 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 const val MINIMUM_PERCENTAGE = 0.7
 
 class LanguageModule(
     val allowedLanguages: List<String> = listOf("en"),
-    val lengthThreshold: Int = 0
-) : Module<LanguageModule.Request> {
-
-    data class Request(
-        val created: Instant,
-        val lastRun: Instant,
-        val summary: String?,
-        val description: String?,
-        val securityLevel: String?,
-        val privateLevel: String,
-        val getLanguage: (String) -> Either<Any, Map<String, Double>>,
-        val resolveAsInvalid: () -> Either<Throwable, Unit>,
-        val addLanguageComment: (language: String) -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+    val lengthThreshold: Int = 0,
+    val getLanguage: (String) -> Either<Any, Map<String, Double>>
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertAfter(created, lastRun).bind()
-            assertIsPublic(securityLevel, privateLevel).bind()
+            assertIsPublic(securityLevel, project.privateSecurity).bind()
 
             val combinedText = "${(summary ?: "").trim()} ${(description ?: "").trim()}"
-
             assertExceedLengthThreshold(combinedText).bind()
 
             val detectedLanguage = getDetectedLanguage(getLanguage, combinedText)
-
             assertNotNull(detectedLanguage).bind()
-
             assertLanguageIsNotAllowed(allowedLanguages, detectedLanguage!!).bind()
 
-            addLanguageComment(detectedLanguage).toFailedModuleEither().bind()
+            addNotEnglishComment(detectedLanguage).toFailedModuleEither().bind()
             resolveAsInvalid().toFailedModuleEither().bind()
         }
     }

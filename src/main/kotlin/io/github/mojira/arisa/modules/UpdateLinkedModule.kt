@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
 import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -13,15 +14,8 @@ val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()
 
 class UpdateLinkedModule(
     private val updateInterval: Long
-) : Module<UpdateLinkedModule.Request> {
-    data class Request(
-        val created: Instant,
-        val changeLogItems: List<ChangeLogItem>,
-        val linkedField: Double?,
-        val setLinked: (Double) -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val lastLinkedChange = changeLogItems
                 .lastOrNull(::isLinkedChange)
@@ -46,7 +40,7 @@ class UpdateLinkedModule(
             assertNotNull(firstAddedLinkSinceLastUpdate).bind()
             assertLinkNotAddedRecently(firstAddedLinkSinceLastUpdate!!).bind()
 
-            setLinked(duplicateAmount).toFailedModuleEither().bind()
+            updateLinked(duplicateAmount).toFailedModuleEither().bind()
         }
     }
 

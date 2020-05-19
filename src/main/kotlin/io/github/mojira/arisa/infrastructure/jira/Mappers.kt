@@ -75,6 +75,7 @@ fun JiraIssue.toDomain(
     mapLinks(jiraClient, messages, config),
     getChangeLogEntries(jiraClient),
     ::reopenIssue.partially1(this),
+    ::resolveAs.partially1(this).partially1("Awaiting Response"),
     ::resolveAs.partially1(this).partially1("Invalid"),
     ::resolveAs.partially1(this).partially1("Duplicate"),
     ::resolveAs.partially1(this).partially1("Incomplete"),

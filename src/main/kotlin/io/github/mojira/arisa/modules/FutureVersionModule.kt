@@ -21,6 +21,7 @@ class FutureVersionModule : Module {
             latestVersion!!.add().toFailedModuleEither().bind()
             tryRunAll(removeFutureVersions).bind()
             addFutureVersionComment().toFailedModuleEither().bind()
+            resolveAsAwaitingResponse().toFailedModuleEither().bind()
         }
     }
 

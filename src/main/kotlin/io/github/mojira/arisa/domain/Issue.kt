@@ -27,6 +27,7 @@ data class Issue (
     val links: List<Link>,
     val changeLog: List<ChangeLogItem>,
     val reopen: () -> Either<Throwable, Unit>,
+    val resolveAsAwaitingResponse: () -> Either<Throwable, Unit>,
     val resolveAsInvalid: () -> Either<Throwable, Unit>,
     val resolveAsDuplicate: () -> Either<Throwable, Unit>,
     val resolveAsIncomplete: () -> Either<Throwable, Unit>,

@@ -18,7 +18,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when affected versions are empty" {
         val module = FutureVersionModule()
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(emptyList(), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(emptyList(), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -28,7 +28,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when project versions are empty" {
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { Unit.right() }
-        val request = Request(listOf(futureVersion), emptyList()) { Unit.right() }
+        val request = Request(listOf(futureVersion), emptyList(), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -38,7 +38,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when project versions are null" {
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { Unit.right() }
-        val request = Request(listOf(futureVersion), null) { Unit.right() }
+        val request = Request(listOf(futureVersion), null, { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -48,7 +48,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when project versions do not contain released versions" {
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { Unit.right() }
-        val request = Request(listOf(futureVersion), listOf(futureVersion)) { Unit.right() }
+        val request = Request(listOf(futureVersion), listOf(futureVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -58,7 +58,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse if no future version is marked affected" {
         val module = FutureVersionModule()
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(listOf(releasedVersion), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(listOf(releasedVersion), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -69,7 +69,7 @@ class FutureVersionModuleTest : StringSpec({
         val module = FutureVersionModule()
         val archivedVersion = getVersion(false, true) { Unit.right() }
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(listOf(archivedVersion), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(listOf(archivedVersion), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -80,7 +80,7 @@ class FutureVersionModuleTest : StringSpec({
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { Unit.right() }
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(listOf(futureVersion), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(listOf(futureVersion), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -91,7 +91,7 @@ class FutureVersionModuleTest : StringSpec({
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { RuntimeException().left() }
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(listOf(futureVersion), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(listOf(futureVersion), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -104,7 +104,7 @@ class FutureVersionModuleTest : StringSpec({
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { RuntimeException().left() }
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(listOf(futureVersion, futureVersion), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(listOf(futureVersion, futureVersion), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -117,7 +117,7 @@ class FutureVersionModuleTest : StringSpec({
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { Unit.right() }
         val releasedVersion = getVersion(true, false) { RuntimeException().left() }
-        val request = Request(listOf(futureVersion), listOf(releasedVersion)) { Unit.right() }
+        val request = Request(listOf(futureVersion), listOf(releasedVersion), { Unit.right() }) { Unit.right() }
 
         val result = module(request)
 
@@ -130,7 +130,7 @@ class FutureVersionModuleTest : StringSpec({
         val module = FutureVersionModule()
         val futureVersion = getVersion(false, false) { Unit.right() }
         val releasedVersion = getVersion(true, false) { Unit.right() }
-        val request = Request(listOf(futureVersion), listOf(releasedVersion)) { RuntimeException().left() }
+        val request = Request(listOf(futureVersion), listOf(releasedVersion), { Unit.right() }) { RuntimeException().left() }
 
         val result = module(request)
 

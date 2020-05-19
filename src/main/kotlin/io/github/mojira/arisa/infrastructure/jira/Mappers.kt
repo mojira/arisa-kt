@@ -238,9 +238,6 @@ fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.Cust
 fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
-fun JiraIssue.getCreated(): Instant = getFieldAsString("created")!!.toInstant()
-fun JiraIssue.getUpdated(): Instant = getFieldAsString("updated")!!.toInstant()
-fun JiraIssue.getReporterUser() = reporter.toDomain()
 
 fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,

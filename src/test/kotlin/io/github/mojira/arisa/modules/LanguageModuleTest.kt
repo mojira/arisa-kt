@@ -194,13 +194,14 @@ class LanguageModuleTest : StringSpec({
             "Description.",
             "not private",
             "private",
-            { it shouldBe "Summary. Description."; isApiExecuted = true; emptyMap<String, Double>().right() },
+            { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
 
-        module(request)
+        val result = module(request)
 
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 
@@ -215,13 +216,14 @@ class LanguageModuleTest : StringSpec({
             "Description",
             "not private",
             "private",
-            { it shouldBe "Summary. Description."; isApiExecuted = true; emptyMap<String, Double>().right() },
+            { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
 
-        module(request)
+        val result = module(request)
 
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 
@@ -236,13 +238,14 @@ class LanguageModuleTest : StringSpec({
             null,
             "not private",
             "private",
-            { it shouldBe "Summary."; isApiExecuted = true; emptyMap<String, Double>().right() },
+            { it shouldBe "Summary."; isApiExecuted = true; mapOf("en" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
 
-        module(request)
+        val result = module(request)
 
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 
@@ -257,13 +260,14 @@ class LanguageModuleTest : StringSpec({
             "Description.",
             "not private",
             "private",
-            { it shouldBe "Description."; isApiExecuted = true; emptyMap<String, Double>().right() },
+            { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0).right() },
             { Unit.right() },
             { Unit.right() }
         )
 
-        module(request)
+        val result = module(request)
 
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 
@@ -281,14 +285,15 @@ class LanguageModuleTest : StringSpec({
             {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 isApiExecuted = true
-                emptyMap<String, Double>().right()
+                mapOf("en" to 1.0).right()
             },
             { Unit.right() },
             { Unit.right() }
         )
 
-        module(request)
+        val result = module(request)
 
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 
@@ -306,14 +311,15 @@ class LanguageModuleTest : StringSpec({
             {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 isApiExecuted = true
-                emptyMap<String, Double>().right()
+                mapOf("en" to 1.0).right()
             },
             { Unit.right() },
             { Unit.right() }
         )
 
-        module(request)
+        val result = module(request)
 
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 

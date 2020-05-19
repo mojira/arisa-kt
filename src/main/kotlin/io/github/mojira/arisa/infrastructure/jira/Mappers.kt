@@ -41,6 +41,7 @@ fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     id,
     isReleased,
     isArchived,
+    releaseDate.toInstant(),
     ::addAffectedVersion.partially1(issue).partially1(this),
     ::removeAffectedVersion.partially1(issue).partially1(this)
 )

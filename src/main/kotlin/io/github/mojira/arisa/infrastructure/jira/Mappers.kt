@@ -67,7 +67,7 @@ fun JiraVersion.toDomain(execute: (JiraVersion) -> Either<Throwable, Unit>) = Ve
     name,
     isReleased,
     isArchived,
-    releaseDate.toVersionReleaseInstant(),
+    releaseDate?.toVersionReleaseInstant(),
     execute.partially1(this)
 )
 

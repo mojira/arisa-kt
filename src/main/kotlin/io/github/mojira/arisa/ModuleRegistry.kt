@@ -91,8 +91,15 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
 
     private val modules = mutableListOf<Entry>()
 
-    fun getModules(): List<Entry> =
-        modules
+    fun getModules(config: Config): List<Entry> {
+        val onlyModules = modules
+            .filter { config[it.config.only] }
+        return if (onlyModules.isEmpty()) {
+            modules
+        } else {
+            onlyModules
+        }
+    }
 
     private fun <T> register(
         config: ModuleConfigSpec,

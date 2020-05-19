@@ -40,7 +40,7 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                registry.getModules().forEach { (config, getJql, exec) ->
+                registry.getModules(config).forEach { (config, getJql, exec) ->
                     executeModule(
                         config,
                         queryCache,

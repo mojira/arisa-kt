@@ -83,7 +83,8 @@ fun JiraIssue.toDomain(
     ::updateConfirmation.partially1(this).partially1(config[Arisa.CustomFields.confirmationField]),
     ::updateLinked.partially1(this).partially1(config[Arisa.CustomFields.linked]),
     ::updateSecurity.partially1(this).partially1(project.getSecurityLevelId(config)),
-    ::createLink.partially1(this).partially1("Duplicate"),
+    ::createLink.partially1(this),
+    ::addAffectedVersionById.partially1(this),
     ::createComment.partially1(this).partially1(
         messages.getMessageWithBotSignature(
             project.key, config[Arisa.Modules.Empty.message]
@@ -178,8 +179,7 @@ fun JiraIssue.toLinkedIssue(
     key,
     status.name,
     ::getFullIssue.partially1(jiraClient).partially1(messages).partially1(config),
-    ::createLink.partially1(this),
-    ::addAffectedVersionById.partially1(this)
+    ::createLink.partially1(this)
 )
 
 fun JiraIssueLink.toDomain(

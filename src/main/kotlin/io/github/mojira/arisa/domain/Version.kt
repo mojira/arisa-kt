@@ -8,6 +8,6 @@ data class Version(
     val name: String,
     val released: Boolean,
     val archived: Boolean,
-    val releaseDate: Instant,
+    val releaseDate: Instant?,
     val execute: () -> Either<Throwable, Unit>
 )

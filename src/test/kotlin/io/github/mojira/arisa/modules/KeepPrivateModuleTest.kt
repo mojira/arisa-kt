@@ -13,10 +13,14 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 
 private val NOW = Instant.now()
-private val RANDOM_USER = User("randomUser", "Random User")
+private val RANDOM_USER = getUser()
 
 class KeepPrivateModuleTest : StringSpec({
-    val REMOVE_SECURITY = ChangeLogItem(NOW.minusSeconds(10), "security", "10318", null, RANDOM_USER) { emptyList() }
+    val REMOVE_SECURITY = getChangeLogItem(
+        created = NOW.minusSeconds(10),
+        field = "security",
+        changedFrom = "10318"
+    )
 
     "should return OperationNotNeededModuleResponse when keep private tag is null" {
         val module = KeepPrivateModule(null)
@@ -232,4 +236,22 @@ private fun getComment(
     visibilityValue,
     { Unit.right() },
     { Unit.right() }
+)
+
+private fun getUser() = User("user", "User")
+
+private fun getChangeLogItem(
+    created: Instant = NOW,
+    field: String = "security",
+    changedFrom: String? = null,
+    changedTo: String? = null,
+    author: User = RANDOM_USER,
+    getAuthorGroups: () -> List<String>? = { emptyList() }
+) = ChangeLogItem(
+    created,
+    field,
+    changedFrom,
+    changedTo,
+    author,
+    getAuthorGroups
 )

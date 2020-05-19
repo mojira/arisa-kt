@@ -20,8 +20,6 @@ import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
-import java.text.SimpleDateFormat
-import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
@@ -202,19 +200,19 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 
-private fun net.rcarz.jiraclient.Issue.mapLinks(
+private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config
 ) = issueLinks.map { it.toDomain(jiraClient, messages, config) }
 
-private fun net.rcarz.jiraclient.Issue.mapComments(jiraClient: JiraClient) =
+private fun JiraIssue.mapComments(jiraClient: JiraClient) =
     comments.map { it.toDomain(jiraClient) }
 
-private fun net.rcarz.jiraclient.Issue.mapAttachments(jiraClient: JiraClient) =
+private fun JiraIssue.mapAttachments(jiraClient: JiraClient) =
     attachments.map { it.toDomain(jiraClient) }
 
-private fun net.rcarz.jiraclient.Issue.mapVersions() = versions.map { it.toDomain(this) }
+private fun JiraIssue.mapVersions() = versions.map { it.toDomain(this) }
 
 fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
     changeLog.entries.flatMap { e ->
@@ -222,9 +220,6 @@ fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
             i.toDomain(jiraClient, e)
         }
     }
-
-private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-private fun String.toInstant() = isoFormat.parse(this).toInstant()
 
 private fun JiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
 

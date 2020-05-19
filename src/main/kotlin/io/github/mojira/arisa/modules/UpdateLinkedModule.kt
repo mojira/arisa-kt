@@ -17,12 +17,12 @@ class UpdateLinkedModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            val lastLinkedChange = changeLogItems
+            val lastLinkedChange = changeLog
                 .lastOrNull(::isLinkedChange)
                 ?.created
                 ?: created
 
-            val duplicates = changeLogItems.filter(::isDuplicateLinkChange)
+            val duplicates = changeLog.filter(::isDuplicateLinkChange)
             val duplicatesAdded = duplicates
                 .filter(::isDuplicateLinkAddedChange)
                 .size

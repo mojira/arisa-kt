@@ -212,7 +212,7 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                         issue.project.key, config[Modules.FutureVersion.message]
                     )
                 ),
-                ::resolveAs.partially1(issue).partially1("Invalid")
+                ::resolveAs.partially1(issue).partially1("Awaiting Response")
             )
         }
 

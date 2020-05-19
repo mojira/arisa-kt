@@ -93,11 +93,11 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
 
     fun getModules(config: Config): List<Entry> {
         val onlyModules = modules
-            .filter { config[it.config.only] == true }
-        return if (onlyModules.isNotEmpty()) {
-            onlyModules
-        } else {
+            .filter { config[it.config.only] }
+        return if (onlyModules.isEmpty()) {
             modules
+        } else {
+            onlyModules
         }
     }
 

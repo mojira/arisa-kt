@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
@@ -156,6 +157,8 @@ const val JAVA_CRASH = """#
 # See problematic frame for where to report the bug.
 #"""
 
+private val NOW = Instant.now()
+
 const val Unconfirmed = "Unconfirmed"
 val NoPriority = null
 
@@ -172,7 +175,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -198,7 +201,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now().minus(42, ChronoUnit.DAYS),
+            NOW.minus(42, ChronoUnit.DAYS),
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -223,7 +226,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -249,7 +252,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -275,7 +278,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -298,17 +301,15 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment(
-            "crash.txt",
-            Instant.now().minus(42, ChronoUnit.DAYS),
-            { Unit.right() },
-            { EXAMPLE_CRASH.toByteArray() }
+        val attachment = getAttachment(
+            content = EXAMPLE_CRASH,
+            created = NOW.minus(42, ChronoUnit.DAYS)
         )
 
         val request = Request(
             listOf(attachment),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -330,12 +331,13 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment =
-            Attachment("crash.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
+        val attachment = getAttachment(
+            content = EXAMPLE_CRASH
+        )
         val request = Request(
             listOf(attachment),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -358,12 +360,14 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment =
-            Attachment("crash.png", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
+        val attachment = getAttachment(
+            name = "crash.png",
+            content = EXAMPLE_CRASH
+        )
         val request = Request(
             listOf(attachment),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -386,15 +390,13 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment = Attachment(
-            "crash.txt",
-            Instant.now(),
-            { Unit.right() },
-            { SERVER_UNMODDED_CRASH.toByteArray() })
+        val attachment = getAttachment(
+            content = SERVER_UNMODDED_CRASH
+        )
         val request = Request(
             listOf(attachment),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -421,7 +423,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             SERVER_MODDED_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -449,7 +451,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             SERVER_MODDED_CRASH_2,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -477,7 +479,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             MODDED_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -503,12 +505,13 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment =
-            Attachment("crash.txt", Instant.now(), { Unit.right() }, { MODDED_CRASH.toByteArray() })
+        val attachment = getAttachment(
+            content = MODDED_CRASH
+        )
         val request = Request(
             listOf(attachment),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { resolvedAsInvalid = true; Unit.right() },
@@ -536,7 +539,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -562,12 +565,13 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val attachment =
-            Attachment("crash.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
+        val attachment = getAttachment(
+            content = EXAMPLE_CRASH
+        )
         val request = Request(
             listOf(attachment),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -595,7 +599,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             JAVA_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -623,7 +627,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             JAVA_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -649,7 +653,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -673,17 +677,19 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val modded = Attachment(
-            "crash_modded.txt",
-            Instant.now().minusMillis(10000),
-            { Unit.right() },
-            { EXAMPLE_CRASH.toByteArray() })
-        val dupe =
-            Attachment("crash_dupe.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
+        val modded = getAttachment(
+            name = "crash_modded.txt",
+            content = EXAMPLE_CRASH,
+            created = NOW.minusMillis(10000)
+        )
+        val dupe = getAttachment(
+            name = "crash_dupe.txt",
+            content = EXAMPLE_CRASH
+        )
         val request = Request(
             listOf(modded, dupe),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -708,20 +714,19 @@ class CrashModuleTest : StringSpec({
             10,
             crashReader
         )
-        val modded = Attachment(
-            "crash_modded.txt",
-            Instant.now(),
-            { Unit.right() },
-            { EXAMPLE_CRASH.toByteArray() })
-        val dupe = Attachment(
-            "crash_modded.txt",
-            Instant.now().minusMillis(10000),
-            { Unit.right() },
-            { EXAMPLE_CRASH.toByteArray() })
+        val modded = getAttachment(
+            name = "crash_modded.txt",
+            content = EXAMPLE_CRASH
+        )
+        val dupe = getAttachment(
+            name = "crash_dupe.txt",
+            content = EXAMPLE_CRASH,
+            created = NOW.minusMillis(10000)
+        )
         val request = Request(
             listOf(dupe, modded),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -748,18 +753,19 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val fromNow =
-            Attachment("recent.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
-        val fromYesterday = Attachment(
-            "crash_dupe.txt",
-            Instant.now().minus(1, ChronoUnit.DAYS),
-            { Unit.right() },
-            { EXAMPLE_CRASH_2.toByteArray() }
+        val fromNow = getAttachment(
+            name = "recent.txt",
+            content = EXAMPLE_CRASH
+        )
+        val fromYesterday = getAttachment(
+            name = "crash_dupe.txt",
+            content = EXAMPLE_CRASH_2,
+            created = NOW.minus(1, ChronoUnit.DAYS)
         )
         val request = Request(
             listOf(fromYesterday, fromNow),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -785,17 +791,19 @@ class CrashModuleTest : StringSpec({
             crashReader
         )
 
-        val fromNow = Attachment("recent.txt", Instant.now(), { Unit.right() }, { EXAMPLE_CRASH.toByteArray() })
-        val fromYesterday = Attachment(
-            "crash_dupe.txt",
-            Instant.now().minus(1, ChronoUnit.DAYS),
-            { Unit.right() },
-            { EXAMPLE_CRASH_2.toByteArray() }
+        val fromNow = getAttachment(
+            name = "recent.txt",
+            content = EXAMPLE_CRASH
+        )
+        val fromYesterday = getAttachment(
+            name = "crash_dupe.txt",
+            content = EXAMPLE_CRASH_2,
+            created = NOW.minus(1, ChronoUnit.DAYS)
         )
         val request = Request(
             listOf(fromNow, fromYesterday),
             "",
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -820,7 +828,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             MODDED_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { RuntimeException().left() },
@@ -847,7 +855,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             MODDED_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -874,7 +882,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -901,7 +909,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -928,7 +936,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             NoPriority,
             { Unit.right() },
@@ -957,7 +965,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             "Confirmed",
             NoPriority,
             { Unit.right() },
@@ -985,7 +993,7 @@ class CrashModuleTest : StringSpec({
         val request = Request(
             emptyList(),
             EXAMPLE_CRASH,
-            Instant.now(),
+            NOW,
             Unconfirmed,
             "Medium",
             { Unit.right() },
@@ -1001,3 +1009,15 @@ class CrashModuleTest : StringSpec({
         resolvedAsDupe.shouldBeFalse()
     }
 })
+
+private fun getAttachment(
+    content: String,
+    name: String = "crash.txt",
+    created: Instant = NOW,
+    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+) = Attachment(
+    name,
+    created,
+    remove,
+    { content.toByteArray() }
+)

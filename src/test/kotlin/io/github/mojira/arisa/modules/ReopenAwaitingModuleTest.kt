@@ -14,8 +14,8 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 
 private val NOW = Instant.now()
-private val REPORTER = User("reporter", "Reporter")
-private val RANDOM_USER = User("randomuser", "Random User")
+private val REPORTER = getUser(name = "reporter")
+private val RANDOM_USER = getUser(name = "randomuser")
 
 class ReopenAwaitingModuleTest : StringSpec({
     val MODULE = ReopenAwaitingModule(
@@ -24,8 +24,10 @@ class ReopenAwaitingModuleTest : StringSpec({
         "MEQS_KEEP_AR"
     )
 
-    val AWAITING_RESOLVE =
-        ChangeLogItem(NOW.minusSeconds(10), "", "", "Awaiting Response", User("piston", "[Bot] Piston")) { emptyList() }
+    val AWAITING_RESOLVE = getChangeLogItem(
+        created = NOW.minusSeconds(10),
+        changedTo = "Awaiting Response"
+    )
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = NOW.plusSeconds(3)
@@ -143,7 +145,10 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there were multiple resolves, but no comment after the last resolve." {
         val updated = NOW.plusSeconds(3)
-        val oldResolve = ChangeLogItem(NOW.minusSeconds(30), "", "", "Awaiting Response", RANDOM_USER) { emptyList() }
+        val oldResolve = getChangeLogItem(
+            created = NOW.minusSeconds(30),
+            changedTo = "Awaiting Response"
+        )
         val comment = getComment(
             NOW.minusSeconds(20),
             NOW.minusSeconds(20)
@@ -165,8 +170,15 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there were multiple resolves, but no changes after the last resolve." {
         val updated = NOW.plusSeconds(3)
-        val oldResolve = ChangeLogItem(NOW.minusSeconds(30), "", "", "Awaiting Response", RANDOM_USER) { emptyList() }
-        val changeLog = ChangeLogItem(NOW.minusSeconds(15), "", "", "Confirmed", RANDOM_USER) { emptyList() }
+        val oldResolve = getChangeLogItem(
+            created = NOW.minusSeconds(30),
+            changedTo = "Awaiting Response"
+        )
+        val changeLog = getChangeLogItem(
+            created = NOW.minusSeconds(15),
+            field = "customfield_00042",
+            changedTo = "Confirmed"
+        )
         val request = Request(
             "Awaiting Response",
             NOW.minusSeconds(10),
@@ -240,9 +252,12 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there's no change after resolved" {
-        val changeLog = ChangeLogItem(
-            NOW.minusSeconds(20), "Versions", null, "1.15.2", REPORTER
-        ) { emptyList() }
+        val changeLog = getChangeLogItem(
+            author = REPORTER,
+            created = NOW.minusSeconds(20),
+            field = "Versions",
+            changedTo = "1.15.2"
+        )
         val updated = NOW.plusSeconds(3)
         val request =
             Request(
@@ -261,9 +276,11 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the author of the change log is not the reporter" {
-        val changeLog = ChangeLogItem(
-            NOW.plusSeconds(3), "Versions", null, "1.15.2", RANDOM_USER
-        ) { emptyList() }
+        val changeLog = getChangeLogItem(
+            created = NOW.plusSeconds(3),
+            field = "Versions",
+            changedTo = "1.15.2"
+        )
         val updated = NOW.plusSeconds(3)
         val request =
             Request(
@@ -282,7 +299,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the only change log is about comment" {
-        val changeLog = ChangeLogItem(
+        val changeLog = getChangeLogItem(
             NOW.plusSeconds(3), "Comment", "aaa", "AAA", REPORTER
         ) { emptyList() }
         val updated = NOW.plusSeconds(3)
@@ -360,7 +377,9 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should ignore changes that are not a resolve" {
         val updated = NOW.plusSeconds(3)
-        val change = ChangeLogItem(NOW.plusSeconds(3), "", "", "Confirmed", RANDOM_USER) { emptyList() }
+        val change = getChangeLogItem(
+            NOW.plusSeconds(3), "", "", "Confirmed", RANDOM_USER
+        ) { emptyList() }
         val request = Request(
             "Awaiting Response",
             NOW.minusSeconds(10),
@@ -510,9 +529,12 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when the reporter updated the ticket after being resolved" {
-        val changeLog = ChangeLogItem(
-            NOW.plusSeconds(3), "Versions", null, "1.15.2", REPORTER
-        ) { emptyList() }
+        val changeLog = getChangeLogItem(
+            author = REPORTER,
+            created = NOW.plusSeconds(3),
+            field = "Versions",
+            changedTo = "1.15.2"
+        )
         val updated = NOW.plusSeconds(3)
         val request =
             Request(
@@ -531,9 +553,12 @@ class ReopenAwaitingModuleTest : StringSpec({
     }
 
     "should reopen when the ticket is updated by both comments and reporter's changes" {
-        val changeLog = ChangeLogItem(
-            NOW.plusSeconds(3), "Versions", null, "1.15.2", REPORTER
-        ) { emptyList() }
+        val changeLog = getChangeLogItem(
+            author = REPORTER,
+            created = NOW.plusSeconds(3),
+            field = "Versions",
+            changedTo = "1.15.2"
+        )
         val comment = getComment()
         val updated = NOW.plusSeconds(3)
         val request =
@@ -590,4 +615,22 @@ private fun getComment(
     visibilityValue,
     { Unit.right() },
     { Unit.right() }
+)
+
+private fun getUser(name: String) = User(name, "User")
+
+private fun getChangeLogItem(
+    created: Instant = NOW,
+    field: String = "resolution",
+    changedFrom: String = "",
+    changedTo: String = "",
+    author: User = RANDOM_USER,
+    getAuthorGroups: () -> List<String>? = { emptyList() }
+) = ChangeLogItem(
+    created,
+    field,
+    changedFrom,
+    changedTo,
+    author,
+    getAuthorGroups
 )

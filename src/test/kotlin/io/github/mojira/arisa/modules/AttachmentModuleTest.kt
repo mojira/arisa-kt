@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
@@ -11,8 +12,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 
+private val NOW = Instant.now()
+
 class AttachmentModuleTest : StringSpec({
-    val NOW = Instant.now()
 
     "should return OperationNotNeededModuleResponse when there is no attachments" {
         val module = AttachmentModule(emptyList())
@@ -25,7 +27,9 @@ class AttachmentModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no blacklisted attachments" {
         val module = AttachmentModule(listOf(".test"))
-        val attachment = Attachment("testfile", NOW, { Unit.right() }, { ByteArray(0) })
+        val attachment = getAttachment(
+            name = "testfile"
+        )
         val request = Request(listOf(attachment))
 
         val result = module(request)
@@ -35,7 +39,9 @@ class AttachmentModuleTest : StringSpec({
 
     "should return FailedModuleResponse when deleting fails" {
         val module = AttachmentModule(listOf(".test"))
-        val attachment = Attachment("testfile.test", NOW, { RuntimeException().left() }, { ByteArray(0) })
+        val attachment = getAttachment(
+            remove = { RuntimeException().left() }
+        )
         val request = Request(listOf(attachment))
 
         val result = module(request)
@@ -47,7 +53,9 @@ class AttachmentModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all exceptions when deleting fails" {
         val module = AttachmentModule(listOf(".test"))
-        val attachment = Attachment("testfile.test", NOW, { RuntimeException().left() }, { ByteArray(0) })
+        val attachment = getAttachment(
+            remove = { RuntimeException().left() }
+        )
         val request = Request(listOf(attachment, attachment))
 
         val result = module(request)
@@ -57,9 +65,9 @@ class AttachmentModuleTest : StringSpec({
         (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 
-    "should return ModuleResponse when something is deleted succesfully" {
+    "should return ModuleResponse when something is deleted successfully" {
         val module = AttachmentModule(listOf(".test"))
-        val attachment = Attachment("testfile.test", NOW, { Unit.right() }, { ByteArray(0) })
+        val attachment = getAttachment()
         val request = Request(listOf(attachment))
 
         val result = module(request)
@@ -67,3 +75,14 @@ class AttachmentModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 })
+
+private fun getAttachment(
+    name: String = "testfile.test",
+    created: Instant = NOW,
+    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+) = Attachment(
+    name,
+    created,
+    remove,
+    { ByteArray(0) }
+)

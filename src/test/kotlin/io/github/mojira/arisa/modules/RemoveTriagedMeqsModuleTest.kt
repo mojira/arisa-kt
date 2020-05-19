@@ -145,7 +145,6 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 })
 
-
 private fun getUser() = User("user", "User")
 
 private fun getComment(

@@ -344,4 +344,3 @@ private fun getLink(
     issue,
     remove
 )
-

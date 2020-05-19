@@ -267,7 +267,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         }
 
         register(
-            Modules.Language, LanguageModule(lengthThreshold = config[Modules.Language.lengthThreshold])
+            Modules.Language, LanguageModule(
+                config[Modules.Language.allowedLanguages],
+                config[Modules.Language.lengthThreshold]
+            )
         ) { issue, lastRun ->
             LanguageModule.Request(
                 issue.createdDate.toInstant(),

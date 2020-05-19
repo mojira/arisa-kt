@@ -183,6 +183,114 @@ class LanguageModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
+    "should pass the combined text to the API" {
+        val module = LanguageModule()
+        val request = Request(
+            NOW,
+            A_SECOND_AGO,
+            "Summary.",
+            "Description.",
+            "not private",
+            "private",
+            { it shouldBe "Summary. Description."; emptyMap<String, Double>().right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        module(request)
+    }
+
+    "should pass the combined text with punctuations to the API" {
+        val module = LanguageModule()
+        val request = Request(
+            NOW,
+            A_SECOND_AGO,
+            "Summary",
+            "Description",
+            "not private",
+            "private",
+            { it shouldBe "Summary. Description."; emptyMap<String, Double>().right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        module(request)
+    }
+
+    "should pass only the summary to the API when description is null" {
+        val module = LanguageModule()
+        val request = Request(
+            NOW,
+            A_SECOND_AGO,
+            "Summary.",
+            null,
+            "not private",
+            "private",
+            { it shouldBe "Summary."; emptyMap<String, Double>().right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        module(request)
+    }
+
+    "should pass only the description to the API when summary is null" {
+        val module = LanguageModule()
+        val request = Request(
+            NOW,
+            A_SECOND_AGO,
+            null,
+            "Description.",
+            "not private",
+            "private",
+            { it shouldBe "Description."; emptyMap<String, Double>().right() },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        module(request)
+    }
+
+    "should pass only the summary to the API when it contains the description" {
+        val module = LanguageModule()
+        val request = Request(
+            NOW,
+            A_SECOND_AGO,
+            "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.",
+            "pillager",
+            "not private",
+            "private",
+            {
+                it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.";
+                emptyMap<String, Double>().right()
+            },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        module(request)
+    }
+
+    "should pass only the description to the API when it contains the summary" {
+        val module = LanguageModule()
+        val request = Request(
+            NOW,
+            A_SECOND_AGO,
+            "Pillager doesn’t aim child villager",
+            "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.",
+            "not private",
+            "private",
+            {
+                it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.";
+                emptyMap<String, Double>().right()
+            },
+            { Unit.right() },
+            { Unit.right() }
+        )
+
+        module(request)
+    }
+
     "should return OperationNotNeeded if ticket is private" {
         val module = LanguageModule()
         val request = Request(

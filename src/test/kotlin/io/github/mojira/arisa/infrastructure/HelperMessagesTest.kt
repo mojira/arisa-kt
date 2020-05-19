@@ -7,7 +7,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class HelperMessagesTest : StringSpec({
-    val messages = HelperMessages.deserialize(
+    val messages = deserialize(
         """
         {
             "variables": {

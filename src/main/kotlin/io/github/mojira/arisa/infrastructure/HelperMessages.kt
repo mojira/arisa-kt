@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.rightIfNotNull
 import com.beust.klaxon.Klaxon
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
@@ -11,6 +12,9 @@ import java.net.URLConnection
 
 typealias ProjectFilter = Any
 typealias LocalizedValues = Map<String, String>
+
+private const val URL =
+    "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
 
 data class HelperMessages(
     val variables: Map<String, List<Variable>>,
@@ -110,21 +114,30 @@ data class HelperMessages(
     private fun resolvePlaceholder(message: String, filledText: String? = null): String {
         return message.replace("%s%", filledText ?: "")
     }
-
-    companion object {
-        private const val url =
-            "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
-
-        fun fetch() = try {
-            with(URL(url).openConnection() as URLConnection) {
-                deserialize(inputStream).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
-            }
-        } catch (e: IOException) {
-            e.left()
-        }
-
-        fun deserialize(json: String) = Klaxon().parse<HelperMessages>(json)
-
-        private fun deserialize(stream: InputStream) = Klaxon().parse<HelperMessages>(stream)
-    }
 }
+
+private fun fetch() = try {
+    with(URL(URL).openConnection() as URLConnection) {
+        deserialize(inputStream).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
+    }
+} catch (e: IOException) {
+    e.left()
+}
+
+fun deserialize(json: String) = Klaxon().parse<HelperMessages>(json)
+
+private fun deserialize(stream: InputStream) = Klaxon().parse<HelperMessages>(stream)
+
+fun File.getHelperMessages(old: HelperMessages? = null) = fetch().fold(
+    {
+        if (this.exists()) {
+            deserialize(this.readText())!!
+        } else {
+            old ?: HelperMessages(emptyMap(), emptyMap())
+        }
+    },
+    {
+        this.writeText(it.serialize())
+        it
+    }
+)

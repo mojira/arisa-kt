@@ -261,7 +261,7 @@ class LanguageModuleTest : StringSpec({
             "not private",
             "private",
             {
-                it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.";
+                it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 emptyMap<String, Double>().right()
             },
             { Unit.right() },
@@ -281,7 +281,7 @@ class LanguageModuleTest : StringSpec({
             "not private",
             "private",
             {
-                it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.";
+                it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 emptyMap<String, Double>().right()
             },
             { Unit.right() },

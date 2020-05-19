@@ -42,7 +42,7 @@ fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     id,
     isReleased,
     isArchived,
-    releaseDate.toReleaseDateInstant(),
+    releaseDate?.toVersionReleaseInstant(),
     ::addAffectedVersion.partially1(issue).partially1(this),
     ::removeAffectedVersion.partially1(issue).partially1(this)
 )
@@ -235,8 +235,8 @@ private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Ar
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
-private val releaseDateFormat = SimpleDateFormat("yyyy-MM-dd")
-private fun String.toReleaseDateInstant() = releaseDateFormat.parse(this).toInstant()
+private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
+private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 
 private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,

@@ -161,7 +161,8 @@ class RevokeConfirmationTest : StringSpec({
         val module = RevokeConfirmationModule()
         val volunteerChange = getChangeLogItem { listOf("staff") }
         val userChange = getChangeLogItem(value = "Unconfirmed") { listOf("users") }
-        val request = Request("Unconfirmed", listOf(volunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
+        val request =
+            Request("Unconfirmed", listOf(volunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
 
         val result = module(request)
 
@@ -175,7 +176,8 @@ class RevokeConfirmationTest : StringSpec({
         val module = RevokeConfirmationModule()
         val volunteerChange = getChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
         val userChange = getChangeLogItem(value = "Unconfirmed") { listOf("users") }
-        val request = Request("Unconfirmed", listOf(volunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
+        val request =
+            Request("Unconfirmed", listOf(volunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
 
         val result = module(request)
 
@@ -200,5 +202,11 @@ private fun getChangeLogItem(
     field: String = "Confirmation Status",
     value: String = "Confirmed",
     getAuthorGroups: () -> List<String>? = { emptyList() }
-) =
-    ChangeLogItem(created, field, null, value, User("user", "User"), getAuthorGroups)
+) = ChangeLogItem(
+    created,
+    field,
+    null,
+    value,
+    User("user", "User"),
+    getAuthorGroups
+)

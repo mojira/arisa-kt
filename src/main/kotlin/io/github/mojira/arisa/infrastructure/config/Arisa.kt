@@ -79,6 +79,10 @@ object Arisa : ConfigSpec() {
         }
 
         object Language : ModuleConfigSpec() {
+            val allowedLanguages by optional(
+                listOf("en"),
+                description = "Codes of languages that can be used."
+            )
             val messages by optional(
                 emptyMap<String, String>(),
                 description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys." +

@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Link
@@ -15,25 +16,18 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class TransferLinksModuleTest : StringSpec({
-    val DUPLICATES_LINK = Link(
-        "Duplicate",
-        true,
-        LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-            "MC-1",
-            "",
-            { Unit.right() },
-            { emptyList<Link<*, LinkParam>>().right() })
-    ) { Unit.right() }
+    val DUPLICATES_LINK = getLink(
+        issue = getLinkedIssue(
+            key = "MC-1"
+        )
+    )
 
-    val RELATES_LINK = Link(
-        "Relates",
-        true,
-        LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-            "MC-2",
-            "",
-            { Unit.right() },
-            { emptyList<Link<*, LinkParam>>().right() })
-    ) { Unit.right() }
+    val RELATES_LINK = getLink(
+        type = "Relates",
+        issue = getLinkedIssue(
+            key = "MC-2"
+        )
+    )
 
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferLinksModule()
@@ -55,15 +49,12 @@ class TransferLinksModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no outgoing duplicates link" {
         val module = TransferLinksModule()
-        val link = Link(
-            "Duplicate",
-            false,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { Unit.right() }
+        val link = getLink(
+            outwards = false,
+            issue = getLinkedIssue(
+                key = "MC-1"
+            )
+        )
         val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
         val result = module(request)
@@ -92,15 +83,13 @@ class TransferLinksModuleTest : StringSpec({
         var linkRemoved = false
         val module = TransferLinksModule()
 
-        val linkToTransfer = Link(
-            "Relates",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { linkRemoved = true; Unit.right() }
+        val linkToTransfer = getLink(
+            type = "Relates",
+            issue = getLinkedIssue(
+                key = "MC-2"
+            ),
+            remove = { linkRemoved = true; Unit.right() }
+        )
 
         val request = Request("", listOf(DUPLICATES_LINK, linkToTransfer), listOf(DUPLICATES_LINK, linkToTransfer))
 
@@ -114,15 +103,13 @@ class TransferLinksModuleTest : StringSpec({
         var parentLinkRemoved = false
         val module = TransferLinksModule()
 
-        val duplicatesLink = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { Unit.right() },
-                { listOf(RELATES_LINK).right() })
-        ) { parentLinkRemoved = true; Unit.right() }
+        val duplicatesLink = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                getField = { listOf(RELATES_LINK).right() }
+            ),
+            remove = { parentLinkRemoved = true; Unit.right() }
+        )
         val request = Request("", listOf(duplicatesLink, RELATES_LINK), listOf(duplicatesLink, RELATES_LINK))
 
         val result = module(request)
@@ -140,30 +127,24 @@ class TransferLinksModuleTest : StringSpec({
         val relatesLink2 = Link(
             "Relates",
             true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-3",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() })
+            getLinkedIssue(
+                key = "MC-3"
+            )
         ) { Unit.right() }
 
-        val link = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { l ->
+        val link = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                setField = { l ->
                     when (l.issue) {
                         "MC-1" -> parentLinkAdded = true
                         "MC-2" -> firstLinkAdded = true
                         "MC-3" -> secondLinkAdded = true
                     }
                     Unit.right()
-                },
-                { emptyList<Link<*, LinkParam>>().right() }
+                }
             )
-        ) { Unit.right() }
+        )
         val request = Request(
             "", listOf(link, RELATES_LINK, relatesLink2), listOf(
                 link,
@@ -183,33 +164,25 @@ class TransferLinksModuleTest : StringSpec({
         var addedToSecondParent = false
         val module = TransferLinksModule()
 
-        val duplicatesLink1 = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                {
+        val duplicatesLink1 = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                setField = {
                     addedToFirstParent = true
                     Unit.right()
-                },
-                { emptyList<Link<*, LinkParam>>().right() }
+                }
             )
-        ) { Unit.right() }
+        )
 
-        val duplicatesLink2 = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                {
+        val duplicatesLink2 = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                setField = {
                     addedToSecondParent = true
                     Unit.right()
-                },
-                { emptyList<Link<*, LinkParam>>().right() }
+                }
             )
-        ) { Unit.right() }
+        )
 
         val request = Request(
             "", listOf(duplicatesLink1, duplicatesLink2, RELATES_LINK), listOf(
@@ -230,33 +203,31 @@ class TransferLinksModuleTest : StringSpec({
         var secondLinkAdded = false
         val module = TransferLinksModule()
 
-        val outwardsRelates1 = Link(
-            "Relates",
-            false,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                {
+        val outwardsRelates1 = getLink(
+            type = "Relates",
+            outwards = false,
+            issue = getLinkedIssue(
+                key = "MC-2",
+                setField = {
                     firstLinkAdded = true
                     it.type.shouldBe("Relates")
                     it.issue.shouldBe("MC-1").right()
-                },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { Unit.right() }
+                }
+            )
+        )
 
-        val outwardsRelates2 = Link(
-            "Relates",
-            false,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-3",
-                "",
-                {
+        val outwardsRelates2 = getLink(
+            type = "Relates",
+            outwards = false,
+            issue = getLinkedIssue(
+                key = "MC-3",
+                setField = {
                     secondLinkAdded = true
                     it.type.shouldBe("Relates")
                     it.issue.shouldBe("MC-1").right()
-                },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { Unit.right() }
+                }
+            )
+        )
 
         val request = Request(
             "",
@@ -275,32 +246,26 @@ class TransferLinksModuleTest : StringSpec({
         var addedToSecondParent = false
         val module = TransferLinksModule()
 
-        val outwardsRelates = Link(
-            "Relates",
-            false,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                { l ->
+        val outwardsRelates = getLink(
+            type = "Relates",
+            outwards = false,
+            issue = getLinkedIssue(
+                key = "MC-2",
+                setField = { l ->
                     when (l.issue) {
                         "MC-1" -> addedToFirstParent = true
                         "MC-2" -> addedToSecondParent = true
                     }
                     Unit.right()
-                },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { Unit.right() }
-
-        val duplicatesLink2 = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() }
+                }
             )
-        ) { Unit.right() }
+        )
+
+        val duplicatesLink2 = getLink(
+            issue = getLinkedIssue(
+                key = "MC-2"
+            )
+        )
 
         val request = Request(
             "",
@@ -318,15 +283,13 @@ class TransferLinksModuleTest : StringSpec({
     "should return FailedModuleResponse when removing a link fails" {
         val module = TransferLinksModule()
 
-        val link = Link(
-            "Relates",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { RuntimeException().left() }
+        val link = getLink(
+            type = "Relates",
+            issue = getLinkedIssue(
+                key = "MC-2"
+            ),
+            remove = { RuntimeException().left() }
+        )
 
         val request = Request("", listOf(DUPLICATES_LINK, link), listOf(DUPLICATES_LINK, link))
 
@@ -340,25 +303,21 @@ class TransferLinksModuleTest : StringSpec({
     "should return FailedModuleResponse with all errors when removing multiple links fails" {
         val module = TransferLinksModule()
 
-        val link1 = Link(
-            "Relates",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { RuntimeException().left() }
+        val link1 = getLink(
+            type = "Relates",
+            issue = getLinkedIssue(
+                key = "MC-2"
+            ),
+            remove = { RuntimeException().left() }
+        )
 
-        val link2 = Link(
-            "Relates",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-2",
-                "",
-                { Unit.right() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { RuntimeException().left() }
+        val link2 = getLink(
+            type = "Relates",
+            issue = getLinkedIssue(
+                key = "MC-2"
+            ),
+            remove = { RuntimeException().left() }
+        )
 
         val request = Request("", listOf(DUPLICATES_LINK, link1, link2), listOf(DUPLICATES_LINK, link1, link2))
 
@@ -372,15 +331,12 @@ class TransferLinksModuleTest : StringSpec({
     "should return FailedModuleResponse when adding a link fails" {
         val module = TransferLinksModule()
 
-        val link = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { RuntimeException().left() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { Unit.right() }
+        val link = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                setField = { RuntimeException().left() }
+            )
+        )
         val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
         val result = module(request)
@@ -393,15 +349,12 @@ class TransferLinksModuleTest : StringSpec({
     "should return FailedModuleResponse with all errors when adding multiple links fails" {
         val module = TransferLinksModule()
 
-        val link = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { RuntimeException().left() },
-                { emptyList<Link<*, LinkParam>>().right() })
-        ) { Unit.right() }
+        val link = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                setField = { RuntimeException().left() }
+            )
+        )
 
         val request = Request(
             "MC-1",
@@ -418,15 +371,12 @@ class TransferLinksModuleTest : StringSpec({
 
     "should return FailedModuleResponse when getting an issue fails" {
         val module = TransferLinksModule()
-        val link = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { Unit.right() },
-                { RuntimeException().left() })
-        ) { Unit.right() }
+        val link = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                getField = { RuntimeException().left() }
+            )
+        )
 
         val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
@@ -440,15 +390,12 @@ class TransferLinksModuleTest : StringSpec({
     "should return FailedModuleResponse with all errors when getting an issue fails" {
         val module = TransferLinksModule()
 
-        val link = Link(
-            "Duplicate",
-            true,
-            LinkedIssue<List<Link<*, LinkParam>>, LinkParam>(
-                "MC-1",
-                "",
-                { Unit.right() },
-                { RuntimeException().left() })
-        ) { Unit.right() }
+        val link = getLink(
+            issue = getLinkedIssue(
+                key = "MC-1",
+                getField = { RuntimeException().left() }
+            )
+        )
 
         val request = Request("", listOf(link, link, RELATES_LINK), listOf(link, link, RELATES_LINK))
 
@@ -459,3 +406,27 @@ class TransferLinksModuleTest : StringSpec({
         (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 })
+
+private fun getLinkedIssue(
+    key: String,
+    status: String = "",
+    setField: (field: LinkParam) -> Either<Throwable, Unit> = { Unit.right() },
+    getField: () -> Either<Throwable, List<Link<*, LinkParam>>> = { emptyList<Link<*, LinkParam>>().right() }
+) = LinkedIssue(
+    key,
+    status,
+    setField,
+    getField
+)
+
+private fun getLink(
+    type: String = "Duplicate",
+    outwards: Boolean = true,
+    issue: LinkedIssue<List<Link<*, LinkParam>>, LinkParam>,
+    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+): Link<List<Link<*, LinkParam>>, LinkParam> = Link(
+    type,
+    outwards,
+    issue,
+    remove
+)

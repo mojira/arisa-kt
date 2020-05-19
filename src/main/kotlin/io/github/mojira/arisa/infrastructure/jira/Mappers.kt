@@ -20,6 +20,7 @@ import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
+import java.text.SimpleDateFormat
 import net.rcarz.jiraclient.Attachment as JiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
@@ -41,7 +42,7 @@ fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     id,
     isReleased,
     isArchived,
-    releaseDate.toInstant(),
+    releaseDate.toReleaseDateInstant(),
     ::addAffectedVersion.partially1(issue).partially1(this),
     ::removeAffectedVersion.partially1(issue).partially1(this)
 )
@@ -234,6 +235,8 @@ fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.Cust
 fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
+private val releaseDateFormat = SimpleDateFormat("yyyy-MM-dd")
+fun String.toReleaseDateInstant() = releaseDateFormat.parse(this).toInstant()
 
 fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,

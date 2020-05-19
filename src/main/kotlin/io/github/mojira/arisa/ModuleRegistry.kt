@@ -115,8 +115,9 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
         register(
             Modules.Language,
             LanguageModule(
-                lengthThreshold = config[Modules.Language.lengthThreshold],
-                getLanguage = ::getLanguage.partially1(config[Credentials.dandelionToken])
+                config[Modules.Language.allowedLanguages],
+                config[Modules.Language.lengthThreshold],
+                ::getLanguage.partially1(config[Credentials.dandelionToken])
             )
         )
 

@@ -27,7 +27,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "test] test"),
+            getUser(displayName = "test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -46,7 +46,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test test"),
+            getUser(displayName = "[test test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -65,7 +65,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[}[{]] test"),
+            getUser(displayName = "[}[{]] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -84,7 +84,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test]"),
+            getUser(displayName = "[test]"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -103,7 +103,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "test [test]"),
+            getUser(displayName = "test [test]"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -122,7 +122,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { listOf("staff") },
             Instant.now(),
             Instant.now(),
@@ -141,7 +141,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { listOf("helper") },
             Instant.now(),
             Instant.now(),
@@ -160,7 +160,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { listOf("global-moderators") },
             Instant.now(),
             Instant.now(),
@@ -179,7 +179,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -198,7 +198,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { listOf("staff") },
             Instant.now(),
             Instant.now().minus(2, ChronoUnit.DAYS),
@@ -217,7 +217,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -236,7 +236,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[t3st] test"),
+            getUser(displayName = "[t3st] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -255,7 +255,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[tést] test"),
+            getUser(displayName = "[tést] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -274,7 +274,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[Mojang Overlord] test"),
+            getUser(displayName = "[Mojang Overlord] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -293,7 +293,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -312,7 +312,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -331,7 +331,7 @@ class HideImpostorsTest : StringSpec({
         val module = HideImpostorsModule()
         val comment = Comment(
             "",
-            User("user", "[test] test"),
+            getUser(displayName = "[test] test"),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -348,3 +348,5 @@ class HideImpostorsTest : StringSpec({
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })
+
+private fun getUser(displayName: String) = User("", displayName)

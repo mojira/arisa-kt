@@ -26,7 +26,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -46,7 +46,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -66,7 +66,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "My server has 1 MEQS of RAM and it's crashing. Also I don't know how to spell MEGS",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -86,7 +86,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -108,7 +108,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -130,7 +130,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -150,7 +150,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -170,7 +170,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -190,7 +190,7 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val module = RemoveNonStaffMeqsModule("Test.")
         val comment = Comment(
             "MEQS_WAI\nI like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -206,3 +206,5 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 })
+
+private fun getUser() = User("user", "User")

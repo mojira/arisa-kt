@@ -14,8 +14,8 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 
 private val NOW = Instant.now()
-private val REPORTER = User("reporter", "Reporter")
-private val RANDOM_USER = User("randomuser", "Random User")
+private val REPORTER = getUser(name = "reporter")
+private val RANDOM_USER = getUser(name = "randomuser")
 
 class ReopenAwaitingModuleTest : StringSpec({
     val MODULE = ReopenAwaitingModule(
@@ -25,7 +25,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     )
 
     val AWAITING_RESOLVE =
-        ChangeLogItem(NOW.minusSeconds(10), "", "", "Awaiting Response", User("piston", "[Bot] Piston")) { emptyList() }
+        ChangeLogItem(NOW.minusSeconds(10), "", "", "Awaiting Response", getUser(name = "piston")) { emptyList() }
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = NOW.plusSeconds(3)
@@ -591,3 +591,5 @@ private fun getComment(
     { Unit.right() },
     { Unit.right() }
 )
+
+private fun getUser(name: String) = User(name, "User")

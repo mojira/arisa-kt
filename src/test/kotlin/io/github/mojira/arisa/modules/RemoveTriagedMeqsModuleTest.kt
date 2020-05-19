@@ -35,7 +35,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
         val comment = Comment(
             "I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -54,7 +54,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -75,7 +75,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -96,7 +96,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -115,7 +115,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
         val comment = Comment(
             "MEQS_WAI I like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -134,7 +134,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Test.")
         val comment = Comment(
             "MEQS_WAI\nI like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -153,7 +153,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Test.")
         val comment = Comment(
             "MEQS_WAI\nMEQS_TRIVIAL\nI like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -172,7 +172,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI", "MEQS_WONTFIX"), "Test.")
         val comment = Comment(
             "MEQS_WAI\nMEQS_WONTFIX\nI like QC.",
-            User("user", ""),
+            getUser(),
             { emptyList() },
             Instant.now(),
             Instant.now(),
@@ -190,3 +190,6 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 })
+
+
+private fun getUser() = User("user", "User")

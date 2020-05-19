@@ -25,7 +25,7 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
             assertGreaterThan(relevantParents.size, 0).bind()
 
             val parentEithers = relevantParents
-                .map(::toIssueVersionPair)
+                .map(::toIssueFieldPair)
 
             parentEithers.toFailedModuleEither().bind()
             val parents = parentEithers
@@ -38,7 +38,7 @@ abstract class AbstractTransferFieldModule<FIELD, FUNPARAM> : Module<Request<FIE
         }
     }
 
-    private fun toIssueVersionPair(
+    private fun toIssueFieldPair(
         issue: LinkedIssue<FIELD, FUNPARAM>
     ): Either<Throwable, Pair<LinkedIssue<FIELD, FUNPARAM>, FIELD>> {
         val details = issue.getField()

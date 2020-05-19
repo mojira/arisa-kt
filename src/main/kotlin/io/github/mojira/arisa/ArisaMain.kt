@@ -5,6 +5,7 @@ import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -52,7 +53,7 @@ fun main() {
 
     val helperMessagesFile = File("helper-messages.json")
     val helperMessagesInterval = config[Arisa.HelperMessages.updateInterval]
-    var helperMessages = getHelperMessages(helperMessagesFile)
+    var helperMessages = helperMessagesFile.getHelperMessages()
     var helperMessagesLastFetch = Instant.now()
 
     var moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
@@ -80,7 +81,7 @@ fun main() {
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
-            helperMessages = getHelperMessages(helperMessagesFile, helperMessages)
+            helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
             moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
             helperMessagesLastFetch = curRunTime
         }
@@ -88,17 +89,3 @@ fun main() {
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
     }
 }
-
-private fun getHelperMessages(file: File, old: HelperMessages? = null) = HelperMessages.fetch().fold(
-    {
-        if (file.exists()) {
-            HelperMessages.deserialize(file.readText())!!
-        } else {
-            old ?: HelperMessages(emptyMap(), emptyMap())
-        }
-    },
-    {
-        file.writeText(it.serialize())
-        it
-    }
-)

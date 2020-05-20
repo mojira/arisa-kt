@@ -5,7 +5,7 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.jira.CommentOptions
+import io.github.mojira.arisa.domain.CommentOptions
 import java.time.Instant
 
 class PiracyModule(

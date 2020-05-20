@@ -11,7 +11,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.infrastructure.jira.CommentOptions
+import io.github.mojira.arisa.domain.CommentOptions
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()

@@ -1,7 +1,6 @@
 package io.github.mojira.arisa.domain
 
 import arrow.core.Either
-import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
 data class Issue(

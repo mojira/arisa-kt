@@ -86,17 +86,17 @@ fun JiraIssue.toDomain(
     ::updateSecurity.partially1(this).partially1(project.getSecurityLevelId(config)),
     ::createLink.partially1(this),
     ::addAffectedVersionById.partially1(this),
-    { (key, filledText, lang) ->
+    { (messageKey, variable, language) ->
         createComment(this,
             messages.getMessageWithBotSignature(
-                project.key, key, filledText, lang
+                project.key, messageKey, variable, language
             )
         )
     },
-    { (key, filledText, lang) ->
+    { (messageKey, variable, language) ->
         addRestrictedComment(this,
             messages.getMessageWithBotSignature(
-                project.key, key, filledText, lang
+                project.key, messageKey, variable, language
             ),
             "helper"
         )

@@ -5,7 +5,7 @@ import arrow.core.extensions.fx
 import arrow.syntax.function.complement
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.infrastructure.jira.CommentOptions
+import io.github.mojira.arisa.domain.CommentOptions
 import java.time.Instant
 
 class FutureVersionModule(

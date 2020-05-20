@@ -24,7 +24,7 @@ class ModuleExecutor(
     private val queryCache: QueryCache,
     private val helperMessages: HelperMessages
 ) {
-    private val registry = ModuleRegistry(jiraClient, config, helperMessages)
+    private val registry = ModuleRegistry(config)
 
     data class ExecutionResults(
         val successful: Boolean,

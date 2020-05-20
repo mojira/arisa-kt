@@ -25,6 +25,12 @@ fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
 }
 const val MILLI_FOR_FORMAT = 123L
 
+data class CommentOptions(
+    val key: String,
+    val filledText: String? = null,
+    val lang: String = "en"
+)
+
 fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBlocking {
     Either.catch {
         issue

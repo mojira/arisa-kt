@@ -5,6 +5,7 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
 const val DESC_DEFAULT = """Put the summary of the bug you're having here
@@ -22,7 +23,9 @@ Describe what happened here
 const val ENV_DEFAULT = "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
 const val MIN_LENGTH = 5
 
-class EmptyModule : Module {
+class EmptyModule(
+    private val message: String
+) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             assertAfter(created, lastRun).bind()
@@ -34,7 +37,7 @@ class EmptyModule : Module {
                 assertNotEqual(environment, ENV_DEFAULT).bind()
             }
             assertNotEmpty(attachments)
-            addEmptyComment().toFailedModuleEither().bind()
+            addComment(CommentOptions(message)).toFailedModuleEither().bind()
             resolveAsIncomplete().toFailedModuleEither().bind()
         }
     }

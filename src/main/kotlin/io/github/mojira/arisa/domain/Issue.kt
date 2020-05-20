@@ -1,9 +1,10 @@
 package io.github.mojira.arisa.domain
 
 import arrow.core.Either
+import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
-data class Issue (
+data class Issue(
     val key: String,
     val summary: String?,
     val status: String,
@@ -38,11 +39,7 @@ data class Issue (
     val setPrivate: () -> Either<Throwable, Unit>,
     val createLink: (key: String, type: String) -> Either<Throwable, Unit>,
     val addAffectedVersion: (id: String) -> Either<Throwable, Unit>,
-    val addEmptyComment: () -> Either<Throwable, Unit>,
-    val addModdedComment: () -> Either<Throwable, Unit>,
-    val addCrashDupeComment: (key: String) -> Either<Throwable, Unit>,
-    val addFutureVersionComment: () -> Either<Throwable, Unit>,
-    val addKeepPrivateComment: () -> Either<Throwable, Unit>,
-    val addNotEnglishComment: (lang: String) -> Either<Throwable, Unit>,
-    val addPiracyComment: () -> Either<Throwable, Unit>
+    val addComment: (options: CommentOptions) -> Either<Throwable, Unit>,
+    val addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit>,
+    val addNotEnglishComment: (language: String) -> Either<Throwable, Unit> // Will be removed once we enable the module
 )

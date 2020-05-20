@@ -8,7 +8,7 @@ import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
@@ -36,14 +36,12 @@ import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
-import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
 
-class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private val messages: HelperMessages) {
-
+class ModuleRegistry(private val config: Config) {
     data class Entry(
         val config: ModuleConfigSpec,
         val getJql: (lastRun: Instant) -> String,
@@ -98,17 +96,22 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
                 config[Modules.Crash.crashExtensions],
                 config[Modules.Crash.duplicates],
                 config[Modules.Crash.maxAttachmentAge],
-                CrashReader()
+                CrashReader(),
+                config[Modules.Crash.duplicateMessage],
+                config[Modules.Crash.moddedMessage]
             )
         )
 
-        register(Modules.Empty, EmptyModule())
+        register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
-        register(Modules.FutureVersion, FutureVersionModule())
+        register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 
         register(Modules.HideImpostors, HideImpostorsModule())
 
-        register(Modules.KeepPrivate, KeepPrivateModule(config[Modules.KeepPrivate.tag]))
+        register(Modules.KeepPrivate, KeepPrivateModule(
+            config[Modules.KeepPrivate.tag],
+            config[Modules.KeepPrivate.message]
+        ))
 
         register(Modules.TransferVersions, TransferVersionsModule())
 
@@ -117,7 +120,10 @@ class ModuleRegistry(jiraClient: JiraClient, private val config: Config, private
             TransferLinksModule()
         )
 
-        register(Modules.Piracy, PiracyModule(config[Modules.Piracy.piracySignatures]))
+        register(Modules.Piracy, PiracyModule(
+            config[Modules.Piracy.piracySignatures],
+            config[Modules.Piracy.message]
+        ))
 
         register(
             Modules.Language,

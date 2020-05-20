@@ -11,8 +11,8 @@ const val MINIMUM_PERCENTAGE = 0.7
 
 class LanguageModule(
     private val allowedLanguages: List<String> = listOf("en"),
-    val lengthThreshold: Int = 0,
-    val getLanguage: (String) -> Either<Any, Map<String, Double>>
+    private val lengthThreshold: Int = 0,
+    private val getLanguage: (String) -> Either<Any, Map<String, Double>>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {

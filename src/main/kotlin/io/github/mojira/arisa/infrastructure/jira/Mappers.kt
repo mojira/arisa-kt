@@ -86,37 +86,25 @@ fun JiraIssue.toDomain(
     ::updateSecurity.partially1(this).partially1(project.getSecurityLevelId(config)),
     ::createLink.partially1(this),
     ::addAffectedVersionById.partially1(this),
-    ::createComment.partially1(this).partially1(
-        messages.getMessageWithBotSignature(
-            project.key, config[Arisa.Modules.Empty.message]
-        )
-    ),
-    ::createComment.partially1(this).partially1(
-        messages.getMessageWithBotSignature(
-            project.key, config[Arisa.Modules.Crash.moddedMessage]
-        )
-    ),
-    { key ->
-        createComment(
-            this, messages.getMessageWithBotSignature(
-                project.key, config[Arisa.Modules.Crash.duplicateMessage], key
+    { (key, filledText, lang) ->
+        createComment(this,
+            messages.getMessageWithBotSignature(
+                project.key, key, filledText, lang
             )
         )
     },
-    ::createComment.partially1(this).partially1(
-        messages.getMessageWithBotSignature(
-            project.key, config[Arisa.Modules.FutureVersion.message]
+    { (key, filledText, lang) ->
+        addRestrictedComment(this,
+            messages.getMessageWithBotSignature(
+                project.key, key, filledText, lang
+            ),
+            "helper"
         )
-    ),
-    ::createComment.partially1(this).partially1(
-        messages.getMessageWithBotSignature(
-            project.key, config[Arisa.Modules.KeepPrivate.message]
-        )
-    ),
+    },
     { language ->
         // Should we move this?
         // Most likely, no ;D
-        // addRestrictedComment(issue, messages.getMessageWithBotSignature(
+        // addRestrictedComment(this, messages.getMessageWithBotSignature(
         //     issue.project.key, config[Modules.Language.message], lang = language
         // ), "helper")
         val translatedMessage = config[Arisa.Modules.Language.messages][language]
@@ -132,12 +120,7 @@ fun JiraIssue.toDomain(
             text,
             "helper"
         )
-    },
-    ::createComment.partially1(this).partially1(
-        messages.getMessageWithBotSignature(
-            project.key, config[Arisa.Modules.Piracy.message]
-        )
-    )
+    }
 )
 
 fun JiraProject.toDomain(

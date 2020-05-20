@@ -5,10 +5,12 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
 class PiracyModule(
-    private val piracySignatures: List<String>
+    private val piracySignatures: List<String>,
+    private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -16,7 +18,7 @@ class PiracyModule(
                 piracySignatures,
                 "$description $environment $summary"
             ).bind()
-            addPiracyComment().toFailedModuleEither().bind()
+            addComment(CommentOptions(message)).toFailedModuleEither().bind()
             resolveAsInvalid().toFailedModuleEither().bind()
         }
     }

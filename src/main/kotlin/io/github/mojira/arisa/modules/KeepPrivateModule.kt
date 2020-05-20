@@ -7,10 +7,12 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
 class KeepPrivateModule(
-    private val keepPrivateTag: String?
+    private val keepPrivateTag: String?,
+    private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -21,7 +23,7 @@ class KeepPrivateModule(
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addKeepPrivateComment().toFailedModuleEither().bind()
+                addComment(CommentOptions(message)).toFailedModuleEither().bind()
             }
             setPrivate().toFailedModuleEither().bind()
         }

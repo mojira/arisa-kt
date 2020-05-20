@@ -5,9 +5,12 @@ import arrow.core.extensions.fx
 import arrow.syntax.function.complement
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Version
+import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
-class FutureVersionModule : Module {
+class FutureVersionModule(
+    private val message: String
+) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val removeFutureVersions = affectedVersions
@@ -20,7 +23,7 @@ class FutureVersionModule : Module {
 
             latestVersion!!.add().toFailedModuleEither().bind()
             tryRunAll(removeFutureVersions).bind()
-            addFutureVersionComment().toFailedModuleEither().bind()
+            addComment(CommentOptions(message)).toFailedModuleEither().bind()
             resolveAsAwaitingResponse().toFailedModuleEither().bind()
         }
     }

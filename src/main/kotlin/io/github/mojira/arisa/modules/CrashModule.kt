@@ -7,6 +7,7 @@ import arrow.core.firstOrNone
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
+import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
@@ -18,7 +19,9 @@ class CrashModule(
     private val crashReportExtensions: List<String>,
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val maxAttachmentAge: Int,
-    private val crashReader: CrashReader
+    private val crashReader: CrashReader,
+    private val dupeMessage: String,
+    private val moddedMessage: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -49,13 +52,13 @@ class CrashModule(
 
             if (key == null) {
                 if (anyModded) {
-                    addModdedComment().toFailedModuleEither().bind()
+                    addComment(CommentOptions(moddedMessage)).toFailedModuleEither().bind()
                     resolveAsInvalid().toFailedModuleEither().bind()
                 } else {
                     assertNotNull(key).bind()
                 }
             } else {
-                addCrashDupeComment(key).toFailedModuleEither().bind()
+                addComment(CommentOptions(dupeMessage, key)).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
                 createLink(key, "Duplicate").toFailedModuleEither().bind()
             }

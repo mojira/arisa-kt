@@ -20,7 +20,7 @@ import java.time.temporal.ChronoField
 
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {
-        jiraClient.getIssue(key)
+        jiraClient.getIssue(key, "*all", "changelog")
     }
 }
 const val MILLI_FOR_FORMAT = 123L

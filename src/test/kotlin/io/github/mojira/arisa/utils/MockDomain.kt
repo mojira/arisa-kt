@@ -11,6 +11,7 @@ import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.jira.CommentOptions
+import io.github.mojira.arisa.modules.NOW
 import java.time.Instant
 
 fun getIssue(
@@ -97,4 +98,16 @@ fun getProject(
     key,
     versions,
     privateSecurity
+)
+
+fun getAttachment(
+    name: String = "",
+    created: Instant = Instant.now(),
+    remove: () -> Either<Throwable, Unit> = { Unit.right() },
+    getContent: () -> ByteArray = { ByteArray(0) }
+) = Attachment(
+    name,
+    created,
+    remove,
+    getContent
 )

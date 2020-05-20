@@ -2,7 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.EmptyModule.Request
+import io.github.mojira.arisa.utils.getAttachment
+import io.github.mojira.arisa.utils.getIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -10,193 +11,143 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 
+private val NOW = Instant.now()
+
 class EmptyModuleTest : StringSpec({
-    val NOW = Instant.now()
     val A_SECOND_AGO = NOW.minusSeconds(1)
 
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            A_SECOND_AGO,
-            NOW,
-            0,
-            null,
-            null,
-            { Unit.right() },
-            { Unit.right() }
+            created = A_SECOND_AGO
         )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is a attachment and desc and env are correct" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            1,
-            "asddsa",
-            "asddsa",
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            attachments = listOf(getAttachment()),
+            description = "asddsa",
+            environment = "asddsa"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc and env are correct" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            "asddsa",
-            "asddsa",
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            description = "asddsa",
+            environment = "asddsa"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is a attachment and no desc or env" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            1,
-            null,
-            null,
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            attachments = listOf(getAttachment())
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is no attachment and no desc and env is correct" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            null,
-            "asddsa",
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            environment = "asddsa"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc is correct and no env" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            "asdasd",
-            null,
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            description = "asdasd"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should resolve as invalid when there is no attachment and no desc or env" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            null,
-            null,
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
 
     "should resolve as invalid when there is no attachment and desc is default and env is empty" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            DESC_DEFAULT,
-            null,
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            description = DESC_DEFAULT
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
 
     "should resolve as invalid when there is no attachment and desc is empty and env is default" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            null,
-            ENV_DEFAULT,
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            environment = ENV_DEFAULT
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
 
     "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            "asd",
-            "asd",
-            { Unit.right() },
-            { Unit.right() }
+            created = NOW,
+            description = "asd",
+            environment = "asd"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
 
     "should return FailedModuleResponse when resolving fails" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            "asd",
-            "asd",
-            { RuntimeException().left() },
-            { Unit.right() }
+            created = NOW,
+            description = "asd",
+            environment = "asd",
+            resolveAsIncomplete = { RuntimeException().left() }
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -204,18 +155,15 @@ class EmptyModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse when adding comment fails" {
-        val module = EmptyModule()
+        val module = EmptyModule("message")
         val issue = getIssue(
-            NOW,
-            A_SECOND_AGO,
-            0,
-            "asd",
-            "asd",
-            { Unit.right() },
-            { RuntimeException().left() }
+            created = NOW,
+            description = "asd",
+            environment = "asd",
+            addComment = { RuntimeException().left() }
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

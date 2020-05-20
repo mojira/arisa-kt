@@ -16,7 +16,7 @@ import java.time.temporal.ChronoUnit
 
 private val NOW = Instant.now()
 
-class HideImpostorsTest : StringSpec({
+class HideImpostorsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no comments" {
         val module = HideImpostorsModule()
         val issue = getIssue(emptyList())

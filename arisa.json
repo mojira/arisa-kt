@@ -288,8 +288,7 @@
         ]
       },
       "transferVersions": {
-        "resolutions": [ "Duplicate" ],
-        "whitelist": []
+        "resolutions": [ "Duplicate" ]
       },
       "transferLinks": {
         "resolutions": [ "Duplicate" ]

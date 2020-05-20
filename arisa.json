@@ -59,6 +59,17 @@
           "url"
         ]
       },
+      "duplicateMessage": {
+        "resolutions": [
+          "Duplicate"
+        ],
+        "message": "duplicate",
+        "privateMessage": "duplicate-private",
+        "resolutionMessages": {
+          "Fixed": "duplicate-fixed",
+          "Works As Intended": "duplicate-wai"
+        }
+      },
       "piracy": {
         "excludedStatuses": ["Postponed"],
         "message": "pirated-minecraft",

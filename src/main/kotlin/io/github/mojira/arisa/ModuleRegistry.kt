@@ -15,6 +15,7 @@ import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
+import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
@@ -102,6 +103,25 @@ class ModuleRegistry(private val config: Config) {
         )
 
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
+
+        register(
+            Modules.DuplicateMessage, DuplicateMessageModule(
+                config[Modules.DuplicateMessage.message],
+                config[Modules.DuplicateMessage.privateMessage],
+                config[Modules.DuplicateMessage.resolutionMessages]
+            )
+        ) { issue ->
+            DuplicateMessageModule.Request(
+                issue.getLinks<String?, Nothing>(jiraClient, ::updateSecurity, ::getSecurityGetField),
+                issue.getComments(jiraClient)
+            ) { messageKey, filledText ->
+                addComment(
+                    issue, messages.getMessageWithBotSignature(
+                        issue.project.key, messageKey, filledText
+                    )
+                )
+            }
+        }
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 

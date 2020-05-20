@@ -5,7 +5,9 @@ import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
 import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
+import io.github.mojira.arisa.domain.CommentOptions
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
@@ -17,23 +19,11 @@ class CrashModule(
     private val crashReportExtensions: List<String>,
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val maxAttachmentAge: Int,
-    private val crashReader: CrashReader
-) : Module<CrashModule.Request> {
-
-    data class Request(
-        val attachments: List<Attachment>,
-        val body: String?,
-        val created: Instant,
-        val confirmationStatus: String?,
-        val priority: String?,
-        val resolveAsInvalid: () -> Either<Throwable, Unit>,
-        val resolveAsDuplicate: () -> Either<Throwable, Unit>,
-        val linkDuplicate: (key: String) -> Either<Throwable, Unit>,
-        val addModdedComment: () -> Either<Throwable, Unit>,
-        val addDuplicateComment: (key: String) -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+    private val crashReader: CrashReader,
+    private val dupeMessage: String,
+    private val moddedMessage: String
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
             assertNull(priority).bind()
@@ -42,7 +32,8 @@ class CrashModule(
                 .filter { isCrashAttachment(it.name) }
                 .map(::fetchAttachment)
                 .toMutableList()
-            textDocuments.add(TextDocument({ body ?: "" }, created))
+            // also add description, so it's searched for crash reports
+            textDocuments.add(TextDocument({ description ?: "" }, created))
 
             val crashes = textDocuments
                 .asSequence()
@@ -61,15 +52,15 @@ class CrashModule(
 
             if (key == null) {
                 if (anyModded) {
-                    addModdedComment().toFailedModuleEither().bind()
+                    addComment(CommentOptions(moddedMessage)).toFailedModuleEither().bind()
                     resolveAsInvalid().toFailedModuleEither().bind()
                 } else {
                     assertNotNull(key).bind()
                 }
             } else {
-                addDuplicateComment(key).toFailedModuleEither().bind()
+                addComment(CommentOptions(dupeMessage, key)).toFailedModuleEither().bind()
                 resolveAsDuplicate().toFailedModuleEither().bind()
-                linkDuplicate(key).toFailedModuleEither().bind()
+                createLink(key, "Duplicate").toFailedModuleEither().bind()
             }
         }
     }

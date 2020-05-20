@@ -5,27 +5,24 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
-import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
+import java.time.Instant
 
 class RemoveTriagedMeqsModule(
     private val meqsTags: List<String>,
     private val removalReason: String
-) : Module<RemoveTriagedMeqsModule.Request> {
-    data class Request(
-        val priority: String?,
-        val triagedTime: String?,
-        val comments: List<Comment>
-    )
+) : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+        Either.fx {
+            assertTriaged(priority, triagedTime).bind()
 
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTriaged(request.priority, request.triagedTime).bind()
+            val updateMeqsComments = comments
+                .filter { hasMeqsTag(it.body) }
+                .map { it.update.partially1(removeMeqsTags(it.body)) }
+            assertNotEmpty(updateMeqsComments).bind()
 
-        val updateMeqsComments = request.comments
-            .filter { hasMeqsTag(it.body) }
-            .map { it.update.partially1(removeMeqsTags(it.body)) }
-        assertNotEmpty(updateMeqsComments).bind()
-
-        tryRunAll(updateMeqsComments).bind()
+            tryRunAll(updateMeqsComments).bind()
+        }
     }
 
     private fun hasMeqsTag(comment: String) =

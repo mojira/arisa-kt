@@ -5,9 +5,9 @@ import java.time.Instant
 
 data class Version(
     val id: String,
-    val name: String,
     val released: Boolean,
     val archived: Boolean,
     val releaseDate: Instant?,
-    val execute: () -> Either<Throwable, Unit>
+    val add: () -> Either<Throwable, Unit>,
+    val remove: () -> Either<Throwable, Unit>
 )

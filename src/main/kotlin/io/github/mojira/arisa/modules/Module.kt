@@ -5,11 +5,12 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 import kotlin.reflect.KFunction1
 
-interface Module<REQUEST> {
-    operator fun invoke(request: REQUEST): Either<ModuleError, ModuleResponse>
+interface Module {
+    operator fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse>
 }
 
 typealias ModuleResponse = Unit

@@ -3,17 +3,12 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
-    data class Request(
-        val confirmationStatus: String?,
-        val changeLog: List<ChangeLogItem>,
-        val setConfirmationStatus: (String) -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+class RevokeConfirmationModule : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val volunteerConfirmation = changeLog
                 .filter(::isConfirmationChange)
@@ -22,7 +17,7 @@ class RevokeConfirmationModule : Module<RevokeConfirmationModule.Request> {
                 ?.changedTo.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()
-            setConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
+            updateConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
         }
     }
 

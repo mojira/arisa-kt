@@ -36,7 +36,7 @@ data class Issue(
     val updateConfirmationStatus: (String) -> Either<Throwable, Unit>,
     val updateLinked: (Double) -> Either<Throwable, Unit>,
     val setPrivate: () -> Either<Throwable, Unit>,
-    val createLink: (key: String, type: String) -> Either<Throwable, Unit>,
+    val createLink: (type: String, key: String) -> Either<Throwable, Unit>,
     val addAffectedVersion: (id: String) -> Either<Throwable, Unit>,
     val addComment: (options: CommentOptions) -> Either<Throwable, Unit>,
     val addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit>,

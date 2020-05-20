@@ -31,7 +31,7 @@ class UpdateLinkedModule(
                 .size
             val duplicateAmount = (duplicatesAdded - duplicatesRemoved).toDouble()
 
-            assertNotEquals(duplicateAmount, linkedField ?: 0.0).bind()
+            assertNotEquals(duplicateAmount, linked ?: 0.0).bind()
 
             val firstAddedLinkSinceLastUpdate = duplicates
                 .firstOrNull(::createdAfter.partially2(lastLinkedChange))

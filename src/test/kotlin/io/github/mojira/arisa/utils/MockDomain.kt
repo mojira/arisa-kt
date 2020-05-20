@@ -100,4 +100,3 @@ fun getProject(
     versions,
     privateSecurity
 )
-a

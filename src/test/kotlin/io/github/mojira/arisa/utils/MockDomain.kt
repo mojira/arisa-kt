@@ -14,11 +14,11 @@ import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.jira.CommentOptions
 import java.time.Instant
 
-val RIGHT_NOW: Instant = Instant.now()
+val NOW: Instant = Instant.now()
 
 fun mockAttachment(
     name: String = "",
-    created: Instant = RIGHT_NOW,
+    created: Instant = NOW,
     remove: () -> Either<Throwable, Unit> = { Unit.right() },
     getContent: () -> ByteArray = { ByteArray(0) }
 ) = Attachment(
@@ -29,7 +29,7 @@ fun mockAttachment(
 )
 
 fun mockChangeLogItem(
-    created: Instant = RIGHT_NOW,
+    created: Instant = NOW,
     field: String = "",
     changedFrom: String? = null,
     changedTo: String? = null,
@@ -48,7 +48,7 @@ fun mockComment(
     body: String = "",
     author: User = mockUser(),
     getAuthorGroups: () -> List<String> = { emptyList() },
-    created: Instant = RIGHT_NOW,
+    created: Instant = NOW,
     updated: Instant = created,
     visibilityType: String? = null,
     visibilityValue: String? = null,
@@ -75,8 +75,8 @@ fun mockIssue(
     securityLevel: String? = null,
     reporter: User? = null,
     resolution: String? = null,
-    created: Instant = RIGHT_NOW,
-    updated: Instant = RIGHT_NOW,
+    created: Instant = NOW,
+    updated: Instant = NOW,
     chk: String? = null,
     confirmationStatus: String? = null,
     linked: Double? = null,
@@ -188,7 +188,7 @@ fun mockVersion(
     id: String = "",
     released: Boolean = true,
     archived: Boolean = false,
-    releaseDate: Instant? = RIGHT_NOW,
+    releaseDate: Instant? = NOW,
     add: () -> Either<Throwable, Unit> = { Unit.right() },
     remove: () -> Either<Throwable, Unit> = { Unit.right() }
 ) = Version(

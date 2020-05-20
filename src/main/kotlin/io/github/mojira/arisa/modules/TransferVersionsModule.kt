@@ -17,7 +17,8 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
             val parentVersionIds = parent.affectedVersions
                 .map { it.id }
 
-            val oldestVersionWithKnownReleaseDateOnParent = getOldestVersionWithKnownReleaseDate(parent.affectedVersions)
+            val oldestVersionWithKnownReleaseDateOnParent =
+                getOldestVersionWithKnownReleaseDate(parent.affectedVersions)
 
             issue.affectedVersions
                 .filter { it isReleasedAfter oldestVersionWithKnownReleaseDateOnParent }
@@ -39,7 +40,7 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
      */
     private infix fun Version.isReleasedAfter(other: Version?) =
         other?.releaseDate == null ||
-            (releaseDate != null && releaseDate.isAfter(other.releaseDate))
+                (releaseDate != null && releaseDate.isAfter(other.releaseDate))
 
     private fun LinkedIssue.isSameProject(otherIssue: Issue) =
         key.getProject() == otherIssue.key.getProject()

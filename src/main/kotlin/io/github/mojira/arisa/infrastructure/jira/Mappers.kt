@@ -47,6 +47,7 @@ fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     ::removeAffectedVersion.partially1(issue).partially1(this)
 )
 
+@Suppress("LongMethod")
 fun JiraIssue.toDomain(
     jiraClient: JiraClient,
     messages: HelperMessages,

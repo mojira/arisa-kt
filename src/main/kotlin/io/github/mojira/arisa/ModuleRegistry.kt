@@ -8,7 +8,6 @@ import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
@@ -108,10 +107,12 @@ class ModuleRegistry(private val config: Config) {
 
         register(Modules.HideImpostors, HideImpostorsModule())
 
-        register(Modules.KeepPrivate, KeepPrivateModule(
-            config[Modules.KeepPrivate.tag],
-            config[Modules.KeepPrivate.message]
-        ))
+        register(
+            Modules.KeepPrivate, KeepPrivateModule(
+                config[Modules.KeepPrivate.tag],
+                config[Modules.KeepPrivate.message]
+            )
+        )
 
         register(Modules.TransferVersions, TransferVersionsModule())
 
@@ -120,10 +121,12 @@ class ModuleRegistry(private val config: Config) {
             TransferLinksModule()
         )
 
-        register(Modules.Piracy, PiracyModule(
-            config[Modules.Piracy.piracySignatures],
-            config[Modules.Piracy.message]
-        ))
+        register(
+            Modules.Piracy, PiracyModule(
+                config[Modules.Piracy.piracySignatures],
+                config[Modules.Piracy.message]
+            )
+        )
 
         register(
             Modules.Language,

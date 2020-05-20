@@ -10,7 +10,6 @@ class AttachmentModule(
     private val extensionBlackList: List<String>
 ) : Module {
 
-
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)

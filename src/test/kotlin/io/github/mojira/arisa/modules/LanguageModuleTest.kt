@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -10,7 +10,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
+private val A_SECOND_AGO = NOW.minusSeconds(1)
 
 class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
@@ -23,7 +23,7 @@ class LanguageModuleTest : StringSpec({
             description = "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!"
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -33,7 +33,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { emptyMap<String, Double>().right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW
+            created = NOW
         )
 
         val result = module(issue, A_SECOND_AGO)
@@ -46,7 +46,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { emptyMap<String, Double>().right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "",
             description = ""
         )
@@ -61,7 +61,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { emptyMap<String, Double>().right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "",
             description = ""
         )
@@ -77,7 +77,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("de" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "?",
             description = "Villagers can open iron doors"
         )
@@ -92,7 +92,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("de" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Ich habe einen seltsamen Fehler gefunden",
             description = "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!"
         )
@@ -107,7 +107,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "I found a strange bug",
             description = "There is an issue in Minecraft. Please fix it as soon as possible"
         )
@@ -122,7 +122,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 0.8).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Coarse Dirt is translated incorrectly in Russian",
             description = "The translation for Acacia slab in Russian is 'Алмазный блок' instead of 'Каменистая земля'."
         )
@@ -137,7 +137,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
             description = "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet."
         )
@@ -154,7 +154,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Summary.",
             description = "Description."
         )
@@ -172,7 +172,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Summary",
             description = "Description"
         )
@@ -190,7 +190,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { it shouldBe "Summary."; isApiExecuted = true; mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Summary."
         )
 
@@ -207,7 +207,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             description = "Description."
         )
 
@@ -228,7 +228,7 @@ class LanguageModuleTest : StringSpec({
             }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.",
             description = "pillager"
         )
@@ -250,7 +250,7 @@ class LanguageModuleTest : StringSpec({
             }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Pillager doesn’t aim child villager",
             description = "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
         )
@@ -266,7 +266,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
             description = "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet."
         )
@@ -281,7 +281,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "java.lang.IllegalArgumentException: bound must be positive",
             description = """
             java.lang.IllegalArgumentException: bound must be positive
@@ -321,7 +321,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Bonjour",
             description = "",
             resolveAsInvalid = { RuntimeException().left() }
@@ -340,7 +340,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = { mapOf("en" to 1.0).right() }
         )
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = NOW,
             summary = "Salut",
             description = "",
             addNotEnglishComment = { RuntimeException().left() }

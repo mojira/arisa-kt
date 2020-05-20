@@ -17,7 +17,7 @@ private val NOW = Instant.now()
 
 class UpdateLinkedModuleTest : StringSpec({
     val A_SECOND_AGO = NOW.minusSeconds(1)
-    val DUPLICATE_LINK = getChangeLogItem(
+    val DUPLICATE_LINK = mockChangeLogItem(
         changedTo = "This issue is duplicated by MC-4"
     )
 
@@ -59,12 +59,12 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is only a recently added link after the last Linked change" {
         val module = UpdateLinkedModule(1)
-        val linkedChange = getChangeLogItem(
+        val linkedChange = mockChangeLogItem(
             created = NOW.minusSeconds(2),
             field = "Linked",
             changedFrom = "1.0"
         )
-        val oldAddedLink = getChangeLogItem(
+        val oldAddedLink = mockChangeLogItem(
             created = NOW.minus(2, ChronoUnit.HOURS),
             changedTo = "This issue is duplicated by MC-4"
         )
@@ -102,7 +102,7 @@ class UpdateLinkedModuleTest : StringSpec({
     "should set linked when there are duplicates and linked is too high" {
         var linked = 1.0
         val module = UpdateLinkedModule(0)
-        val removedLink = getChangeLogItem(
+        val removedLink = mockChangeLogItem(
             created = NOW.plusSeconds(1),
             changedFrom = "This issue is duplicated by MC-4"
         )
@@ -117,7 +117,7 @@ class UpdateLinkedModuleTest : StringSpec({
     "should only count duplicates" {
         var linked = 0.0
         val module = UpdateLinkedModule(0)
-        val relatesLink = getChangeLogItem(
+        val relatesLink = mockChangeLogItem(
             changedTo = "This issue relates to MC-4"
         )
         val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK, relatesLink, DUPLICATE_LINK), null) {
@@ -132,7 +132,7 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should update if there is an old and a recent link" {
         val module = UpdateLinkedModule(1)
-        val oldAddedLink = getChangeLogItem(
+        val oldAddedLink = mockChangeLogItem(
             created = NOW.minus(2, ChronoUnit.HOURS),
             changedTo = "This issue is duplicated by MC-4"
         )
@@ -150,16 +150,16 @@ class UpdateLinkedModuleTest : StringSpec({
     "should update if a link was removed" {
         var linked = 1.0
         val module = UpdateLinkedModule(1)
-        val addedLink = getChangeLogItem(
+        val addedLink = mockChangeLogItem(
             created = NOW.minus(4, ChronoUnit.HOURS),
             changedTo = "This issue is duplicated by MC-4"
         )
-        val linkedChange = getChangeLogItem(
+        val linkedChange = mockChangeLogItem(
             created = A_SECOND_AGO.minus(3, ChronoUnit.HOURS),
             field = "Linked",
             changedFrom = "1.0"
         )
-        val removedLink = getChangeLogItem(
+        val removedLink = mockChangeLogItem(
             created = NOW.minus(2, ChronoUnit.HOURS),
             changedFrom = "This issue is duplicated by MC-4"
         )
@@ -189,7 +189,7 @@ class UpdateLinkedModuleTest : StringSpec({
 
 private fun getUser() = User("user", "User")
 
-private fun getChangeLogItem(
+private fun mockChangeLogItem(
     created: Instant = NOW,
     field: String = "Link",
     changedFrom: String? = null,

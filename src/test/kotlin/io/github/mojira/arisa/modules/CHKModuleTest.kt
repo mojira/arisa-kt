@@ -1,7 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.left
-import io.github.mojira.arisa.utils.getIssue
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -14,7 +14,7 @@ private val NOW = Instant.now()
 class CHKModuleTest : StringSpec({
     "should not process tickets without a confirmation status" {
         val module = CHKModule()
-        val issue = getIssue()
+        val issue = mockIssue()
 
         val result = module(issue, NOW)
 
@@ -23,7 +23,7 @@ class CHKModuleTest : StringSpec({
 
     "should not process tickets with a Undefined confirmation status" {
         val module = CHKModule()
-        val issue = getIssue(
+        val issue = mockIssue(
             confirmationStatus = "Undefined"
         )
 
@@ -34,7 +34,7 @@ class CHKModuleTest : StringSpec({
 
     "should not process tickets with a Unconfirmed confirmation status" {
         val module = CHKModule()
-        val issue = getIssue(
+        val issue = mockIssue(
             confirmationStatus = "Unconfirmed"
         )
 
@@ -45,7 +45,7 @@ class CHKModuleTest : StringSpec({
 
     "should not process tickets with CHK already set" {
         val module = CHKModule()
-        val issue = getIssue(
+        val issue = mockIssue(
             chk = "chkField",
             confirmationStatus = "Confirmed"
         )
@@ -57,7 +57,7 @@ class CHKModuleTest : StringSpec({
 
     "should process confirmed tickets" {
         val module = CHKModule()
-        val issue = getIssue(
+        val issue = mockIssue(
             confirmationStatus = "Confirmed"
         )
 
@@ -68,7 +68,7 @@ class CHKModuleTest : StringSpec({
 
     "should return FailedModuleResponse when update fails" {
         val module = CHKModule()
-        val issue = getIssue(
+        val issue = mockIssue(
             confirmationStatus = "Confirmed",
             updateCHK = { RuntimeException().left() }
         )

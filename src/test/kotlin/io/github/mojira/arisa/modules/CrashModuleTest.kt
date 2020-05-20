@@ -5,7 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import io.github.mojira.arisa.utils.getIssue
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -174,7 +174,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!",
             created = NOW,
@@ -201,7 +201,7 @@ class CrashModuleTest : StringSpec({
             "modified-game"
         )
 
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW.minus(42, ChronoUnit.DAYS),
@@ -227,7 +227,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -254,7 +254,7 @@ class CrashModuleTest : StringSpec({
             "modified-game"
         )
 
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -281,7 +281,7 @@ class CrashModuleTest : StringSpec({
             "modified-game"
         )
 
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -313,7 +313,7 @@ class CrashModuleTest : StringSpec({
             created = NOW.minus(42, ChronoUnit.DAYS)
         )
 
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment),
             description = "",
             created = NOW,
@@ -342,7 +342,7 @@ class CrashModuleTest : StringSpec({
         val attachment = getAttachment(
             content = EXAMPLE_CRASH
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment),
             description = "",
             created = NOW,
@@ -373,7 +373,7 @@ class CrashModuleTest : StringSpec({
             name = "crash.png",
             content = EXAMPLE_CRASH
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment),
             description = "",
             created = NOW,
@@ -403,7 +403,7 @@ class CrashModuleTest : StringSpec({
         val attachment = getAttachment(
             content = SERVER_UNMODDED_CRASH
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment),
             description = "",
             created = NOW,
@@ -431,7 +431,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = SERVER_MODDED_CRASH,
             created = NOW,
@@ -460,7 +460,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = SERVER_MODDED_CRASH_2,
             created = NOW,
@@ -489,7 +489,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = MODDED_CRASH,
             created = NOW,
@@ -522,7 +522,7 @@ class CrashModuleTest : StringSpec({
         val attachment = getAttachment(
             content = MODDED_CRASH
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment),
             description = "",
             created = NOW,
@@ -551,7 +551,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -584,7 +584,7 @@ class CrashModuleTest : StringSpec({
         val attachment = getAttachment(
             content = EXAMPLE_CRASH
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment),
             description = "",
             created = NOW,
@@ -613,7 +613,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = JAVA_CRASH,
             created = NOW,
@@ -642,7 +642,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = JAVA_CRASH,
             created = NOW,
@@ -669,7 +669,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -706,7 +706,7 @@ class CrashModuleTest : StringSpec({
             name = "crash_dupe.txt",
             content = EXAMPLE_CRASH
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(modded, dupe),
             description = "",
             created = NOW,
@@ -744,7 +744,7 @@ class CrashModuleTest : StringSpec({
             content = EXAMPLE_CRASH,
             created = NOW.minusMillis(10000)
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(dupe, modded),
             description = "",
             created = NOW,
@@ -784,7 +784,7 @@ class CrashModuleTest : StringSpec({
             content = EXAMPLE_CRASH_2,
             created = NOW.minus(1, ChronoUnit.DAYS)
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(fromYesterday, fromNow),
             description = "",
             created = NOW,
@@ -823,7 +823,7 @@ class CrashModuleTest : StringSpec({
             content = EXAMPLE_CRASH_2,
             created = NOW.minus(1, ChronoUnit.DAYS)
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(fromNow, fromYesterday),
             description = "",
             created = NOW,
@@ -849,7 +849,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = MODDED_CRASH,
             created = NOW,
@@ -877,7 +877,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = MODDED_CRASH,
             created = NOW,
@@ -905,7 +905,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -933,7 +933,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -961,7 +961,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -991,7 +991,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,
@@ -1020,7 +1020,7 @@ class CrashModuleTest : StringSpec({
             "duplicate-tech",
             "modified-game"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = emptyList(),
             description = EXAMPLE_CRASH,
             created = NOW,

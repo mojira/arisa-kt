@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.getIssue
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -15,7 +15,7 @@ private val NOW = Instant.now()
 class PiracyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue()
+        val issue = mockIssue()
 
         val result = module(issue, NOW)
 
@@ -24,7 +24,7 @@ class PiracyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when description, summary and environment are empty" {
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "",
             summary = "",
             description = ""
@@ -37,7 +37,7 @@ class PiracyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when piracy signatures is empty" {
         val module = PiracyModule(emptyList(), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "",
             summary = "",
             description = "test"
@@ -50,7 +50,7 @@ class PiracyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when no signature matches" {
         val module = PiracyModule(emptyList(), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "else",
             summary = "nope",
             description = "something"
@@ -63,7 +63,7 @@ class PiracyModuleTest : StringSpec({
 
     "should resolve as invalid if description contains a piracy signature" {
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "",
             summary = "",
             description = "test"
@@ -76,7 +76,7 @@ class PiracyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse if description contains a piracy signature but not as a full word" {
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "",
             summary = "",
             description = "testusername"
@@ -91,7 +91,7 @@ class PiracyModuleTest : StringSpec({
         var hasCommented = false
 
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "",
             summary = "test",
             description = "",
@@ -108,7 +108,7 @@ class PiracyModuleTest : StringSpec({
         var hasCommented = false
 
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "test",
             summary = "",
             description = ""
@@ -124,7 +124,7 @@ class PiracyModuleTest : StringSpec({
         var hasCommented = false
 
         val module = PiracyModule(listOf("signature with whitespaces"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "signature with whitespaces",
             summary = "",
             description = "",
@@ -139,7 +139,7 @@ class PiracyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when resolving as invalid fails" {
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "test",
             summary = "",
             description = "",
@@ -155,7 +155,7 @@ class PiracyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding comment fails" {
         val module = PiracyModule(listOf("test"), "message")
-        val issue = getIssue(
+        val issue = mockIssue(
             environment = "test",
             summary = "",
             description = "",

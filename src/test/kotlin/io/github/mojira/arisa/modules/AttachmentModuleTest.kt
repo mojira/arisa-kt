@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
-import io.github.mojira.arisa.utils.getIssue
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -18,7 +18,7 @@ class AttachmentModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachments" {
         val module = AttachmentModule(emptyList())
-        val issue = getIssue()
+        val issue = mockIssue()
 
         val result = module(issue, NOW)
 
@@ -30,7 +30,7 @@ class AttachmentModuleTest : StringSpec({
         val attachment = getAttachment(
             name = "testfile"
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment)
         )
 
@@ -44,7 +44,7 @@ class AttachmentModuleTest : StringSpec({
         val attachment = getAttachment(
             remove = { RuntimeException().left() }
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment)
         )
 
@@ -60,7 +60,7 @@ class AttachmentModuleTest : StringSpec({
         val attachment = getAttachment(
             remove = { RuntimeException().left() }
         )
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment, attachment)
         )
 
@@ -74,7 +74,7 @@ class AttachmentModuleTest : StringSpec({
     "should return ModuleResponse when something is deleted successfully" {
         val module = AttachmentModule(listOf(".test"))
         val attachment = getAttachment()
-        val issue = getIssue(
+        val issue = mockIssue(
             attachments = listOf(attachment)
         )
 

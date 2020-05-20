@@ -1,9 +1,8 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.left
-import arrow.core.right
-import io.github.mojira.arisa.utils.getAttachment
-import io.github.mojira.arisa.utils.getIssue
+import io.github.mojira.arisa.utils.mockAttachment
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -18,7 +17,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = A_SECOND_AGO
         )
 
@@ -29,9 +28,9 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a attachment and desc and env are correct" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
-            attachments = listOf(getAttachment()),
+            attachments = listOf(mockAttachment()),
             description = "asddsa",
             environment = "asddsa"
         )
@@ -43,7 +42,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc and env are correct" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             description = "asddsa",
             environment = "asddsa"
@@ -56,9 +55,9 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a attachment and no desc or env" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
-            attachments = listOf(getAttachment())
+            attachments = listOf(mockAttachment())
         )
 
         val result = module(issue, A_SECOND_AGO)
@@ -68,7 +67,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and no desc and env is correct" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             environment = "asddsa"
         )
@@ -80,7 +79,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc is correct and no env" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             description = "asdasd"
         )
@@ -92,7 +91,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and no desc or env" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW
         )
 
@@ -103,7 +102,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is default and env is empty" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             description = DESC_DEFAULT
         )
@@ -115,7 +114,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is empty and env is default" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             environment = ENV_DEFAULT
         )
@@ -127,7 +126,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             description = "asd",
             environment = "asd"
@@ -140,7 +139,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when resolving fails" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             description = "asd",
             environment = "asd",
@@ -156,7 +155,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding comment fails" {
         val module = EmptyModule("message")
-        val issue = getIssue(
+        val issue = mockIssue(
             created = NOW,
             description = "asd",
             environment = "asd",

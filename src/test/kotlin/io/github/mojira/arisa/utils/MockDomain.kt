@@ -11,10 +11,11 @@ import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.jira.CommentOptions
-import io.github.mojira.arisa.modules.NOW
 import java.time.Instant
 
-fun getIssue(
+val NOW: Instant = Instant.now()
+
+fun mockIssue(
     key: String = "MC-1",
     summary: String? = null,
     status: String = "Open",
@@ -23,14 +24,14 @@ fun getIssue(
     securityLevel: String? = null,
     reporter: User? = null,
     resolution: String? = null,
-    created: Instant = Instant.now(),
-    updated: Instant = Instant.now(),
+    created: Instant = NOW,
+    updated: Instant = NOW,
     chk: String? = null,
     confirmationStatus: String? = null,
     linked: Double? = null,
     priority: String? = null,
     triagedTime: String? = null,
-    project: Project = getProject(),
+    project: Project = mockProject(),
     affectedVersions: List<Version> = emptyList(),
     attachments: List<Attachment> = emptyList(),
     comments: List<Comment> = emptyList(),
@@ -90,7 +91,7 @@ fun getIssue(
     addNotEnglishComment
 )
 
-fun getProject(
+fun mockProject(
     key: String = "MC",
     versions: List<Version> = emptyList(),
     privateSecurity: String = "private"
@@ -100,9 +101,9 @@ fun getProject(
     privateSecurity
 )
 
-fun getAttachment(
+fun mockAttachment(
     name: String = "",
-    created: Instant = Instant.now(),
+    created: Instant = NOW,
     remove: () -> Either<Throwable, Unit> = { Unit.right() },
     getContent: () -> ByteArray = { ByteArray(0) }
 ) = Attachment(
@@ -110,4 +111,20 @@ fun getAttachment(
     created,
     remove,
     getContent
+)
+
+fun mockVersion(
+    id: String = "",
+    released: Boolean = false,
+    archived: Boolean = false,
+    releaseDate: Instant? = NOW,
+    add: () -> Either<Throwable, Unit> = { Unit.right() },
+    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+) = Version(
+    id,
+    released,
+    archived,
+    releaseDate,
+    add,
+    remove
 )

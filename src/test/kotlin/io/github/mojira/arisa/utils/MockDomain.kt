@@ -11,6 +11,7 @@ import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.jira.CommentOptions
+import io.github.mojira.arisa.modules.getUser
 import java.time.Instant
 
 val NOW: Instant = Instant.now()
@@ -127,4 +128,34 @@ fun mockVersion(
     releaseDate,
     add,
     remove
+)
+
+fun mockUser(
+    name: String = "user",
+    displayName: String = "User"
+) = User(
+    name,
+    displayName
+)
+
+fun mockComment(
+    body: String = "",
+    author: User = mockUser(),
+    getAuthorGroups: () -> List<String> = { emptyList() },
+    created: Instant = NOW,
+    updated: Instant = NOW,
+    visibilityType: String? = null,
+    visibilityValue: String? = null,
+    restrict: (String) -> Either<Throwable, Unit> = { Unit.right() },
+    update: (String) -> Either<Throwable, Unit> = { Unit.right() }
+) = Comment(
+    body,
+    author,
+    getAuthorGroups,
+    created,
+    updated,
+    visibilityType,
+    visibilityValue,
+    restrict,
+    update
 )

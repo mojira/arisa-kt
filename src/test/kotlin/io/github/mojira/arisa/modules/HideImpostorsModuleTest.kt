@@ -3,9 +3,10 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.modules.HideImpostorsModule.Request
+import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.mockComment
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -14,14 +15,12 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-private val NOW = Instant.now()
-
 class HideImpostorsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no comments" {
         val module = HideImpostorsModule()
-        val issue = getIssue(emptyList())
+        val issue = mockIssue()
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -31,9 +30,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "test] test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -43,9 +44,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[test test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -55,9 +58,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[}[{]] test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -67,9 +72,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[test]"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -79,9 +86,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "test [test]"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -92,9 +101,11 @@ class HideImpostorsModuleTest : StringSpec({
             author = "[test] test",
             getAuthorGroups = { listOf("staff") }
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -105,9 +116,11 @@ class HideImpostorsModuleTest : StringSpec({
             author = "[test] test",
             getAuthorGroups = { listOf("helper") }
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -118,9 +131,11 @@ class HideImpostorsModuleTest : StringSpec({
             author = "[test] test",
             getAuthorGroups = { listOf("global-moderators") }
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -132,9 +147,11 @@ class HideImpostorsModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -146,9 +163,11 @@ class HideImpostorsModuleTest : StringSpec({
             getAuthorGroups = { listOf("staff") },
             created = NOW.minus(2, ChronoUnit.DAYS)
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -158,9 +177,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[test] test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -170,9 +191,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[t3st] test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -182,9 +205,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[tést] test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -194,9 +219,11 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[Mojang Overlord] test"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -208,9 +235,11 @@ class HideImpostorsModuleTest : StringSpec({
             visibilityType = "not a group",
             visibilityValue = "staff"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -222,9 +251,11 @@ class HideImpostorsModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "users"
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -235,9 +266,11 @@ class HideImpostorsModuleTest : StringSpec({
             author = "[test] test",
             restrict = { RuntimeException().left() }
         )
-        val issue = getIssue(listOf(comment))
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -248,22 +281,18 @@ class HideImpostorsModuleTest : StringSpec({
 private fun getUser(displayName: String) = User("", displayName)
 
 private fun getComment(
-    body: String = "",
     author: String = "User",
     getAuthorGroups: () -> List<String> = { emptyList() },
     created: Instant = NOW,
     visibilityType: String? = null,
     visibilityValue: String? = null,
-    restrict: (String) -> Either<Throwable, Unit> = { Unit.right() },
-    update: (String) -> Either<Throwable, Unit> = { Unit.right() }
-) = Comment(
-    body,
-    getUser(displayName = author),
-    getAuthorGroups,
-    created,
-    created,
-    visibilityType,
-    visibilityValue,
-    restrict,
-    update
+    restrict: (String) -> Either<Throwable, Unit> = { Unit.right() }
+) = mockComment(
+    author = getUser(displayName = author),
+    getAuthorGroups = getAuthorGroups,
+    created = created,
+    updated = created,
+    visibilityType = visibilityType,
+    visibilityValue = visibilityValue,
+    restrict = restrict
 )

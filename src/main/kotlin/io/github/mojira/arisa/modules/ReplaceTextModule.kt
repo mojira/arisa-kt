@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class ReplaceTextModule(
@@ -12,7 +13,7 @@ class ReplaceTextModule(
         """(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
         """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1"
     )
-) : Module<ReplaceTextModule.Request> {
+) : Module {
     data class Request(
         val lastRun: Instant,
         val description: String?,
@@ -20,7 +21,7 @@ class ReplaceTextModule(
         val updateDescription: (description: String) -> Either<Throwable, Unit>
     )
 
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val needUpdateDescription = description != null && needReplacement(description)
 

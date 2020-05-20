@@ -1,25 +1,30 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Version
 
-class TransferVersionsModule : AbstractTransferFieldModule<List<Version>, String>() {
-    override fun filterParents(issue: LinkedIssue<List<Version>, *>, request: Request<List<Version>, *>): Boolean {
-        return issue.isSameProject(request.key) && issue.isUnresolved()
+class TransferVersionsModule : AbstractTransferFieldModule() {
+    override fun filterParents(linkedIssue: LinkedIssue, issue: Issue): Boolean {
+        return linkedIssue.isSameProject(issue) && linkedIssue.isUnresolved()
     }
 
-    override fun getFunctions(
-        parents: Collection<Pair<LinkedIssue<List<Version>, String>, List<Version>>>,
-        field: List<Version>
-    ) =
-        parents.flatMap { (parentIssue, parentField) ->
-            val oldestVersionWithKnownReleaseDateOnParent = getOldestVersionWithKnownReleaseDate(parentField)
-            field
-                .filter { it !in parentField }
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> =
+
+        parents.flatMap { parent ->
+            val parentVersionIds = parent.affectedVersions
+                .map { it.id }
+
+            val oldestVersionWithKnownReleaseDateOnParent =
+                getOldestVersionWithKnownReleaseDate(parent.affectedVersions)
+
+            issue.affectedVersions
                 .filter { it isReleasedAfter oldestVersionWithKnownReleaseDateOnParent }
                 .map { it.id }
-                .map(parentIssue.setField::partially1)
+                .filter { it !in parentVersionIds }
+                .map(parent.addAffectedVersion::partially1)
         }
 
     private fun getOldestVersionWithKnownReleaseDate(field: List<Version>) = field
@@ -35,12 +40,12 @@ class TransferVersionsModule : AbstractTransferFieldModule<List<Version>, String
      */
     private infix fun Version.isReleasedAfter(other: Version?) =
         other?.releaseDate == null ||
-            (releaseDate != null && releaseDate.isAfter(other.releaseDate))
+                (releaseDate != null && releaseDate.isAfter(other.releaseDate))
 
-    private fun LinkedIssue<*, *>.isSameProject(otherKey: String) =
-        key.getProject() == otherKey.getProject()
+    private fun LinkedIssue.isSameProject(otherIssue: Issue) =
+        key.getProject() == otherIssue.key.getProject()
 
-    private fun LinkedIssue<*, *>.isUnresolved() =
+    private fun LinkedIssue.isUnresolved() =
         status in listOf("Open", "Reopened")
 
     private fun String.getProject() =

@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
-import io.github.mojira.arisa.modules.AttachmentModule.Request
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -18,9 +18,9 @@ class AttachmentModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachments" {
         val module = AttachmentModule(emptyList())
-        val request = Request(emptyList())
+        val issue = mockIssue()
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -30,9 +30,11 @@ class AttachmentModuleTest : StringSpec({
         val attachment = getAttachment(
             name = "testfile"
         )
-        val request = Request(listOf(attachment))
+        val issue = mockIssue(
+            attachments = listOf(attachment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -42,9 +44,11 @@ class AttachmentModuleTest : StringSpec({
         val attachment = getAttachment(
             remove = { RuntimeException().left() }
         )
-        val request = Request(listOf(attachment))
+        val issue = mockIssue(
+            attachments = listOf(attachment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -56,9 +60,11 @@ class AttachmentModuleTest : StringSpec({
         val attachment = getAttachment(
             remove = { RuntimeException().left() }
         )
-        val request = Request(listOf(attachment, attachment))
+        val issue = mockIssue(
+            attachments = listOf(attachment, attachment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -68,9 +74,11 @@ class AttachmentModuleTest : StringSpec({
     "should return ModuleResponse when something is deleted successfully" {
         val module = AttachmentModule(listOf(".test"))
         val attachment = getAttachment()
-        val request = Request(listOf(attachment))
+        val issue = mockIssue(
+            attachments = listOf(attachment)
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }

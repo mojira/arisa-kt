@@ -1,6 +1,6 @@
 package io.github.mojira.arisa.infrastructure
 
-import net.rcarz.jiraclient.Issue
+import io.github.mojira.arisa.domain.Issue
 
 class QueryCache {
     private val cache = mutableMapOf<String, List<Issue>>()

@@ -4,18 +4,14 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Issue
+import java.time.Instant
 
-class CHKModule : Module<CHKModule.Request> {
-    data class Request(
-        val chkField: String?,
-        val confirmationField: String?,
-        val updateCHK: () -> Either<Throwable, Unit>
-    )
-
-    override fun invoke(request: Request): Either<ModuleError, ModuleResponse> = with(request) {
+class CHKModule : Module {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertConfirmed(confirmationField).bind()
-            assertNoChk(chkField).bind()
+            assertConfirmed(confirmationStatus).bind()
+            assertNoChk(chk).bind()
             updateCHK().toFailedModuleEither().bind()
         }
     }

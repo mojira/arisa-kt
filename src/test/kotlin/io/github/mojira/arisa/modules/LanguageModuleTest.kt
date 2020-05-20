@@ -2,183 +2,147 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.modules.LanguageModule.Request
+import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import java.time.Instant
+
+private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 
 class LanguageModuleTest : StringSpec({
-    val NOW = Instant.now()
-    val A_SECOND_AGO = NOW.minusSeconds(1)
-
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
-        val module = LanguageModule()
-        val request = Request(
-            A_SECOND_AGO,
-            NOW,
-            "Ich habe einen seltsamen Fehler gefunden",
-            "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!",
-            "not private",
-            "private",
-            { mapOf("de" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { mapOf("de" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = A_SECOND_AGO,
+            summary = "Ich habe einen seltsamen Fehler gefunden",
+            description = "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!"
         )
 
-        val result = module(request)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            null,
-            null,
-            "not private",
-            "private",
-            { emptyMap<String, Double>().right() },
-            { Unit.right() },
-            { Unit.right() })
+        val module = LanguageModule(
+            getLanguage = { emptyMap<String, Double>().right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW
+        )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when description, summary and environment are empty" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "",
-            "",
-            "not private",
-            "private",
-            { emptyMap<String, Double>().right() },
-            { Unit.right() },
-            { Unit.right() })
+        val module = LanguageModule(
+            getLanguage = { emptyMap<String, Double>().right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "",
+            description = ""
+        )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when no language matches" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "",
-            "",
-            "not private",
-            "private",
-            { emptyMap<String, Double>().right() },
-            { Unit.right() },
-            { Unit.right() })
+        val module = LanguageModule(
+            getLanguage = { emptyMap<String, Double>().right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "",
+            description = ""
+        )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when the combined text does not exceed the threshold" {
         val module = LanguageModule(
-            lengthThreshold = 100
+            lengthThreshold = 100,
+            getLanguage = { mapOf("de" to 1.0).right() }
         )
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "?",
-            "Villagers can open iron doors",
-            "not private",
-            "private",
-            { mapOf("de" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() })
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "?",
+            description = "Villagers can open iron doors"
+        )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should resolve as invalid if ticket is not in English" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Ich habe einen seltsamen Fehler gefunden",
-            "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!",
-            "not private",
-            "private",
-            { mapOf("de" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { mapOf("de" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Ich habe einen seltsamen Fehler gefunden",
+            description = "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse if ticket is in English" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "I found a strange bug",
-            "There is an issue in Minecraft. Please fix it as soon as possible",
-            "not private",
-            "private",
-            { mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "I found a strange bug",
+            description = "There is an issue in Minecraft. Please fix it as soon as possible"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse if ticket is mostly in English" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Coarse Dirt is translated incorrectly in Russian",
-            "The translation for Acacia slab in Russian is 'Алмазный блок' instead of 'Каменистая земля'.",
-            "not private",
-            "private",
-            { mapOf("en" to 0.8).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { mapOf("en" to 0.8).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Coarse Dirt is translated incorrectly in Russian",
+            description = "The translation for Acacia slab in Russian is 'Алмазный блок' instead of 'Каменистая земля'."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should resolve as invalid if ticket is mostly not in English" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
-            "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
-            "not private",
-            "private",
-            { mapOf("en" to 0.6, "de" to 0.8).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
+            description = "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -186,20 +150,16 @@ class LanguageModuleTest : StringSpec({
     "should pass the combined text to the API" {
         var isApiExecuted = false
 
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Summary.",
-            "Description.",
-            "not private",
-            "private",
-            { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Summary.",
+            description = "Description."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
@@ -208,20 +168,16 @@ class LanguageModuleTest : StringSpec({
     "should pass the combined text with punctuations to the API" {
         var isApiExecuted = false
 
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Summary",
-            "Description",
-            "not private",
-            "private",
-            { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Summary",
+            description = "Description"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
@@ -230,20 +186,15 @@ class LanguageModuleTest : StringSpec({
     "should pass only the summary to the API when description is null" {
         var isApiExecuted = false
 
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Summary.",
-            null,
-            "not private",
-            "private",
-            { it shouldBe "Summary."; isApiExecuted = true; mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { it shouldBe "Summary."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Summary."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
@@ -252,20 +203,15 @@ class LanguageModuleTest : StringSpec({
     "should pass only the description to the API when summary is null" {
         var isApiExecuted = false
 
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            null,
-            "Description.",
-            "not private",
-            "private",
-            { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            description = "Description."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
@@ -274,24 +220,20 @@ class LanguageModuleTest : StringSpec({
     "should pass only the summary to the API when it contains the description" {
         var isApiExecuted = false
 
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.",
-            "pillager",
-            "not private",
-            "private",
-            {
+        val module = LanguageModule(
+            getLanguage = {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 isApiExecuted = true
                 mapOf("en" to 1.0).right()
-            },
-            { Unit.right() },
-            { Unit.right() }
+            }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.",
+            description = "pillager"
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
@@ -300,55 +242,48 @@ class LanguageModuleTest : StringSpec({
     "should pass only the description to the API when it contains the summary" {
         var isApiExecuted = false
 
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Pillager doesn’t aim child villager",
-            "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager.",
-            "not private",
-            "private",
-            {
+        val module = LanguageModule(
+            getLanguage = {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 isApiExecuted = true
                 mapOf("en" to 1.0).right()
-            },
-            { Unit.right() },
-            { Unit.right() }
+            }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Pillager doesn’t aim child villager",
+            description = "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         isApiExecuted shouldBe true
     }
 
     "should return OperationNotNeeded if ticket is private" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
-            "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
-            "private",
-            "private",
-            { mapOf("en" to 0.6, "de" to 0.8).right() },
-            { Unit.right() },
-            { Unit.right() }
+        val module = LanguageModule(
+            getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
+        )
+        val issue = mockIssue(
+            securityLevel = "private",
+            summary = "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
+            description = "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet."
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse if ticket contains only a crash report" {
-        val module = LanguageModule()
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "java.lang.IllegalArgumentException: bound must be positive",
-            """
+        val module = LanguageModule(
+            getLanguage = { mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "java.lang.IllegalArgumentException: bound must be positive",
+            description = """
             java.lang.IllegalArgumentException: bound must be positive
                 at java.util.Random.nextInt(Random.java:388)
                 at ary.a(SourceFile:194)
@@ -372,33 +307,27 @@ class LanguageModuleTest : StringSpec({
                 at net.minecraft.server.MinecraftServer.y(SourceFile:531)
                 at net.minecraft.server.MinecraftServer.run(SourceFile:447)
                 at java.lang.Thread.run(Thread.java:748)
-            """.trimIndent(),
-            "not private",
-            "private",
-            { mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { Unit.right() }
+            """.trimIndent()
         )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return FailedModuleResponse when resolving as invalid fails" {
-        val module = LanguageModule(emptyList())
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Bonjour",
-            "",
-            "not private",
-            "private",
-            { mapOf("en" to 1.0).right() },
-            { RuntimeException().left() },
-            { Unit.right() })
+        val module = LanguageModule(
+            allowedLanguages = emptyList(),
+            getLanguage = { mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Bonjour",
+            description = "",
+            resolveAsInvalid = { RuntimeException().left() }
+        )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -406,19 +335,18 @@ class LanguageModuleTest : StringSpec({
     }
 
     "should return FailedModuleResponse when adding comment fails" {
-        val module = LanguageModule(emptyList())
-        val request = Request(
-            NOW,
-            A_SECOND_AGO,
-            "Salut",
-            "",
-            "not private",
-            "private",
-            { mapOf("en" to 1.0).right() },
-            { Unit.right() },
-            { RuntimeException().left() })
+        val module = LanguageModule(
+            allowedLanguages = emptyList(),
+            getLanguage = { mapOf("en" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "Salut",
+            description = "",
+            addNotEnglishComment = { RuntimeException().left() }
+        )
 
-        val result = module(request)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

@@ -2,9 +2,9 @@ package io.github.mojira.arisa.domain
 
 import arrow.core.Either
 
-data class LinkedIssue<FIELD, FUNPARAM>(
+data class LinkedIssue(
     val key: String,
     val status: String,
-    val setField: (FUNPARAM) -> Either<Throwable, Unit>,
-    val getField: () -> Either<Throwable, FIELD>
+    val getFullIssue: () -> Either<Throwable, Issue>,
+    val createLink: (type: String, key: String) -> Either<Throwable, Unit>
 )

@@ -11,10 +11,11 @@ import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.jira.CommentOptions
+import io.github.mojira.arisa.modules.RANDOM_USER
 import io.github.mojira.arisa.modules.getUser
 import java.time.Instant
 
-val NOW: Instant = Instant.now()
+val RIGHT_NOW: Instant = Instant.now()
 
 fun mockIssue(
     key: String = "MC-1",
@@ -25,8 +26,8 @@ fun mockIssue(
     securityLevel: String? = null,
     reporter: User? = null,
     resolution: String? = null,
-    created: Instant = NOW,
-    updated: Instant = NOW,
+    created: Instant = RIGHT_NOW,
+    updated: Instant = RIGHT_NOW,
     chk: String? = null,
     confirmationStatus: String? = null,
     linked: Double? = null,
@@ -104,7 +105,7 @@ fun mockProject(
 
 fun mockAttachment(
     name: String = "",
-    created: Instant = NOW,
+    created: Instant = RIGHT_NOW,
     remove: () -> Either<Throwable, Unit> = { Unit.right() },
     getContent: () -> ByteArray = { ByteArray(0) }
 ) = Attachment(
@@ -118,7 +119,7 @@ fun mockVersion(
     id: String = "",
     released: Boolean = false,
     archived: Boolean = false,
-    releaseDate: Instant? = NOW,
+    releaseDate: Instant? = RIGHT_NOW,
     add: () -> Either<Throwable, Unit> = { Unit.right() },
     remove: () -> Either<Throwable, Unit> = { Unit.right() }
 ) = Version(
@@ -142,8 +143,8 @@ fun mockComment(
     body: String = "",
     author: User = mockUser(),
     getAuthorGroups: () -> List<String> = { emptyList() },
-    created: Instant = NOW,
-    updated: Instant = NOW,
+    created: Instant = RIGHT_NOW,
+    updated: Instant = created,
     visibilityType: String? = null,
     visibilityValue: String? = null,
     restrict: (String) -> Either<Throwable, Unit> = { Unit.right() },
@@ -158,4 +159,20 @@ fun mockComment(
     visibilityValue,
     restrict,
     update
+)
+
+fun mockChangeLogItem(
+    created: Instant = RIGHT_NOW,
+    field: String = "",
+    changedFrom: String? = null,
+    changedTo: String? = null,
+    author: User = mockUser(),
+    getAuthorGroups: () -> List<String>? = { emptyList() }
+) = ChangeLogItem(
+    created,
+    field,
+    changedFrom,
+    changedTo,
+    author,
+    getAuthorGroups
 )

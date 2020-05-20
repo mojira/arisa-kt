@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -20,7 +20,7 @@ class HideImpostorsModuleTest : StringSpec({
         val module = HideImpostorsModule()
         val issue = mockIssue()
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -34,7 +34,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -48,7 +48,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -62,7 +62,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -76,7 +76,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -90,7 +90,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -105,7 +105,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -120,7 +120,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -135,7 +135,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -151,7 +151,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -161,13 +161,13 @@ class HideImpostorsModuleTest : StringSpec({
         val comment = getComment(
             author = "[test] test",
             getAuthorGroups = { listOf("staff") },
-            created = NOW.minus(2, ChronoUnit.DAYS)
+            created = RIGHT_NOW.minus(2, ChronoUnit.DAYS)
         )
         val issue = mockIssue(
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -181,7 +181,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -195,7 +195,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -209,7 +209,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -223,7 +223,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -239,7 +239,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -255,7 +255,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -270,7 +270,7 @@ class HideImpostorsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -283,7 +283,7 @@ private fun getUser(displayName: String) = User("", displayName)
 private fun getComment(
     author: String = "User",
     getAuthorGroups: () -> List<String> = { emptyList() },
-    created: Instant = NOW,
+    created: Instant = RIGHT_NOW,
     visibilityType: String? = null,
     visibilityValue: String? = null,
     restrict: (String) -> Either<Throwable, Unit> = { Unit.right() }

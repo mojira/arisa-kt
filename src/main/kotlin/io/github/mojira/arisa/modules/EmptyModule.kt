@@ -26,8 +26,8 @@ const val MIN_LENGTH = 5
 class EmptyModule(
     private val message: String
 ) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
-        with(issue) {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+        Either.fx {
             assertAfter(created, lastRun).bind()
             if (description != DESC_DEFAULT && environment != ENV_DEFAULT) {
                 assertNotBigger(description, MIN_LENGTH).bind()
@@ -36,7 +36,7 @@ class EmptyModule(
                 assertNotEqual(description, DESC_DEFAULT).bind()
                 assertNotEqual(environment, ENV_DEFAULT).bind()
             }
-            assertNotEmpty(attachments)
+            assertEmpty(attachments).bind()
             addComment(CommentOptions(message)).toFailedModuleEither().bind()
             resolveAsIncomplete().toFailedModuleEither().bind()
         }

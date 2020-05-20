@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -15,7 +15,7 @@ class PiracyModuleTest : StringSpec({
         val module = PiracyModule(listOf("test"), "message")
         val issue = mockIssue()
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -28,7 +28,7 @@ class PiracyModuleTest : StringSpec({
             description = ""
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -41,7 +41,7 @@ class PiracyModuleTest : StringSpec({
             description = "test"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -54,7 +54,7 @@ class PiracyModuleTest : StringSpec({
             description = "something"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -67,7 +67,7 @@ class PiracyModuleTest : StringSpec({
             description = "test"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -80,7 +80,7 @@ class PiracyModuleTest : StringSpec({
             description = "testusername"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -96,7 +96,7 @@ class PiracyModuleTest : StringSpec({
             addComment = { hasCommented = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true
@@ -109,10 +109,11 @@ class PiracyModuleTest : StringSpec({
         val issue = mockIssue(
             environment = "test",
             summary = "",
-            description = ""
+            description = "",
+            addComment = { hasCommented = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true
@@ -129,7 +130,7 @@ class PiracyModuleTest : StringSpec({
             addComment = { hasCommented = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true
@@ -144,7 +145,7 @@ class PiracyModuleTest : StringSpec({
             resolveAsInvalid = { RuntimeException().left() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -160,7 +161,7 @@ class PiracyModuleTest : StringSpec({
             addComment = { RuntimeException().left() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

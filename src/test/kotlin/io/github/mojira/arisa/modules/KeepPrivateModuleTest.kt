@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
@@ -13,7 +13,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private val REMOVE_SECURITY = mockChangeLogItem(
-    created = NOW.minusSeconds(10),
+    created = RIGHT_NOW.minusSeconds(10),
     field = "security",
     changedFrom = "10318"
 )
@@ -27,7 +27,7 @@ class KeepPrivateModuleTest : StringSpec({
             changeLog = listOf(REMOVE_SECURITY)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -38,7 +38,7 @@ class KeepPrivateModuleTest : StringSpec({
             changeLog = listOf(REMOVE_SECURITY)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -55,7 +55,7 @@ class KeepPrivateModuleTest : StringSpec({
             changeLog = listOf(REMOVE_SECURITY)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -70,7 +70,7 @@ class KeepPrivateModuleTest : StringSpec({
             changeLog = listOf(REMOVE_SECURITY)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -87,7 +87,7 @@ class KeepPrivateModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -99,7 +99,7 @@ class KeepPrivateModuleTest : StringSpec({
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
-            created = NOW.minusSeconds(20),
+            created = RIGHT_NOW.minusSeconds(20),
             visibilityType = "group",
             visibilityValue = "staff"
         )
@@ -110,7 +110,7 @@ class KeepPrivateModuleTest : StringSpec({
             addComment = { didComment = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
@@ -124,7 +124,7 @@ class KeepPrivateModuleTest : StringSpec({
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
-            created = NOW.minusSeconds(20),
+            created = RIGHT_NOW.minusSeconds(20),
             visibilityType = "group",
             visibilityValue = "staff"
         )
@@ -136,7 +136,7 @@ class KeepPrivateModuleTest : StringSpec({
             addComment = { didComment = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
@@ -159,7 +159,7 @@ class KeepPrivateModuleTest : StringSpec({
             addComment = { didComment = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
@@ -173,7 +173,7 @@ class KeepPrivateModuleTest : StringSpec({
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
-            created = NOW.minusSeconds(2),
+            created = RIGHT_NOW.minusSeconds(2),
             visibilityType = "group",
             visibilityValue = "staff"
         )
@@ -183,7 +183,7 @@ class KeepPrivateModuleTest : StringSpec({
             addComment = { didComment = true; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
@@ -203,7 +203,7 @@ class KeepPrivateModuleTest : StringSpec({
             setPrivate = { RuntimeException().left() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -214,7 +214,7 @@ class KeepPrivateModuleTest : StringSpec({
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
-            created = NOW.minusSeconds(20),
+            created = RIGHT_NOW.minusSeconds(20),
             visibilityType = "group",
             visibilityValue = "staff"
         )
@@ -224,7 +224,7 @@ class KeepPrivateModuleTest : StringSpec({
             addComment = { RuntimeException().left() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -16,7 +16,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val module = RemoveTriagedMeqsModule(emptyList(), "")
         val issue = mockIssue()
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -28,7 +28,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             triagedTime = "triaged"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -44,7 +44,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment, comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -62,7 +62,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -82,7 +82,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment, comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -99,7 +99,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -114,7 +114,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -130,7 +130,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -146,7 +146,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -165,7 +165,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             comments = listOf(comment)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }

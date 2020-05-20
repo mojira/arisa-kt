@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -20,7 +20,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             confirmationStatus = "Unconfirmed"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -33,7 +33,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(changeLogItem)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -46,7 +46,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(changeLogItem)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -59,7 +59,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(changeLogItem)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -72,7 +72,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(changeLogItem)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -85,7 +85,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(changeLogItem)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -99,7 +99,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(volunteerChange, otherVolunteerChange)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -113,7 +113,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(volunteerChange, otherVolunteerChange)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -126,7 +126,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(volunteerChange, otherVolunteerChange)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -140,7 +140,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             changeLog = listOf(volunteerChange, otherVolunteerChange)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -154,7 +154,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Unconfirmed")
@@ -172,7 +172,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Unconfirmed")
@@ -189,7 +189,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Unconfirmed")
@@ -207,7 +207,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Confirmed")
@@ -225,7 +225,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Confirmed")
@@ -238,7 +238,7 @@ class RevokeConfirmationModuleTest : StringSpec({
             updateConfirmationStatus = { RuntimeException().left() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -247,7 +247,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 })
 
 private fun mockChangeLogItem(
-    created: Instant = NOW,
+    created: Instant = RIGHT_NOW,
     field: String = "Confirmation Status",
     value: String = "Confirmed",
     getAuthorGroups: () -> List<String>? = { emptyList() }

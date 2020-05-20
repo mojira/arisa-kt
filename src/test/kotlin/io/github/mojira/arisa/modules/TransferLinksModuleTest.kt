@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue
@@ -41,7 +41,7 @@ class TransferLinksModuleTest : StringSpec({
             key = "MC-42"
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -53,7 +53,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -70,7 +70,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(link)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -81,7 +81,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(DUPLICATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -93,7 +93,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(DUPLICATES_LINK, RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -123,7 +123,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(DUPLICATES_LINK, linkToTransfer)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         linkRemoved.shouldBeTrue()
@@ -150,7 +150,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(duplicatesLink, RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         parentLinkRemoved.shouldBeFalse()
@@ -209,7 +209,7 @@ class TransferLinksModuleTest : StringSpec({
         val issue = mockIssue(
             links = listOf(link, link1, link2)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstLinkAdded.shouldBeTrue()
@@ -268,7 +268,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(duplicatesLink1, duplicatesLink2, linkToTransfer)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -327,7 +327,7 @@ class TransferLinksModuleTest : StringSpec({
             key = "MC-42",
             links = listOf(duplicatesLink, outwardsRelates1, outwardsRelates2)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstLinkAdded.shouldBeTrue()
@@ -383,7 +383,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(duplicatesLink1, duplicatesLink2, outwardsRelates)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -410,7 +410,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(DUPLICATES_LINK, link)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -449,7 +449,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(DUPLICATES_LINK, link1, link2)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -475,7 +475,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(link, RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -501,7 +501,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(link, RELATES_LINK, RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -527,7 +527,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(link, RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -553,7 +553,7 @@ class TransferLinksModuleTest : StringSpec({
             links = listOf(link, link, RELATES_LINK)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

@@ -1,7 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.left
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -19,7 +19,7 @@ class ResolveTrashModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -32,7 +32,7 @@ class ResolveTrashModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -46,7 +46,7 @@ class ResolveTrashModuleTest : StringSpec({
             resolveAsInvalid = { RuntimeException().left() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

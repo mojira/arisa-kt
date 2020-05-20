@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.NOW
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue
@@ -16,9 +16,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 
-private val VERSION_1 = getVersion(name = "v1", releaseDate = NOW.minusSeconds(300))
-private val VERSION_2 = getVersion(name = "v2", releaseDate = NOW.minusSeconds(200))
-private val VERSION_3 = getVersion(name = "v3", releaseDate = NOW.minusSeconds(100))
+private val VERSION_1 = getVersion(name = "v1", releaseDate = RIGHT_NOW.minusSeconds(300))
+private val VERSION_2 = getVersion(name = "v2", releaseDate = RIGHT_NOW.minusSeconds(200))
+private val VERSION_3 = getVersion(name = "v3", releaseDate = RIGHT_NOW.minusSeconds(100))
 private val VERSION_X = getVersion(name = "vX", releaseDate = null)
 
 class TransferVersionsModuleTest : StringSpec({
@@ -28,7 +28,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -43,7 +43,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -58,7 +58,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -76,7 +76,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -88,7 +88,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -110,7 +110,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -127,7 +127,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -148,7 +148,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_1)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -169,7 +169,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_X)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -186,7 +186,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -204,7 +204,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -233,7 +233,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_1, VERSION_2)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
@@ -265,7 +265,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_1, VERSION_2)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
@@ -297,7 +297,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_1, VERSION_3)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         version1Added.shouldBeFalse()
@@ -329,7 +329,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_X, VERSION_2)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         versionXAdded.shouldBeFalse()
@@ -361,7 +361,7 @@ class TransferVersionsModuleTest : StringSpec({
             links = listOf(link),
             affectedVersions = listOf(VERSION_1, VERSION_3)
         )
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         version1Added.shouldBeFalse()
@@ -405,7 +405,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -431,7 +431,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -457,7 +457,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1, VERSION_2)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -479,7 +479,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -501,7 +501,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -509,7 +509,7 @@ class TransferVersionsModuleTest : StringSpec({
     }
 })
 
-private fun getVersion(name: String, releaseDate: Instant? = NOW) = mockVersion(
+private fun getVersion(name: String, releaseDate: Instant? = RIGHT_NOW) = mockVersion(
     id = name,
     released = true,
     archived = false,

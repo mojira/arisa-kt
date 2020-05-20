@@ -970,7 +970,7 @@ class CrashModuleTest : StringSpec({
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            addComment = { RuntimeException().left() }
         )
 
         val result = module(issue, NOW)

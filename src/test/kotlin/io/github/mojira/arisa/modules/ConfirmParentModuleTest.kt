@@ -1,44 +1,59 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
+import io.github.mojira.arisa.utils.getIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import java.time.Instant
+
+private val NOW = Instant.now()
 
 class ConfirmParentModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Linked is null" {
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("Unconfirmed", null) { Unit.right() }
+        val issue = getIssue(
+            confirmationStatus = "Unconfirmed"
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when Linked is 0" {
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("Unconfirmed", 0.0) { Unit.right() }
+        val issue = getIssue(
+            confirmationStatus = "Unconfirmed",
+            linked = 0.0
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when Confirmation Status is Community Consensus and Linked is 1" {
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("Community Consensus", 1.0) { Unit.right() }
+        val issue = getIssue(
+            confirmationStatus = "Community Consensus",
+            linked = 1.0
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when Confirmation Status is Confirmed and Linked is 1" {
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("Community Consensus", 1.0) { Unit.right() }
+        val issue = getIssue(
+            confirmationStatus = "Community Consensus",
+            linked = 1.0
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -47,12 +62,16 @@ class ConfirmParentModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request(null, 1.0) {
-            changedConfirmation = it
-            Unit.right()
-        }
+        val issue = getIssue(
+            confirmationStatus = null,
+            linked = 1.0,
+            updateConfirmationStatus = {
+                changedConfirmation = it
+                Unit.right()
+            }
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Community Consensus")
@@ -62,12 +81,16 @@ class ConfirmParentModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("", 1.0) {
-            changedConfirmation = it
-            Unit.right()
-        }
+        val issue = getIssue(
+            confirmationStatus = "",
+            linked = 1.0,
+            updateConfirmationStatus = {
+                changedConfirmation = it
+                Unit.right()
+            }
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Community Consensus")
@@ -77,12 +100,16 @@ class ConfirmParentModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("Unconfirmed", 1.0) {
-            changedConfirmation = it
-            Unit.right()
-        }
+        val issue = getIssue(
+            confirmationStatus = "Unconfirmed",
+            linked = 1.0,
+            updateConfirmationStatus = {
+                changedConfirmation = it
+                Unit.right()
+            }
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Community Consensus")
@@ -92,12 +119,16 @@ class ConfirmParentModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = ConfirmParentModule(listOf("Unconfirmed", "Plausible"), "Community Consensus", 1.0)
-        val request = ConfirmParentModule.Request("Plausible", 1.0) {
-            changedConfirmation = it
-            Unit.right()
-        }
+        val issue = getIssue(
+            confirmationStatus = "Plausible",
+            linked = 1.0,
+            updateConfirmationStatus = {
+                changedConfirmation = it
+                Unit.right()
+            }
+        )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Community Consensus")

@@ -67,7 +67,6 @@ fun JiraIssue.toDomain(
     getLinked(config),
     getPriority(config),
     getTriagedTime(config),
-    getLinked(config),
     project.toDomain(this, config),
     mapVersions(),
     mapAttachments(jiraClient),

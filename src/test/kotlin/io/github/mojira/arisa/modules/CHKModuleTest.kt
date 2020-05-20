@@ -46,7 +46,7 @@ class CHKModuleTest : StringSpec({
     "should not process tickets with CHK already set" {
         val module = CHKModule()
         val issue = getIssue(
-            chkField = "chkField",
+            chk = "chkField",
             confirmationStatus = "Confirmed"
         )
 

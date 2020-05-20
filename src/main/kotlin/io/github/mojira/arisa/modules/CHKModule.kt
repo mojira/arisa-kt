@@ -11,7 +11,7 @@ class CHKModule : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertConfirmed(confirmationStatus).bind()
-            assertNoChk(chkField).bind()
+            assertNoChk(chk).bind()
             updateCHK().toFailedModuleEither().bind()
         }
     }

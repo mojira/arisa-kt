@@ -18,9 +18,9 @@ private val NOW = Instant.now()
 class RemoveNonStaffMeqsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no comments" {
         val module = RemoveNonStaffMeqsModule("")
-        val request = Request(emptyList())
+        val issue = getIssue(emptyList())
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -30,9 +30,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val comment = getComment(
             body = "I like QC."
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -44,9 +44,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -56,9 +56,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val comment = getComment(
             body = "My server has 1 MEQS of RAM and it's crashing. Also I don't know how to spell MEGS"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -70,9 +70,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             restrict = { RuntimeException().left() },
             update = { RuntimeException().left() }
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -86,9 +86,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             restrict = { RuntimeException().left() },
             update = { RuntimeException().left() }
         )
-        val request = Request(listOf(comment, comment))
+        val issue = getIssue(listOf(comment, comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -100,9 +100,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val comment = getComment(
             body = "MEQS_WAI I like QC."
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -114,9 +114,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "users"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -128,9 +128,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             visibilityType = "user",
             visibilityValue = "staff"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -141,9 +141,9 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
             body = "MEQS_WAI\nI like QC.",
             restrict = { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."); Unit.right() }
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }

@@ -16,9 +16,9 @@ import java.time.temporal.ChronoUnit
 class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is unconfirmed and confirmation was never changed" {
         val module = RevokeConfirmationModule()
-        val request = Request("Unconfirmed", emptyList()) { Unit.right() }
+        val issue = getIssue("Unconfirmed", emptyList()) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -26,9 +26,9 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by staff" {
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem { listOf("staff") }
-        val request = Request("Confirmed", listOf(changeLogItem)) { Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -36,9 +36,9 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by helper" {
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem { listOf("helper") }
-        val request = Request("Confirmed", listOf(changeLogItem)) { Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -46,9 +46,9 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by global-moderator" {
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem { listOf("global-moderators") }
-        val request = Request("Confirmed", listOf(changeLogItem)) { Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -56,9 +56,9 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket was confirmed more than a day ago by a user who is no longer staff" {
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
-        val request = Request("Confirmed", listOf(changeLogItem)) { Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -66,9 +66,9 @@ class RevokeConfirmationTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and groups are unknown" {
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem { null }
-        val request = Request("Confirmed", listOf(changeLogItem)) { Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -77,9 +77,9 @@ class RevokeConfirmationTest : StringSpec({
         val module = RevokeConfirmationModule()
         val volunteerChange = getChangeLogItem { listOf("staff") }
         val otherVolunteerChange = getChangeLogItem(value = "Unconfirmed") { listOf("helper") }
-        val request = Request("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+        val issue = getIssue("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -88,9 +88,9 @@ class RevokeConfirmationTest : StringSpec({
         val module = RevokeConfirmationModule()
         val volunteerChange = getChangeLogItem { listOf("staff") }
         val otherVolunteerChange = getChangeLogItem(value = "") { listOf("helper") }
-        val request = Request("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+        val issue = getIssue("Unconfirmed", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -99,9 +99,9 @@ class RevokeConfirmationTest : StringSpec({
         val module = RevokeConfirmationModule()
         val volunteerChange = getChangeLogItem { listOf("staff") }
         val otherVolunteerChange = getChangeLogItem(value = "") { listOf("helper") }
-        val request = Request(null, listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+        val issue = getIssue(null, listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -110,9 +110,9 @@ class RevokeConfirmationTest : StringSpec({
         val module = RevokeConfirmationModule()
         val volunteerChange = getChangeLogItem { listOf("staff") }
         val otherVolunteerChange = getChangeLogItem(value = "") { listOf("helper") }
-        val request = Request("", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
+        val issue = getIssue("", listOf(volunteerChange, otherVolunteerChange)) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -121,9 +121,9 @@ class RevokeConfirmationTest : StringSpec({
         var changedConfirmation = ""
 
         val module = RevokeConfirmationModule()
-        val request = Request("Confirmed", emptyList()) { changedConfirmation = it; Unit.right() }
+        val issue = getIssue("Confirmed", emptyList()) { changedConfirmation = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Unconfirmed")
@@ -134,9 +134,9 @@ class RevokeConfirmationTest : StringSpec({
 
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem(field = "Totally Not Confirmation Status") { listOf("staff") }
-        val request = Request("Confirmed", listOf(changeLogItem)) { changedConfirmation = it; Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { changedConfirmation = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Unconfirmed")
@@ -147,9 +147,9 @@ class RevokeConfirmationTest : StringSpec({
 
         val module = RevokeConfirmationModule()
         val changeLogItem = getChangeLogItem()
-        val request = Request("Confirmed", listOf(changeLogItem)) { changedConfirmation = it; Unit.right() }
+        val issue = getIssue("Confirmed", listOf(changeLogItem)) { changedConfirmation = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Unconfirmed")
@@ -164,7 +164,7 @@ class RevokeConfirmationTest : StringSpec({
         val request =
             Request("Unconfirmed", listOf(volunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Confirmed")
@@ -179,7 +179,7 @@ class RevokeConfirmationTest : StringSpec({
         val request =
             Request("Unconfirmed", listOf(volunteerChange, userChange)) { changedConfirmation = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         changedConfirmation.shouldBe("Confirmed")
@@ -187,9 +187,9 @@ class RevokeConfirmationTest : StringSpec({
 
     "should return FailedModuleResponse when changing confirmation status fails" {
         val module = RevokeConfirmationModule()
-        val request = Request("Confirmed", emptyList()) { RuntimeException().left() }
+        val issue = getIssue("Confirmed", emptyList()) { RuntimeException().left() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

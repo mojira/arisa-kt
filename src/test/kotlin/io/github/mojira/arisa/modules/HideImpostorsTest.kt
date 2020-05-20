@@ -19,7 +19,7 @@ private val NOW = Instant.now()
 class HideImpostorsTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no comments" {
         val module = HideImpostorsModule()
-        val request = Request(emptyList())
+        val issue = getIssue(emptyList())
 
         val result = module(request)
 
@@ -31,7 +31,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "test] test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -43,7 +43,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[test test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -55,7 +55,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[}[{]] test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -67,7 +67,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[test]"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -79,7 +79,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "test [test]"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -92,7 +92,7 @@ class HideImpostorsTest : StringSpec({
             author = "[test] test",
             getAuthorGroups = { listOf("staff") }
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -105,7 +105,7 @@ class HideImpostorsTest : StringSpec({
             author = "[test] test",
             getAuthorGroups = { listOf("helper") }
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -118,7 +118,7 @@ class HideImpostorsTest : StringSpec({
             author = "[test] test",
             getAuthorGroups = { listOf("global-moderators") }
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -132,7 +132,7 @@ class HideImpostorsTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -146,7 +146,7 @@ class HideImpostorsTest : StringSpec({
             getAuthorGroups = { listOf("staff") },
             created = NOW.minus(2, ChronoUnit.DAYS)
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -158,7 +158,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[test] test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -170,7 +170,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[t3st] test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -182,7 +182,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[tést] test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -194,7 +194,7 @@ class HideImpostorsTest : StringSpec({
         val comment = getComment(
             author = "[Mojang Overlord] test"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -208,7 +208,7 @@ class HideImpostorsTest : StringSpec({
             visibilityType = "not a group",
             visibilityValue = "staff"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -222,7 +222,7 @@ class HideImpostorsTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "users"
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 
@@ -235,7 +235,7 @@ class HideImpostorsTest : StringSpec({
             author = "[test] test",
             restrict = { RuntimeException().left() }
         )
-        val request = Request(listOf(comment))
+        val issue = getIssue(listOf(comment))
 
         val result = module(request)
 

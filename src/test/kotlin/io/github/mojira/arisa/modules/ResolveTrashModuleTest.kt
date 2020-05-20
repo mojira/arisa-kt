@@ -12,27 +12,27 @@ import io.kotest.matchers.shouldBe
 class ResolveTrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when project is not TRASH" {
         val module = ResolveTrashModule()
-        val request = Request("MC") { Unit.right() }
+        val issue = getIssue("MC") { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should resolve as invalid when ticket when ticket was open" {
         val module = ResolveTrashModule()
-        val request = Request("TRASH") { Unit.right() }
+        val issue = getIssue("TRASH") { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
 
     "should return FailedModuleResponse when resolving as invalid fails" {
         val module = ResolveTrashModule()
-        val request = Request("TRASH") { RuntimeException().left() }
+        val issue = getIssue("TRASH") { RuntimeException().left() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

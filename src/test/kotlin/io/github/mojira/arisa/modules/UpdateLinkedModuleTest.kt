@@ -23,36 +23,36 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when linked is empty and there are no duplicates" {
         val module = UpdateLinkedModule(0)
-        val request = Request(A_SECOND_AGO, emptyList(), null) { Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, emptyList(), null) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when linked is 0 and there are no duplicates" {
         val module = UpdateLinkedModule(0)
-        val request = Request(A_SECOND_AGO, emptyList(), 0.0) { Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, emptyList(), 0.0) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when linked and number of duplicates is equal" {
         val module = UpdateLinkedModule(0)
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK), 1.0) { Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK), 1.0) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is only a recently added link" {
         val module = UpdateLinkedModule(1)
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK), 0.0) { Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK), 0.0) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -68,22 +68,22 @@ class UpdateLinkedModuleTest : StringSpec({
             created = NOW.minus(2, ChronoUnit.HOURS),
             changedTo = "This issue is duplicated by MC-4"
         )
-        val request = Request(
+        val issue = getIssue(
             NOW.minus(3, ChronoUnit.HOURS),
             listOf(oldAddedLink, linkedChange, DUPLICATE_LINK),
             0.0
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should set linked when there are duplicates and linked is empty" {
         val module = UpdateLinkedModule(0)
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK), null) { Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK), null) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -91,9 +91,9 @@ class UpdateLinkedModuleTest : StringSpec({
     "should set linked when there are duplicates and linked is too low" {
         var linked = 0.0
         val module = UpdateLinkedModule(0)
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK), 0.0) { linked = it; Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK), 0.0) { linked = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         linked shouldBe 1.0
@@ -106,9 +106,9 @@ class UpdateLinkedModuleTest : StringSpec({
             created = NOW.plusSeconds(1),
             changedFrom = "This issue is duplicated by MC-4"
         )
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK, removedLink), 1.0) { linked = it; Unit.right() }
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK, removedLink), 1.0) { linked = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         linked shouldBe 0.0
@@ -120,11 +120,11 @@ class UpdateLinkedModuleTest : StringSpec({
         val relatesLink = getChangeLogItem(
             changedTo = "This issue relates to MC-4"
         )
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK, relatesLink, DUPLICATE_LINK), null) {
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK, relatesLink, DUPLICATE_LINK), null) {
             linked = it; Unit.right()
         }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         linked shouldBe 2.0
@@ -136,13 +136,13 @@ class UpdateLinkedModuleTest : StringSpec({
             created = NOW.minus(2, ChronoUnit.HOURS),
             changedTo = "This issue is duplicated by MC-4"
         )
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO.minus(2, ChronoUnit.HOURS),
             listOf(oldAddedLink, DUPLICATE_LINK),
             null
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -163,13 +163,13 @@ class UpdateLinkedModuleTest : StringSpec({
             created = NOW.minus(2, ChronoUnit.HOURS),
             changedFrom = "This issue is duplicated by MC-4"
         )
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO.minus(4, ChronoUnit.HOURS),
             listOf(addedLink, linkedChange, removedLink),
             1.0
         ) { linked = it; Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         linked shouldBe 0.0
@@ -177,9 +177,9 @@ class UpdateLinkedModuleTest : StringSpec({
 
     "should return FailedModuleResponse when setting linked fails" {
         val module = UpdateLinkedModule(0)
-        val request = Request(A_SECOND_AGO, listOf(DUPLICATE_LINK), null) { RuntimeException().left() }
+        val issue = getIssue(A_SECOND_AGO, listOf(DUPLICATE_LINK), null) { RuntimeException().left() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

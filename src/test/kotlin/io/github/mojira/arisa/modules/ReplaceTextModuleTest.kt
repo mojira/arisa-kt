@@ -18,19 +18,19 @@ class ReplaceTextModuleTest : StringSpec({
 
     val module = ReplaceTextModule()
     "should return OperationNotNeededModuleResponse when there is no description nor comment" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             emptyList()
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when the comment is updated before last run" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -38,13 +38,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when the comment doesn't need replace" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -52,13 +52,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when the title of the link is not a ticket ID" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -69,13 +69,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when the title of the link is not the same ticket as specified in the /browse link" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -83,13 +83,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when the title of the link is not the same ticket as specified in the /projects link" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -100,13 +100,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse for /browse links with query paramerters in comments" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -117,13 +117,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse for /projects links with query paramerters in comments" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -134,13 +134,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse for /browse links which ends in a slash with query paramerters in comments" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -151,13 +151,13 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse for /projects links which ends in a slash with query paramerters in comments" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -168,19 +168,19 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse for /browse links with query in description" {
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             "Duplicates https://bugs.mojang.com/browse/MCPE-38374?focusedgetCommentId=555054&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-555054",
             emptyList()
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -188,7 +188,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -199,7 +199,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-4"
@@ -208,7 +208,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /projects links in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -219,7 +219,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-4"
@@ -228,7 +228,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links with two-digit ticket key in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -239,7 +239,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-44"
@@ -248,7 +248,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /projects links with two-digit ticket key in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -259,7 +259,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-44"
@@ -268,7 +268,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links which ends with a slash in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -279,7 +279,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-4"
@@ -288,7 +288,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /projects links which ends with a slash in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -299,7 +299,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-4"
@@ -308,7 +308,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links with two-digit ticket key which ends with a slash in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -319,7 +319,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-44"
@@ -328,7 +328,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /projects links with two-digit ticket key which ends with a slash in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -339,7 +339,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-44"
@@ -348,7 +348,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace titled /browse links in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -359,7 +359,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-4"
@@ -368,7 +368,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace titled /projects links in comments" {
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -379,7 +379,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody shouldBe "Duplicates MC-4"
@@ -390,7 +390,7 @@ class ReplaceTextModuleTest : StringSpec({
         var replacedgetCommentBody1: String? = null
         var replacedgetCommentBody2: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             null,
             listOf(
@@ -409,7 +409,7 @@ class ReplaceTextModuleTest : StringSpec({
             )
         ) { Unit.right() }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedgetCommentBody0 shouldBe "This is a duplicate of MC-4"
@@ -420,7 +420,7 @@ class ReplaceTextModuleTest : StringSpec({
     "should replace /browse links in description" {
         var replacedDescription: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             "A mod in https://bugs.mojang.com/browse/MC-4 said that I have to report it in a new ticket.",
             emptyList()
@@ -429,7 +429,7 @@ class ReplaceTextModuleTest : StringSpec({
             Unit.right()
         }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedDescription shouldBe "A mod in MC-4 said that I have to report it in a new ticket."
@@ -440,7 +440,7 @@ class ReplaceTextModuleTest : StringSpec({
 
         var replacedgetCommentBody: String? = null
 
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             "A mod in https://bugs.mojang.com/browse/MC-4 said that I have to report it in a new ticket.",
             listOf(
@@ -454,7 +454,7 @@ class ReplaceTextModuleTest : StringSpec({
             Unit.right()
         }
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         replacedDescription shouldBe "A mod in MC-4 said that I have to report it in a new ticket."

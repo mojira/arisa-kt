@@ -18,18 +18,18 @@ private val NOW = Instant.now()
 class RemoveTriagedMeqsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no priority and no triaged time" {
         val module = RemoveTriagedMeqsModule(emptyList(), "")
-        val request = Request(null, null, emptyList())
+        val issue = getIssue(null, null, emptyList())
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is no comments" {
         val module = RemoveTriagedMeqsModule(emptyList(), "")
-        val request = Request("Important", "triaged", emptyList())
+        val issue = getIssue("Important", "triaged", emptyList())
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -39,9 +39,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val comment = getComment(
             body = "I like QC."
         )
-        val request = Request("Important", "triaged", listOf(comment, comment))
+        val issue = getIssue("Important", "triaged", listOf(comment, comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -53,9 +53,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             restrict = { RuntimeException().left() },
             update = { RuntimeException().left() }
         )
-        val request = Request("Important", "triaged", listOf(comment))
+        val issue = getIssue("Important", "triaged", listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -69,9 +69,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             restrict = { RuntimeException().left() },
             update = { RuntimeException().left() }
         )
-        val request = Request("Important", "triaged", listOf(comment, comment))
+        val issue = getIssue("Important", "triaged", listOf(comment, comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -83,9 +83,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val comment = getComment(
             body = "MEQS_WAI I like QC."
         )
-        val request = Request("Important", null, listOf(comment))
+        val issue = getIssue("Important", null, listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -95,9 +95,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val comment = getComment(
             body = "MEQS_WAI I like QC."
         )
-        val request = Request(null, "triaged", listOf(comment))
+        val issue = getIssue(null, "triaged", listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -108,9 +108,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             body = "MEQS_WAI\nI like QC.",
             update = { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }
         )
-        val request = Request(null, "triaged", listOf(comment))
+        val issue = getIssue(null, "triaged", listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -121,9 +121,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
             body = "MEQS_WAI\nMEQS_TRIVIAL\nI like QC.",
             update = { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC.").right() }
         )
-        val request = Request(null, "triaged", listOf(comment))
+        val issue = getIssue(null, "triaged", listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -137,9 +137,9 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
                     .right()
             }
         )
-        val request = Request(null, "triaged", listOf(comment))
+        val issue = getIssue(null, "triaged", listOf(comment))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }

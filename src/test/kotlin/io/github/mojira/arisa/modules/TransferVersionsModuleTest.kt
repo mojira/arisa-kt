@@ -25,9 +25,9 @@ private val VERSION_X = getVersion(name = "vX", releaseDate = null)
 class TransferVersionsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferVersionsModule()
-        val request = Request<List<Version>, String>("MC-1", emptyList(), listOf(VERSION_1))
+        val issue = getIssue("MC-1", emptyList(), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -40,9 +40,9 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1"
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -55,9 +55,9 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1"
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -70,9 +70,9 @@ class TransferVersionsModuleTest : StringSpec({
                 status = "Resolved"
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -84,9 +84,9 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1"
             )
         )
-        val request = Request("MC-1", listOf(link), emptyList())
+        val issue = getIssue("MC-1", listOf(link), emptyList())
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -99,9 +99,9 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_1).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -113,9 +113,9 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MCL-1"
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -128,8 +128,8 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_2).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -142,8 +142,8 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_1).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_X))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_X))
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -155,9 +155,9 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1"
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -170,9 +170,9 @@ class TransferVersionsModuleTest : StringSpec({
                 status = "Reopened"
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -193,8 +193,8 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
@@ -218,8 +218,8 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_X).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
@@ -243,8 +243,8 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_2).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         version1Added.shouldBeFalse()
@@ -268,8 +268,8 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_1).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_X, VERSION_2))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_X, VERSION_2))
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         versionXAdded.shouldBeFalse()
@@ -293,8 +293,8 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { listOf(VERSION_X, VERSION_2).right() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
-        val result = module(request)
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1, VERSION_3))
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         version1Added.shouldBeFalse()
@@ -325,9 +325,9 @@ class TransferVersionsModuleTest : StringSpec({
             )
         )
 
-        val request = Request("MC-1", listOf(link1, link2), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link1, link2), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -342,9 +342,9 @@ class TransferVersionsModuleTest : StringSpec({
                 setField = { RuntimeException().left() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -359,9 +359,9 @@ class TransferVersionsModuleTest : StringSpec({
                 setField = { RuntimeException().left() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1, VERSION_2))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -376,9 +376,9 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { RuntimeException().left() }
             )
         )
-        val request = Request("MC-1", listOf(link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -393,9 +393,9 @@ class TransferVersionsModuleTest : StringSpec({
                 getField = { RuntimeException().left() }
             )
         )
-        val request = Request("MC-1", listOf(link, link), listOf(VERSION_1))
+        val issue = getIssue("MC-1", listOf(link, link), listOf(VERSION_1))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

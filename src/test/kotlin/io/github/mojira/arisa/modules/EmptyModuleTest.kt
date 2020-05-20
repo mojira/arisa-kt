@@ -16,7 +16,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             A_SECOND_AGO,
             NOW,
             0,
@@ -33,7 +33,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a attachment and desc and env are correct" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             1,
@@ -50,7 +50,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc and env are correct" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -67,7 +67,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a attachment and no desc or env" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             1,
@@ -84,7 +84,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and no desc and env is correct" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -101,7 +101,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no attachment and desc is correct and no env" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -118,7 +118,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and no desc or env" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -135,7 +135,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is default and env is empty" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -152,7 +152,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is empty and env is default" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -169,7 +169,7 @@ class EmptyModuleTest : StringSpec({
 
     "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -186,7 +186,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when resolving fails" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,
@@ -205,7 +205,7 @@ class EmptyModuleTest : StringSpec({
 
     "should return FailedModuleResponse when adding comment fails" {
         val module = EmptyModule()
-        val request = Request(
+        val issue = getIssue(
             NOW,
             A_SECOND_AGO,
             0,

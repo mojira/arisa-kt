@@ -31,18 +31,18 @@ class TransferLinksModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferLinksModule()
-        val request = Request<List<Link<*, LinkParam>>, LinkParam>("MC-1", emptyList(), emptyList())
+        val issue = getIssue(("MC-1", emptyList(), emptyList())
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should return OperationNotNeededModuleResponse when there is no duplicates link" {
         val module = TransferLinksModule()
-        val request = Request("", listOf(RELATES_LINK), listOf(RELATES_LINK))
+        val issue = getIssue("", listOf(RELATES_LINK), listOf(RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -55,26 +55,26 @@ class TransferLinksModuleTest : StringSpec({
                 key = "MC-1"
             )
         )
-        val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
+        val issue = getIssue("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
     "should return OperationNotNeededModuleResponse when the issue has no additional links" {
         val module = TransferLinksModule()
-        val request = Request("", listOf(DUPLICATES_LINK), listOf(DUPLICATES_LINK))
+        val issue = getIssue("", listOf(DUPLICATES_LINK), listOf(DUPLICATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should transfer missing links to parent" {
         val module = TransferLinksModule()
-        val request = Request("", listOf(DUPLICATES_LINK, RELATES_LINK), listOf(DUPLICATES_LINK, RELATES_LINK))
+        val issue = getIssue("", listOf(DUPLICATES_LINK, RELATES_LINK), listOf(DUPLICATES_LINK, RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -91,9 +91,9 @@ class TransferLinksModuleTest : StringSpec({
             remove = { linkRemoved = true; Unit.right() }
         )
 
-        val request = Request("", listOf(DUPLICATES_LINK, linkToTransfer), listOf(DUPLICATES_LINK, linkToTransfer))
+        val issue = getIssue("", listOf(DUPLICATES_LINK, linkToTransfer), listOf(DUPLICATES_LINK, linkToTransfer))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         linkRemoved.shouldBeTrue()
@@ -110,9 +110,9 @@ class TransferLinksModuleTest : StringSpec({
             ),
             remove = { parentLinkRemoved = true; Unit.right() }
         )
-        val request = Request("", listOf(duplicatesLink, RELATES_LINK), listOf(duplicatesLink, RELATES_LINK))
+        val issue = getIssue("", listOf(duplicatesLink, RELATES_LINK), listOf(duplicatesLink, RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         parentLinkRemoved.shouldBeFalse()
@@ -145,13 +145,13 @@ class TransferLinksModuleTest : StringSpec({
                 }
             )
         )
-        val request = Request(
+        val issue = getIssue(
             "", listOf(link, RELATES_LINK, relatesLink2), listOf(
                 link,
                 RELATES_LINK, relatesLink2
             )
         )
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstLinkAdded.shouldBeTrue()
@@ -184,14 +184,14 @@ class TransferLinksModuleTest : StringSpec({
             )
         )
 
-        val request = Request(
+        val issue = getIssue(
             "", listOf(duplicatesLink1, duplicatesLink2, RELATES_LINK), listOf(
                 duplicatesLink1, duplicatesLink2,
                 RELATES_LINK
             )
         )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -229,12 +229,12 @@ class TransferLinksModuleTest : StringSpec({
             )
         )
 
-        val request = Request(
+        val issue = getIssue(
             "",
             listOf(DUPLICATES_LINK, outwardsRelates1, outwardsRelates2),
             listOf(DUPLICATES_LINK, outwardsRelates1, outwardsRelates2)
         )
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         firstLinkAdded.shouldBeTrue()
@@ -267,13 +267,13 @@ class TransferLinksModuleTest : StringSpec({
             )
         )
 
-        val request = Request(
+        val issue = getIssue(
             "",
             listOf(DUPLICATES_LINK, duplicatesLink2, outwardsRelates),
             listOf(DUPLICATES_LINK, duplicatesLink2, outwardsRelates)
         )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -291,9 +291,9 @@ class TransferLinksModuleTest : StringSpec({
             remove = { RuntimeException().left() }
         )
 
-        val request = Request("", listOf(DUPLICATES_LINK, link), listOf(DUPLICATES_LINK, link))
+        val issue = getIssue("", listOf(DUPLICATES_LINK, link), listOf(DUPLICATES_LINK, link))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -319,9 +319,9 @@ class TransferLinksModuleTest : StringSpec({
             remove = { RuntimeException().left() }
         )
 
-        val request = Request("", listOf(DUPLICATES_LINK, link1, link2), listOf(DUPLICATES_LINK, link1, link2))
+        val issue = getIssue("", listOf(DUPLICATES_LINK, link1, link2), listOf(DUPLICATES_LINK, link1, link2))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -337,9 +337,9 @@ class TransferLinksModuleTest : StringSpec({
                 setField = { RuntimeException().left() }
             )
         )
-        val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
+        val issue = getIssue("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -356,13 +356,13 @@ class TransferLinksModuleTest : StringSpec({
             )
         )
 
-        val request = Request(
+        val issue = getIssue(
             "MC-1",
             listOf(link, RELATES_LINK, RELATES_LINK),
             listOf(link, RELATES_LINK, RELATES_LINK)
         )
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -378,9 +378,9 @@ class TransferLinksModuleTest : StringSpec({
             )
         )
 
-        val request = Request("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
+        val issue = getIssue("", listOf(link, RELATES_LINK), listOf(link, RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -397,9 +397,9 @@ class TransferLinksModuleTest : StringSpec({
             )
         )
 
-        val request = Request("", listOf(link, link, RELATES_LINK), listOf(link, link, RELATES_LINK))
+        val issue = getIssue("", listOf(link, link, RELATES_LINK), listOf(link, link, RELATES_LINK))
 
-        val result = module(request)
+        val result = module(issue, NOW)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

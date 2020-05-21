@@ -337,7 +337,6 @@ class DuplicateMessageModuleTest : StringSpec({
             mapOf("MC-297" to "duplicate-of-mc-297"),
             null,
             mapOf("Fixed" to "duplicate-fixed")
-
         )
         var commentOptions: CommentOptions? = null
         val issue = mockIssue(

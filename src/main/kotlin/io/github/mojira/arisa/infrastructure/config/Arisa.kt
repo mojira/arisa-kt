@@ -76,8 +76,12 @@ object Arisa : ConfigSpec() {
                 "",
                 description = "The key of the message that is posted under duplicate tickets."
             )
-            val privateMessage by optional(
-                "",
+            val ticketMessages by optional(
+                emptyMap<String, String>(),
+                description = "A map from ticket keys to keys of messages that are posted for specific parents"
+            )
+            val privateMessage by optional<String?>(
+                null,
                 description = "The key of the message that is posted under duplicate tickets when the parent is private."
             )
             val resolutionMessages by optional(

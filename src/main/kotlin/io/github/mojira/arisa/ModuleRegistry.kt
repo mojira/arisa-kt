@@ -105,23 +105,14 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
         register(
-            Modules.DuplicateMessage, DuplicateMessageModule(
+            Modules.DuplicateMessage,
+            DuplicateMessageModule(
                 config[Modules.DuplicateMessage.message],
+                config[Modules.DuplicateMessage.ticketMessages],
                 config[Modules.DuplicateMessage.privateMessage],
                 config[Modules.DuplicateMessage.resolutionMessages]
             )
-        ) { issue ->
-            DuplicateMessageModule.Request(
-                issue.getLinks<String?, Nothing>(jiraClient, ::updateSecurity, ::getSecurityGetField),
-                issue.getComments(jiraClient)
-            ) { messageKey, filledText ->
-                addComment(
-                    issue, messages.getMessageWithBotSignature(
-                        issue.project.key, messageKey, filledText
-                    )
-                )
-            }
-        }
+        )
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 

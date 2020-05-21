@@ -162,39 +162,11 @@ fun JiraIssue.toLinkedIssue(
 ) = LinkedIssue(
     key,
     status.name,
-<<<<<<< Updated upstream
     ::getFullIssue.partially1(jiraClient).partially1(messages).partially1(config),
     ::createLink.partially1(this)
 )
 
 fun JiraIssueLink.toDomain(
-=======
-    setField.partially1(this),
-    {
-        toCompleteIssue(
-            jiraClient
-        ) pipe { issueEither ->
-            issueEither.fold(
-                { it.left() },
-                { getField(it) }
-            )
-        }
-    }
-)
-
-fun JiraIssue.toCompleteIssue(
-    jiraClient: JiraClient
-) = getIssue(
-    jiraClient,
-    key
-)
-
-fun getVersionsGetField(issue: JiraIssue) = issue.versions.map { it.id }.right()
-
-fun getSecurityGetField(issue: JiraIssue) = issue.security?.id.right()
-
-fun <FIELD, FUNPARAM> JiraIssueLink.toDomain(
->>>>>>> Stashed changes
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config

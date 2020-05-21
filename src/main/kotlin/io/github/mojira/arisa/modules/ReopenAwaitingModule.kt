@@ -30,7 +30,7 @@ class ReopenAwaitingModule(
                 assertUpdatedByReporterChangingTicket(changeLog, reporter, resolveTime)
             ).bind()
 
-            reopen().toFailedModuleEither().bind()
+            reopen()
         }
     }
 

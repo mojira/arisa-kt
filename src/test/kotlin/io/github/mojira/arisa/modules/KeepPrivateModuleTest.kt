@@ -190,26 +190,6 @@ class KeepPrivateModuleTest : StringSpec({
         didComment shouldBe false
     }
 
-    "should return FailedModuleResponse when setting security level fails" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
-        val comment = mockComment(
-            body = "MEQS_KEEP_PRIVATE",
-            visibilityType = "group",
-            visibilityValue = "staff"
-        )
-        val issue = mockIssue(
-            comments = listOf(comment),
-            changeLog = listOf(REMOVE_SECURITY),
-            setPrivate = { RuntimeException().left() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when posting comment" {
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
         val comment = mockComment(

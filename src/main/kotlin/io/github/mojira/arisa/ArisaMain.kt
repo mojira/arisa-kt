@@ -7,13 +7,14 @@ import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-val log = LoggerFactory.getLogger("Arisa")
+val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 

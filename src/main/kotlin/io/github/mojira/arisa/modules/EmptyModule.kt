@@ -38,7 +38,7 @@ class EmptyModule(
             }
             assertEmpty(attachments).bind()
             addComment(CommentOptions(message)).toFailedModuleEither().bind()
-            resolveAsIncomplete().toFailedModuleEither().bind()
+            resolveAsIncomplete()
         }
     }
 

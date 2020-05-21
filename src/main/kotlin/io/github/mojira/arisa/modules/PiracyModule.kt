@@ -19,7 +19,7 @@ class PiracyModule(
                 "$description $environment $summary"
             ).bind()
             addComment(CommentOptions(message)).toFailedModuleEither().bind()
-            resolveAsInvalid().toFailedModuleEither().bind()
+            resolveAsInvalid()
         }
     }
 

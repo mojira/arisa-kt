@@ -21,10 +21,10 @@ class FutureVersionModule(
             val latestVersion = project.versions.lastOrNull(::isFutureVersion.complement())
             assertNotNull(latestVersion).bind()
 
-            latestVersion!!.add().toFailedModuleEither().bind()
-            tryRunAll(removeFutureVersions).bind()
+            latestVersion!!.add()
+            removeFutureVersions.forEach(::run)
             addComment(CommentOptions(message)).toFailedModuleEither().bind()
-            resolveAsAwaitingResponse().toFailedModuleEither().bind()
+            resolveAsAwaitingResponse()
         }
     }
 

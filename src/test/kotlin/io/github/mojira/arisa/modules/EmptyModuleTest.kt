@@ -135,22 +135,6 @@ class EmptyModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should return FailedModuleResponse when resolving fails" {
-        val module = EmptyModule("message")
-        val issue = mockIssue(
-            created = RIGHT_NOW,
-            description = "asd",
-            environment = "asd",
-            resolveAsIncomplete = { RuntimeException().left() }
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when adding comment fails" {
         val module = EmptyModule("message")
         val issue = mockIssue(

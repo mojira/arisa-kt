@@ -136,22 +136,6 @@ class PiracyModuleTest : StringSpec({
         hasCommented shouldBe true
     }
 
-    "should return FailedModuleResponse when resolving as invalid fails" {
-        val module = PiracyModule(listOf("test"), "message")
-        val issue = mockIssue(
-            environment = "test",
-            summary = "",
-            description = "",
-            resolveAsInvalid = { RuntimeException().left() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when adding comment fails" {
         val module = PiracyModule(listOf("test"), "message")
         val issue = mockIssue(

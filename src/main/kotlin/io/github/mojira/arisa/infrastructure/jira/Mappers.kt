@@ -11,6 +11,8 @@ import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.domain.IssueUpdateContextCache
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
@@ -43,9 +45,21 @@ fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     isReleased,
     isArchived,
     releaseDate?.toVersionReleaseInstant(),
-    ::addAffectedVersion.partially1(issue).partially1(this),
-    ::removeAffectedVersion.partially1(issue).partially1(this)
+    ::addAffectedVersion.partially1(issue.toUpdateContext()).partially1(this),
+    ::removeAffectedVersion.partially1(issue.toUpdateContext()).partially1(this)
 )
+
+fun JiraIssue.toUpdateContext(): IssueUpdateContext {
+    var context = IssueUpdateContextCache.get(key)
+    if (context == null) {
+        context = IssueUpdateContext(
+            update(),
+            transition()
+        )
+        IssueUpdateContextCache.add(key, context)
+    }
+    return context
+}
 
 @Suppress("LongMethod")
 fun JiraIssue.toDomain(
@@ -74,27 +88,29 @@ fun JiraIssue.toDomain(
     mapComments(jiraClient),
     mapLinks(jiraClient, messages, config),
     getChangeLogEntries(jiraClient),
-    ::reopenIssue.partially1(this),
-    ::resolveAs.partially1(this).partially1("Awaiting Response"),
-    ::resolveAs.partially1(this).partially1("Invalid"),
-    ::resolveAs.partially1(this).partially1("Duplicate"),
-    ::resolveAs.partially1(this).partially1("Incomplete"),
-    ::updateDescription.partially1(this),
-    ::updateCHK.partially1(this).partially1(config[Arisa.CustomFields.chkField]),
-    ::updateConfirmation.partially1(this).partially1(config[Arisa.CustomFields.confirmationField]),
-    ::updateLinked.partially1(this).partially1(config[Arisa.CustomFields.linked]),
-    ::updateSecurity.partially1(this).partially1(project.getSecurityLevelId(config)),
+    ::reopen.partially1(toUpdateContext()),
+    ::resolveAs.partially1(toUpdateContext()).partially1("Awaiting Response"),
+    ::resolveAs.partially1(toUpdateContext()).partially1("Invalid"),
+    ::resolveAs.partially1(toUpdateContext()).partially1("Duplicate"),
+    ::resolveAs.partially1(toUpdateContext()).partially1("Incomplete"),
+    ::updateDescription.partially1(toUpdateContext()),
+    ::updateCHK.partially1(toUpdateContext()).partially1(config[Arisa.CustomFields.chkField]),
+    ::updateConfirmation.partially1(toUpdateContext()).partially1(config[Arisa.CustomFields.confirmationField]),
+    ::updateLinked.partially1(toUpdateContext()).partially1(config[Arisa.CustomFields.linked]),
+    ::updateSecurity.partially1(toUpdateContext()).partially1(project.getSecurityLevelId(config)),
+    ::addAffectedVersionById.partially1(toUpdateContext()),
     ::createLink.partially1(this),
-    ::addAffectedVersionById.partially1(this),
     { (messageKey, variable, language) ->
-        createComment(this,
+        createComment(
+            this,
             messages.getMessageWithBotSignature(
                 project.key, messageKey, variable, language
             )
         )
     },
     { (messageKey, variable, language) ->
-        addRestrictedComment(this,
+        addRestrictedComment(
+            this,
             messages.getMessageWithBotSignature(
                 project.key, messageKey, variable, language
             ),

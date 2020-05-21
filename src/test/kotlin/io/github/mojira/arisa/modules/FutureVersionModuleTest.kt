@@ -1,8 +1,6 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.Either
 import arrow.core.left
-import arrow.core.right
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
@@ -116,64 +114,10 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should return FailedModuleResponse when removing a version fails" {
-        val module = FutureVersionModule("message")
-        val futureVersion = getVersion(false, false, remove = { RuntimeException().left() })
-        val releasedVersion = getVersion(true, false, add = { Unit.right() })
-        val issue = mockIssue(
-            affectedVersions = listOf(futureVersion),
-            project = mockProject(
-                versions = listOf(releasedVersion)
-            )
-        )
-
-        val result = module(issue, NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all exceptions when removing versions fails" {
-        val module = FutureVersionModule("message")
-        val futureVersion = getVersion(false, false, remove = { RuntimeException().left() })
-        val releasedVersion = getVersion(true, false, add = { Unit.right() })
-        val issue = mockIssue(
-            affectedVersions = listOf(futureVersion, futureVersion),
-            project = mockProject(
-                versions = listOf(releasedVersion)
-            )
-        )
-
-        val result = module(issue, NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
-    }
-
-    "should return FailedModuleResponse when adding the latest version fails" {
-        val module = FutureVersionModule("message")
-        val futureVersion = getVersion(false, false, remove = { Unit.right() })
-        val releasedVersion = getVersion(true, false, add = { RuntimeException().left() })
-        val issue = mockIssue(
-            affectedVersions = listOf(futureVersion),
-            project = mockProject(
-                versions = listOf(releasedVersion)
-            )
-        )
-
-        val result = module(issue, NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when adding the comment fails" {
         val module = FutureVersionModule("message")
-        val futureVersion = getVersion(false, false, remove = { Unit.right() })
-        val releasedVersion = getVersion(true, false, add = { Unit.right() })
+        val futureVersion = getVersion(false, false)
+        val releasedVersion = getVersion(true, false)
         val issue = mockIssue(
             affectedVersions = listOf(futureVersion),
             project = mockProject(
@@ -192,12 +136,8 @@ class FutureVersionModuleTest : StringSpec({
 
 private fun getVersion(
     released: Boolean,
-    archived: Boolean,
-    add: () -> Either<Throwable, Unit> = { Unit.right() },
-    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+    archived: Boolean
 ) = mockVersion(
     released = released,
-    archived = archived,
-    add = add,
-    remove = remove
+    archived = archived
 )

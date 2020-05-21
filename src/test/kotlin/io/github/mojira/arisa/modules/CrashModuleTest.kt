@@ -840,34 +840,6 @@ class CrashModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should return FailedModuleResponse when resolving as invalid fails" {
-        val module = CrashModule(
-            listOf("txt"),
-            emptyList(),
-            10,
-            crashReader,
-            "duplicate-tech",
-            "modified-game"
-        )
-        val issue = mockIssue(
-            attachments = emptyList(),
-            description = MODDED_CRASH,
-            created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
-            resolveAsInvalid = { RuntimeException().left() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
-            addComment = { Unit.right() }
-        )
-
-        val result = module(issue, NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when sending as modded message fails" {
         val module = CrashModule(
             listOf("txt"),
@@ -887,34 +859,6 @@ class CrashModuleTest : StringSpec({
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _ -> Unit.right() },
             addComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse when resolving as duplicate fails" {
-        val module = CrashModule(
-            listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
-            crashReader,
-            "duplicate-tech",
-            "modified-game"
-        )
-        val issue = mockIssue(
-            attachments = emptyList(),
-            description = EXAMPLE_CRASH,
-            created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { RuntimeException().left() },
-            createLink = { _, _ -> Unit.right() },
-            addComment = { Unit.right() }
         )
 
         val result = module(issue, NOW)

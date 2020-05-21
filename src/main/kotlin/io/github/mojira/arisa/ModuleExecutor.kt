@@ -4,9 +4,11 @@ import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.jira.applyUpdatesAndTransitions
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -54,6 +56,9 @@ class ModuleExecutor(
                         exec.partially2(lastRun)
                     )
                 }
+
+                IssueUpdateContextCache.forEach(::applyUpdatesAndTransitions)
+                IssueUpdateContextCache.clear()
 
                 queryCache.clear()
                 startAt += MAX_RESULTS

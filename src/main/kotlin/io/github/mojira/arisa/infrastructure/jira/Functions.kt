@@ -3,6 +3,8 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
+import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.log
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
@@ -18,48 +20,93 @@ import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
+fun connectToJira(username: String, password: String, url: String) =
+    JiraClient(url, TokenCredentials(username, password))
+
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {
         jiraClient.getIssue(key, "*all", "changelog")
     }
 }
+
 const val MILLI_FOR_FORMAT = 123L
 
-fun updateCHK(issue: Issue, chkField: String): Either<Throwable, Unit> = runBlocking {
-    Either.catch {
-        issue
-            .transition()
-            .field(
-                chkField,
-                Instant
-                    .now()
-                    .with(ChronoField.NANO_OF_SECOND, 0)
-                    .with(ChronoField.MILLI_OF_SECOND, MILLI_FOR_FORMAT)
-                    .toString()
-                    .replace("Z", "-0000")
-            )
-            .execute("Update Issue")
-    }
+fun updateCHK(context: IssueUpdateContext, chkField: String) {
+    context.hasTransitions = true
+    context.transition.field(
+        chkField,
+        Instant
+            .now()
+            .with(ChronoField.NANO_OF_SECOND, 0)
+            .with(ChronoField.MILLI_OF_SECOND, MILLI_FOR_FORMAT)
+            .toString()
+            .replace("Z", "-0000")
+    )
 }
 
-fun updateConfirmation(issue: Issue, confirmationField: String, value: String) = runBlocking {
-    Either.catch {
-        val jsonValue = JSONObject()
-        jsonValue["value"] = value
+fun updateConfirmation(context: IssueUpdateContext, confirmationField: String, value: String) {
+    val jsonValue = JSONObject()
+    jsonValue["value"] = value
 
-        issue
-            .transition()
-            .field(confirmationField, jsonValue)
-            .execute("Update Issue")
-    }
+    context.hasTransitions = true
+    context.transition.field(confirmationField, jsonValue)
 }
 
-fun updateLinked(issue: Issue, linkedField: String, value: Double) = runBlocking {
-    Either.catch {
-        issue
-            .transition()
-            .field(linkedField, value)
-            .execute("Update Issue")
+fun updateLinked(context: IssueUpdateContext, linkedField: String, value: Double) {
+    context.hasTransitions = true
+    context.transition.field(linkedField, value)
+}
+
+fun reopen(context: IssueUpdateContext) = runBlocking {
+    context.hasTransitions = true
+    context.transitionName = "Reopen Issue"
+}
+
+fun resolveAs(context: IssueUpdateContext, resolution: String) {
+    val resolutionJson = JSONObject()
+    resolutionJson["name"] = resolution
+
+    context.hasTransitions = true
+    context.transition.field(Field.RESOLUTION, resolutionJson)
+    context.transitionName = "Resolve Issue"
+}
+
+fun updateSecurity(context: IssueUpdateContext, levelId: String) {
+    context.hasTransitions = true
+    context.transition.field(Field.SECURITY, Field.valueById(levelId))
+}
+
+fun removeAffectedVersion(context: IssueUpdateContext, version: Version) {
+    context.hasUpdates = true
+    context.update.fieldRemove("versions", version)
+}
+
+fun addAffectedVersionById(context: IssueUpdateContext, id: String) {
+    context.hasUpdates = true
+    context.update.fieldAdd("versions", Field.valueById(id))
+}
+
+fun addAffectedVersion(context: IssueUpdateContext, version: Version) {
+    context.hasUpdates = true
+    context.update.fieldAdd("versions", version)
+}
+
+fun updateDescription(context: IssueUpdateContext, description: String) {
+    context.hasUpdates = true
+    context.update.field(Field.DESCRIPTION, description)
+}
+
+@Suppress("TooGenericExceptionCaught")
+fun applyUpdatesAndTransitions(context: IssueUpdateContext) {
+    try {
+        if (context.hasUpdates) {
+            context.update.execute()
+        }
+        if (context.hasTransitions) {
+            context.transition.execute(context.transitionName)
+        }
+    } catch (ex: Throwable) {
+        log.error("Failed to apply updates and transitions", ex)
     }
 }
 
@@ -67,15 +114,6 @@ fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Thr
     Either.catch {
         jiraClient.restClient.delete(URI(attachment.self))
         Unit
-    }
-}
-
-fun connectToJira(username: String, password: String, url: String) =
-    JiraClient(url, TokenCredentials(username, password))
-
-fun reopenIssue(issue: Issue) = runBlocking {
-    Either.catch {
-        issue.transition().execute("Reopen Issue")
     }
 }
 
@@ -90,17 +128,6 @@ fun addRestrictedComment(issue: Issue, comment: String, restrictionLevel: String
     Either.catch {
         issue.addComment(comment, "group", restrictionLevel)
         Unit
-    }
-}
-
-fun resolveAs(issue: Issue, resolution: String) = runBlocking {
-    Either.catch {
-        val resolutionJson = JSONObject()
-        resolutionJson["name"] = resolution
-
-        issue.transition()
-            .field(Field.RESOLUTION, resolutionJson)
-            .execute("Resolve Issue")
     }
 }
 
@@ -130,33 +157,6 @@ fun restrictCommentToGroup(comment: Comment, group: String, body: String = comme
     }
 }
 
-fun removeAffectedVersion(issue: Issue, version: Version) = runBlocking {
-    Either.catch {
-        issue
-            .update()
-            .fieldRemove("versions", version)
-            .execute()
-    }
-}
-
-fun addAffectedVersionById(issue: Issue, id: String) = runBlocking {
-    Either.catch {
-        issue
-            .update()
-            .fieldAdd("versions", Field.valueById(id))
-            .execute()
-    }
-}
-
-fun addAffectedVersion(issue: Issue, version: Version) = runBlocking {
-    Either.catch {
-        issue
-            .update()
-            .fieldAdd("versions", version)
-            .execute()
-    }
-}
-
 // not included in used library
 fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
     Either.catch {
@@ -168,23 +168,5 @@ fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
             .getJSONObject("groups")
             .getJSONArray("items")
             .map { (it as JSONObject)["name"] as String }
-    }
-}
-
-fun updateSecurity(issue: Issue, levelId: String) = runBlocking {
-    Either.catch {
-        issue
-            .update()
-            .field(Field.SECURITY, Field.valueById(levelId))
-            .execute()
-    }
-}
-
-fun updateDescription(issue: Issue, description: String) = runBlocking {
-    Either.catch {
-        issue
-            .update()
-            .field(Field.DESCRIPTION, description)
-            .execute()
     }
 }

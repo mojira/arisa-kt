@@ -25,7 +25,7 @@ class KeepPrivateModule(
             if (changedTime != null && changedTime.isAfter(markedTime)) {
                 addComment(CommentOptions(message)).toFailedModuleEither().bind()
             }
-            setPrivate().toFailedModuleEither().bind()
+            setPrivate()
         }
     }
 

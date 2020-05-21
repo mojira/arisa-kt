@@ -9,12 +9,14 @@ import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 const val TWO_SECONDS_IN_MILLIS = 2000
 
 class ReopenAwaitingModule(
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>,
+    private val softArPeriod: Long?,
     private val keepARTag: String?
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -26,7 +28,7 @@ class ReopenAwaitingModule(
             val resolveTime = changeLog.last(::isAwaitingResolve).created
 
             assertEither(
-                assertUpdatedByAddingComment(comments, resolveTime, lastRun),
+                assertUpdatedByAddingComment(comments, reporter, resolveTime, lastRun),
                 assertUpdatedByReporterChangingTicket(changeLog, reporter, resolveTime)
             ).bind()
 
@@ -37,17 +39,23 @@ class ReopenAwaitingModule(
     private fun assertShouldNotKeepAR(comments: List<Comment>) = assertNotContains(comments, ::isKeepARTag)
 
     private fun isKeepARTag(comment: Comment) = keepARTag != null &&
-        comment.visibilityType == "group" &&
-        comment.visibilityValue == "staff" &&
-        comment.body.contains(keepARTag)
+            comment.visibilityType == "group" &&
+            comment.visibilityValue == "staff" &&
+            comment.body.contains(keepARTag)
 
     private fun assertUpdatedByAddingComment(
         comments: List<Comment>,
+        reporter: User?,
         resolveTime: Instant,
         lastRun: Instant
     ): Either<OperationNotNeededModuleResponse, ModuleResponse> = Either.fx {
         val validComments = comments
             .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
+            .filter {
+                softArPeriod == null ||
+                        resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now()) ||
+                        it.author.name == reporter?.name
+            }
             .filter {
                 val roles = it.getAuthorGroups()
                 roles == null || roles.intersect(blacklistedRoles).isEmpty()

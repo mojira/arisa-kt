@@ -155,6 +155,7 @@ class ModuleRegistry(private val config: Config) {
             ReopenAwaitingModule(
                 config[Modules.ReopenAwaiting.blacklistedRoles],
                 config[Modules.ReopenAwaiting.blacklistedVisibilities],
+                config[Modules.ReopenAwaiting.softARPeriod],
                 config[Modules.ReopenAwaiting.keepARTag]
             )
         )

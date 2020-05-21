@@ -13,15 +13,18 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 private val REPORTER = getUser(name = "reporter")
-private val RANDOM_USER = getUser(name = "randomuser")
+private val RANDOM_USER = getUser(name = "randomUser")
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
+private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
 
 private val MODULE = ReopenAwaitingModule(
     listOf("staff", "global-moderators"),
     listOf("helper", "staff", "global-moderators"),
+    null,
     "MEQS_KEEP_AR"
 )
 private val AWAITING_RESOLVE = mockChangeLogItem(
@@ -172,6 +175,34 @@ class ReopenAwaitingModuleTest : StringSpec({
         )
 
         val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when someone answered after the soft AR period" {
+        val module = ReopenAwaitingModule(
+            listOf("staff", "global-moderators"),
+            listOf("helper", "staff", "global-moderators"),
+            365,
+            "MEQS_KEEP_AR"
+        )
+
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment()
+        val resolve = mockChangeLogItem(
+            created = TWO_YEARS_AGO,
+            field = "resolution",
+            changedTo = "Awaiting Response"
+        )
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(comment),
+            changeLog = listOf(resolve)
+        )
+
+        val result = module(issue, TEN_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -366,6 +397,59 @@ class ReopenAwaitingModuleTest : StringSpec({
         )
 
         val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should reopen when someone answered within the soft AR period" {
+        val module = ReopenAwaitingModule(
+            listOf("staff", "global-moderators"),
+            listOf("helper", "staff", "global-moderators"),
+            365,
+            "MEQS_KEEP_AR"
+        )
+
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment()
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(comment),
+            changeLog = listOf(AWAITING_RESOLVE)
+        )
+
+        val result = module(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should reopen when reporter answered after the soft AR period" {
+        val module = ReopenAwaitingModule(
+            listOf("staff", "global-moderators"),
+            listOf("helper", "staff", "global-moderators"),
+            365,
+            "MEQS_KEEP_AR"
+        )
+
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment(
+            author = REPORTER
+        )
+        val resolve = mockChangeLogItem(
+            created = TWO_YEARS_AGO,
+            field = "resolution",
+            changedTo = "Awaiting Response"
+        )
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(comment),
+            changeLog = listOf(resolve)
+        )
+
+        val result = module(issue, TEN_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }

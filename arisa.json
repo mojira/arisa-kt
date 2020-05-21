@@ -135,6 +135,7 @@
           "staff",
           "global-moderators"
         ],
+        "softARPeriod": 365,
         "keepARTag": "MEQS_KEEP_AR"
       },
       "removeNonStaffMeqs": {

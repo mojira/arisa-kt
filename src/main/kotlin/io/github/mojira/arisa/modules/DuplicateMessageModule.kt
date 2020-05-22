@@ -9,8 +9,10 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class DuplicateMessageModule(
+    private val commentDelayMinutes: Long,
     private val message: String,
     private val ticketMessages: Map<String, String>,
     private val privateMessage: String?,
@@ -19,7 +21,7 @@ class DuplicateMessageModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotNull(issue.resolved).bind()
-            assertAfter(issue.resolved!!, lastRun).bind()
+            assertAfter(issue.resolved!!, lastRun.minus(commentDelayMinutes, ChronoUnit.MINUTES)).bind()
 
             val parents = links
                 .filter(::isDuplicatesLink)

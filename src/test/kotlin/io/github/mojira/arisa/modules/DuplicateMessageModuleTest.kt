@@ -19,6 +19,7 @@ private val TEN_THOUSAND_YEARS_LATER = RIGHT_NOW.plusSeconds(315360000000)
 
 class DuplicateMessageModuleTest : StringSpec({
     val module = DuplicateMessageModule(
+        0L,
         "duplicate",
         mapOf("MC-297" to "duplicate-of-mc-297"),
         "duplicate-private",
@@ -367,6 +368,7 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should add the normal comment if there's no special message for private parents" {
         val module = DuplicateMessageModule(
+            0L,
             "duplicate",
             mapOf("MC-297" to "duplicate-of-mc-297"),
             null,

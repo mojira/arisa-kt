@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
@@ -8,7 +9,9 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import java.lang.RuntimeException
 
 private val MODULE = PrivacyModule()
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
@@ -40,8 +43,8 @@ class PrivacyModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
-                    created = TEN_SECONDS_AGO,
-                    body = "foo@example.com"
+                    body = "foo@example.com",
+                    created = TEN_SECONDS_AGO
                 )
             )
         )
@@ -149,24 +152,6 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
-    "should mark as private when the comment contains Email" {
-        var hasSetPrivate = false
-
-        val issue = mockIssue(
-            comments = listOf(
-                mockComment(
-                    body = "foo@example.com"
-                )
-            ),
-            setPrivate = { hasSetPrivate = true; Unit.right() }
-        )
-
-        val result = MODULE(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeRight(ModuleResponse)
-        hasSetPrivate shouldBe true
-    }
-
     "should mark as private when the attachment contains Email" {
         var hasSetPrivate = false
 
@@ -201,5 +186,64 @@ class PrivacyModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         hasSetPrivate shouldBe true
+    }
+
+    "should restrict to helper when the comment contains Email" {
+        var hasSetPrivate = false
+        var hasRestrictedComment = false
+
+        val issue = mockIssue(
+            comments = listOf(
+                mockComment(
+                    body = "foo@example.com",
+                    restrict = { hasRestrictedComment = true; Unit.right() }
+                )
+            ),
+            setPrivate = { hasSetPrivate = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe false
+        hasRestrictedComment shouldBe true
+    }
+
+    "should return FailedModuleResponse when restricting comment fails" {
+        val issue = mockIssue(
+            comments = listOf(
+                mockComment(
+                    body = "foo@example.com",
+                    restrict = { RuntimeException().left() }
+                )
+            )
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse when all exceptions" {
+        val issue = mockIssue(
+            comments = listOf(
+                mockComment(
+                    body = "foo@example.com",
+                    restrict = { RuntimeException().left() }
+                ),
+                mockComment(
+                    body = "bar@example.com",
+                    restrict = { RuntimeException().left() }
+                )
+            )
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 })

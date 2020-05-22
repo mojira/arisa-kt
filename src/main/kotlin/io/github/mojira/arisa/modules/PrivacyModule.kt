@@ -23,26 +23,34 @@ class PrivacyModule : Module {
                 string += "$summary $environment $description "
             }
 
-            comments
-                .asSequence()
-                .filter { it.created.isAfter(lastRun) }
-                .filter { it.visibilityType == null }
-                .forEach { string += "${it.body} " }
-
             attachments
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.mimeType.startsWith("text/") }
                 .forEach { string += "${String(it.getContent())} " }
 
-            assertMatchesPatterns(string, patterns).bind()
+            val stringMatchesPatterns = string.matches(patterns)
 
-            setPrivate().toFailedModuleEither().bind()
+            val restrictCommentFunctions = comments
+                .asSequence()
+                .filter { it.created.isAfter(lastRun) }
+                .filter { it.visibilityType == null }
+                .filter { it.body.matches(patterns) }
+                .map { { it.restrict(it.body) } }
+                .toList()
+
+            assertEither(
+                assertTrue(stringMatchesPatterns),
+                assertNotEmpty(restrictCommentFunctions)
+            ).bind()
+
+            if (stringMatchesPatterns) {
+                setPrivate().toFailedModuleEither().bind()
+            }
+
+            tryRunAll(restrictCommentFunctions).bind()
         }
     }
 
-    private fun assertMatchesPatterns(string: String, patterns: List<Regex>) = when {
-        patterns.any { it.containsMatchIn(string) } -> Unit.right()
-        else -> OperationNotNeededModuleResponse.left()
-    }
+    private fun String.matches(patterns: List<Regex>) = patterns.any { it.containsMatchIn(this) }
 }

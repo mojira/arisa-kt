@@ -1,11 +1,10 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.left
-import arrow.core.right
-import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
+import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -780,17 +779,15 @@ private fun getComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     author: User = RANDOM_USER,
-    authorGroups: List<String>? = null
-) = Comment(
-    body,
-    author,
-    { authorGroups },
-    created,
-    updated,
-    visibilityType,
-    visibilityValue,
-    { Unit.right() },
-    { Unit.right() }
+    authorGroups: List<String> = emptyList()
+) = mockComment(
+    body = body,
+    author = author,
+    getAuthorGroups = { authorGroups },
+    created = created,
+    updated = updated,
+    visibilityType = visibilityType,
+    visibilityValue = visibilityValue
 )
 
 private fun getUser(name: String) = User(name, "User")

@@ -112,7 +112,11 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.DuplicateMessage.privateMessage],
                 config[Modules.DuplicateMessage.resolutionMessages]
             )
-        )
+        ) { lastRun ->
+            val checkStart = lastRun.minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
+            val checkEnd = Instant.now().minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
+            return@register "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
+        }
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 

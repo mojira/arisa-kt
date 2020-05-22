@@ -16,6 +16,7 @@ import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
+import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
@@ -27,6 +28,7 @@ import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
@@ -106,6 +108,20 @@ class ModuleRegistry(private val config: Config) {
 
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
+        register(
+            Modules.DuplicateMessage,
+            DuplicateMessageModule(
+                config[Modules.DuplicateMessage.message],
+                config[Modules.DuplicateMessage.ticketMessages],
+                config[Modules.DuplicateMessage.privateMessage],
+                config[Modules.DuplicateMessage.resolutionMessages]
+            )
+        ) { lastRun ->
+            val checkStart = lastRun.minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
+            val checkEnd = Instant.now().minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
+            return@register "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
+        }
+
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 
         register(Modules.HideImpostors, HideImpostorsModule())
@@ -139,6 +155,8 @@ class ModuleRegistry(private val config: Config) {
                 ::getLanguage.partially1(config[Credentials.dandelionToken])
             )
         )
+
+        register(Modules.RemoveIdenticalLink, RemoveIdenticalLinkModule())
 
         register(
             Modules.RemoveNonStaffMeqs,

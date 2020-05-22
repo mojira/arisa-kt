@@ -29,6 +29,13 @@ class IntegrationTest : StringSpec({
         val helperMessages = helperMessagesFile.getHelperMessages()
 
         with(helperMessages.messages) {
+            this shouldContainKey "duplicate"
+            this shouldContainKey "duplicate-fixed"
+            this shouldContainKey "duplicate-of-mc-297"
+            this shouldContainKey "duplicate-of-mc-128302"
+            this shouldContainKey "duplicate-of-mcl-5638"
+            this shouldContainKey "duplicate-private"
+            this shouldContainKey "duplicate-wai"
             this shouldContainKey "pirated-minecraft"
             this shouldContainKey "provide-affected-versions"
             this shouldContainKey "incomplete"

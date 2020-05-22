@@ -11,7 +11,6 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import java.lang.RuntimeException
 
 private val MODULE = PrivacyModule()
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)

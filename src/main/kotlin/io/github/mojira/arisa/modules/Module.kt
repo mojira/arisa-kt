@@ -36,8 +36,8 @@ fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleErro
     }
 }
 
-fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert(e: Either<OperationNotNeededModuleResponse, Unit>) =
-    if (e.isLeft()) {
+fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert() =
+    if (isLeft()) {
         Unit.right()
     } else {
         OperationNotNeededModuleResponse.left()

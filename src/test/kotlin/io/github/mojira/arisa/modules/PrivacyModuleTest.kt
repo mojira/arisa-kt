@@ -187,7 +187,7 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
-    "should restrict to helper when the comment contains Email" {
+    "should restrict to staff when the comment contains Email" {
         var hasSetPrivate = false
         var hasRestrictedComment = false
 

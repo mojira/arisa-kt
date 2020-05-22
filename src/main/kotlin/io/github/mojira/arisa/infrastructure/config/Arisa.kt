@@ -158,7 +158,7 @@ object Arisa : ConfigSpec() {
             )
             val softARPeriod by optional<Long?>(
                 null,
-                description = "The ticket can only be reopened by comments posted by people other than the reporter " +
+                description = "The ticket can also be reopened by comments posted by people other than the reporter " +
                     "within the specific days after it was resolved. After the time has passed, only the reporter " +
                     "can reopen the ticket."
             )

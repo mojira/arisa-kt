@@ -14,6 +14,7 @@ data class Issue(
     val resolution: String?,
     val created: Instant,
     val updated: Instant,
+    val resolved: Instant?,
     val chk: String?,
     val confirmationStatus: String?,
     val linked: Double?,

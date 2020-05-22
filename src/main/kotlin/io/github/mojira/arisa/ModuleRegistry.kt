@@ -28,6 +28,7 @@ import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
@@ -154,6 +155,8 @@ class ModuleRegistry(private val config: Config) {
                 ::getLanguage.partially1(config[Credentials.dandelionToken])
             )
         )
+
+        register(Modules.RemoveIdenticalLink, RemoveIdenticalLinkModule())
 
         register(
             Modules.RemoveNonStaffMeqs,

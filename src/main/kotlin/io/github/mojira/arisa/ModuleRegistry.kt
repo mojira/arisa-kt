@@ -117,9 +117,10 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.DuplicateMessage.resolutionMessages]
             )
         ) { lastRun ->
-            val checkStart = lastRun.minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
-            val checkEnd = Instant.now().minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
-            return@register "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
+            val now = Instant.now()
+            val intervalStart = now.minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
+            val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
+            "updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()}"
         }
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
@@ -188,10 +189,10 @@ class ModuleRegistry(private val config: Config) {
 
         register(
             Modules.UpdateLinked,
-            UpdateLinkedModule(config[Modules.UpdateLinked.updateInterval])
+            UpdateLinkedModule(config[Modules.UpdateLinked.updateIntervalHours])
         ) { lastRun ->
             val now = Instant.now()
-            val intervalStart = now.minus(config[Modules.UpdateLinked.updateInterval], ChronoUnit.HOURS)
+            val intervalStart = now.minus(config[Modules.UpdateLinked.updateIntervalHours], ChronoUnit.HOURS)
             val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
             return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
                     " AND updated > ${intervalEnd.toEpochMilli()})"

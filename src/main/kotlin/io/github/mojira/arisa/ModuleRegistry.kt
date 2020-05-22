@@ -13,6 +13,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.modules.AttachmentModule
+import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.EmptyModule
@@ -80,6 +81,8 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.Attachment, AttachmentModule(config[Modules.Attachment.extensionBlacklist])
         )
+
+        register(Modules.CHK, CHKModule())
 
         register(
             Modules.ConfirmParent,

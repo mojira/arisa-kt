@@ -18,6 +18,9 @@ class DuplicateMessageModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
+            assertNotNull(issue.resolved).bind()
+            assertAfter(issue.resolved!!, lastRun).bind()
+
             val parents = links
                 .filter(::isDuplicatesLink)
                 .map { it.issue }
@@ -26,7 +29,7 @@ class DuplicateMessageModule(
 
             val visibleComments = comments
                 .filter(::isPublicComment)
-            assertNotAllMentionedBefore(visibleComments, parents).bind()
+            assertNoneIsMentioned(visibleComments, parents).bind()
 
             val parentKey = parents.getCommonFieldOrNull { it.key }
             var messageKey = ticketMessages[parentKey]
@@ -73,11 +76,11 @@ class DuplicateMessageModule(
         return resolutionMessages[parentResolution]
     }
 
-    private fun assertNotAllMentionedBefore(comments: List<Comment>, parents: List<LinkedIssue>) =
-        assertNotEmpty(parents.filter(::hasNotBeenMentioned.partially1(comments)))
+    private fun assertNoneIsMentioned(comments: List<Comment>, parents: List<LinkedIssue>) =
+        assertTrue(parents.any(::hasBeenMentioned.partially1(comments))).invert()
 
-    private fun hasNotBeenMentioned(comments: List<Comment>, issue: LinkedIssue) =
-        comments.none { it.body.contains(issue.key) }
+    private fun hasBeenMentioned(comments: List<Comment>, issue: LinkedIssue) =
+        comments.any { it.body.contains(issue.key) }
 
     private fun isPublicComment(comment: Comment) =
         comment.visibilityType == null

@@ -13,8 +13,10 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.modules.AttachmentModule
+import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
+import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
@@ -80,6 +82,8 @@ class ModuleRegistry(private val config: Config) {
             Modules.Attachment, AttachmentModule(config[Modules.Attachment.extensionBlacklist])
         )
 
+        register(Modules.CHK, CHKModule())
+
         register(
             Modules.ConfirmParent,
             ConfirmParentModule(
@@ -102,6 +106,20 @@ class ModuleRegistry(private val config: Config) {
         )
 
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
+
+        register(
+            Modules.DuplicateMessage,
+            DuplicateMessageModule(
+                config[Modules.DuplicateMessage.message],
+                config[Modules.DuplicateMessage.ticketMessages],
+                config[Modules.DuplicateMessage.privateMessage],
+                config[Modules.DuplicateMessage.resolutionMessages]
+            )
+        ) { lastRun ->
+            val checkStart = lastRun.minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
+            val checkEnd = Instant.now().minus(config[Modules.DuplicateMessage.commentDelay], ChronoUnit.MINUTES)
+            return@register "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
+        }
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 

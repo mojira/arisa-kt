@@ -59,6 +59,23 @@
           "url"
         ]
       },
+      "duplicateMessage": {
+        "resolutions": [
+          "Duplicate"
+        ],
+        "commentDelay": 5,
+        "message": "duplicate",
+        "ticketMessages": {
+          "MC-297": "duplicate-of-mc-297",
+          "MC-128302": "duplicate-of-mc-128302",
+          "MCL-5638": "duplicate-of-mcl-5638"
+        },
+        "privateMessage": "duplicate-private",
+        "resolutionMessages": {
+          "Fixed": "duplicate-fixed",
+          "Works As Intended": "duplicate-wai"
+        }
+      },
       "piracy": {
         "excludedStatuses": ["Postponed"],
         "message": "pirated-minecraft",

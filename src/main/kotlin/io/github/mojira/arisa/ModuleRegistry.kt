@@ -27,8 +27,8 @@ import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
-import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
+import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
@@ -117,9 +117,24 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.DuplicateMessage.resolutionMessages]
             )
         ) { lastRun ->
+            val checkStart = lastRun
+                .minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
+            val checkEnd = Instant.now()
+                .minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
+            log.info(
+                "[TESTING-DuplicateMessage] Would have checked ${
+                "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
+                }"
+            )
+
             val now = Instant.now()
             val intervalStart = now.minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
             val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
+            log.info(
+                "[TESTING-DuplicateMessage] Actually checked ${
+                "updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()}"
+                }"
+            )
             "updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()}"
         }
 

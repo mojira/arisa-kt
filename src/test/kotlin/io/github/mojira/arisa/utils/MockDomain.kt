@@ -19,11 +19,13 @@ val RIGHT_NOW: Instant = Instant.now()
 fun mockAttachment(
     name: String = "",
     created: Instant = RIGHT_NOW,
+    mimeType: String = "text/plain",
     remove: () -> Either<Throwable, Unit> = { Unit.right() },
     getContent: () -> ByteArray = { ByteArray(0) }
 ) = Attachment(
     name,
     created,
+    mimeType,
     remove,
     getContent
 )

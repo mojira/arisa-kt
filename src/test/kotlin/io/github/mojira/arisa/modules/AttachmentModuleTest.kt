@@ -3,7 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -88,9 +88,9 @@ private fun getAttachment(
     name: String = "testfile.test",
     created: Instant = NOW,
     remove: () -> Either<Throwable, Unit> = { Unit.right() }
-) = Attachment(
-    name,
-    created,
-    remove,
-    { ByteArray(0) }
+) = mockAttachment(
+    name = name,
+    created = created,
+    remove = remove,
+    getContent = { ByteArray(0) }
 )

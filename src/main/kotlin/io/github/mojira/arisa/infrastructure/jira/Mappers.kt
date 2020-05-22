@@ -32,7 +32,11 @@ import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
 fun JiraAttachment.toDomain(jiraClient: JiraClient) = Attachment(
-    fileName, createdDate.toInstant(), ::deleteAttachment.partially1(jiraClient).partially1(this), this::download
+    fileName,
+    createdDate.toInstant(),
+    mimeType,
+    ::deleteAttachment.partially1(jiraClient).partially1(this),
+    this::download
 )
 
 fun JiraProject.getSecurityLevelId(config: Config) =

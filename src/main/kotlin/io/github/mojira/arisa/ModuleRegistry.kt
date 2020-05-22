@@ -29,6 +29,7 @@ import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
+import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
@@ -153,6 +154,8 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.Piracy.message]
             )
         )
+
+        register(Modules.Privacy, PrivacyModule())
 
         register(
             Modules.Language,

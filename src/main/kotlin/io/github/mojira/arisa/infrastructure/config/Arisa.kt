@@ -112,6 +112,8 @@ object Arisa : ConfigSpec() {
             )
         }
 
+        object Privacy : ModuleConfigSpec()
+
         object Language : ModuleConfigSpec() {
             val allowedLanguages by optional(
                 listOf("en"),

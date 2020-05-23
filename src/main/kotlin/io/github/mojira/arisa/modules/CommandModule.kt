@@ -27,9 +27,14 @@ class CommandModule(
                 .map { executeCommand(it.body!!, this) }
 
             when {
-                results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } ->
+                results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
+                    addRawRestrictedComment("Command execution failed", "helper")
                     results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
-                results.any { it.isRight() } -> results.first { it.isRight() }.bind()
+                }
+                results.any { it.isRight() } -> {
+                    addRawRestrictedComment("Command execution was successful", "helper")
+                    results.first { it.isRight() }.bind()
+                }
                 else -> OperationNotNeededModuleResponse.left().bind()
             }
         }

@@ -103,7 +103,8 @@ fun mockIssue(
     addAffectedVersion: (id: String) -> Either<Throwable, Unit> = { Unit.right() },
     addComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
     addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
-    addNotEnglishComment: (language: String) -> Either<Throwable, Unit> = { Unit.right() }
+    addNotEnglishComment: (language: String) -> Either<Throwable, Unit> = { Unit.right() },
+    addRawRestrictedComment: (body: String, restrictions: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() }
 ) = Issue(
     key,
     summary,
@@ -141,7 +142,8 @@ fun mockIssue(
     addAffectedVersion,
     addComment,
     addRestrictedComment,
-    addNotEnglishComment
+    addNotEnglishComment,
+    addRawRestrictedComment
 )
 
 fun mockLink(

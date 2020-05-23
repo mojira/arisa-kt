@@ -16,7 +16,7 @@ class HideImpostorsModule : Module {
                 .filter(::userContainsBrackets)
                 .filter(::isNotStaffRestricted)
                 .filter(::userIsNotVolunteer)
-                .map { it.restrict.partially1(it.body) }
+                .map { it.restrict.partially1(it.body ?: "") }
 
             assertNotEmpty(restrictImpostorComments).bind()
             tryRunAll(restrictImpostorComments).bind()

@@ -4,7 +4,7 @@ import arrow.core.Either
 import java.time.Instant
 
 data class Comment(
-    val body: String,
+    val body: String?,
     val author: User,
     val getAuthorGroups: () -> List<String>?,
     val created: Instant,

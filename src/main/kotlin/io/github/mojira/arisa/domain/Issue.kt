@@ -40,6 +40,6 @@ data class Issue(
     val addAffectedVersion: (id: String) -> Either<Throwable, Unit>,
     val addComment: (options: CommentOptions) -> Either<Throwable, Unit>,
     val addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit>,
-    val addNotEnglishComment: (language: String) -> Either<Throwable, Unit>, // Will be removed once we enable the module
+    val addNotEnglishComment: (language: String) -> Either<Throwable, Unit>, // To be removed when we enable the module
     val addRawRestrictedComment: (body: String, restriction: String) -> Either<Throwable, Unit>
 )

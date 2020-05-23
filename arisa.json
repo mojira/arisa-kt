@@ -304,9 +304,6 @@
           "MCPE"
         ]
       },
-      "commandModule": {
-        "only": true
-      },
       "transferVersions": {
         "resolutions": [ "Duplicate" ]
       },

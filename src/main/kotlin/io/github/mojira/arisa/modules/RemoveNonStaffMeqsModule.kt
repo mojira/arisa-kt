@@ -24,7 +24,7 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module {
         comment.body?.contains("""MEQS_[A-Z_]+""".toRegex()) ?: false
 
     private fun isNotStaffRestricted(comment: Comment) =
-        comment.visibilityType != "group" || comment.visibilityValue != "staff"
+        comment.visibilityType != "group" || !listOf("staff", "global-moderators").contains(comment.visibilityValue)
 
     private fun removeMeqsTags(comment: String): String {
         val regex = """MEQS(_[A-Z_]+)""".toRegex()

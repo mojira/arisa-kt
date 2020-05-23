@@ -63,6 +63,24 @@ class AddVersionCommandTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
+    "should add version with spaces" {
+        val command = AddVersionCommand()
+
+        val issue = mockIssue(
+            project = mockProject(
+                versions = listOf(
+                    getVersion(true, false),
+                    getVersion(true, false, "Minecraft 12w34b")
+                )
+            ),
+            affectedVersions = listOf(getVersion(true, false))
+        )
+
+        val result = command(issue, "ARISA_ADD_VERSION", "Minecraft", "12w34b")
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
     "should return FailedModuleResponse when adding a version fails" {
         val command = AddVersionCommand()
 

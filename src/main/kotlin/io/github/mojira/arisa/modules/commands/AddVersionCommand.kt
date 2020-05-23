@@ -12,7 +12,7 @@ import io.github.mojira.arisa.modules.toFailedModuleEither
 class AddVersionCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
-        val version = arguments[1]
+        val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
         assertFalse(issue.affectedVersions.any { it.name == version }).bind()
         issue.addAffectedVersion(version).toFailedModuleEither().bind()
     }

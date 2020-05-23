@@ -13,7 +13,7 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module {
             val updateMeqsComments = comments
                 .filter(::hasMeqsTag)
                 .filter(::isNotStaffRestricted)
-                .map { it.restrict.partially1(removeMeqsTags(it.body)) }
+                .map { it.restrict.partially1(removeMeqsTags(it.body!!)) }
             assertNotEmpty(updateMeqsComments).bind()
 
             tryRunAll(updateMeqsComments).bind()
@@ -21,7 +21,7 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module {
     }
 
     private fun hasMeqsTag(comment: Comment) =
-        comment.body.contains("""MEQS_[A-Z_]+""".toRegex())
+        comment.body?.contains("""MEQS_[A-Z_]+""".toRegex()) ?: false
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

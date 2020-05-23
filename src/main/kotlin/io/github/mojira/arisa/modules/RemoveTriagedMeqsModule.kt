@@ -18,22 +18,22 @@ class RemoveTriagedMeqsModule(
 
             val updateMeqsComments = comments
                 .filter { hasMeqsTag(it.body) }
-                .map { it.update.partially1(removeMeqsTags(it.body)) }
+                .map { it.update.partially1(removeMeqsTags(it.body!!)) }
             assertNotEmpty(updateMeqsComments).bind()
 
             tryRunAll(updateMeqsComments).bind()
         }
     }
 
-    private fun hasMeqsTag(comment: String) =
-        meqsTags.any { comment.contains(it) }
+    private fun hasMeqsTag(comment: String?) =
+        meqsTags.any { comment?.contains(it) ?: false }
 
     private fun removeMeqsTags(comment: String): String {
         val regex = (
-            "MEQS(" +
-            meqsTags.joinToString("|") { it.replace("MEQS", "") } +
-            ")"
-        ).toRegex()
+                "MEQS(" +
+                        meqsTags.joinToString("|") { it.replace("MEQS", "") } +
+                        ")"
+                ).toRegex()
         return regex.replace(comment) { "MEQS_ARISA_REMOVED${it.groupValues[1]} Removal Reason: $removalReason" }
     }
 

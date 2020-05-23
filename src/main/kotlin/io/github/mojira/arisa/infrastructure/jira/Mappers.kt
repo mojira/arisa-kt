@@ -77,6 +77,7 @@ fun JiraIssue.toDomain(
     resolution?.name,
     createdDate.toInstant(),
     updatedDate.toInstant(),
+    resolutionDate?.toInstant(),
     getCHK(config),
     getConfirmation(config),
     getLinked(config),

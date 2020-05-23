@@ -37,9 +37,9 @@ class ReopenAwaitingModule(
     private fun assertShouldNotKeepAR(comments: List<Comment>) = assertNotContains(comments, ::isKeepARTag)
 
     private fun isKeepARTag(comment: Comment) = keepARTag != null &&
-        comment.visibilityType == "group" &&
-        comment.visibilityValue == "staff" &&
-        comment.body.contains(keepARTag)
+            comment.visibilityType == "group" &&
+            comment.visibilityValue == "staff" &&
+            (comment.body?.contains(keepARTag) ?: false)
 
     private fun assertUpdatedByAddingComment(
         comments: List<Comment>,

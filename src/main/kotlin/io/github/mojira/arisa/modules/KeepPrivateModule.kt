@@ -6,8 +6,8 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class KeepPrivateModule(
@@ -31,7 +31,7 @@ class KeepPrivateModule(
 
     private fun isKeepPrivateTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            comment.body.contains(keepPrivateTag!!)
+            (comment.body?.contains(keepPrivateTag!!) ?: false)
 
     private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
 

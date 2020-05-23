@@ -82,7 +82,7 @@ class DuplicateMessageModule(
         assertTrue(parents.any(::hasBeenMentioned.partially1(comments))).invert()
 
     private fun hasBeenMentioned(comments: List<Comment>, issue: LinkedIssue) =
-        comments.any { it.body.contains(issue.key) }
+        comments.any { it.body?.contains(issue.key) ?: false }
 
     private fun isPublicComment(comment: Comment) =
         comment.visibilityType == null

@@ -12,7 +12,7 @@ import io.github.mojira.arisa.modules.assertTrue
 class FixedCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
-        val version = arguments[1]
+        val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
 
         // TODO https://github.com/mojira/arisa-kt/issues/278
 

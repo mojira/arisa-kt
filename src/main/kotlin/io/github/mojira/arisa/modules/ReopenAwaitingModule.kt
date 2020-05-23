@@ -64,7 +64,7 @@ class ReopenAwaitingModule(
     private fun isKeepARTag(comment: Comment) = keepARTag != null &&
             comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            comment.body.contains(keepARTag)
+            (comment.body?.contains(keepARTag) ?: false)
 
     private fun getValidComments(
         comments: List<Comment>,

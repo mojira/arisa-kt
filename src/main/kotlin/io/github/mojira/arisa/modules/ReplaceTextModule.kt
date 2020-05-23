@@ -39,14 +39,14 @@ class ReplaceTextModule(
             }
 
             filteredComments.forEach {
-                it.update(replace(it.body)).toFailedModuleEither().bind()
+                it.update(replace(it.body!!)).toFailedModuleEither().bind()
             }
         }
     }
 
     private fun updatedAfterLastRun(updated: Instant, lastRun: Instant) = updated.isAfter(lastRun)
 
-    private fun needReplacement(text: String) = replacements.any { (regex, _) -> text.contains(regex) }
+    private fun needReplacement(text: String?) = replacements.any { (regex, _) -> text?.contains(regex) ?: false }
 
     private fun replace(text: String): String = replacements.fold(
         text,

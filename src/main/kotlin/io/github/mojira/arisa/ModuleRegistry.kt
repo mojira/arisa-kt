@@ -188,7 +188,7 @@ class ModuleRegistry(private val config: Config) {
 
         register(Modules.ResolveTrash, ResolveTrashModule())
 
-        register(Modules.CommandModule, CommandModule())
+        register(Modules.Command, CommandModule())
 
         register(
             Modules.UpdateLinked,

@@ -14,6 +14,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSp
 import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
+import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.DuplicateMessageModule
@@ -27,8 +28,8 @@ import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
-import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
+import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
@@ -186,6 +187,8 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.RevokeConfirmation, RevokeConfirmationModule())
 
         register(Modules.ResolveTrash, ResolveTrashModule())
+
+        register(Modules.CommandModule, CommandModule())
 
         register(
             Modules.UpdateLinked,

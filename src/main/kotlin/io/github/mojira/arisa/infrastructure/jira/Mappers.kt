@@ -40,6 +40,7 @@ fun JiraProject.getSecurityLevelId(config: Config) =
 
 fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     id,
+    name,
     isReleased,
     isArchived,
     releaseDate?.toVersionReleaseInstant(),

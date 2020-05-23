@@ -14,6 +14,8 @@ class AddVersionCommand : Command {
         assertTrue(arguments.size > 1).bind()
         val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
         assertFalse(issue.affectedVersions.any { it.name == version }).bind()
-        issue.addAffectedVersion(version).toFailedModuleEither().bind()
+        assertTrue(issue.project.versions.any { it.name == version }).bind()
+        val id = issue.project.versions.first { it.name == version }.id
+        issue.addAffectedVersion(id).toFailedModuleEither().bind()
     }
 }

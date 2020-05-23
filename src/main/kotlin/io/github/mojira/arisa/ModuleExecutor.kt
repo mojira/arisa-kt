@@ -87,7 +87,7 @@ class ModuleExecutor(
 
         val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
-            .map { it.toDomain(jiraClient, helperMessages, config) }
+            .map { it.toDomain(jiraClient, jiraClient.getProject(it.project.key), helperMessages, config) }
 
         queryCache.add(jql, issues)
 

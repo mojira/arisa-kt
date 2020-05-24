@@ -40,6 +40,7 @@ fun JiraProject.getSecurityLevelId(config: Config) =
 
 fun JiraVersion.toDomain(issue: JiraIssue) = Version(
     id,
+    name,
     isReleased,
     isArchived,
     releaseDate?.toVersionReleaseInstant(),
@@ -50,6 +51,7 @@ fun JiraVersion.toDomain(issue: JiraIssue) = Version(
 @Suppress("LongMethod")
 fun JiraIssue.toDomain(
     jiraClient: JiraClient,
+    project: JiraProject,
     messages: HelperMessages,
     config: Config
 ) = Issue(
@@ -84,18 +86,20 @@ fun JiraIssue.toDomain(
     ::updateCHK.partially1(this).partially1(config[Arisa.CustomFields.chkField]),
     ::updateConfirmation.partially1(this).partially1(config[Arisa.CustomFields.confirmationField]),
     ::updateLinked.partially1(this).partially1(config[Arisa.CustomFields.linked]),
-    ::updateSecurity.partially1(this).partially1(project.getSecurityLevelId(config)),
+    ::updateSecurity.partially1(this).partially1(this.project.getSecurityLevelId(config)),
     ::createLink.partially1(this),
     ::addAffectedVersionById.partially1(this),
     { (messageKey, variable, language) ->
-        createComment(this,
+        createComment(
+            this,
             messages.getMessageWithBotSignature(
                 project.key, messageKey, variable, language
             )
         )
     },
     { (messageKey, variable, language) ->
-        addRestrictedComment(this,
+        addRestrictedComment(
+            this,
             messages.getMessageWithBotSignature(
                 project.key, messageKey, variable, language
             ),
@@ -121,7 +125,8 @@ fun JiraIssue.toDomain(
             text,
             "helper"
         )
-    }
+    },
+    ::addRestrictedComment.partially1(this)
 )
 
 fun JiraProject.toDomain(
@@ -230,5 +235,5 @@ private fun JiraIssue.getFullIssue(
 ): Either<Throwable, Issue> =
     getIssue(jiraClient, key).fold(
         { it.left() },
-        { it.toDomain(jiraClient, messages, config).right() }
+        { it.toDomain(jiraClient, jiraClient.getProject(it.project.key), messages, config).right() }
     )

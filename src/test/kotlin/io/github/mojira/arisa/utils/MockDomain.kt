@@ -5,13 +5,13 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.domain.CommentOptions
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()
@@ -103,7 +103,8 @@ fun mockIssue(
     addAffectedVersion: (id: String) -> Either<Throwable, Unit> = { Unit.right() },
     addComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
     addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
-    addNotEnglishComment: (language: String) -> Either<Throwable, Unit> = { Unit.right() }
+    addNotEnglishComment: (language: String) -> Either<Throwable, Unit> = { Unit.right() },
+    addRawRestrictedComment: (body: String, restrictions: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() }
 ) = Issue(
     key,
     summary,
@@ -141,7 +142,8 @@ fun mockIssue(
     addAffectedVersion,
     addComment,
     addRestrictedComment,
-    addNotEnglishComment
+    addNotEnglishComment,
+    addRawRestrictedComment
 )
 
 fun mockLink(
@@ -188,6 +190,7 @@ fun mockUser(
 
 fun mockVersion(
     id: String = "",
+    name: String = "name",
     released: Boolean = true,
     archived: Boolean = false,
     releaseDate: Instant? = RIGHT_NOW,
@@ -195,6 +198,7 @@ fun mockVersion(
     remove: () -> Either<Throwable, Unit> = { Unit.right() }
 ) = Version(
     id,
+    name,
     released,
     archived,
     releaseDate,

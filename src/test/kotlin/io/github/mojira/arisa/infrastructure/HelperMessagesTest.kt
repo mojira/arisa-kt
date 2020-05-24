@@ -23,6 +23,36 @@ class HelperMessagesTest : StringSpec({
                         "project": "mcd",
                         "value": "variable for MCD"
                     }
+                ],
+                "varception0": [
+                    {
+                        "project": "mctest",
+                        "value": "0"
+                    }
+                ],
+                "varception1": [
+                    {
+                        "project": "mctest",
+                        "value": "1 %varception0%"
+                    }
+                ],
+                "varception2": [
+                    {
+                        "project": "mctest",
+                        "value": "2 %varception1%"
+                    }
+                ],
+                "varception3": [
+                    {
+                        "project": "mctest",
+                        "value": "3 %varception2%"
+                    }
+                ],
+                "infinite_loop": [
+                    {
+                        "project": "mctest",
+                        "value": ".%infinite_loop%"
+                    }
                 ]
             },
             "messages": {
@@ -72,6 +102,22 @@ class HelperMessagesTest : StringSpec({
                         "localizedMessages": {
                             "ab": "~{color:#888}-- A ba b aba.{color}~"
                         },
+                        "fillname": []
+                    }
+                ],
+                "infinite-loop": [
+                    {
+                        "project": ["mctest"],
+                        "name": "Infinite Loop",
+                        "message": "%infinite_loop%",
+                        "fillname": []
+                    }
+                ],
+                "varception": [
+                    {
+                        "project": ["mctest"],
+                        "name": "Varception",
+                        "message": "%varception3%",
                         "fillname": []
                     }
                 ]
@@ -129,6 +175,20 @@ class HelperMessagesTest : StringSpec({
 
         result.shouldBeRight()
         result.b shouldBe "With "
+    }
+
+    "should be able to handle variables containing other variables" {
+        val result = messages.getSingleMessage("MCTEST", "varception")
+
+        result.shouldBeRight()
+        result.b shouldBe "3 2 1 0"
+    }
+
+    "should not get caught in an infinite loop when a variable contains itself" {
+        val result = messages.getSingleMessage("MCTEST", "infinite-loop")
+
+        result.shouldBeRight()
+        result.b shouldBe "..........%infinite_loop%"
     }
 
     "should replace the placeholder with filled text" {

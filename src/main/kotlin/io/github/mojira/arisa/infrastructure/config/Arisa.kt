@@ -259,6 +259,8 @@ object Arisa : ConfigSpec() {
         object ReplaceText : ModuleConfigSpec()
 
         object RemoveIdenticalLink : ModuleConfigSpec()
+
+        object Command : ModuleConfigSpec()
     }
 }
 

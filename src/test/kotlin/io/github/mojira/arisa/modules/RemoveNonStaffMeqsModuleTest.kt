@@ -51,6 +51,22 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse for a global-moderators restricted comment" {
+        val module = RemoveNonStaffMeqsModule("")
+        val comment = mockComment(
+            body = "MEQS_WAI I like QC.",
+            visibilityType = "group",
+            visibilityValue = "global-moderators"
+        )
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse if MEQS is not part of a tag" {
         val module = RemoveNonStaffMeqsModule("")
         val comment = mockComment(

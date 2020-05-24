@@ -12,12 +12,12 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.domain.IssueUpdateContextCache
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
@@ -40,23 +40,25 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient) = Attachment(
 fun JiraProject.getSecurityLevelId(config: Config) =
     config[Arisa.PrivateSecurityLevel.special][key] ?: config[Arisa.PrivateSecurityLevel.default]
 
-fun JiraVersion.toDomain(issue: JiraIssue) = Version(
+fun JiraVersion.toDomain(issue: JiraIssue, cache: Cache<IssueUpdateContext>) = Version(
     id,
+    name,
     isReleased,
     isArchived,
     releaseDate?.toVersionReleaseInstant(),
-    ::addAffectedVersion.partially1(issue.toUpdateContext()).partially1(this),
-    ::removeAffectedVersion.partially1(issue.toUpdateContext()).partially1(this)
+    ::addAffectedVersion.partially1(issue.toUpdateContext(cache)).partially1(this),
+    ::removeAffectedVersion.partially1(issue.toUpdateContext(cache)).partially1(this)
 )
 
-fun JiraIssue.toUpdateContext(): IssueUpdateContext {
-    var context = IssueUpdateContextCache.get(key)
+fun JiraIssue.toUpdateContext(cache: Cache<IssueUpdateContext>): IssueUpdateContext {
+    var context = cache.get(key)
     if (context == null) {
         context = IssueUpdateContext(
             update(),
+            transition(),
             transition()
         )
-        IssueUpdateContextCache.add(key, context)
+        cache.add(key, context)
     }
     return context
 }
@@ -64,88 +66,95 @@ fun JiraIssue.toUpdateContext(): IssueUpdateContext {
 @Suppress("LongMethod")
 fun JiraIssue.toDomain(
     jiraClient: JiraClient,
+    project: JiraProject,
     messages: HelperMessages,
-    config: Config
-) = Issue(
-    key,
-    summary,
-    status.name,
-    description,
-    getEnvironment(),
-    security?.id,
-    reporter.toDomain(),
-    resolution?.name,
-    createdDate.toInstant(),
-    updatedDate.toInstant(),
-    resolutionDate?.toInstant(),
-    getCHK(config),
-    getConfirmation(config),
-    getLinked(config),
-    getPriority(config),
-    getTriagedTime(config),
-    project.toDomain(this, config),
-    mapVersions(),
-    mapAttachments(jiraClient),
-    mapComments(jiraClient),
-    mapLinks(jiraClient, messages, config),
-    getChangeLogEntries(jiraClient),
-    ::reopen.partially1(toUpdateContext()),
-    ::resolveAs.partially1(toUpdateContext()).partially1("Awaiting Response"),
-    ::resolveAs.partially1(toUpdateContext()).partially1("Invalid"),
-    ::resolveAs.partially1(toUpdateContext()).partially1("Duplicate"),
-    ::resolveAs.partially1(toUpdateContext()).partially1("Incomplete"),
-    ::updateDescription.partially1(toUpdateContext()),
-    ::updateCHK.partially1(toUpdateContext()).partially1(config[Arisa.CustomFields.chkField]),
-    ::updateConfirmation.partially1(toUpdateContext()).partially1(config[Arisa.CustomFields.confirmationField]),
-    ::updateLinked.partially1(toUpdateContext()).partially1(config[Arisa.CustomFields.linked]),
-    ::updateSecurity.partially1(toUpdateContext()).partially1(project.getSecurityLevelId(config)),
-    ::addAffectedVersionById.partially1(toUpdateContext()),
-    ::createLink.partially1(this),
-    { (messageKey, variable, language) ->
-        createComment(
-            this,
-            messages.getMessageWithBotSignature(
-                project.key, messageKey, variable, language
+    config: Config,
+    cache: Cache<IssueUpdateContext>
+): Issue {
+    val context = toUpdateContext(cache)
+    return Issue(
+        key,
+        summary,
+        status.name,
+        description,
+        getEnvironment(),
+        security?.id,
+        reporter.toDomain(),
+        resolution?.name,
+        createdDate.toInstant(),
+        updatedDate.toInstant(),
+        resolutionDate?.toInstant(),
+        getCHK(config),
+        getConfirmation(config),
+        getLinked(config),
+        getPriority(config),
+        getTriagedTime(config),
+        project.toDomain(this, config, cache),
+        mapVersions(cache),
+        mapAttachments(jiraClient),
+        mapComments(jiraClient),
+        mapLinks(jiraClient, messages, config, cache),
+        getChangeLogEntries(jiraClient),
+        ::reopen.partially1(context),
+        ::resolveAs.partially1(context).partially1("Awaiting Response"),
+        ::resolveAs.partially1(context).partially1("Invalid"),
+        ::resolveAs.partially1(context).partially1("Duplicate"),
+        ::resolveAs.partially1(context).partially1("Incomplete"),
+        ::updateDescription.partially1(context),
+        ::updateCHK.partially1(context).partially1(config[Arisa.CustomFields.chkField]),
+        ::updateConfirmation.partially1(context).partially1(config[Arisa.CustomFields.confirmationField]),
+        ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
+        ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
+        ::addAffectedVersionById.partially1(context),
+        ::createLink.partially1(this),
+        { (messageKey, variable, language) ->
+            createComment(
+                this,
+                messages.getMessageWithBotSignature(
+                    project.key, messageKey, variable, language
+                )
             )
-        )
-    },
-    { (messageKey, variable, language) ->
-        addRestrictedComment(
-            this,
-            messages.getMessageWithBotSignature(
-                project.key, messageKey, variable, language
-            ),
-            "helper"
-        )
-    },
-    { language ->
-        // Should we move this?
-        // Most likely, no ;D
-        // addRestrictedComment(this, messages.getMessageWithBotSignature(
-        //     issue.project.key, config[Modules.Language.message], lang = language
-        // ), "helper")
-        val translatedMessage = config[Arisa.Modules.Language.messages][language]
-        val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
-        val text =
-            if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
-                translatedMessage,
-                defaultMessage
-            ) else defaultMessage
+        },
+        { (messageKey, variable, language) ->
+            addRestrictedComment(
+                this,
+                messages.getMessageWithBotSignature(
+                    project.key, messageKey, variable, language
+                ),
+                "helper"
+            )
+        },
+        { language ->
+            // Should we move this?
+            // Most likely, no ;D
+            // addRestrictedComment(this, messages.getMessageWithBotSignature(
+            //     issue.project.key, config[Modules.Language.message], lang = language
+            // ), "helper")
+            val translatedMessage = config[Arisa.Modules.Language.messages][language]
+            val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
+            val text =
+                if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
+                    translatedMessage,
+                    defaultMessage
+                ) else defaultMessage
 
-        addRestrictedComment(
-            this,
-            text,
-            "helper"
-        )
-    }
-)
+            addRestrictedComment(
+                this,
+                text,
+                "helper"
+            )
+        },
+        ::addRestrictedComment.partially1(this)
+    )
+}
 
 fun JiraProject.toDomain(
     issue: JiraIssue,
-    config: Config
+    config: Config,
+    cache: Cache<IssueUpdateContext>
 ) = Project(
     key,
-    versions.map { it.toDomain(issue) },
+    versions.map { it.toDomain(issue, cache) },
     getSecurityLevelId(config)
 )
 
@@ -175,22 +184,24 @@ private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
 fun JiraIssue.toLinkedIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
-    config: Config
+    config: Config,
+    cache: Cache<IssueUpdateContext>
 ) = LinkedIssue(
     key,
     status.name,
-    ::getFullIssue.partially1(jiraClient).partially1(messages).partially1(config),
+    ::getFullIssue.partially1(jiraClient).partially1(messages).partially1(config).partially1(cache),
     ::createLink.partially1(this)
 )
 
 fun JiraIssueLink.toDomain(
     jiraClient: JiraClient,
     messages: HelperMessages,
-    config: Config
+    config: Config,
+    cache: Cache<IssueUpdateContext>
 ) = Link(
     type.name,
     outwardIssue != null,
-    (outwardIssue ?: inwardIssue).toLinkedIssue(jiraClient, messages, config),
+    (outwardIssue ?: inwardIssue).toLinkedIssue(jiraClient, messages, config, cache),
     ::deleteLink.partially1(this)
 )
 
@@ -206,8 +217,9 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
 private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
     messages: HelperMessages,
-    config: Config
-) = issueLinks.map { it.toDomain(jiraClient, messages, config) }
+    config: Config,
+    cache: Cache<IssueUpdateContext>
+) = issueLinks.map { it.toDomain(jiraClient, messages, config, cache) }
 
 private fun JiraIssue.mapComments(jiraClient: JiraClient) =
     comments.map { it.toDomain(jiraClient) }
@@ -215,7 +227,7 @@ private fun JiraIssue.mapComments(jiraClient: JiraClient) =
 private fun JiraIssue.mapAttachments(jiraClient: JiraClient) =
     attachments.map { it.toDomain(jiraClient) }
 
-private fun JiraIssue.mapVersions() = versions.map { it.toDomain(this) }
+private fun JiraIssue.mapVersions(cache: Cache<IssueUpdateContext>) = versions.map { it.toDomain(this, cache) }
 
 private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
     changeLog.entries.flatMap { e ->
@@ -242,9 +254,10 @@ private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toI
 private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
-    config: Config
+    config: Config,
+    cache: Cache<IssueUpdateContext>
 ): Either<Throwable, Issue> =
     getIssue(jiraClient, key).fold(
         { it.left() },
-        { it.toDomain(jiraClient, messages, config).right() }
+        { it.toDomain(jiraClient, jiraClient.getProject(it.project.key), messages, config, cache).right() }
     )

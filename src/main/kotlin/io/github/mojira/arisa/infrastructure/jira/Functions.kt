@@ -3,8 +3,11 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
+import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.log
+import io.github.mojira.arisa.modules.FailedModuleResponse
+import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.tryRunAll
 import kotlinx.coroutines.runBlocking
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
@@ -32,8 +35,8 @@ fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
 const val MILLI_FOR_FORMAT = 123L
 
 fun updateCHK(context: IssueUpdateContext, chkField: String) {
-    context.hasTransitions = true
-    context.transition.field(
+    context.hasUpdates = true
+    context.update.field(
         chkField,
         Instant
             .now()
@@ -48,17 +51,16 @@ fun updateConfirmation(context: IssueUpdateContext, confirmationField: String, v
     val jsonValue = JSONObject()
     jsonValue["value"] = value
 
-    context.hasTransitions = true
-    context.transition.field(confirmationField, jsonValue)
+    context.hasUpdates = true
+    context.update.field(confirmationField, jsonValue)
 }
 
 fun updateLinked(context: IssueUpdateContext, linkedField: String, value: Double) {
-    context.hasTransitions = true
-    context.transition.field(linkedField, value)
+    context.hasUpdates = true
+    context.update.field(linkedField, value)
 }
 
 fun reopen(context: IssueUpdateContext) = runBlocking {
-    context.hasTransitions = true
     context.transitionName = "Reopen Issue"
 }
 
@@ -66,47 +68,58 @@ fun resolveAs(context: IssueUpdateContext, resolution: String) {
     val resolutionJson = JSONObject()
     resolutionJson["name"] = resolution
 
-    context.hasTransitions = true
-    context.transition.field(Field.RESOLUTION, resolutionJson)
+    context.resolve.field(Field.RESOLUTION, resolutionJson)
     context.transitionName = "Resolve Issue"
 }
 
 fun updateSecurity(context: IssueUpdateContext, levelId: String) {
-    context.hasTransitions = true
-    context.transition.field(Field.SECURITY, Field.valueById(levelId))
+    context.hasUpdates = true
+    context.update.field(Field.SECURITY, Field.valueById(levelId))
 }
 
 fun removeAffectedVersion(context: IssueUpdateContext, version: Version) {
-    context.hasUpdates = true
-    context.update.fieldRemove("versions", version)
+    context.hasEdits = true
+    context.edit.fieldRemove("versions", version)
 }
 
 fun addAffectedVersionById(context: IssueUpdateContext, id: String) {
-    context.hasUpdates = true
-    context.update.fieldAdd("versions", Field.valueById(id))
+    context.hasEdits = true
+    context.edit.fieldAdd("versions", Field.valueById(id))
 }
 
 fun addAffectedVersion(context: IssueUpdateContext, version: Version) {
-    context.hasUpdates = true
-    context.update.fieldAdd("versions", version)
+    context.hasEdits = true
+    context.edit.fieldAdd("versions", version)
 }
 
 fun updateDescription(context: IssueUpdateContext, description: String) {
-    context.hasUpdates = true
-    context.update.field(Field.DESCRIPTION, description)
+    context.hasEdits = true
+    context.edit.field(Field.DESCRIPTION, description)
 }
 
-@Suppress("TooGenericExceptionCaught")
-fun applyUpdatesAndTransitions(context: IssueUpdateContext) {
-    try {
-        if (context.hasUpdates) {
-            context.update.execute()
-        }
-        if (context.hasTransitions) {
-            context.transition.execute(context.transitionName)
-        }
-    } catch (ex: Throwable) {
-        log.error("Failed to apply updates and transitions", ex)
+fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
+    val functions = context.otherOperations.toMutableList()
+    if (context.hasEdits) {
+        functions.add(::applyFluentUpdate.partially1(context.edit))
+    }
+    if (context.hasUpdates) {
+        functions.add(::applyFluentTransition.partially1(context.update).partially1("Update Issue"))
+    }
+    if (context.transitionName != null) {
+        functions.add(::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!))
+    }
+    return tryRunAll(functions)
+}
+
+private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
+    Either.catch {
+        edit.execute()
+    }
+}
+
+private fun applyFluentTransition(update: Issue.FluentTransition, transitionName: String) = runBlocking {
+    Either.catch {
+        update.execute(transitionName)
     }
 }
 

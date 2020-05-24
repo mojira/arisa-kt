@@ -1,17 +1,16 @@
 package io.github.mojira.arisa.infrastructure
 
-@Suppress("MemberNameEqualsClassName")
 open class Cache<V> {
-    private val cache = mutableMapOf<String, V>()
+    private val storage = mutableMapOf<String, V>()
 
-    val forEach = cache.values::forEach
+    val forEach = storage.values::forEach
 
-    fun get(key: String) = cache.getOrDefault(key, null)
+    fun get(key: String) = storage.getOrDefault(key, null)
     fun add(key: String, value: V) {
-        cache[key] = value
+        storage[key] = value
     }
 
     fun clear() {
-        cache.clear()
+        storage.clear()
     }
 }

@@ -12,11 +12,13 @@ class HideImpostorsModule : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val restrictImpostorComments = comments
+                .asSequence()
                 .filter(::commentIsRecent)
                 .filter(::userContainsBrackets)
                 .filter(::isNotStaffRestricted)
                 .filter(::userIsNotVolunteer)
                 .map { it.restrict.partially1(it.body ?: "") }
+                .toList()
 
             assertNotEmpty(restrictImpostorComments).bind()
             tryRunAll(restrictImpostorComments).bind()

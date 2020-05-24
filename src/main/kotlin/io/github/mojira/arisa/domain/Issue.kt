@@ -37,8 +37,9 @@ data class Issue(
     val updateLinked: (Double) -> Unit,
     val setPrivate: () -> Unit,
     val addAffectedVersion: (id: String) -> Unit,
-    val createLink: (type: String, key: String) -> Either<Throwable, Unit>,
-    val addComment: (options: CommentOptions) -> Either<Throwable, Unit>,
-    val addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit>,
-    val addNotEnglishComment: (language: String) -> Either<Throwable, Unit> // Will be removed once we enable the module
+    val createLink: (type: String, key: String) -> Unit,
+    val addComment: (options: CommentOptions) -> Unit,
+    val addRestrictedComment: (options: CommentOptions) -> Unit,
+    val addNotEnglishComment: (language: String) -> Unit, // To be removed when we enable the module
+    val addRawRestrictedComment: (body: String, restriction: String) -> Unit
 )

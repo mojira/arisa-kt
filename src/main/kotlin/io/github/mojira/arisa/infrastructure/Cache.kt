@@ -1,9 +1,7 @@
 package io.github.mojira.arisa.infrastructure
 
 open class Cache<V> {
-    private val storage = mutableMapOf<String, V>()
-
-    val forEach = storage.values::forEach
+    val storage = mutableMapOf<String, V>()
 
     fun get(key: String) = storage.getOrDefault(key, null)
     fun add(key: String, value: V) {

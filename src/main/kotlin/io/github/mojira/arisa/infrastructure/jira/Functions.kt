@@ -60,7 +60,7 @@ fun updateLinked(context: IssueUpdateContext, linkedField: String, value: Double
     context.update.field(linkedField, value)
 }
 
-fun reopen(context: IssueUpdateContext) = runBlocking {
+fun reopen(context: IssueUpdateContext) {
     context.transitionName = "Reopen Issue"
 }
 
@@ -123,50 +123,78 @@ private fun applyFluentTransition(update: Issue.FluentTransition, transitionName
     }
 }
 
-fun deleteAttachment(jiraClient: JiraClient, attachment: Attachment): Either<Throwable, Unit> = runBlocking {
-    Either.catch {
-        jiraClient.restClient.delete(URI(attachment.self))
-        Unit
+fun deleteAttachment(context: IssueUpdateContext, attachment: Attachment) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                context.jiraClient.restClient.delete(URI(attachment.self))
+                Unit
+            }
+        }
     }
 }
 
-fun createComment(issue: Issue, comment: String) = runBlocking {
-    Either.catch {
-        issue.addComment(comment)
-        Unit
+fun createComment(context: IssueUpdateContext, comment: String) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                context.jiraIssue.addComment(comment)
+                Unit
+            }
+        }
     }
 }
 
-fun addRestrictedComment(issue: Issue, comment: String, restrictionLevel: String) = runBlocking {
-    Either.catch {
-        issue.addComment(comment, "group", restrictionLevel)
-        Unit
+fun addRestrictedComment(context: IssueUpdateContext, comment: String, restrictionLevel: String) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                context.jiraIssue.addComment(comment, "group", restrictionLevel)
+                Unit
+            }
+        }
     }
 }
 
-fun createLink(issue: Issue, linkType: String, linkKey: String) = runBlocking {
-    Either.catch {
-        issue.link(linkKey, linkType)
+fun createLink(context: IssueUpdateContext, linkType: String, linkKey: String) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                context.jiraIssue.link(linkKey, linkType)
+            }
+        }
     }
 }
 
-fun deleteLink(link: IssueLink) = runBlocking {
-    Either.catch {
-        link.delete()
+fun deleteLink(context: IssueUpdateContext, link: IssueLink) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                link.delete()
+            }
+        }
     }
 }
 
-fun updateCommentBody(comment: Comment, body: String) = runBlocking {
-    Either.catch {
-        comment.update(body)
-        Unit
+fun updateCommentBody(context: IssueUpdateContext, comment: Comment, body: String) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                comment.update(body)
+                Unit
+            }
+        }
     }
 }
 
-fun restrictCommentToGroup(comment: Comment, group: String, body: String = comment.body) = runBlocking {
-    Either.catch {
-        comment.update(body, "group", group)
-        Unit
+fun restrictCommentToGroup(context: IssueUpdateContext, comment: Comment, group: String, body: String = comment.body) {
+    context.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                comment.update(body, "group", group)
+                Unit
+            }
+        }
     }
 }
 

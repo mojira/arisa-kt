@@ -26,7 +26,7 @@ class LanguageModule(
             assertNotNull(detectedLanguage).bind()
             assertLanguageIsNotAllowed(allowedLanguages, detectedLanguage!!).bind()
 
-            addNotEnglishComment(detectedLanguage).toFailedModuleEither().bind()
+            addNotEnglishComment(detectedLanguage)
             // resolveAsInvalid()
         }
     }

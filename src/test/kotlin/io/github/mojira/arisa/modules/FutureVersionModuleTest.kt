@@ -1,14 +1,11 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import java.time.Instant
 
 private val NOW = Instant.now()
@@ -112,25 +109,6 @@ class FutureVersionModuleTest : StringSpec({
         val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
-    }
-
-    "should return FailedModuleResponse when adding the comment fails" {
-        val module = FutureVersionModule("message")
-        val futureVersion = getVersion(false, false)
-        val releasedVersion = getVersion(true, false)
-        val issue = mockIssue(
-            affectedVersions = listOf(futureVersion),
-            project = mockProject(
-                versions = listOf(releasedVersion)
-            ),
-            addComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })
 

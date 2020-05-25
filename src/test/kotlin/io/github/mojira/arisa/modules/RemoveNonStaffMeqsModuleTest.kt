@@ -81,42 +81,6 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return FailedModuleResponse when updating fails" {
-        val module = RemoveNonStaffMeqsModule("")
-        val comment = mockComment(
-            body = "MEQS_WAI I like QC.",
-            restrict = { RuntimeException().left() },
-            update = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            comments = listOf(comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all exceptions when updating fails" {
-        val module = RemoveNonStaffMeqsModule("")
-        val comment = mockComment(
-            body = "MEQS_WAI I like QC .",
-            restrict = { RuntimeException().left() },
-            update = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            comments = listOf(comment, comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
-    }
-
     "should update comment when there is an unrestricted MEQS comment" {
         val module = RemoveNonStaffMeqsModule("")
         val comment = mockComment(

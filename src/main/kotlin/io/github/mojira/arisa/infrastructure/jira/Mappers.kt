@@ -33,27 +33,32 @@ import net.rcarz.jiraclient.Project as JiraProject
 import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
-fun JiraAttachment.toDomain(jiraClient: JiraClient) = Attachment(
-    fileName, createdDate.toInstant(), ::deleteAttachment.partially1(jiraClient).partially1(this), this::download
+fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Cache<IssueUpdateContext>) = Attachment(
+    fileName,
+    createdDate.toInstant(),
+    ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this),
+    this::download
 )
 
 fun JiraProject.getSecurityLevelId(config: Config) =
     config[Arisa.PrivateSecurityLevel.special][key] ?: config[Arisa.PrivateSecurityLevel.default]
 
-fun JiraVersion.toDomain(issue: JiraIssue, cache: Cache<IssueUpdateContext>) = Version(
+fun JiraVersion.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Cache<IssueUpdateContext>) = Version(
     id,
     name,
     isReleased,
     isArchived,
     releaseDate?.toVersionReleaseInstant(),
-    ::addAffectedVersion.partially1(issue.toUpdateContext(cache)).partially1(this),
-    ::removeAffectedVersion.partially1(issue.toUpdateContext(cache)).partially1(this)
+    ::addAffectedVersion.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this),
+    ::removeAffectedVersion.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this)
 )
 
-fun JiraIssue.toUpdateContext(cache: Cache<IssueUpdateContext>): IssueUpdateContext {
+fun JiraIssue.getUpdateContext(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>): IssueUpdateContext {
     var context = cache.get(key)
     if (context == null) {
         context = IssueUpdateContext(
+            jiraClient,
+            this,
             update(),
             transition(),
             transition()
@@ -71,7 +76,7 @@ fun JiraIssue.toDomain(
     config: Config,
     cache: Cache<IssueUpdateContext>
 ): Issue {
-    val context = toUpdateContext(cache)
+    val context = getUpdateContext(jiraClient, cache)
     return Issue(
         key,
         summary,
@@ -89,10 +94,10 @@ fun JiraIssue.toDomain(
         getLinked(config),
         getPriority(config),
         getTriagedTime(config),
-        project.toDomain(this, config, cache),
-        mapVersions(cache),
-        mapAttachments(jiraClient),
-        mapComments(jiraClient),
+        project.toDomain(jiraClient, this, config, cache),
+        mapVersions(jiraClient, cache),
+        mapAttachments(jiraClient, cache),
+        mapComments(jiraClient, cache),
         mapLinks(jiraClient, messages, config, cache),
         getChangeLogEntries(jiraClient),
         ::reopen.partially1(context),
@@ -106,10 +111,10 @@ fun JiraIssue.toDomain(
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
-        ::createLink.partially1(this),
+        ::createLink.partially1(context),
         { (messageKey, variable, language) ->
             createComment(
-                this,
+                context,
                 messages.getMessageWithBotSignature(
                     project.key, messageKey, variable, language
                 )
@@ -117,7 +122,7 @@ fun JiraIssue.toDomain(
         },
         { (messageKey, variable, language) ->
             addRestrictedComment(
-                this,
+                context,
                 messages.getMessageWithBotSignature(
                     project.key, messageKey, variable, language
                 ),
@@ -139,38 +144,44 @@ fun JiraIssue.toDomain(
                 ) else defaultMessage
 
             addRestrictedComment(
-                this,
+                context,
                 text,
                 "helper"
             )
         },
-        ::addRestrictedComment.partially1(this)
+        ::addRestrictedComment.partially1(context)
     )
 }
 
 fun JiraProject.toDomain(
+    jiraClient: JiraClient,
     issue: JiraIssue,
     config: Config,
     cache: Cache<IssueUpdateContext>
 ) = Project(
     key,
-    versions.map { it.toDomain(issue, cache) },
+    versions.map { it.toDomain(jiraClient, issue, cache) },
     getSecurityLevelId(config)
 )
 
 fun JiraComment.toDomain(
-    jiraClient: JiraClient
-) = Comment(
-    body,
-    author.toDomain(),
-    { getGroups(jiraClient, author.name).fold({ null }, { it }) },
-    createdDate.toInstant(),
-    updatedDate.toInstant(),
-    visibility?.type,
-    visibility?.value,
-    ::restrictCommentToGroup.partially1(this).partially1("staff"),
-    ::updateCommentBody.partially1(this)
-)
+    jiraClient: JiraClient,
+    issue: JiraIssue,
+    cache: Cache<IssueUpdateContext>
+): Comment {
+    val context = issue.getUpdateContext(jiraClient, cache)
+    return Comment(
+        body,
+        author.toDomain(),
+        { getGroups(jiraClient, author.name).fold({ null }, { it }) },
+        createdDate.toInstant(),
+        updatedDate.toInstant(),
+        visibility?.type,
+        visibility?.value,
+        ::restrictCommentToGroup.partially1(context).partially1(this).partially1("staff"),
+        ::updateCommentBody.partially1(context).partially1(this)
+    )
+}
 
 fun JiraUser.toDomain() = User(
     name, displayName
@@ -190,11 +201,12 @@ fun JiraIssue.toLinkedIssue(
     key,
     status.name,
     ::getFullIssue.partially1(jiraClient).partially1(messages).partially1(config).partially1(cache),
-    ::createLink.partially1(this)
+    ::createLink.partially1(getUpdateContext(jiraClient, cache))
 )
 
 fun JiraIssueLink.toDomain(
     jiraClient: JiraClient,
+    issue: JiraIssue,
     messages: HelperMessages,
     config: Config,
     cache: Cache<IssueUpdateContext>
@@ -202,7 +214,7 @@ fun JiraIssueLink.toDomain(
     type.name,
     outwardIssue != null,
     (outwardIssue ?: inwardIssue).toLinkedIssue(jiraClient, messages, config, cache),
-    ::deleteLink.partially1(this)
+    ::deleteLink.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this)
 )
 
 fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
@@ -219,15 +231,16 @@ private fun JiraIssue.mapLinks(
     messages: HelperMessages,
     config: Config,
     cache: Cache<IssueUpdateContext>
-) = issueLinks.map { it.toDomain(jiraClient, messages, config, cache) }
+) = issueLinks.map { it.toDomain(jiraClient, this, messages, config, cache) }
 
-private fun JiraIssue.mapComments(jiraClient: JiraClient) =
-    comments.map { it.toDomain(jiraClient) }
+private fun JiraIssue.mapComments(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>) =
+    comments.map { it.toDomain(jiraClient, this, cache) }
 
-private fun JiraIssue.mapAttachments(jiraClient: JiraClient) =
-    attachments.map { it.toDomain(jiraClient) }
+private fun JiraIssue.mapAttachments(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>) =
+    attachments.map { it.toDomain(jiraClient, this, cache) }
 
-private fun JiraIssue.mapVersions(cache: Cache<IssueUpdateContext>) = versions.map { it.toDomain(this, cache) }
+private fun JiraIssue.mapVersions(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>) =
+    versions.map { it.toDomain(jiraClient, this, cache) }
 
 private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
     changeLog.entries.flatMap { e ->

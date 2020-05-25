@@ -1,7 +1,6 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
@@ -10,8 +9,6 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -258,23 +255,6 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-    }
-
-    "should return FailedModuleResponse when hiding the comment fails" {
-        val module = HideImpostorsModule()
-        val comment = getComment(
-            author = "[test] test",
-            restrict = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            comments = listOf(comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })
 

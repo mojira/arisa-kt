@@ -11,7 +11,7 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
         return linkedIssue.isSameProject(issue) && linkedIssue.isUnresolved()
     }
 
-    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> =
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Unit> =
 
         parents.flatMap { parent ->
             val parentVersionIds = parent.affectedVersions
@@ -24,7 +24,7 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
                 .filter { it isReleasedAfter oldestVersionWithKnownReleaseDateOnParent }
                 .map { it.id }
                 .filter { it !in parentVersionIds }
-                .map { { parent.addAffectedVersion(it).right() } }
+                .map { { parent.addAffectedVersion(it) } }
         }
 
     private fun getOldestVersionWithKnownReleaseDate(field: List<Version>) = field

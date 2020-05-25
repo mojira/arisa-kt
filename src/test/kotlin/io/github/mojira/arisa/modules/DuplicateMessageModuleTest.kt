@@ -560,22 +560,6 @@ class DuplicateMessageModuleTest : StringSpec({
         commentOptions shouldBe CommentOptions("duplicate-private", "MC-1")
     }
 
-    "should return FailedModuleResponse when adding comments fails" {
-        val issue = mockIssue(
-            resolved = TEN_THOUSAND_YEARS_LATER,
-            links = listOf(
-                mockLink()
-            ),
-            addComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when getting an issue fails" {
         val issue = mockIssue(
             resolved = TEN_THOUSAND_YEARS_LATER,

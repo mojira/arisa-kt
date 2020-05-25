@@ -49,46 +49,6 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return FailedModuleResponse when updating fails" {
-        val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
-        val comment = mockComment(
-            body = "MEQS_WAI I like QC.",
-            restrict = { RuntimeException().left() },
-            update = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            priority = "Important",
-            triagedTime = "triaged",
-            comments = listOf(comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all exceptions when updating fails" {
-        val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
-        val comment = mockComment(
-            body = "MEQS_WAI I like QC.",
-            restrict = { RuntimeException().left() },
-            update = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            priority = "Important",
-            triagedTime = "triaged",
-            comments = listOf(comment, comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
-    }
-
     "should process tickets with Mojang Priority" {
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
         val comment = mockComment(

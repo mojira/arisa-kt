@@ -8,7 +8,7 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 
 class TransferLinksModule : AbstractTransferFieldModule() {
-    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> {
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Unit> {
         val links = issue.links
             .filter(::isDuplicatesLink.complement())
 

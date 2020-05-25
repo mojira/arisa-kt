@@ -47,7 +47,7 @@ class DuplicateMessageModule(
 
             val filledText = parents.getFilledText()
 
-            addComment(CommentOptions(messageKey, filledText)).toFailedModuleEither().bind()
+            addComment(CommentOptions(messageKey, filledText))
         }
     }
 

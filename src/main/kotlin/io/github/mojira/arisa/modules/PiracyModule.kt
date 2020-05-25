@@ -18,7 +18,7 @@ class PiracyModule(
                 piracySignatures,
                 "$description $environment $summary"
             ).bind()
-            addComment(CommentOptions(message)).toFailedModuleEither().bind()
+            addComment(CommentOptions(message))
             resolveAsInvalid()
         }
     }

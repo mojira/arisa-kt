@@ -39,7 +39,7 @@ class ReplaceTextModule(
             }
 
             filteredComments.forEach {
-                it.update(replace(it.body!!)).toFailedModuleEither().bind()
+                it.update(replace(it.body!!))
             }
         }
     }

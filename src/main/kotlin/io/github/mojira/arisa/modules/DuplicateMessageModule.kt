@@ -12,6 +12,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+@Suppress("TooManyFunctions")
 class DuplicateMessageModule(
     private val commentDelayMinutes: Long,
     private val message: String,

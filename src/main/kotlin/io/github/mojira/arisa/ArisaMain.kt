@@ -55,7 +55,7 @@ fun main() {
     val issueUpdateContextCache = Cache<IssueUpdateContext>()
 
     val helperMessagesFile = File("helper-messages.json")
-    val helperMessagesInterval = config[Arisa.HelperMessages.updateInterval]
+    val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
     var helperMessages = helperMessagesFile.getHelperMessages()
     var helperMessagesLastFetch = Instant.now()
 
@@ -89,6 +89,6 @@ fun main() {
             helperMessagesLastFetch = curRunTime
         }
 
-        TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
+        TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
     }
 }

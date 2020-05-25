@@ -112,7 +112,7 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.DuplicateMessage,
             DuplicateMessageModule(
-                config[Modules.DuplicateMessage.commentDelay],
+                config[Modules.DuplicateMessage.commentDelayMinutes],
                 config[Modules.DuplicateMessage.message],
                 config[Modules.DuplicateMessage.ticketMessages],
                 config[Modules.DuplicateMessage.privateMessage],
@@ -123,21 +123,7 @@ class ModuleRegistry(private val config: Config) {
                 .minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
             val checkEnd = Instant.now()
                 .minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
-            log.info(
-                "[TESTING-DuplicateMessage] Would have checked ${
-                "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
-                }"
-            )
-
-            val now = Instant.now()
-            val intervalStart = now.minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
-            val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
-            log.info(
-                "[TESTING-DuplicateMessage] Actually checked ${
-                "updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()}"
-                }"
-            )
-            "updated < ${intervalStart.toEpochMilli()} AND updated > ${intervalEnd.toEpochMilli()}"
+            "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
         }
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))

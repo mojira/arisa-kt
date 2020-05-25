@@ -4,10 +4,10 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
+import io.github.mojira.arisa.log
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -47,7 +47,8 @@ class DuplicateMessageModule(
 
             val filledText = parents.getFilledText()
 
-            addComment(CommentOptions(messageKey, filledText)).toFailedModuleEither().bind()
+            log.info("Add comment '$messageKey' with '$filledText' under ${issue.key}")
+//            addComment(CommentOptions(messageKey, filledText)).toFailedModuleEither().bind()
         }
     }
 

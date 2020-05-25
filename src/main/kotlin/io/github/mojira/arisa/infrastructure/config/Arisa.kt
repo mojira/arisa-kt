@@ -91,7 +91,7 @@ object Arisa : ConfigSpec() {
                 description = "A map from resolution names to keys of messages that are posted when the parents were" +
                         " resolved as specific resolutions"
             )
-            val commentDelayMinutes by UpdateLinked.optional(
+            val commentDelayMinutes by optional(
                 0L,
                 description = "Delay in which the module should add the comment in minutes"
             )

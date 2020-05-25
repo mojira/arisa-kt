@@ -8,7 +8,6 @@ import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
-import io.github.mojira.arisa.log
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

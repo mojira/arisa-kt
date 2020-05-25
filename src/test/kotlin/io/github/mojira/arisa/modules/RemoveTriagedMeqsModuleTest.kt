@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
@@ -8,7 +7,6 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class RemoveTriagedMeqsModuleTest : StringSpec({

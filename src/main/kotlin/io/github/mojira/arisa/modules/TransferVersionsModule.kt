@@ -1,7 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.Either
-import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Version

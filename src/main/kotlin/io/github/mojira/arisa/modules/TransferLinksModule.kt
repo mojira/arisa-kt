@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.Either
 import arrow.syntax.function.complement
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
@@ -28,8 +27,8 @@ class TransferLinksModule : AbstractTransferFieldModule() {
     private fun parentDoesNotHaveLink(parentLinks: List<Link>, other: Link) =
         parentLinks.none {
             it.type == other.type &&
-                it.outwards == other.outwards &&
-                it.issue.key == other.issue.key
+                    it.outwards == other.outwards &&
+                    it.issue.key == other.issue.key
         }
 
     private fun toLinkAdder(

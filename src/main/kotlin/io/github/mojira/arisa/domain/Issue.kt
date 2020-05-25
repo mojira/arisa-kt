@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.domain
 
-import arrow.core.Either
 import java.time.Instant
 
 data class Issue(

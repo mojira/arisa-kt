@@ -1,7 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.Either
-import arrow.core.right
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
@@ -266,7 +264,7 @@ private fun getComment(
     created: Instant = RIGHT_NOW,
     visibilityType: String? = null,
     visibilityValue: String? = null,
-    restrict: (String) -> Either<Throwable, Unit> = { Unit.right() }
+    restrict: (String) -> Unit = { Unit }
 ) = mockComment(
     author = getUser(displayName = author),
     getAuthorGroups = getAuthorGroups,

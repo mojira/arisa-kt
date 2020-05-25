@@ -60,7 +60,7 @@ class ModuleExecutor(
 
                 issueUpdateContextCache.storage
                     .mapValues { applyIssueChanges(it.value) }
-                    .filterValues { it is Either.Left }
+                    .filterValues { it.isLeft() }
                     .forEach {
                         log.error("Failed to update ticket ${it.key}", (it.value as Either.Left).a)
                         failedTickets.add(it.key)

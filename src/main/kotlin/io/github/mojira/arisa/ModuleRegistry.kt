@@ -180,7 +180,9 @@ class ModuleRegistry(private val config: Config) {
             ReopenAwaitingModule(
                 config[Modules.ReopenAwaiting.blacklistedRoles],
                 config[Modules.ReopenAwaiting.blacklistedVisibilities],
-                config[Modules.ReopenAwaiting.keepARTag]
+                config[Modules.ReopenAwaiting.softARDays],
+                config[Modules.ReopenAwaiting.keepARTag],
+                config[Modules.ReopenAwaiting.message]
             )
         )
 

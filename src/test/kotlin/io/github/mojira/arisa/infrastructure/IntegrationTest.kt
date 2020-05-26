@@ -40,6 +40,7 @@ class IntegrationTest : StringSpec({
             this shouldContainKey "provide-affected-versions"
             this shouldContainKey "incomplete"
             this shouldContainKey "modified-game"
+            this shouldContainKey "not-reopen-ar"
             this shouldContainKey "panel-unmark-private-issue"
         }
     }

@@ -40,7 +40,7 @@ class UpdateLinkedModule(
             assertNotNull(firstAddedLinkSinceLastUpdate).bind()
             assertLinkNotAddedRecently(firstAddedLinkSinceLastUpdate!!).bind()
 
-            updateLinked(duplicateAmount).toFailedModuleEither().bind()
+            updateLinked(duplicateAmount)
         }
     }
 

@@ -1,13 +1,11 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
@@ -313,43 +311,5 @@ class LanguageModuleTest : StringSpec({
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
-    /*"should return FailedModuleResponse when resolving as invalid fails" {
-        val module = LanguageModule(
-            allowedLanguages = emptyList(),
-            getLanguage = { mapOf("en" to 1.0).right() }
-        )
-        val issue = mockIssue(
-            created = RIGHT_NOW,
-            summary = "Bonjour",
-            description = "",
-            resolveAsInvalid = { RuntimeException().left() }
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }*/
-
-    "should return FailedModuleResponse when adding comment fails" {
-        val module = LanguageModule(
-            allowedLanguages = emptyList(),
-            getLanguage = { mapOf("en" to 1.0).right() }
-        )
-        val issue = mockIssue(
-            created = RIGHT_NOW,
-            summary = "Salut",
-            description = "",
-            addNotEnglishComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })

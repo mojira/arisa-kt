@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
@@ -9,7 +8,6 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private val REMOVE_SECURITY = mockChangeLogItem(
@@ -188,46 +186,5 @@ class KeepPrivateModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
         didComment shouldBe false
-    }
-
-    "should return FailedModuleResponse when setting security level fails" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
-        val comment = mockComment(
-            body = "MEQS_KEEP_PRIVATE",
-            visibilityType = "group",
-            visibilityValue = "staff"
-        )
-        val issue = mockIssue(
-            comments = listOf(comment),
-            changeLog = listOf(REMOVE_SECURITY),
-            setPrivate = { RuntimeException().left() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse when posting comment" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
-        val comment = mockComment(
-            body = "MEQS_KEEP_PRIVATE",
-            created = RIGHT_NOW.minusSeconds(20),
-            visibilityType = "group",
-            visibilityValue = "staff"
-        )
-        val issue = mockIssue(
-            comments = listOf(comment),
-            changeLog = listOf(REMOVE_SECURITY),
-            addComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })

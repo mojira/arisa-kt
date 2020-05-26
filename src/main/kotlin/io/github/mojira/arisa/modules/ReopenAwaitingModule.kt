@@ -38,10 +38,10 @@ class ReopenAwaitingModule(
             val shouldReopen = shouldReopen(comments, validComments, reporter, resolveTime)
             when {
                 shouldReopen -> {
-                    reopen().toFailedModuleEither().bind()
+                    reopen()
                 }
                 message != null -> {
-                    addComment(CommentOptions(message)).toFailedModuleEither().bind()
+                    addComment(CommentOptions(message))
                 }
                 else -> {
                     OperationNotNeededModuleResponse.left().bind()

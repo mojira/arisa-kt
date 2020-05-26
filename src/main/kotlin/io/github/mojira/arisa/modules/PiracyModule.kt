@@ -18,8 +18,8 @@ class PiracyModule(
                 piracySignatures,
                 "$description $environment $summary"
             ).bind()
-            addComment(CommentOptions(message)).toFailedModuleEither().bind()
-            resolveAsInvalid().toFailedModuleEither().bind()
+            addComment(CommentOptions(message))
+            resolveAsInvalid()
         }
     }
 

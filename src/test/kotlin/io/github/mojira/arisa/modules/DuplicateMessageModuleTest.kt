@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
@@ -580,21 +579,6 @@ class DuplicateMessageModuleTest : StringSpec({
         commentOptions shouldBe CommentOptions("duplicate-private", "MC-1")
     }
 
-    "should return FailedModuleResponse when adding comments fails" {
-        val issue = getIssue(
-            links = listOf(
-                mockLink()
-            ),
-            addComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
     "should return FailedModuleResponse when getting an issue fails" {
         val issue = getIssue(
             links = listOf(
@@ -649,7 +633,7 @@ private fun getIssue(
         )
     ),
     comments: List<Comment> = emptyList(),
-    addComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() }
+    addComment: (options: CommentOptions) -> Unit = { Unit }
 ) = mockIssue(
     links = links,
     changeLog = changeLog,

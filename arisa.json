@@ -152,7 +152,7 @@
           "staff",
           "global-moderators"
         ],
-        "softARPeriod": 365,
+        "softARDays": 365,
         "keepARTag": "MEQS_KEEP_AR",
         "message": "not-reopen-ar"
       },

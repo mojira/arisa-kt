@@ -182,7 +182,7 @@ object Arisa : ConfigSpec() {
                 null,
                 description = "A tag used to indicate that Arisa should keep the ticket Awaiting Response"
             )
-            val softARPeriod by optional<Long?>(
+            val softARDays by optional<Long?>(
                 null,
                 description = "The ticket can also be reopened by comments posted by people other than the reporter " +
                     "within the specific days after it was resolved. After the time has passed, only the reporter " +

@@ -182,6 +182,18 @@ object Arisa : ConfigSpec() {
                 null,
                 description = "A tag used to indicate that Arisa should keep the ticket Awaiting Response"
             )
+            val softARDays by optional<Long?>(
+                null,
+                description = "The ticket can also be reopened by comments posted by people other than the reporter " +
+                    "within the specific days after it was resolved. After the time has passed, only the reporter " +
+                    "can reopen the ticket."
+            )
+            val message by optional<String?>(
+                null,
+                description = "The key of the message that is posted when the ticket is updated but will not be " +
+                        "reopened by Arisa, e.g. the ticket has a keep AR tag, or the ticket is too old and is not " +
+                        "updated by the reporter."
+            )
         }
 
         object RemoveNonStaffMeqs : ModuleConfigSpec() {

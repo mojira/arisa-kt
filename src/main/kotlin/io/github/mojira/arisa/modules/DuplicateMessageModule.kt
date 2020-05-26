@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
@@ -11,6 +12,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+@Suppress("TooManyFunctions")
 class DuplicateMessageModule(
     private val commentDelayMinutes: Long,
     private val message: String,
@@ -20,8 +22,7 @@ class DuplicateMessageModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertNotNull(issue.resolved).bind()
-            assertAfter(issue.resolved!!, lastRun.minus(commentDelayMinutes, ChronoUnit.MINUTES)).bind()
+            assertLinkedAfterLastRun(changeLog, lastRun).bind()
 
             val parents = links
                 .filter(::isDuplicatesLink)
@@ -50,6 +51,19 @@ class DuplicateMessageModule(
             addComment(CommentOptions(messageKey, filledText))
         }
     }
+
+    private fun assertLinkedAfterLastRun(
+        changeLog: List<ChangeLogItem>,
+        lastRun: Instant
+    ): Either<ModuleError, ModuleResponse> = Either.fx {
+        val lastChange = changeLog
+            .lastOrNull(::isAddingDuplicateLink)
+        assertNotNull(lastChange).bind()
+        assertAfter(lastChange!!.created, lastRun.minus(commentDelayMinutes, ChronoUnit.MINUTES)).bind()
+    }
+
+    private fun isAddingDuplicateLink(item: ChangeLogItem) = item.field == "Link" &&
+            item.changedTo != null && item.changedTo.startsWith("This issue duplicates ")
 
     private fun List<LinkedIssue>.getFilledText() = this
         .map { it.key }

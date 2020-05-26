@@ -152,7 +152,9 @@
           "staff",
           "global-moderators"
         ],
-        "keepARTag": "MEQS_KEEP_AR"
+        "softARDays": 365,
+        "keepARTag": "MEQS_KEEP_AR",
+        "message": "not-reopen-ar"
       },
       "removeNonStaffMeqs": {
         "resolutions": [

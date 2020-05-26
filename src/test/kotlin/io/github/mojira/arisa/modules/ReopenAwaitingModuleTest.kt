@@ -732,6 +732,24 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.a should { it is FailedModuleResponse }
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
+
+    "should return FailedModuleResponse with all exceptions when commenting fails" {
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(getComment()),
+            changeLog = listOf(AWAITING_RESOLVE),
+            addComment = { RuntimeException().left() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
 })
 
 private fun getComment(

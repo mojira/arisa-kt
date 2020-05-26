@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.domain
 
-import arrow.core.Either
 import java.time.Instant
 
 data class Comment(
@@ -11,6 +10,6 @@ data class Comment(
     val updated: Instant,
     val visibilityType: String?,
     val visibilityValue: String?,
-    val restrict: (String) -> Either<Throwable, Unit>,
-    val update: (String) -> Either<Throwable, Unit>
+    val restrict: (String) -> Unit,
+    val update: (String) -> Unit
 )

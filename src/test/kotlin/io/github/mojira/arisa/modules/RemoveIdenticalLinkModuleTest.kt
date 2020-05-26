@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
@@ -9,7 +8,6 @@ import io.github.mojira.arisa.utils.mockLinkedIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class RemoveIdenticalLinkModuleTest : StringSpec({
@@ -131,40 +129,5 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         hasRemovedLink1 shouldBe false
         hasRemovedLink2 shouldBe true
         hasRemovedLink3 shouldBe true
-    }
-
-    "should return FailedModuleResponse when removing a link fails" {
-        val link1 = mockLink()
-        val link2 = mockLink(
-            remove = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            links = listOf(link1, link2)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all exceptions" {
-        val link1 = mockLink()
-        val link2 = mockLink(
-            remove = { RuntimeException().left() }
-        )
-        val link3 = mockLink(
-            remove = { RuntimeException().left() }
-        )
-        val issue = mockIssue(
-            links = listOf(link1, link2, link3)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 })

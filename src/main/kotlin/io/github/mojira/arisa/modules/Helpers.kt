@@ -65,9 +65,9 @@ fun assertEither(vararg list: Either<OperationNotNeededModuleResponse, ModuleRes
     }
 
 fun tryRunAll(
-    functs: Collection<() -> Either<Throwable, Unit>>
+    functions: Collection<() -> Either<Throwable, Unit>>
 ): Either<FailedModuleResponse, ModuleResponse> {
-    val exceptions = functs
+    val exceptions = functions
         .map { it() }
         .filter { it.isLeft() }
         .map { (it as Either.Left).a }

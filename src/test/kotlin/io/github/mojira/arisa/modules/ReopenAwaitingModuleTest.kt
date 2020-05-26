@@ -735,12 +735,13 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all exceptions when commenting fails" {
         val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment()
         val issue = mockIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
-            comments = listOf(getComment()),
-            changeLog = listOf(AWAITING_RESOLVE),
+            comments = listOf(comment),
+            changeLog = listOf(OLD_AWAITING_RESOLVE),
             addComment = { RuntimeException().left() }
         )
 

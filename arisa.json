@@ -14,7 +14,7 @@
         "WEB"
       ],
       "url": "https://bugs.mojang.com/",
-      "checkInterval": 10
+      "checkIntervalSeconds": 10
     },
     "customFields": {
       "linked": "customfield_11100",
@@ -31,7 +31,7 @@
       }
     },
     "helperMessages": {
-      "updateInterval": 3600
+      "updateIntervalSeconds": 3600
     },
     "modules": {
       "attachment": {
@@ -63,7 +63,7 @@
         "resolutions": [
           "Duplicate"
         ],
-        "commentDelay": 5,
+        "commentDelayMinutes": 5,
         "message": "duplicate",
         "ticketMessages": {
           "MC-297": "duplicate-of-mc-297",
@@ -299,7 +299,7 @@
       },
       "updateLinked": {
         "excludedStatuses": ["Postponed"],
-        "updateInterval": 24,
+        "updateIntervalHours": 24,
         "whitelist": [
           "MC",
           "MCL",

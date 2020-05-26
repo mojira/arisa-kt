@@ -16,7 +16,7 @@ object Arisa : ConfigSpec() {
             description = "The projects to operate on. Used for default whitelist of modules"
         )
         val url by required<String>(description = "The base url for the jira instance")
-        val checkInterval by required<Long>(description = "The interval in which all issues are checked")
+        val checkIntervalSeconds by required<Long>(description = "The interval in which all issues are checked")
     }
 
     object CustomFields : ConfigSpec() {
@@ -39,7 +39,9 @@ object Arisa : ConfigSpec() {
     }
 
     object HelperMessages : ConfigSpec() {
-        val updateInterval by required<Long>(description = "The interval in which the messages.json file is updated")
+        val updateIntervalSeconds by required<Long>(
+            description = "The interval in which the messages.json file is updated"
+        )
     }
 
     object Modules : ConfigSpec() {
@@ -89,7 +91,7 @@ object Arisa : ConfigSpec() {
                 description = "A map from resolution names to keys of messages that are posted when the parents were" +
                         " resolved as specific resolutions"
             )
-            val commentDelay by UpdateLinked.optional(
+            val commentDelayMinutes by optional(
                 0L,
                 description = "Delay in which the module should add the comment in minutes"
             )
@@ -246,7 +248,7 @@ object Arisa : ConfigSpec() {
         object ResolveTrash : ModuleConfigSpec()
 
         object UpdateLinked : ModuleConfigSpec() {
-            val updateInterval by optional(
+            val updateIntervalHours by optional(
                 0L,
                 description = "Interval in which the module should update the Linked field in hours"
             )

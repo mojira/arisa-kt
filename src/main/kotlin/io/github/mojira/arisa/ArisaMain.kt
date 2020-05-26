@@ -2,7 +2,6 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
-import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.getHelperMessages
@@ -52,7 +51,7 @@ fun main() {
     val cache = QueryCache()
 
     val helperMessagesFile = File("helper-messages.json")
-    val helperMessagesInterval = config[Arisa.HelperMessages.updateInterval]
+    val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
     var helperMessages = helperMessagesFile.getHelperMessages()
     var helperMessagesLastFetch = Instant.now()
 
@@ -86,6 +85,6 @@ fun main() {
             helperMessagesLastFetch = curRunTime
         }
 
-        TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkInterval])
+        TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
     }
 }

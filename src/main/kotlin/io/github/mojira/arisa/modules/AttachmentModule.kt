@@ -17,7 +17,7 @@ class AttachmentModule(
                 .filter { (name, _) -> endsWithBlacklistedExtensionAdapter(name) }
                 .map { it.remove }
             assertNotEmpty(functions).bind()
-            functions.forEach { it.invoke() }
+            tryRunAll(functions).bind()
         }
     }
 

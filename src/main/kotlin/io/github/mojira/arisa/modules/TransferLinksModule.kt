@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
 import arrow.syntax.function.complement
 import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
@@ -7,7 +8,7 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 
 class TransferLinksModule : AbstractTransferFieldModule() {
-    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Unit> {
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> {
         val links = issue.links
             .filter(::isDuplicatesLink.complement())
 
@@ -27,8 +28,8 @@ class TransferLinksModule : AbstractTransferFieldModule() {
     private fun parentDoesNotHaveLink(parentLinks: List<Link>, other: Link) =
         parentLinks.none {
             it.type == other.type &&
-                    it.outwards == other.outwards &&
-                    it.issue.key == other.issue.key
+                it.outwards == other.outwards &&
+                it.issue.key == other.issue.key
         }
 
     private fun toLinkAdder(

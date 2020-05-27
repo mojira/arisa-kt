@@ -37,8 +37,8 @@ class EmptyModule(
                 assertNotEqual(environment, ENV_DEFAULT).bind()
             }
             assertEmpty(attachments).bind()
-            addComment(CommentOptions(message))
-            resolveAsIncomplete()
+            addComment(CommentOptions(message)).toFailedModuleEither().bind()
+            resolveAsIncomplete().toFailedModuleEither().bind()
         }
     }
 

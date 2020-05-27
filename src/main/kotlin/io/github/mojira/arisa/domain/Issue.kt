@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.domain
 
+import arrow.core.Either
 import java.time.Instant
 
 data class Issue(
@@ -25,20 +26,20 @@ data class Issue(
     val comments: List<Comment>,
     val links: List<Link>,
     val changeLog: List<ChangeLogItem>,
-    val reopen: () -> Unit,
-    val resolveAsAwaitingResponse: () -> Unit,
-    val resolveAsInvalid: () -> Unit,
-    val resolveAsDuplicate: () -> Unit,
-    val resolveAsIncomplete: () -> Unit,
-    val updateDescription: (description: String) -> Unit,
-    val updateCHK: () -> Unit,
-    val updateConfirmationStatus: (String) -> Unit,
-    val updateLinked: (Double) -> Unit,
-    val setPrivate: () -> Unit,
-    val addAffectedVersion: (id: String) -> Unit,
-    val createLink: (type: String, key: String) -> Unit,
-    val addComment: (options: CommentOptions) -> Unit,
-    val addRestrictedComment: (options: CommentOptions) -> Unit,
-    val addNotEnglishComment: (language: String) -> Unit, // To be removed when we enable the module
-    val addRawRestrictedComment: (body: String, restriction: String) -> Unit
+    val reopen: () -> Either<Throwable, Unit>,
+    val resolveAsAwaitingResponse: () -> Either<Throwable, Unit>,
+    val resolveAsInvalid: () -> Either<Throwable, Unit>,
+    val resolveAsDuplicate: () -> Either<Throwable, Unit>,
+    val resolveAsIncomplete: () -> Either<Throwable, Unit>,
+    val updateDescription: (description: String) -> Either<Throwable, Unit>,
+    val updateCHK: () -> Either<Throwable, Unit>,
+    val updateConfirmationStatus: (String) -> Either<Throwable, Unit>,
+    val updateLinked: (Double) -> Either<Throwable, Unit>,
+    val setPrivate: () -> Either<Throwable, Unit>,
+    val createLink: (type: String, key: String) -> Either<Throwable, Unit>,
+    val addAffectedVersion: (id: String) -> Either<Throwable, Unit>,
+    val addComment: (options: CommentOptions) -> Either<Throwable, Unit>,
+    val addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit>,
+    val addNotEnglishComment: (language: String) -> Either<Throwable, Unit>, // To be removed when we enable the module
+    val addRawRestrictedComment: (body: String, restriction: String) -> Either<Throwable, Unit>
 )

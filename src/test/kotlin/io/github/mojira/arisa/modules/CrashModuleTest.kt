@@ -1,5 +1,7 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
@@ -9,6 +11,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
@@ -837,6 +840,146 @@ class CrashModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
+    "should return FailedModuleResponse when resolving as invalid fails" {
+        val module = CrashModule(
+            listOf("txt"),
+            emptyList(),
+            10,
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val issue = mockIssue(
+            attachments = emptyList(),
+            description = MODDED_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { RuntimeException().left() },
+            resolveAsDuplicate = { Unit.right() },
+            createLink = { _, _ -> Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = module(issue, NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse when sending as modded message fails" {
+        val module = CrashModule(
+            listOf("txt"),
+            emptyList(),
+            10,
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val issue = mockIssue(
+            attachments = emptyList(),
+            description = MODDED_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { Unit.right() },
+            resolveAsDuplicate = { Unit.right() },
+            createLink = { _, _ -> Unit.right() },
+            addComment = { RuntimeException().left() }
+        )
+
+        val result = module(issue, NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse when resolving as duplicate fails" {
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val issue = mockIssue(
+            attachments = emptyList(),
+            description = EXAMPLE_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { Unit.right() },
+            resolveAsDuplicate = { RuntimeException().left() },
+            createLink = { _, _ -> Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = module(issue, NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse when linking a duplicate fails" {
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val issue = mockIssue(
+            attachments = emptyList(),
+            description = EXAMPLE_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { Unit.right() },
+            resolveAsDuplicate = { Unit.right() },
+            createLink = { _, _ -> RuntimeException().left() },
+            addComment = { Unit.right() }
+        )
+
+        val result = module(issue, NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse when sending duplicate message fails" {
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            10,
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val issue = mockIssue(
+            attachments = emptyList(),
+            description = EXAMPLE_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { Unit.right() },
+            resolveAsDuplicate = { Unit.right() },
+            createLink = { _, _ -> Unit.right() },
+            addComment = { RuntimeException().left() }
+        )
+
+        val result = module(issue, NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
     "should return operation not needed when the ticket is confirmed" {
         var resolvedAsDupe = false
 
@@ -900,7 +1043,7 @@ private fun getAttachment(
     content: String,
     name: String = "crash.txt",
     created: Instant = NOW,
-    remove: () -> Unit = { Unit }
+    remove: () -> Either<Throwable, Unit> = { Unit.right() }
 ) = Attachment(
     name,
     created,

@@ -17,7 +17,7 @@ class RevokeConfirmationModule : Module {
                 ?.changedTo.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()
-            updateConfirmationStatus(volunteerConfirmation)
+            updateConfirmationStatus(volunteerConfirmation).toFailedModuleEither().bind()
         }
     }
 

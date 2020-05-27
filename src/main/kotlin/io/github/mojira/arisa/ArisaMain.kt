@@ -52,7 +52,7 @@ fun main() {
     val failedTickets = mutableSetOf<String>()
 
     val queryCache = Cache<List<Issue>>()
-    val issueUpdateContextCache = Cache<IssueUpdateContext>()
+    val issueUpdateContextCache = Cache<Lazy<IssueUpdateContext>>()
 
     val helperMessagesFile = File("helper-messages.json")
     val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]

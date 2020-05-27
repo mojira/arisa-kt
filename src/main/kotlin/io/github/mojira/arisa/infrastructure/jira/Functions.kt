@@ -3,6 +3,7 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
+import arrow.core.right
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -34,9 +35,9 @@ fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
 
 const val MILLI_FOR_FORMAT = 123L
 
-fun updateCHK(context: IssueUpdateContext, chkField: String) {
-    context.hasUpdates = true
-    context.update.field(
+fun updateCHK(context: Lazy<IssueUpdateContext>, chkField: String) {
+    context.value.hasUpdates = true
+    context.value.update.field(
         chkField,
         Instant
             .now()
@@ -47,66 +48,72 @@ fun updateCHK(context: IssueUpdateContext, chkField: String) {
     )
 }
 
-fun updateConfirmation(context: IssueUpdateContext, confirmationField: String, value: String) {
+fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: String, value: String) {
     val jsonValue = JSONObject()
     jsonValue["value"] = value
 
-    context.hasUpdates = true
-    context.update.field(confirmationField, jsonValue)
+    context.value.hasUpdates = true
+    context.value.update.field(confirmationField, jsonValue)
 }
 
-fun updateLinked(context: IssueUpdateContext, linkedField: String, value: Double) {
-    context.hasUpdates = true
-    context.update.field(linkedField, value)
+fun updateLinked(context: Lazy<IssueUpdateContext>, linkedField: String, value: Double) {
+    context.value.hasUpdates = true
+    context.value.update.field(linkedField, value)
 }
 
-fun reopen(context: IssueUpdateContext) {
-    context.transitionName = "Reopen Issue"
+fun reopen(context: Lazy<IssueUpdateContext>) {
+    context.value.transitionName = "Reopen Issue"
 }
 
-fun resolveAs(context: IssueUpdateContext, resolution: String) {
+fun resolveAs(context: Lazy<IssueUpdateContext>, resolution: String) {
     val resolutionJson = JSONObject()
     resolutionJson["name"] = resolution
 
-    context.resolve.field(Field.RESOLUTION, resolutionJson)
-    context.transitionName = "Resolve Issue"
+    context.value.resolve.field(Field.RESOLUTION, resolutionJson)
+    context.value.transitionName = "Resolve Issue"
 }
 
-fun updateSecurity(context: IssueUpdateContext, levelId: String) {
-    context.hasUpdates = true
-    context.update.field(Field.SECURITY, Field.valueById(levelId))
+fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
+    context.value.hasUpdates = true
+    context.value.update.field(Field.SECURITY, Field.valueById(levelId))
 }
 
-fun removeAffectedVersion(context: IssueUpdateContext, version: Version) {
-    context.hasEdits = true
-    context.edit.fieldRemove("versions", version)
+fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
+    context.value.hasEdits = true
+    context.value.edit.fieldRemove("versions", version)
 }
 
-fun addAffectedVersionById(context: IssueUpdateContext, id: String) {
-    context.hasEdits = true
-    context.edit.fieldAdd("versions", Field.valueById(id))
+fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
+    context.value.hasEdits = true
+    context.value.edit.fieldAdd("versions", Field.valueById(id))
 }
 
-fun addAffectedVersion(context: IssueUpdateContext, version: Version) {
-    context.hasEdits = true
-    context.edit.fieldAdd("versions", version)
+fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
+    context.value.hasEdits = true
+    context.value.edit.fieldAdd("versions", version)
 }
 
-fun updateDescription(context: IssueUpdateContext, description: String) {
-    context.hasEdits = true
-    context.edit.field(Field.DESCRIPTION, description)
+fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
+    context.value.hasEdits = true
+    context.value.edit.field(Field.DESCRIPTION, description)
 }
 
-fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
-    val functions = context.otherOperations.toMutableList()
-    if (context.hasEdits) {
-        functions.add(::applyFluentUpdate.partially1(context.edit))
+fun applyIssueChanges(context: Lazy<IssueUpdateContext>): Either<FailedModuleResponse, ModuleResponse> {
+    if (!context.isInitialized()) {
+        return Unit.right()
     }
-    if (context.hasUpdates) {
-        functions.add(::applyFluentTransition.partially1(context.update).partially1("Update Issue"))
+    val functions = context.value.otherOperations.toMutableList()
+    if (context.value.hasEdits) {
+        functions.add(::applyFluentUpdate.partially1(context.value.edit))
     }
-    if (context.transitionName != null) {
-        functions.add(::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!))
+    if (context.value.hasUpdates) {
+        functions.add(
+            ::applyFluentTransition.partially1(context.value.update).partially1("Update Issue"))
+    }
+    if (context.value.transitionName != null) {
+        functions.add(
+            ::applyFluentTransition.partially1(context.value.resolve).partially1(context.value.transitionName!!)
+        )
     }
     return tryRunAll(functions)
 }
@@ -123,51 +130,51 @@ private fun applyFluentTransition(update: Issue.FluentTransition, transitionName
     }
 }
 
-fun deleteAttachment(context: IssueUpdateContext, attachment: Attachment) {
-    context.otherOperations.add {
+fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                context.jiraClient.restClient.delete(URI(attachment.self))
+                context.value.jiraClient.restClient.delete(URI(attachment.self))
                 Unit
             }
         }
     }
 }
 
-fun createComment(context: IssueUpdateContext, comment: String) {
-    context.otherOperations.add {
+fun createComment(context: Lazy<IssueUpdateContext>, comment: String) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                context.jiraIssue.addComment(comment)
+                context.value.jiraIssue.addComment(comment)
                 Unit
             }
         }
     }
 }
 
-fun addRestrictedComment(context: IssueUpdateContext, comment: String, restrictionLevel: String) {
-    context.otherOperations.add {
+fun addRestrictedComment(context: Lazy<IssueUpdateContext>, comment: String, restrictionLevel: String) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                context.jiraIssue.addComment(comment, "group", restrictionLevel)
+                context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
                 Unit
             }
         }
     }
 }
 
-fun createLink(context: IssueUpdateContext, linkType: String, linkKey: String) {
-    context.otherOperations.add {
+fun createLink(context: Lazy<IssueUpdateContext>, linkType: String, linkKey: String) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                context.jiraIssue.link(linkKey, linkType)
+                context.value.jiraIssue.link(linkKey, linkType)
             }
         }
     }
 }
 
-fun deleteLink(context: IssueUpdateContext, link: IssueLink) {
-    context.otherOperations.add {
+fun deleteLink(context: Lazy<IssueUpdateContext>, link: IssueLink) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 link.delete()
@@ -176,8 +183,8 @@ fun deleteLink(context: IssueUpdateContext, link: IssueLink) {
     }
 }
 
-fun updateCommentBody(context: IssueUpdateContext, comment: Comment, body: String) {
-    context.otherOperations.add {
+fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body: String) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 comment.update(body)
@@ -187,8 +194,8 @@ fun updateCommentBody(context: IssueUpdateContext, comment: Comment, body: Strin
     }
 }
 
-fun restrictCommentToGroup(context: IssueUpdateContext, comment: Comment, group: String, body: String = comment.body) {
-    context.otherOperations.add {
+fun restrictCommentToGroup(context: Lazy<IssueUpdateContext>, comment: Comment, group: String, body: String = comment.body) {
+    context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 comment.update(body, "group", group)

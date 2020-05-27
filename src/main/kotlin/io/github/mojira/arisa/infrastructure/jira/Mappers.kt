@@ -19,7 +19,9 @@ import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.log
 import net.rcarz.jiraclient.JiraClient
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
@@ -33,7 +35,7 @@ import net.rcarz.jiraclient.Project as JiraProject
 import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
-fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Cache<IssueUpdateContext>) = Attachment(
+fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: IssueUpdateContextCache) = Attachment(
     fileName,
     createdDate.toInstant(),
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this),
@@ -43,7 +45,7 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Cac
 fun JiraProject.getSecurityLevelId(config: Config) =
     config[Arisa.PrivateSecurityLevel.special][key] ?: config[Arisa.PrivateSecurityLevel.default]
 
-fun JiraVersion.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Cache<IssueUpdateContext>) = Version(
+fun JiraVersion.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: IssueUpdateContextCache) = Version(
     id,
     name,
     isReleased,
@@ -53,16 +55,18 @@ fun JiraVersion.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Cache<
     ::removeAffectedVersion.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this)
 )
 
-fun JiraIssue.getUpdateContext(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>): IssueUpdateContext {
+fun JiraIssue.getUpdateContext(jiraClient: JiraClient, cache: IssueUpdateContextCache): Lazy<IssueUpdateContext> {
     var context = cache.get(key)
     if (context == null) {
-        context = IssueUpdateContext(
-            jiraClient,
-            this,
-            update(),
-            transition(),
-            transition()
-        )
+        context = lazy {
+            IssueUpdateContext(
+                jiraClient,
+                this,
+                update(),
+                transition(),
+                transition()
+            )
+        }
         cache.add(key, context)
     }
     return context
@@ -74,7 +78,7 @@ fun JiraIssue.toDomain(
     project: JiraProject,
     messages: HelperMessages,
     config: Config,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ): Issue {
     val context = getUpdateContext(jiraClient, cache)
     return Issue(
@@ -157,7 +161,7 @@ fun JiraProject.toDomain(
     jiraClient: JiraClient,
     issue: JiraIssue,
     config: Config,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ) = Project(
     key,
     versions.map { it.toDomain(jiraClient, issue, cache) },
@@ -167,7 +171,7 @@ fun JiraProject.toDomain(
 fun JiraComment.toDomain(
     jiraClient: JiraClient,
     issue: JiraIssue,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ): Comment {
     val context = issue.getUpdateContext(jiraClient, cache)
     return Comment(
@@ -196,7 +200,7 @@ fun JiraIssue.toLinkedIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ) = LinkedIssue(
     key,
     status.name,
@@ -209,7 +213,7 @@ fun JiraIssueLink.toDomain(
     issue: JiraIssue,
     messages: HelperMessages,
     config: Config,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ) = Link(
     type.name,
     outwardIssue != null,
@@ -230,16 +234,16 @@ private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ) = issueLinks.map { it.toDomain(jiraClient, this, messages, config, cache) }
 
-private fun JiraIssue.mapComments(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>) =
+private fun JiraIssue.mapComments(jiraClient: JiraClient, cache: IssueUpdateContextCache) =
     comments.map { it.toDomain(jiraClient, this, cache) }
 
-private fun JiraIssue.mapAttachments(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>) =
+private fun JiraIssue.mapAttachments(jiraClient: JiraClient, cache: IssueUpdateContextCache) =
     attachments.map { it.toDomain(jiraClient, this, cache) }
 
-private fun JiraIssue.mapVersions(jiraClient: JiraClient, cache: Cache<IssueUpdateContext>) =
+private fun JiraIssue.mapVersions(jiraClient: JiraClient, cache: IssueUpdateContextCache) =
     versions.map { it.toDomain(jiraClient, this, cache) }
 
 private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
@@ -268,7 +272,7 @@ private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config,
-    cache: Cache<IssueUpdateContext>
+    cache: IssueUpdateContextCache
 ): Either<Throwable, Issue> =
     getIssue(jiraClient, key).fold(
         { it.left() },

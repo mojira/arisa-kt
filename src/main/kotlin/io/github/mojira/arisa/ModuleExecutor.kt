@@ -4,9 +4,9 @@ import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.applyIssueChanges
 import io.github.mojira.arisa.infrastructure.jira.toDomain
@@ -24,7 +24,7 @@ class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,
-    private val issueUpdateContextCache: Cache<IssueUpdateContext>,
+    private val issueUpdateContextCache: IssueUpdateContextCache,
     private val helperMessages: HelperMessages
 ) {
     private val registry = ModuleRegistry(config)

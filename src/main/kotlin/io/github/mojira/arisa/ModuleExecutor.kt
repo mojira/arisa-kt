@@ -4,9 +4,11 @@ import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
-import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.jira.applyIssueChanges
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -21,7 +23,8 @@ private const val MAX_RESULTS = 50
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
-    private val queryCache: QueryCache,
+    private val queryCache: Cache<List<Issue>>,
+    private val issueUpdateContextCache: Cache<IssueUpdateContext>,
     private val helperMessages: HelperMessages
 ) {
     private val registry = ModuleRegistry(config)
@@ -55,6 +58,15 @@ class ModuleExecutor(
                     )
                 }
 
+                issueUpdateContextCache.storage
+                    .mapValues { applyIssueChanges(it.value) }
+                    .filterValues { it.isLeft() }
+                    .forEach {
+                        log.error("Failed to update ticket ${it.key}", (it.value as Either.Left).a)
+                        failedTickets.add(it.key)
+                    }
+                issueUpdateContextCache.clear()
+
                 queryCache.clear()
                 startAt += MAX_RESULTS
             } while (missingResultsPage)
@@ -68,7 +80,7 @@ class ModuleExecutor(
     @Suppress("LongParameterList")
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        queryCache: QueryCache,
+        queryCache: Cache<List<Issue>>,
         rerunTickets: Collection<String>,
         moduleJql: String,
         startAt: Int,
@@ -87,7 +99,15 @@ class ModuleExecutor(
 
         val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
-            .map { it.toDomain(jiraClient, jiraClient.getProject(it.project.key), helperMessages, config) }
+            .map {
+                it.toDomain(
+                    jiraClient,
+                    jiraClient.getProject(it.project.key),
+                    helperMessages,
+                    config,
+                    issueUpdateContextCache
+                )
+            }
 
         queryCache.add(jql, issues)
 

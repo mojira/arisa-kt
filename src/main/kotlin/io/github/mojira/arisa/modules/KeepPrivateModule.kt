@@ -23,9 +23,9 @@ class KeepPrivateModule(
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addComment(CommentOptions(message)).toFailedModuleEither().bind()
+                addComment(CommentOptions(message))
             }
-            setPrivate().toFailedModuleEither().bind()
+            setPrivate()
         }
     }
 

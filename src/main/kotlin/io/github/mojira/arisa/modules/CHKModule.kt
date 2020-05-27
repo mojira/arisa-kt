@@ -12,7 +12,7 @@ class CHKModule : Module {
         Either.fx {
             assertConfirmed(confirmationStatus).bind()
             assertNoChk(chk).bind()
-            updateCHK().toFailedModuleEither().bind()
+            updateCHK()
         }
     }
 

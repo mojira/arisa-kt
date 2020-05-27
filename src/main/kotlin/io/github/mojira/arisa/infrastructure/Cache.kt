@@ -1,5 +1,7 @@
 package io.github.mojira.arisa.infrastructure
 
+import io.github.mojira.arisa.domain.IssueUpdateContext
+
 open class Cache<V> {
     val storage = mutableMapOf<String, V>()
 
@@ -12,3 +14,5 @@ open class Cache<V> {
         storage.clear()
     }
 }
+
+typealias IssueUpdateContextCache = Cache<Lazy<IssueUpdateContext>>

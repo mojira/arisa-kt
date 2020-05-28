@@ -194,7 +194,12 @@ fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body:
     }
 }
 
-fun restrictCommentToGroup(context: Lazy<IssueUpdateContext>, comment: Comment, group: String, body: String = comment.body) {
+fun restrictCommentToGroup(
+    context: Lazy<IssueUpdateContext>,
+    comment: Comment,
+    group: String,
+    body: String = comment.body
+) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {

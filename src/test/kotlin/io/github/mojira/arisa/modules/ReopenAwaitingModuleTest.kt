@@ -16,6 +16,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 private val REPORTER = getUser(name = "reporter")
+private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
@@ -272,6 +273,25 @@ class ReopenAwaitingModuleTest : StringSpec({
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
+            changeLog = listOf(AWAITING_RESOLVE, changeLog)
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the author of the change log is arisa" {
+        val changeLog = mockChangeLogItem(
+            created = RIGHT_NOW.plusSeconds(3),
+            field = "Versions",
+            changedTo = "1.15.2"
+        )
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = ARISA,
             changeLog = listOf(AWAITING_RESOLVE, changeLog)
         )
 

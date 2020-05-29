@@ -36,16 +36,12 @@ class ReopenAwaitingModule(
             ).bind()
 
             val shouldReopen = shouldReopen(comments, validComments, reporter, resolveTime)
-            when {
-                shouldReopen -> {
-                    reopen().toFailedModuleEither().bind()
-                }
-                message != null -> {
-                    addComment(CommentOptions(message)).toFailedModuleEither().bind()
-                }
-                else -> {
-                    OperationNotNeededModuleResponse.left().bind()
-                }
+            if(shouldReopen) {
+                reopen().toFailedModuleEither().bind()
+            } else {
+                assertNotNull(message)
+                assertNotEquals(changeLog.sortedByDescending { it.created }.first().author.name, "arisabot")
+                addComment(CommentOptions(message!!)).toFailedModuleEither().bind()
             }
         }
     }

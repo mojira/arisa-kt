@@ -58,15 +58,6 @@ class ModuleExecutor(
                     )
                 }
 
-                issueUpdateContextCache.storage
-                    .mapValues { applyIssueChanges(it.value) }
-                    .filterValues { it.isLeft() }
-                    .forEach {
-                        log.error("Failed to update ticket ${it.key}", (it.value as Either.Left).a)
-                        failedTickets.add(it.key)
-                    }
-                issueUpdateContextCache.clear()
-
                 queryCache.clear()
                 startAt += MAX_RESULTS
             } while (missingResultsPage)
@@ -134,6 +125,15 @@ class ModuleExecutor(
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }
+
+        issueUpdateContextCache.storage
+            .mapValues { applyIssueChanges(it.value) }
+            .filterValues { it.isLeft() }
+            .forEach {
+                log.error("[UPDATE] [${it.key}] Failed", (it.value as Either.Left).a)
+                addFailedTicket(it.key)
+            }
+        issueUpdateContextCache.clear()
     }
 
     private fun searchIssues(

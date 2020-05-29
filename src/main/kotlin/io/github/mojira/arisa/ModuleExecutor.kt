@@ -68,7 +68,7 @@ class ModuleExecutor(
         }
     }
 
-    @Suppress("LongParameterList")
+    @Suppress("LongMethod", "LongParameterList")
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         queryCache: Cache<List<Issue>>,

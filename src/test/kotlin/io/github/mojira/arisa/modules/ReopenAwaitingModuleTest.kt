@@ -281,7 +281,6 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-
     "should return OperationNotNeededModuleResponse when the author of the change log is arisa" {
         val changeLog = mockChangeLogItem(
             created = RIGHT_NOW.plusSeconds(3),

@@ -29,7 +29,7 @@ class ModuleRegistryTest : StringSpec({
         modules.size shouldBe 1
     }
 
-    "should register a module for each file ending in Module" {
+    "should register a module for each non-abstract module" {
         val classes = Reflections("io.github.mojira.arisa.modules")
             .getSubTypesOf(Module::class.java)
             .map { it.simpleName }

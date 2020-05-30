@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.domain
 
+import arrow.core.Either
 import java.time.Instant
 
 data class Version(
@@ -8,6 +9,6 @@ data class Version(
     val released: Boolean,
     val archived: Boolean,
     val releaseDate: Instant?,
-    val add: () -> Unit,
-    val remove: () -> Unit
+    val add: () -> Either<Throwable, Unit>,
+    val remove: () -> Either<Throwable, Unit>
 )

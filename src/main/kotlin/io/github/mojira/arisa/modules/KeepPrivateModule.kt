@@ -20,13 +20,12 @@ class KeepPrivateModule(
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
 
-            setPrivate()
-
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addComment(CommentOptions(message))
+                addComment(CommentOptions(message)).toFailedModuleEither().bind()
             }
+            setPrivate().toFailedModuleEither().bind()
         }
     }
 

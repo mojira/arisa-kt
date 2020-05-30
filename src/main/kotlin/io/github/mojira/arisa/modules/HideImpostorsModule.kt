@@ -21,7 +21,7 @@ class HideImpostorsModule : Module {
                 .toList()
 
             assertNotEmpty(restrictImpostorComments).bind()
-            restrictImpostorComments.forEach { it.invoke() }
+            tryRunAll(restrictImpostorComments).bind()
         }
     }
 

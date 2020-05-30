@@ -23,8 +23,8 @@ class FutureVersionModule(
 
             latestVersion!!.add()
             removeFutureVersions.forEach(::run)
-            addComment(CommentOptions(message))
             resolveAsAwaitingResponse()
+            addComment(CommentOptions(message))
         }
     }
 

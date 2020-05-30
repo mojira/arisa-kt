@@ -52,14 +52,14 @@ class CrashModule(
 
             if (key == null) {
                 if (anyModded) {
-                    addComment(CommentOptions(moddedMessage))
                     resolveAsInvalid()
+                    addComment(CommentOptions(moddedMessage))
                 } else {
                     assertNotNull(key).bind()
                 }
             } else {
-                addComment(CommentOptions(dupeMessage, key))
                 resolveAsDuplicate()
+                addComment(CommentOptions(dupeMessage, key))
                 createLink(key, "Duplicate")
             }
         }

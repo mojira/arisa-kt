@@ -15,4 +15,4 @@ open class Cache<V> {
     }
 }
 
-typealias IssueUpdateContextCache = Cache<Lazy<IssueUpdateContext>>
+typealias IssueUpdateContextCache = Cache<IssueUpdateContext>

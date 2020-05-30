@@ -53,22 +53,16 @@ fun JiraVersion.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: IssueU
     ::removeAffectedVersion.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this)
 )
 
-fun JiraIssue.getUpdateContext(jiraClient: JiraClient, cache: IssueUpdateContextCache): Lazy<IssueUpdateContext> {
-    var context = cache.get(key)
-    if (context == null) {
-        context = lazy {
-            IssueUpdateContext(
-                jiraClient,
-                this,
-                update(),
-                transition(),
-                transition()
-            )
-        }
-        cache.add(key, context)
+fun JiraIssue.getUpdateContext(jiraClient: JiraClient, cache: IssueUpdateContextCache): Lazy<IssueUpdateContext> =
+    lazy {
+        cache.get(key) ?: IssueUpdateContext(
+            jiraClient,
+            this,
+            update(),
+            transition(),
+            transition()
+        ).also { cache.add(key, it) }
     }
-    return context
-}
 
 @Suppress("LongMethod")
 fun JiraIssue.toDomain(

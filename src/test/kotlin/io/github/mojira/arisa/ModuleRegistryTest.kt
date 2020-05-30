@@ -17,6 +17,13 @@ class ModuleRegistryTest : StringSpec({
         configs shouldContainExactlyInAnyOrder modules
     }
 
+    "should register max 1 time each config" {
+        val modules = ModuleRegistry(getConfig()).getModules().map { it.config.prefix }
+        val uniqueModules = modules.distinct()
+        println("Not unique modules " + modules.filter { !uniqueModules.contains(it) })
+        uniqueModules shouldContainExactlyInAnyOrder modules
+    }
+
     "should get only get a module with only" {
         val modules = ModuleRegistry(getConfig(true)).getModules()
         modules.size shouldBe 1

@@ -16,7 +16,7 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module {
                 .map { it.restrict.partially1(removeMeqsTags(it.body!!)) }
             assertNotEmpty(updateMeqsComments).bind()
 
-            tryRunAll(updateMeqsComments).bind()
+            updateMeqsComments.forEach { it.invoke() }
         }
     }
 

@@ -4,9 +4,11 @@ import arrow.core.Either
 import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
-import io.github.mojira.arisa.infrastructure.QueryCache
+import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.jira.applyIssueChanges
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -21,7 +23,8 @@ private const val MAX_RESULTS = 50
 class ModuleExecutor(
     private val jiraClient: JiraClient,
     private val config: Config,
-    private val queryCache: QueryCache,
+    private val queryCache: Cache<List<Issue>>,
+    private val issueUpdateContextCache: IssueUpdateContextCache,
     private val helperMessages: HelperMessages
 ) {
     private val registry = ModuleRegistry(config)
@@ -68,7 +71,7 @@ class ModuleExecutor(
     @Suppress("LongParameterList")
     private fun executeModule(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        queryCache: QueryCache,
+        queryCache: Cache<List<Issue>>,
         rerunTickets: Collection<String>,
         moduleJql: String,
         startAt: Int,
@@ -76,25 +79,7 @@ class ModuleExecutor(
         onQueryNotAtResultEnd: () -> Unit,
         executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
-        val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
-        val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
-        val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
-        val failedTicketsJQL = with(rerunTickets) {
-            if (isNotEmpty())
-                "key in (${joinToString(",")}) OR "
-            else ""
-        }
-
-        val jql = "$failedTicketsJQL($moduleJql)"
-        val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
-            .map { it.toDomain(jiraClient, jiraClient.getProject(it.project.key), helperMessages, config) }
-
-        queryCache.add(jql, issues)
-
-        issues
-            .filter { it.project.key in projects }
-            .filter { it.status.toLowerCase() !in excludedStatuses }
-            .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
+        getIssues(moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd)
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
@@ -114,6 +99,54 @@ class ModuleExecutor(
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }
+
+        issueUpdateContextCache.storage
+            .mapValues { applyIssueChanges(it.value) }
+            .filterValues { it.isLeft() }
+            .forEach {
+                log.error("[UPDATE] [${it.key}] Failed", (it.value as Either.Left).a)
+                addFailedTicket(it.key)
+            }
+        issueUpdateContextCache.clear()
+    }
+
+    @Suppress("LongParameterList")
+    private fun getIssues(
+        moduleConfig: Arisa.Modules.ModuleConfigSpec,
+        rerunTickets: Collection<String>,
+        moduleJql: String,
+        queryCache: Cache<List<Issue>>,
+        startAt: Int,
+        onQueryNotAtResultEnd: () -> Unit
+    ): List<Issue> {
+        val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
+        val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
+        val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
+        val failedTicketsJQL = with(rerunTickets) {
+            if (isNotEmpty())
+                "key in (${joinToString(",")}) OR "
+            else ""
+        }
+
+        val jql = "$failedTicketsJQL($moduleJql)"
+        val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
+            .map {
+                it.toDomain(
+                    jiraClient,
+                    jiraClient.getProject(it.project.key),
+                    helperMessages,
+                    config,
+                    issueUpdateContextCache
+                )
+            }
+
+        queryCache.add(jql, issues)
+
+        issues
+            .filter { it.project.key in projects }
+            .filter { it.status.toLowerCase() !in excludedStatuses }
+            .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
+        return issues
     }
 
     private fun searchIssues(

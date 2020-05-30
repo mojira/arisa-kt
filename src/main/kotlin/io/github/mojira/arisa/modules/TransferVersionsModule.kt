@@ -1,5 +1,7 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.Either
+import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Version
@@ -9,7 +11,7 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
         return linkedIssue.isSameProject(issue) && linkedIssue.isUnresolved()
     }
 
-    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Unit> =
+    override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Either<Throwable, Unit>> =
 
         parents.flatMap { parent ->
             val parentVersionIds = parent.affectedVersions
@@ -22,7 +24,7 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
                 .filter { it isReleasedAfter oldestVersionWithKnownReleaseDateOnParent }
                 .map { it.id }
                 .filter { it !in parentVersionIds }
-                .map { { parent.addAffectedVersion(it) } }
+                .map(parent.addAffectedVersion::partially1)
         }
 
     private fun getOldestVersionWithKnownReleaseDate(field: List<Version>) = field

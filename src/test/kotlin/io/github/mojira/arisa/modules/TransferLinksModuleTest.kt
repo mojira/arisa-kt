@@ -390,6 +390,124 @@ class TransferLinksModuleTest : StringSpec({
         addedToSecondParent.shouldBeTrue()
     }
 
+    "should return FailedModuleResponse when removing a link fails" {
+        val module = TransferLinksModule()
+
+        /**
+         * MC-42 relates to MC-10.
+         */
+        val link = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-10",
+            type = "Relates",
+            removeLink = { _, _, _ ->
+                RuntimeException().left()
+            }
+        )
+
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(DUPLICATES_LINK, link)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse with all errors when removing multiple links fails" {
+        val module = TransferLinksModule()
+
+        /**
+         * MC-42 relates to MC-10.
+         */
+        val link1 = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-10",
+            type = "Relates",
+            removeLink = { _, _, _ ->
+                RuntimeException().left()
+            }
+        )
+
+        /**
+         * MC-42 relates to MC-11.
+         */
+        val link2 = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-11",
+            type = "Relates",
+            removeLink = { _, _, _ ->
+                RuntimeException().left()
+            }
+        )
+
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(DUPLICATES_LINK, link1, link2)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
+    }
+
+    "should return FailedModuleResponse when adding a link fails" {
+        val module = TransferLinksModule()
+
+        /**
+         * MC-42 duplicates MC-1.
+         */
+        val link = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-1",
+            createLink = { _, _, _ ->
+                RuntimeException().left()
+            }
+        )
+
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(link, RELATES_LINK)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse with all errors when adding multiple links fails" {
+        val module = TransferLinksModule()
+
+        /**
+         * MC-42 duplicates MC-1.
+         */
+        val link = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-1",
+            createLink = { _, _, _ ->
+                RuntimeException().left()
+            }
+        )
+
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(link, RELATES_LINK, RELATES_LINK)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
+    }
+
     "should return FailedModuleResponse when getting an issue fails" {
         val module = TransferLinksModule()
 

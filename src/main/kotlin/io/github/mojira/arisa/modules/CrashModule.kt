@@ -52,15 +52,15 @@ class CrashModule(
 
             if (key == null) {
                 if (anyModded) {
-                    resolveAsInvalid()
-                    addComment(CommentOptions(moddedMessage))
+                    addComment(CommentOptions(moddedMessage)).toFailedModuleEither().bind()
+                    resolveAsInvalid().toFailedModuleEither().bind()
                 } else {
                     assertNotNull(key).bind()
                 }
             } else {
-                resolveAsDuplicate()
-                addComment(CommentOptions(dupeMessage, key))
-                createLink(key, "Duplicate")
+                addComment(CommentOptions(dupeMessage, key)).toFailedModuleEither().bind()
+                resolveAsDuplicate().toFailedModuleEither().bind()
+                createLink(key, "Duplicate").toFailedModuleEither().bind()
             }
         }
     }

@@ -71,6 +71,10 @@ object Arisa : ConfigSpec() {
                 emptyList<String>(),
                 description = "The extensions that should be removed on issues. Default is no extensions."
             )
+            val comment by optional(
+                "",
+                description = "The key of the message that is posted when this module succeeds."
+            )
         }
 
         object DuplicateMessage : ModuleConfigSpec() {

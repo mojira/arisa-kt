@@ -29,6 +29,7 @@ class IntegrationTest : StringSpec({
         val helperMessages = helperMessagesFile.getHelperMessages()
 
         with(helperMessages.messages) {
+            this shouldContainKey "attach-new-attachment"
             this shouldContainKey "duplicate"
             this shouldContainKey "duplicate-fixed"
             this shouldContainKey "duplicate-of-mc-297"

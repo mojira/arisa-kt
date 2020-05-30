@@ -11,7 +11,7 @@ private val NOW = Instant.now()
 
 class AttachmentModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no attachments" {
-        val module = AttachmentModule(emptyList())
+        val module = AttachmentModule(emptyList(), "attach-new-attachment")
         val issue = mockIssue()
 
         val result = module(issue, NOW)
@@ -20,7 +20,7 @@ class AttachmentModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there is no blacklisted attachments" {
-        val module = AttachmentModule(listOf(".test"))
+        val module = AttachmentModule(listOf(".test"), "attach-new-attachment")
         val attachment = getAttachment(
             name = "testfile"
         )
@@ -34,7 +34,7 @@ class AttachmentModuleTest : StringSpec({
     }
 
     "should return ModuleResponse when something is deleted successfully" {
-        val module = AttachmentModule(listOf(".test"))
+        val module = AttachmentModule(listOf(".test"), "attach-new-attachment")
         val attachment = getAttachment()
         val issue = mockIssue(
             attachments = listOf(attachment)

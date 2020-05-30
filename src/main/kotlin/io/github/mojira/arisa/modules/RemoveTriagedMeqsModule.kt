@@ -21,7 +21,7 @@ class RemoveTriagedMeqsModule(
                 .map { it.update.partially1(removeMeqsTags(it.body!!)) }
             assertNotEmpty(updateMeqsComments).bind()
 
-            updateMeqsComments.forEach { it.invoke() }
+            tryRunAll(updateMeqsComments).bind()
         }
     }
 

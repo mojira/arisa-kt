@@ -2,20 +2,17 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
-import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.QueryCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-val log: Logger = LoggerFactory.getLogger("Arisa")
+val log = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 
@@ -51,15 +48,14 @@ fun main() {
     var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
     val failedTickets = mutableSetOf<String>()
 
-    val queryCache = Cache<List<Issue>>()
-    val issueUpdateContextCache = Cache<Lazy<IssueUpdateContext>>()
+    val cache = QueryCache()
 
     val helperMessagesFile = File("helper-messages.json")
     val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
     var helperMessages = helperMessagesFile.getHelperMessages()
     var helperMessagesLastFetch = Instant.now()
 
-    var moduleExecutor = ModuleExecutor(jiraClient, config, queryCache, issueUpdateContextCache, helperMessages)
+    var moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
@@ -80,12 +76,12 @@ fun main() {
                 config[Arisa.Credentials.password],
                 config[Arisa.Issues.url]
             )
-            moduleExecutor = ModuleExecutor(jiraClient, config, queryCache, issueUpdateContextCache, helperMessages)
+            moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
-            moduleExecutor = ModuleExecutor(jiraClient, config, queryCache, issueUpdateContextCache, helperMessages)
+            moduleExecutor = ModuleExecutor(jiraClient, config, cache, helperMessages)
             helperMessagesLastFetch = curRunTime
         }
 

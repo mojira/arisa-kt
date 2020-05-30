@@ -6,6 +6,7 @@ import arrow.syntax.function.partially1
 import arrow.syntax.function.pipe
 import arrow.syntax.function.pipe2
 import arrow.syntax.function.pipe3
+import arrow.syntax.function.pipe4
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
@@ -46,6 +47,7 @@ val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
 
 class ModuleRegistry(private val config: Config) {
     data class Entry(
+        val name: String,
         val config: ModuleConfigSpec,
         val getJql: (lastRun: Instant) -> String,
         val execute: (issue: Issue, lastRun: Instant) -> Pair<String, Either<ModuleError, ModuleResponse>>
@@ -53,7 +55,7 @@ class ModuleRegistry(private val config: Config) {
 
     private val modules = mutableListOf<Entry>()
 
-    fun getModules(config: Config): List<Entry> {
+    fun getModules(): List<Entry> {
         val onlyModules = modules
             .filter { config[it.config.only] }
         return if (onlyModules.isEmpty()) {
@@ -70,7 +72,7 @@ class ModuleRegistry(private val config: Config) {
     ) = { issue: Issue, lastRun: Instant ->
         config::class.simpleName!! to
                 ({ lastRun pipe (issue pipe2 module::invoke) } pipe ::tryExecuteModule)
-    } pipe (getJql pipe2 (config pipe3 ModuleRegistry::Entry)) pipe modules::add
+    } pipe (getJql pipe2 (config pipe3 (config::class.simpleName!! pipe4 ModuleRegistry::Entry))) pipe modules::add
 
     @Suppress("TooGenericExceptionCaught")
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {

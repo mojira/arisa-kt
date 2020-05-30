@@ -1,14 +1,11 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 
@@ -133,37 +130,5 @@ class EmptyModuleTest : StringSpec({
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-    }
-
-    "should return FailedModuleResponse when resolving fails" {
-        val module = EmptyModule("message")
-        val issue = mockIssue(
-            created = RIGHT_NOW,
-            description = "asd",
-            environment = "asd",
-            resolveAsIncomplete = { RuntimeException().left() }
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse when adding comment fails" {
-        val module = EmptyModule("message")
-        val issue = mockIssue(
-            created = RIGHT_NOW,
-            description = "asd",
-            environment = "asd",
-            addComment = { RuntimeException().left() }
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
     }
 })

@@ -19,7 +19,7 @@ val RIGHT_NOW: Instant = Instant.now()
 fun mockAttachment(
     name: String = "",
     created: Instant = RIGHT_NOW,
-    remove: () -> Either<Throwable, Unit> = { Unit.right() },
+    remove: () -> Unit = { Unit },
     getContent: () -> ByteArray = { ByteArray(0) }
 ) = Attachment(
     name,
@@ -52,8 +52,8 @@ fun mockComment(
     updated: Instant = created,
     visibilityType: String? = null,
     visibilityValue: String? = null,
-    restrict: (String) -> Either<Throwable, Unit> = { Unit.right() },
-    update: (String) -> Either<Throwable, Unit> = { Unit.right() }
+    restrict: (String) -> Unit = { Unit },
+    update: (String) -> Unit = { Unit }
 ) = Comment(
     body,
     author,
@@ -89,22 +89,22 @@ fun mockIssue(
     comments: List<Comment> = emptyList(),
     links: List<Link> = emptyList(),
     changeLog: List<ChangeLogItem> = emptyList(),
-    reopen: () -> Either<Throwable, Unit> = { Unit.right() },
-    resolveAsAwaitingResponse: () -> Either<Throwable, Unit> = { Unit.right() },
-    resolveAsInvalid: () -> Either<Throwable, Unit> = { Unit.right() },
-    resolveAsDuplicate: () -> Either<Throwable, Unit> = { Unit.right() },
-    resolveAsIncomplete: () -> Either<Throwable, Unit> = { Unit.right() },
-    updateDescription: (description: String) -> Either<Throwable, Unit> = { Unit.right() },
-    updateCHK: () -> Either<Throwable, Unit> = { Unit.right() },
-    updateConfirmationStatus: (String) -> Either<Throwable, Unit> = { Unit.right() },
-    updateLinked: (Double) -> Either<Throwable, Unit> = { Unit.right() },
-    setPrivate: () -> Either<Throwable, Unit> = { Unit.right() },
-    createLink: (key: String, type: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() },
-    addAffectedVersion: (id: String) -> Either<Throwable, Unit> = { Unit.right() },
-    addComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
-    addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
-    addNotEnglishComment: (language: String) -> Either<Throwable, Unit> = { Unit.right() },
-    addRawRestrictedComment: (body: String, restrictions: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() }
+    reopen: () -> Unit = { Unit },
+    resolveAsAwaitingResponse: () -> Unit = { Unit },
+    resolveAsInvalid: () -> Unit = { Unit },
+    resolveAsDuplicate: () -> Unit = { Unit },
+    resolveAsIncomplete: () -> Unit = { Unit },
+    updateDescription: (description: String) -> Unit = { Unit },
+    updateCHK: () -> Unit = { Unit },
+    updateConfirmationStatus: (String) -> Unit = { Unit },
+    updateLinked: (Double) -> Unit = { Unit },
+    setPrivate: () -> Unit = { Unit },
+    addAffectedVersion: (id: String) -> Unit = { Unit },
+    createLink: (key: String, type: String) -> Unit = { _, _ -> Unit },
+    addComment: (options: CommentOptions) -> Unit = { Unit },
+    addRestrictedComment: (options: CommentOptions) -> Unit = { Unit },
+    addNotEnglishComment: (language: String) -> Unit = { Unit },
+    addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> Unit }
 ) = Issue(
     key,
     summary,
@@ -138,8 +138,8 @@ fun mockIssue(
     updateConfirmationStatus,
     updateLinked,
     setPrivate,
-    createLink,
     addAffectedVersion,
+    createLink,
     addComment,
     addRestrictedComment,
     addNotEnglishComment,
@@ -150,7 +150,7 @@ fun mockLink(
     type: String = "Duplicate",
     outwards: Boolean = true,
     issue: LinkedIssue = mockLinkedIssue(),
-    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+    remove: () -> Unit = { Unit.right() }
 ) = Link(
     type,
     outwards,
@@ -162,7 +162,7 @@ fun mockLinkedIssue(
     key: String = "MC-1",
     status: String = "Open",
     getFullIssue: () -> Either<Throwable, Issue> = { mockIssue().right() },
-    createLink: (key: String, type: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() }
+    createLink: (key: String, type: String) -> Unit = { _, _ -> Unit }
 ) = LinkedIssue(
     key,
     status,
@@ -194,8 +194,8 @@ fun mockVersion(
     released: Boolean = true,
     archived: Boolean = false,
     releaseDate: Instant? = RIGHT_NOW,
-    add: () -> Either<Throwable, Unit> = { Unit.right() },
-    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+    add: () -> Unit = { Unit },
+    remove: () -> Unit = { Unit }
 ) = Version(
     id,
     name,

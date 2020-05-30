@@ -64,19 +64,21 @@ fun assertEither(vararg list: Either<OperationNotNeededModuleResponse, ModuleRes
         OperationNotNeededModuleResponse.left()
     }
 
+/**
+ * The functions will stop executing when any of them fails. Therefore, we can avoid the bot from spamming comments
+ * when the resolve fails in case it needs to resolve and comment.
+ */
 fun tryRunAll(
-    functs: Collection<() -> Either<Throwable, Unit>>
+    functions: Collection<() -> Either<Throwable, Unit>>
 ): Either<FailedModuleResponse, ModuleResponse> {
-    val exceptions = functs
-        .map { it() }
-        .filter { it.isLeft() }
-        .map { (it as Either.Left).a }
-
-    return if (exceptions.isEmpty()) {
-        ModuleResponse.right()
-    } else {
-        FailedModuleResponse(exceptions).left()
+    functions.forEach {
+        val result = it()
+        if (result.isLeft()) {
+            return FailedModuleResponse(listOf((result as Either.Left).a)).left()
+        }
     }
+
+    return ModuleResponse.right()
 }
 
 fun <T> assertEquals(o1: T, o2: T) = if (o1 == o2) {

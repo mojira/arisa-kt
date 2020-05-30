@@ -83,7 +83,8 @@ class ModuleRegistry(private val config: Config) {
 
     init {
         register(
-            Modules.Attachment, AttachmentModule(config[Modules.Attachment.extensionBlacklist])
+            Modules.Attachment,
+            AttachmentModule(config[Modules.Attachment.extensionBlacklist], config[Modules.Attachment.comment])
         )
 
         register(Modules.CHK, CHKModule())

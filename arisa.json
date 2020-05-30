@@ -56,8 +56,14 @@
           "run",
           "lnk",
           "dmg",
-          "url"
-        ]
+          "url",
+          "pdf",
+          "doc",
+          "docx",
+          "odt",
+          "rtf"
+        ],
+        "message": "attach-new-attachment"
       },
       "duplicateMessage": {
         "resolutions": [

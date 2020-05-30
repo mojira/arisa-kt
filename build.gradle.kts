@@ -57,6 +57,7 @@ dependencies {
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
     testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
     testImplementation("io.mockk", "mockk", "1.9.3")
+    testImplementation("org.reflections", "reflections", "0.9.12")
 }
 
 tasks {
@@ -69,7 +70,8 @@ tasks {
 
     test {
         useJUnitPlatform()
-        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1 // Run with same number of cores
+        maxParallelForks =
+            (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1 // Run with same number of cores
         reports.html.isEnabled = false
         reports.junitXml.isEnabled = false
     }

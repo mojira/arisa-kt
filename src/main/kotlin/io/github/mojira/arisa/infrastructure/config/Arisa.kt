@@ -75,7 +75,7 @@ object Arisa : ConfigSpec() {
         }
 
         object DuplicateMessage : ModuleConfigSpec() {
-            val message by Attachment.required<String>(
+            val message by required<String>(
                 description = "The key of the message that is posted under duplicate tickets."
             )
             val ticketMessages by required<Map<String, String>>(

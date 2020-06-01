@@ -63,7 +63,7 @@
           "odt",
           "rtf"
         ],
-        "message": "attach-new-attachment"
+        "comment": "attach-new-attachment"
       },
       "duplicateMessage": {
         "resolutions": [

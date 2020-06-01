@@ -17,9 +17,9 @@ const val TWO_SECONDS_IN_MILLIS = 2000
 class ReopenAwaitingModule(
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>,
-    private val softArPeriod: Long?,
-    private val keepARTag: String?,
-    private val message: String?
+    private val softArPeriod: Long,
+    private val keepARTag: String,
+    private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -39,9 +39,8 @@ class ReopenAwaitingModule(
             if (shouldReopen) {
                 reopen().toFailedModuleEither().bind()
             } else {
-                assertNotNull(message)
                 assertNotEquals(changeLog.maxBy { it.created }?.author?.name, "arisabot")
-                addComment(CommentOptions(message!!)).toFailedModuleEither().bind()
+                addComment(CommentOptions(message)).toFailedModuleEither().bind()
             }
         }
     }
@@ -52,13 +51,11 @@ class ReopenAwaitingModule(
         reporter: User?,
         resolveTime: Instant
     ): Boolean {
-        val isSoftAR = softArPeriod == null ||
-                resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now())
+        val isSoftAR = resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now())
         return comments.none(::isKeepARTag) && (isSoftAR || validComments.any { it.author.name == reporter?.name })
     }
 
-    private fun isKeepARTag(comment: Comment) = keepARTag != null &&
-            comment.visibilityType == "group" &&
+    private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
             (comment.body?.contains(keepARTag) ?: false)
 

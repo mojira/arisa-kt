@@ -31,8 +31,7 @@ object Arisa : ConfigSpec() {
         val default by required<String>(
             description = "The default security id used by projects not defined in special."
         )
-        val special by optional<Map<String, String>>(
-            emptyMap(),
+        val special by required<Map<String, String>>(
             description = "Some projects define their own security level. These projects need to be defined here with" +
                     " their own ID.. Default is all projects use the default ID"
         )
@@ -46,7 +45,7 @@ object Arisa : ConfigSpec() {
 
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
-            val only by optional<Boolean>(
+            val only by optional(
                 false,
                 description = "Optional. If set to true, only this module will be executed."
             )
@@ -67,79 +66,65 @@ object Arisa : ConfigSpec() {
         }
 
         object Attachment : ModuleConfigSpec() {
-            val extensionBlacklist by optional(
-                emptyList<String>(),
+            val extensionBlacklist by required<List<String>>(
                 description = "The extensions that should be removed on issues. Default is no extensions."
             )
-            val comment by optional(
-                "",
+            val comment by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
         }
 
         object DuplicateMessage : ModuleConfigSpec() {
-            val message by optional(
-                "",
+            val message by required<String>(
                 description = "The key of the message that is posted under duplicate tickets."
             )
-            val ticketMessages by optional(
-                emptyMap<String, String>(),
+            val ticketMessages by required<Map<String, String>>(
                 description = "A map from ticket keys to keys of messages that are posted for specific parents"
             )
-            val privateMessage by optional<String?>(
-                null,
+            val privateMessage by required<String>(
                 description = "The key of the message that is posted when the parent is private."
             )
-            val resolutionMessages by optional(
-                emptyMap<String, String>(),
+            val resolutionMessages by required<Map<String, String>>(
                 description = "A map from resolution names to keys of messages that are posted when the parents were" +
                         " resolved as specific resolutions"
             )
-            val commentDelayMinutes by optional(
-                0L,
+            val commentDelayMinutes by required<Long>(
                 description = "Delay in which the module should add the comment in minutes"
             )
         }
 
         object Piracy : ModuleConfigSpec() {
-            val message by optional(
-                "",
+            val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
-            val piracySignatures by optional(
-                emptyList<String>(),
+            val piracySignatures by required<List<String>>(
                 description = "Signatures that indicate a pirated version of Minecraft. Default is no signatures."
             )
         }
 
         object Language : ModuleConfigSpec() {
-            val allowedLanguages by optional(
-                listOf("en"),
+            val allowedLanguages by required<List<String>>(
                 description = "Codes of languages that can be used."
             )
-            val messages by optional(
-                emptyMap<String, String>(),
+            val messages by required<Map<String, String>>(
                 description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys." +
                         " Default is no translated messages."
             )
-            val defaultMessage by optional(
-                "", description = "The message that is posted when this module succeeds."
+            val defaultMessage by required<String>(
+                description = "The message that is posted when this module succeeds."
             )
-            val messageFormat by optional(
-                "%s\n----\n%s",
+            val messageFormat by required<String>(
                 description = "The message format to be used if the translated message is present." +
                         " First argument is translated message, second is default message."
             )
-            val lengthThreshold by optional(
-                0,
+            val lengthThreshold by required<Int>(
                 description = "The minimum string length that the combined summary and description text must exceed" +
                         " before they can be detected by this module (inclusive)."
             )
         }
 
         object RemoveTriagedMeqs : ModuleConfigSpec() {
-            val meqsTags by optional(
-                emptyList<String>(),
+            val meqsTags by required<List<String>>(
                 description = "List of tags that should be removed by the bot when an issue is triaged."
             )
             val removalReason by required<String>(
@@ -148,8 +133,7 @@ object Arisa : ConfigSpec() {
         }
 
         object FutureVersion : ModuleConfigSpec() {
-            val message by optional(
-                "",
+            val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
         }
@@ -157,43 +141,35 @@ object Arisa : ConfigSpec() {
         object CHK : ModuleConfigSpec()
 
         object ConfirmParent : ModuleConfigSpec() {
-            val confirmationStatusWhitelist by optional(
-                emptyList<String>(),
+            val confirmationStatusWhitelist by required<List<String>>(
                 description = "List of confirmation status that can be replaced by the target status if Linked is" +
                         " greater than or equal to the threshold."
             )
-            val targetConfirmationStatus by optional(
-                "",
+            val targetConfirmationStatus by required<String>(
                 description = "The target confirmation status for tickets whose Linked is greater than or equal" +
                         " to the threshold."
             )
-            val linkedThreshold by optional(
-                0.0,
+            val linkedThreshold by required<Double>(
                 description = "The threshold of the Linked field for the ticket to be confirmed (inclusive)."
             )
         }
 
         object ReopenAwaiting : ModuleConfigSpec() {
-            val blacklistedRoles by optional(
-                emptyList<String>(),
+            val blacklistedRoles by required<List<String>>(
                 description = "Comments that were posted by someone who is member of this role should be ignored."
             )
-            val blacklistedVisibilities by optional(
-                emptyList<String>(),
+            val blacklistedVisibilities by required<List<String>>(
                 description = "Comments that are restricted to one of these roles should be ignored"
             )
-            val keepARTag by optional<String?>(
-                null,
+            val keepARTag by required<String>(
                 description = "A tag used to indicate that Arisa should keep the ticket Awaiting Response"
             )
-            val softARDays by optional<Long?>(
-                null,
+            val softARDays by required<Long>(
                 description = "The ticket can also be reopened by comments posted by people other than the reporter " +
                     "within the specific days after it was resolved. After the time has passed, only the reporter " +
                     "can reopen the ticket."
             )
-            val message by optional<String?>(
-                null,
+            val message by required<String>(
                 description = "The key of the message that is posted when the ticket is updated but will not be " +
                         "reopened by Arisa, e.g. the ticket has a keep AR tag, or the ticket is too old and is not " +
                         "updated by the reporter."
@@ -208,31 +184,25 @@ object Arisa : ConfigSpec() {
         }
 
         object Empty : ModuleConfigSpec() {
-            val message by optional(
-                "",
+            val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
         }
 
         object Crash : ModuleConfigSpec() {
-            val maxAttachmentAge by optional(
-                0,
+            val maxAttachmentAge by required<Int>(
                 description = "Max age in days the attachment can have to be considered"
             )
-            val crashExtensions by optional(
-                emptyList<String>(),
+            val crashExtensions by required<List<String>>(
                 description = "File extensions that should be checked for crash reports."
             )
-            val duplicateMessage by optional(
-                "",
+            val duplicateMessage by required<String>(
                 description = "The key of the message to be sent when resolving a duplicate."
             )
-            val moddedMessage by optional(
-                "",
+            val moddedMessage by required<String>(
                 description = "The key of the message to be sent when resolving a duplicate."
             )
-            val duplicates by optional(
-                emptyList<CrashDupeConfig>(),
+            val duplicates by required<List<CrashDupeConfig>>(
                 description = "List of exception details that are resolved as duplicates for a specific ticket key."
             )
         }
@@ -240,8 +210,7 @@ object Arisa : ConfigSpec() {
         object RevokeConfirmation : ModuleConfigSpec()
 
         object KeepPrivate : ModuleConfigSpec() {
-            val message by optional(
-                "",
+            val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
             val tag by optional<String?>(null)
@@ -252,8 +221,7 @@ object Arisa : ConfigSpec() {
         object ResolveTrash : ModuleConfigSpec()
 
         object UpdateLinked : ModuleConfigSpec() {
-            val updateIntervalHours by optional(
-                0L,
+            val updateIntervalHours by required<Long>(
                 description = "Interval in which the module should update the Linked field in hours"
             )
         }

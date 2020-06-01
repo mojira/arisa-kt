@@ -99,34 +99,6 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when there is a keep AR tag and the message is null" {
-        val module = ReopenAwaitingModule(
-            listOf("staff", "global-moderators"),
-            listOf("helper", "staff", "global-moderators"),
-            365,
-            "MEQS_KEEP_AR",
-            null
-        )
-
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val comment = getComment(
-            body = "MEQS_KEEP_AR",
-            visibilityType = "group",
-            visibilityValue = "staff"
-        )
-        val issue = mockIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = REPORTER,
-            comments = listOf(comment),
-            changeLog = listOf(AWAITING_RESOLVE)
-        )
-
-        val result = module(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should return OperationNotNeededModuleResponse when there is only a comment from before the resolve" {
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(

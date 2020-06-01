@@ -3,7 +3,6 @@ package io.github.mojira.arisa.infrastructure
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.maps.shouldContainKey
 import java.io.File
 
@@ -21,7 +20,7 @@ class IntegrationTest : StringSpec({
             .from.env()
             .from.systemProperties()
 
-        config.containsRequired().shouldBeTrue()
+        config.validateRequired()
     }
 
     "should contain required messages in helper-messages" {

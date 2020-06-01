@@ -17,7 +17,7 @@ class DuplicateMessageModule(
     private val commentDelayMinutes: Long,
     private val message: String,
     private val ticketMessages: Map<String, String>,
-    private val privateMessage: String?,
+    private val privateMessage: String,
     private val resolutionMessages: Map<String, String>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {

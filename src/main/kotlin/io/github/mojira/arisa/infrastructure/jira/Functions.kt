@@ -3,7 +3,6 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
-import arrow.core.right
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -98,21 +97,18 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
     context.value.edit.field(Field.DESCRIPTION, description)
 }
 
-fun applyIssueChanges(context: Lazy<IssueUpdateContext>): Either<FailedModuleResponse, ModuleResponse> {
-    if (!context.isInitialized()) {
-        return Unit.right()
+fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
+    val functions = context.otherOperations.toMutableList()
+    if (context.hasEdits) {
+        functions.add(::applyFluentUpdate.partially1(context.edit))
     }
-    val functions = context.value.otherOperations.toMutableList()
-    if (context.value.hasEdits) {
-        functions.add(::applyFluentUpdate.partially1(context.value.edit))
-    }
-    if (context.value.hasUpdates) {
+    if (context.hasUpdates) {
         functions.add(
-            ::applyFluentTransition.partially1(context.value.update).partially1("Update Issue"))
+            ::applyFluentTransition.partially1(context.update).partially1("Update Issue"))
     }
-    if (context.value.transitionName != null) {
+    if (context.transitionName != null) {
         functions.add(
-            ::applyFluentTransition.partially1(context.value.resolve).partially1(context.value.transitionName!!)
+            ::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!)
         )
     }
     return tryRunAll(functions)

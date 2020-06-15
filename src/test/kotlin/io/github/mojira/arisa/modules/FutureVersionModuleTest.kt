@@ -32,7 +32,7 @@ private val ADD_ARCHIVED_VERSION = mockChangeLogItem(field = "Version", changedT
 private val ADD_FUTURE_VERSION = mockChangeLogItem(field = "Version", changedTo = "3")
 
 class FutureVersionModuleTest : StringSpec({
-    "should return OperationNotNeededModuleResponse when there was no change log" {
+    "should return OperationNotNeededModuleResponse when there is no change log" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
@@ -46,7 +46,7 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when there was no version changes" {
+    "should return OperationNotNeededModuleResponse when there are no version changes" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
@@ -86,7 +86,7 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the version change is removing" {
+    "should return OperationNotNeededModuleResponse when the version change is an removal" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),

@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 private val DUPLICATE_LINK = mockChangeLogItem(
     field = "Link",
-    changedTo = "This issue is duplicated by MC-4"
+    changedToString = "This issue is duplicated by MC-4"
 )
 
 class UpdateLinkedModuleTest : StringSpec({
@@ -73,12 +73,12 @@ class UpdateLinkedModuleTest : StringSpec({
         val linkedChange = mockChangeLogItem(
             created = RIGHT_NOW.minusSeconds(2),
             field = "Linked",
-            changedFrom = "1.0"
+            changedFromString = "1.0"
         )
         val oldAddedLink = mockChangeLogItem(
             created = RIGHT_NOW.minus(2, ChronoUnit.HOURS),
             field = "Link",
-            changedTo = "This issue is duplicated by MC-4"
+            changedToString = "This issue is duplicated by MC-4"
         )
         val issue = mockIssue(
             created = RIGHT_NOW.minus(3, ChronoUnit.HOURS),
@@ -125,7 +125,7 @@ class UpdateLinkedModuleTest : StringSpec({
         val removedLink = mockChangeLogItem(
             created = RIGHT_NOW.plusSeconds(1),
             field = "Link",
-            changedFrom = "This issue is duplicated by MC-4"
+            changedFromString = "This issue is duplicated by MC-4"
         )
         val issue = mockIssue(
             created = A_SECOND_AGO,
@@ -145,7 +145,7 @@ class UpdateLinkedModuleTest : StringSpec({
         val module = UpdateLinkedModule(0)
         val relatesLink = mockChangeLogItem(
             field = "Link",
-            changedTo = "This issue relates to MC-4"
+            changedToString = "This issue relates to MC-4"
         )
         val issue = mockIssue(
             created = A_SECOND_AGO,
@@ -166,7 +166,7 @@ class UpdateLinkedModuleTest : StringSpec({
         val oldAddedLink = mockChangeLogItem(
             created = RIGHT_NOW.minus(2, ChronoUnit.HOURS),
             field = "Link",
-            changedTo = "This issue is duplicated by MC-4"
+            changedToString = "This issue is duplicated by MC-4"
         )
         val issue = mockIssue(
             created = A_SECOND_AGO.minus(2, ChronoUnit.HOURS),
@@ -184,17 +184,17 @@ class UpdateLinkedModuleTest : StringSpec({
         val addedLink = mockChangeLogItem(
             created = RIGHT_NOW.minus(4, ChronoUnit.HOURS),
             field = "Link",
-            changedTo = "This issue is duplicated by MC-4"
+            changedToString = "This issue is duplicated by MC-4"
         )
         val linkedChange = mockChangeLogItem(
             created = A_SECOND_AGO.minus(3, ChronoUnit.HOURS),
             field = "Linked",
-            changedFrom = "1.0"
+            changedFromString = "1.0"
         )
         val removedLink = mockChangeLogItem(
             created = RIGHT_NOW.minus(2, ChronoUnit.HOURS),
             field = "Link",
-            changedFrom = "This issue is duplicated by MC-4"
+            changedFromString = "This issue is duplicated by MC-4"
         )
         val issue = mockIssue(
             created = A_SECOND_AGO.minus(4, ChronoUnit.HOURS),

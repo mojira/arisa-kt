@@ -63,7 +63,7 @@ class DuplicateMessageModule(
     }
 
     private fun isAddingDuplicateLink(item: ChangeLogItem) = item.field == "Link" &&
-            item.changedTo != null && item.changedTo.startsWith("This issue duplicates ")
+            item.changedToString != null && item.changedToString.startsWith("This issue duplicates ")
 
     private fun List<LinkedIssue>.getFilledText() = this
         .map { it.key }

@@ -81,7 +81,7 @@ class ReopenAwaitingModule(
         .filter { it.field != "Comment" }
 
     private fun isAwaitingResolve(change: ChangeLogItem) =
-        change.changedTo == "Awaiting Response"
+        change.changedToString == "Awaiting Response"
 
     private fun assertCreationIsNotRecent(updated: Long, created: Long) = when {
         (updated - created) < TWO_SECONDS_IN_MILLIS -> OperationNotNeededModuleResponse.left()

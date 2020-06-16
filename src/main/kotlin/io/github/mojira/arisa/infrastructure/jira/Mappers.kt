@@ -61,7 +61,7 @@ fun JiraIssue.toDomain(
     description,
     getEnvironment(),
     security?.id,
-    reporter.toDomain(),
+    reporter.toDomain(jiraClient),
     resolution?.name,
     createdDate.toInstant(),
     updatedDate.toInstant(),
@@ -142,7 +142,7 @@ fun JiraComment.toDomain(
     jiraClient: JiraClient
 ) = Comment(
     body,
-    author.toDomain(),
+    author.toDomain(jiraClient),
     { getGroups(jiraClient, author.name).fold({ null }, { it }) },
     createdDate.toInstant(),
     updatedDate.toInstant(),
@@ -152,8 +152,9 @@ fun JiraComment.toDomain(
     ::updateCommentBody.partially1(this)
 )
 
-fun JiraUser.toDomain() = User(
-    name, displayName
+fun JiraUser.toDomain(jiraClient: JiraClient) = User(
+    name, displayName,
+    ::getUserGroups.partially1(jiraClient).partially1(name)
 )
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
@@ -190,7 +191,7 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
     fromString,
     to,
     toString,
-    entry.author.toDomain(),
+    entry.author.toDomain(jiraClient),
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 

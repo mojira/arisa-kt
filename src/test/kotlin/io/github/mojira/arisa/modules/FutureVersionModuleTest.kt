@@ -264,9 +264,10 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should remove future versions added by editing" {
+    "should remove future versions added via editing" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
@@ -279,9 +280,10 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should remove future versions added by users" {
+    "should remove future versions added by users via editing" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(
@@ -300,9 +302,10 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
-    "should remove future versions added by users without a group" {
+    "should remove future versions added by users without a group via editing" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(

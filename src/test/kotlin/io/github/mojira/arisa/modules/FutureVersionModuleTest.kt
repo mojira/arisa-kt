@@ -7,6 +7,7 @@ import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
+import io.github.mojira.arisa.utils.mockUser
 import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -14,7 +15,8 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-private val TWO_SECONDS_BEFORE = RIGHT_NOW.minusSeconds(2)
+private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
+private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
 private val ARCHIVED_VERSION = mockVersion(id = "1", released = false, archived = true)
 private val RELEASED_VERSION = mockVersion(id = "2", released = true, archived = false)
@@ -35,13 +37,14 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -49,6 +52,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no version changes" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(
@@ -60,7 +64,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -68,11 +72,12 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the version change is before last run" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Version",
-                    created = RIGHT_NOW.minusSeconds(10),
+                    created = FIVE_SECONDS_AGO,
                     changedTo = "3"
                 )
             ),
@@ -81,7 +86,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -89,6 +94,7 @@ class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the version change is an removal" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(
@@ -101,14 +107,32 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the future version is added by a staff" {
+    "should return OperationNotNeededModuleResponse when the future version is added by a staff upon ticket creation" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
+            reporter = mockUser(
+                getGroups = { listOf("staff") }
+            ),
+            affectedVersions = listOf(FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION)
+            )
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the future version is added by a staff via editing" {
+        val module = FutureVersionModule("message")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(
@@ -122,7 +146,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -135,7 +159,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -147,7 +171,7 @@ class FutureVersionModuleTest : StringSpec({
             changeLog = listOf(ADD_FUTURE_VERSION)
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -159,7 +183,7 @@ class FutureVersionModuleTest : StringSpec({
             changeLog = listOf(ADD_FUTURE_VERSION)
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -174,7 +198,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -189,7 +213,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -204,12 +228,43 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should remove future versions" {
+    "should remove future versions added upon ticket creation" {
+        val module = FutureVersionModule("message")
+        val issue = mockIssue(
+            affectedVersions = listOf(FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION)
+            )
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should remove future versions added upon ticket creation by users" {
+        val module = FutureVersionModule("message")
+        val issue = mockIssue(
+            reporter = mockUser(
+                getGroups = { listOf("user") }
+            ),
+            affectedVersions = listOf(FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION)
+            )
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
+    "should remove future versions added by editing" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
@@ -219,7 +274,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -240,7 +295,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -261,7 +316,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -276,7 +331,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -293,7 +348,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -310,7 +365,7 @@ class FutureVersionModuleTest : StringSpec({
             )
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -328,7 +383,7 @@ class FutureVersionModuleTest : StringSpec({
             addComment = { RuntimeException().left() }
         )
 
-        val result = module(issue, TWO_SECONDS_BEFORE)
+        val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

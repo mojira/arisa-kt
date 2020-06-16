@@ -46,7 +46,7 @@ class DuplicateMessageModuleTest : StringSpec({
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Confirmation Status",
-                    changedTo = "Confirmed"
+                    changedToString = "Confirmed"
                 )
             )
         )
@@ -61,7 +61,7 @@ class DuplicateMessageModuleTest : StringSpec({
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Link",
-                    changedTo = "This issue relates to MC-42"
+                    changedToString = "This issue relates to MC-42"
                 )
             )
         )
@@ -75,9 +75,9 @@ class DuplicateMessageModuleTest : StringSpec({
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
+                    created = TWO_SECONDS_AGO,
                     field = "Link",
-                    changedTo = "This issue duplicates MC-42",
-                    created = TWO_SECONDS_AGO
+                    changedToString = "This issue duplicates MC-42"
                 )
             )
         )
@@ -612,9 +612,9 @@ private fun getIssue(
     links: List<Link> = emptyList(),
     changeLog: List<ChangeLogItem> = listOf(
         mockChangeLogItem(
+            created = TEN_THOUSAND_YEARS_LATER,
             field = "Link",
-            changedTo = "This issue duplicates MC-42",
-            created = TEN_THOUSAND_YEARS_LATER
+            changedToString = "This issue duplicates MC-42"
         )
     ),
     comments: List<Comment> = emptyList(),

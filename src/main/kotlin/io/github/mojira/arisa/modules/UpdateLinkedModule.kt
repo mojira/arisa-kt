@@ -49,11 +49,11 @@ class UpdateLinkedModule(
 
     private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-                change.changedTo?.matches(DUPLICATE_REGEX) ?: false
+                change.changedToString?.matches(DUPLICATE_REGEX) ?: false
 
     private fun isDuplicateLinkRemovedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-                change.changedFrom?.matches(DUPLICATE_REGEX) ?: false
+                change.changedFromString?.matches(DUPLICATE_REGEX) ?: false
 
     private fun isDuplicateLinkChange(change: ChangeLogItem) =
         change.field == "Link" && (

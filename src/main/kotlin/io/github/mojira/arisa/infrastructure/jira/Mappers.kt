@@ -186,7 +186,9 @@ fun JiraIssueLink.toDomain(
 fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
     entry.created.toInstant(),
     field,
+    from,
     fromString,
+    to,
     toString,
     entry.author.toDomain(),
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)

@@ -13,8 +13,10 @@ class FutureVersionModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
+            val addedVersions = getLatelyAddedVersions(lastRun)
             val removeFutureVersions = affectedVersions
                 .filter(::isFutureVersion)
+                .filter { it.id in addedVersions }
                 .map { it.remove }
             assertNotEmpty(removeFutureVersions).bind()
 
@@ -26,6 +28,16 @@ class FutureVersionModule(
             addComment(CommentOptions(message)).toFailedModuleEither().bind()
             resolveAsAwaitingResponse().toFailedModuleEither().bind()
         }
+    }
+
+    private fun Issue.getLatelyAddedVersions(lastRun: Instant): List<String> {
+        return changeLog
+            .asSequence()
+            .filter { it.created.isAfter(lastRun) }
+            .filter { it.field.toLowerCase() == "version" }
+            .filterNot { "staff" in (it.getAuthorGroups() ?: emptyList()) }
+            .mapNotNull { it.changedTo }
+            .toList()
     }
 
     private fun isFutureVersion(version: Version) =

@@ -3,9 +3,9 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.syntax.function.complement
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.domain.CommentOptions
 import java.time.Instant
 
 class FutureVersionModule(
@@ -13,7 +13,7 @@ class FutureVersionModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            val addedVersions = getLatelyAddedVersions(lastRun)
+            val addedVersions = getVersionsLatelyAddedByNonStaff(lastRun)
             val removeFutureVersions = affectedVersions
                 .filter(::isFutureVersion)
                 .filter { it.id in addedVersions }
@@ -30,15 +30,24 @@ class FutureVersionModule(
         }
     }
 
-    private fun Issue.getLatelyAddedVersions(lastRun: Instant): List<String> {
-        return changeLog
-            .asSequence()
-            .filter { it.created.isAfter(lastRun) }
-            .filter { it.field.toLowerCase() == "version" }
-            .filterNot { "staff" in (it.getAuthorGroups() ?: emptyList()) }
-            .mapNotNull { it.changedTo }
-            .toList()
-    }
+    private fun Issue.getVersionsLatelyAddedByNonStaff(lastRun: Instant): List<String> =
+        if (created.isAfter(lastRun)) {
+            if (isStaff(reporter?.getGroups?.invoke())) {
+                emptyList()
+            } else {
+                affectedVersions.map { ver -> ver.id }
+            }
+        } else {
+            changeLog
+                .asSequence()
+                .filter { it.created.isAfter(lastRun) }
+                .filter { it.field.toLowerCase() == "version" }
+                .filterNot { isStaff(it.getAuthorGroups()) }
+                .mapNotNull { it.changedTo }
+                .toList()
+        }
+
+    private fun isStaff(groups: List<String>?) = "staff" in (groups ?: emptyList())
 
     private fun isFutureVersion(version: Version) =
         !version.released && !version.archived

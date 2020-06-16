@@ -7,6 +7,7 @@ import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -765,4 +766,4 @@ private fun getComment(
     { Unit.right() }
 )
 
-private fun getUser(name: String) = User(name, "User")
+private fun getUser(name: String) = mockUser(name = name, displayName = "User")

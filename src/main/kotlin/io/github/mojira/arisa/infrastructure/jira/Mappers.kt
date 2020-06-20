@@ -107,23 +107,10 @@ fun JiraIssue.toDomain(
         )
     },
     { language ->
-        // Should we move this?
-        // Most likely, no ;D
-        // addRestrictedComment(this, messages.getMessageWithBotSignature(
-        //     issue.project.key, config[Modules.Language.message], lang = language
-        // ), "helper")
-        val translatedMessage = config[Arisa.Modules.Language.messages][language]
-        val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
-        val text =
-            if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
-                translatedMessage,
-                defaultMessage
-            ) else defaultMessage
-
-        addRestrictedComment(
-            this,
-            text,
-            "helper"
+        createComment(
+            this, messages.getMessageWithBotSignature(
+                project.key, config[Arisa.Modules.Language.message], lang = language
+            )
         )
     },
     ::addRestrictedComment.partially1(this)

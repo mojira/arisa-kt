@@ -106,16 +106,8 @@ object Arisa : ConfigSpec() {
             val allowedLanguages by required<List<String>>(
                 description = "Codes of languages that can be used."
             )
-            val messages by required<Map<String, String>>(
-                description = "Translated messages for various languages. Use lowercase ISO 639-1 as keys." +
-                        " Default is no translated messages."
-            )
-            val defaultMessage by required<String>(
-                description = "The message that is posted when this module succeeds."
-            )
-            val messageFormat by required<String>(
-                description = "The message format to be used if the translated message is present." +
-                        " First argument is translated message, second is default message."
+            val message by required<String>(
+                description = "Key of message in helper-messages."
             )
             val lengthThreshold by required<Int>(
                 description = "The minimum string length that the combined summary and description text must exceed" +

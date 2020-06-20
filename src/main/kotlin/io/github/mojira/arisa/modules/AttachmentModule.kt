@@ -19,8 +19,8 @@ class AttachmentModule(
                 .filter { (name, _) -> endsWithBlacklistedExtensionAdapter(name) }
                 .map { it.remove }
             assertNotEmpty(functions).bind()
-            tryRunAll(functions).bind()
-            addComment(CommentOptions(attachmentRemovedMessage)).toFailedModuleEither().bind()
+            functions.forEach { it.invoke() }
+            addComment(CommentOptions(attachmentRemovedMessage))
         }
     }
 

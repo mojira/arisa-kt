@@ -412,58 +412,6 @@ class TransferVersionsModuleTest : StringSpec({
         addedToSecondParent.shouldBeTrue()
     }
 
-    "should return FailedModuleResponse when adding a version fails" {
-        val module = TransferVersionsModule()
-        val link = mockLink(
-            issue = mockLinkedIssue(
-                key = "MC-1",
-                getFullIssue = {
-                    mockIssue(
-                        addAffectedVersion = {
-                            RuntimeException().left()
-                        }
-                    ).right()
-                }
-            )
-        )
-        val issue = mockIssue(
-            links = listOf(link),
-            affectedVersions = listOf(VERSION_1)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all errors when adding multiple versions fails" {
-        val module = TransferVersionsModule()
-        val link = mockLink(
-            issue = mockLinkedIssue(
-                key = "MC-1",
-                getFullIssue = {
-                    mockIssue(
-                        addAffectedVersion = {
-                            RuntimeException().left()
-                        }
-                    ).right()
-                }
-            )
-        )
-        val issue = mockIssue(
-            links = listOf(link),
-            affectedVersions = listOf(VERSION_1, VERSION_2)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
-    }
-
     "should return FailedModuleResponse when getting an issue fails" {
         val module = TransferVersionsModule()
         val link = mockLink(
@@ -484,28 +432,6 @@ class TransferVersionsModuleTest : StringSpec({
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all errors when getting an issue fails" {
-        val module = TransferVersionsModule()
-        val link = mockLink(
-            issue = mockLinkedIssue(
-                key = "MC-1",
-                getFullIssue = {
-                    RuntimeException().left()
-                }
-            )
-        )
-        val issue = mockIssue(
-            links = listOf(link, link),
-            affectedVersions = listOf(VERSION_1)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 })
 

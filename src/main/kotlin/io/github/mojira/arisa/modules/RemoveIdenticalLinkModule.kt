@@ -36,7 +36,7 @@ class RemoveIdenticalLinkModule : Module {
 
             assertNotEmpty(removeLinkFunctions).bind()
 
-            tryRunAll(removeLinkFunctions).bind()
+            removeLinkFunctions.forEach { it.invoke() }
         }
     }
 }

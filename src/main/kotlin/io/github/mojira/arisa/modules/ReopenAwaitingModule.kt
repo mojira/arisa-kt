@@ -37,10 +37,10 @@ class ReopenAwaitingModule(
 
             val shouldReopen = shouldReopen(comments, validComments, reporter, resolveTime)
             if (shouldReopen) {
-                reopen().toFailedModuleEither().bind()
+                reopen()
             } else {
                 assertNotEquals(changeLog.maxBy { it.created }?.author?.name, "arisabot")
-                addComment(CommentOptions(message)).toFailedModuleEither().bind()
+                addComment(CommentOptions(message))
             }
         }
     }

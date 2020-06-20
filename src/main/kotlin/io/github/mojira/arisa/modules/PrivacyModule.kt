@@ -12,7 +12,7 @@ class PrivacyModule(
 ) : Module {
     private val patterns: List<Regex> = listOf(
         """\(Session ID is token:""".toRegex(),
-        """\S+@\S+\.\S{2,}""".toRegex()
+        """[a-zA-Z0-9.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]{2,}""".toRegex()
     )
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {

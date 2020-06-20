@@ -102,7 +102,11 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object Privacy : ModuleConfigSpec()
+        object Privacy : ModuleConfigSpec() {
+            val message by Piracy.required<String>(
+                description = "The key of the message that is posted when this module succeeds."
+            )
+        }
 
         object Language : ModuleConfigSpec() {
             val allowedLanguages by required<List<String>>(

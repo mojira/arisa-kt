@@ -2,10 +2,13 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-class PrivacyModule : Module {
+class PrivacyModule(
+    private val message: String
+) : Module {
     private val patterns: List<Regex> = listOf(
         """\(Session ID is token:""".toRegex(),
         """\S+@\S+\.\S{2,}""".toRegex()
@@ -33,8 +36,8 @@ class PrivacyModule : Module {
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
-                .filter { it.body.matches(patterns) }
-                .map { { it.restrict(it.body) } }
+                .filter { it.body?.matches(patterns) ?: false }
+                .map { { it.restrict("${it.body}\n----\n[~arisabot]: Restricted by PrivacyModule") } }
                 .toList()
 
             assertEither(
@@ -43,10 +46,11 @@ class PrivacyModule : Module {
             ).bind()
 
             if (stringMatchesPatterns) {
-                setPrivate().toFailedModuleEither().bind()
+                setPrivate()
+                addComment(CommentOptions(message))
             }
 
-            tryRunAll(restrictCommentFunctions).bind()
+            restrictCommentFunctions.forEach { it.invoke() }
         }
     }
 

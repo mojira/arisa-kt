@@ -155,7 +155,12 @@ class ModuleRegistry(private val config: Config) {
             )
         )
 
-        register(Modules.Privacy, PrivacyModule())
+        register(
+            Modules.Privacy,
+            PrivacyModule(
+                config[Modules.Privacy.message]
+            )
+        )
 
         register(
             Modules.Language,

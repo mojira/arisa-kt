@@ -117,6 +117,9 @@
           "Titan"
         ]
       },
+      "privacy": {
+        "message": "panel-mark-private"
+      },
       "removeTriagedMeqs": {
         "meqsTags": [
           "MEQS_WAI",

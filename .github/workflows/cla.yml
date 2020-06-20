@@ -19,7 +19,7 @@ jobs:
           path-to-signatures: 'signatures/version1/cla.json'
           path-To-cladocument: 'https://github.com/mojira/arisa-kt/blob/master/.github/cla.md'
           # branch should not be protected
-          branch: 'master'
+          branch: 'cla'
           whitelist: bot*
           empty-commit-flag: false
           blockchain-storage-flag: false

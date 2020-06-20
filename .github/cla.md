@@ -4,7 +4,7 @@ The following terms are used throughout this agreement:
 * You - the person or legal entity including its affiliates asked to accept this agreement. An affiliate is any entity that controls or is controlled by the legal entity, or is under common control with it.
 * Project - is an umbrella term that refers to any and all Mojira open source projects.
 * Contribution - any type of work that is submitted to a Project, including any modifications or additions to existing work.
-* Submitted - conveyed to a Project via a pull request, commit, issue, or any form of electronic, written, or verbal communication with IOMED Medical Solution S.L., contributors or maintainers.
+* Submitted - conveyed to a Project via a pull request, commit, issue, or any form of electronic, written, or verbal communication with Mojira, contributors or maintainers.
 
 ## 1. Grant of Copyright License.
 
@@ -20,4 +20,4 @@ If any entity institutes patent litigation - including cross-claim or countercla
 
 Your contribution is either your original creation, based upon previous work that, to the best of your knowledge, is covered under an appropriate open source license and you have the right under that license to submit that work with modifications, whether created in whole or in part by you, or you have clearly identified the source of the contribution and any license or other restriction (like related patents, trademarks, and license agreements) of which you are personally aware.
 
-_Based in [GitHub's CLA](https://cla.github.com/agreement)__
+_Based in GitHub's CLA, now using Microsoft version_

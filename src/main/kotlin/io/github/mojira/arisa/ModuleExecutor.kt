@@ -144,11 +144,10 @@ class ModuleExecutor(
 
         queryCache.add(jql, issues)
 
-        issues
+        return issues
             .filter { it.project.key in projects }
             .filter { it.status.toLowerCase() !in excludedStatuses }
             .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
-        return issues
     }
 
     private fun searchIssues(

@@ -35,11 +35,11 @@ class ReplaceTextModule(
             ).bind()
 
             if (needUpdateDescription) {
-                updateDescription(replace(description!!)).toFailedModuleEither().bind()
+                updateDescription(replace(description!!))
             }
 
             filteredComments.forEach {
-                it.update(replace(it.body!!)).toFailedModuleEither().bind()
+                it.update(replace(it.body!!))
             }
         }
     }

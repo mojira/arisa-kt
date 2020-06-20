@@ -83,6 +83,7 @@
         }
       },
       "piracy": {
+        "whitelist": [],
         "excludedStatuses": ["Postponed", "Resolved"],
         "message": "pirated-minecraft",
         "piracySignatures": [

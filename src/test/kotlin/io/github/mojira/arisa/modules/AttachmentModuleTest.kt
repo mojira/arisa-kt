@@ -1,6 +1,6 @@
 package io.github.mojira.arisa.modules
 
-import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -50,9 +50,9 @@ private fun getAttachment(
     name: String = "testfile.test",
     created: Instant = NOW,
     remove: () -> Unit = { Unit }
-) = Attachment(
-    name,
-    created,
-    remove,
-    { ByteArray(0) }
+) = mockAttachment(
+    name = name,
+    created = created,
+    remove = remove,
+    getContent = { ByteArray(0) }
 )

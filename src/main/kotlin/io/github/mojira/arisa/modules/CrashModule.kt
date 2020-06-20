@@ -5,9 +5,9 @@ import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
 import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import io.github.mojira.arisa.domain.CommentOptions
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError

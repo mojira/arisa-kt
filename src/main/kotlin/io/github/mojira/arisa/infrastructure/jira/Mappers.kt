@@ -80,7 +80,7 @@ fun JiraIssue.toDomain(
         description,
         getEnvironment(),
         security?.id,
-        reporter.toDomain(),
+        reporter.toDomain(jiraClient),
         resolution?.name,
         createdDate.toInstant(),
         updatedDate.toInstant(),
@@ -126,26 +126,14 @@ fun JiraIssue.toDomain(
             )
         },
         { language ->
-            // Should we move this?
-            // Most likely, no ;D
-            // addRestrictedComment(this, messages.getMessageWithBotSignature(
-            //     issue.project.key, config[Modules.Language.message], lang = language
-            // ), "helper")
-            val translatedMessage = config[Arisa.Modules.Language.messages][language]
-            val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
-            val text =
-                if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
-                    translatedMessage,
-                    defaultMessage
-                ) else defaultMessage
-
-            addRestrictedComment(
-                context,
-                text,
-                "helper"
+            createComment(
+                context, messages.getMessageWithBotSignature(
+                    project.key, config[Arisa.Modules.Language.message], lang = language
+                )
             )
         },
-        ::addRestrictedComment.partially1(context)
+        ::addRestrictedComment.partially1(context),
+        ::markAsFixedWithSpecificVersion.partially1(context)
     )
 }
 
@@ -168,7 +156,7 @@ fun JiraComment.toDomain(
     val context = issue.getUpdateContext(jiraClient, cache)
     return Comment(
         body,
-        author.toDomain(),
+        author.toDomain(jiraClient),
         { getGroups(jiraClient, author.name).fold({ null }, { it }) },
         createdDate.toInstant(),
         updatedDate.toInstant(),

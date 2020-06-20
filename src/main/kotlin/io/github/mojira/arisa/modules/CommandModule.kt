@@ -24,7 +24,7 @@ class CommandModule(
             assertNotEmpty(staffComments).bind()
 
             val results = staffComments
-                .map { executeCommand(it.body!!, this) }
+                .map { executeCommand(it.body!!, this, userIsMod(it)) }
 
             when {
                 results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
@@ -41,14 +41,16 @@ class CommandModule(
     }
 
     @Suppress("SpreadOperator")
-    private fun executeCommand(comment: String, issue: Issue): Either<ModuleError, ModuleResponse> {
+    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean): Either<ModuleError, ModuleResponse> {
         val split = comment.split("\\s+".toRegex())
         val arguments = split.toTypedArray()
         return when (split[0]) {
             // TODO this should be configurable if we move to a registry
             // TODO do we want to add the response of a module via editing the comment?
             "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
-            "ARISA_FIXED" -> fixedCommand(issue, *arguments)
+            "ARISA_FIXED" -> if (userIsMod) {
+                fixedCommand(issue, *arguments)
+            } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()
         }
     }
@@ -60,6 +62,9 @@ class CommandModule(
 
     private fun userIsVolunteer(comment: Comment) =
         comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+
+    private fun userIsMod(comment: Comment) =
+        comment.getAuthorGroups()?.any { it == "global-moderators" || it == "staff" } ?: false
 
     private fun isStaffRestricted(comment: Comment) =
         comment.visibilityType == "group" && (comment.visibilityValue == "staff" || comment.visibilityValue == "helper")

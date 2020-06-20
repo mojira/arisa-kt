@@ -27,7 +27,7 @@ class LanguageModule(
             assertLanguageIsNotAllowed(allowedLanguages, detectedLanguage!!).bind()
 
             addNotEnglishComment(detectedLanguage)
-            // resolveAsInvalid()
+            resolveAsInvalid()
         }
     }
 

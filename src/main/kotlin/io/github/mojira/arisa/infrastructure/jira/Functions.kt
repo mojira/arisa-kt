@@ -219,3 +219,8 @@ fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
             .map { (it as JSONObject)["name"] as String }
     }
 }
+
+fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion: String) {
+    context.value.resolve.field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersion)))
+    context.value.transitionName = "Resolve Issue"
+}

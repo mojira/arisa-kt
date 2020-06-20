@@ -39,6 +39,7 @@ data class Issue(
     val createLink: (type: String, key: String) -> Unit,
     val addComment: (options: CommentOptions) -> Unit,
     val addRestrictedComment: (options: CommentOptions) -> Unit,
-    val addNotEnglishComment: (language: String) -> Unit, // To be removed when we enable the module
-    val addRawRestrictedComment: (body: String, restriction: String) -> Unit
+    val addNotEnglishComment: (language: String) -> Unit,
+    val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
+    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit
 )

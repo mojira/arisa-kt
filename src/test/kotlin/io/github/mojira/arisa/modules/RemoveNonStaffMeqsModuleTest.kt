@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
@@ -7,6 +8,7 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class RemoveNonStaffMeqsModuleTest : StringSpec({
@@ -77,6 +79,42 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return FailedModuleResponse when updating fails" {
+        val module = RemoveNonStaffMeqsModule("")
+        val comment = mockComment(
+            body = "MEQS_WAI I like QC.",
+            restrict = { RuntimeException().left() },
+            update = { RuntimeException().left() }
+        )
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+    }
+
+    "should return FailedModuleResponse with all exceptions when updating fails" {
+        val module = RemoveNonStaffMeqsModule("")
+        val comment = mockComment(
+            body = "MEQS_WAI I like QC .",
+            restrict = { RuntimeException().left() },
+            update = { RuntimeException().left() }
+        )
+        val issue = mockIssue(
+            comments = listOf(comment, comment)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft()
+        result.a should { it is FailedModuleResponse }
+        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 
     "should update comment when there is an unrestricted MEQS comment" {

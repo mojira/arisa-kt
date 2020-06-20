@@ -83,7 +83,7 @@
         }
       },
       "piracy": {
-        "excludedStatuses": ["Postponed"],
+        "excludedStatuses": ["Postponed", "Resolved"],
         "message": "pirated-minecraft",
         "piracySignatures": [
           "Minecraft Launcher null",

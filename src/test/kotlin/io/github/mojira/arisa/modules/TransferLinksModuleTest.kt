@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
@@ -74,6 +75,7 @@ class TransferLinksModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
+
     "should return OperationNotNeededModuleResponse when the issue has no additional links" {
         val module = TransferLinksModule()
         val issue = mockIssue(
@@ -96,6 +98,44 @@ class TransferLinksModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+    }
+
+    "should not transfer relates link that exists in parent regardless of direction" {
+        var hasTransferred = false
+        val module = TransferLinksModule()
+
+        val createLink = { _: String, _: String, _: String -> hasTransferred = true; Unit.right() }
+
+        /**
+         * MC-42 duplicates MC-1
+         */
+        val link = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-1",
+            createLink = createLink,
+            additionalLinksOnParent = listOf(
+                /**
+                 * MC-10 relates to MC-1
+                 */
+                linkIssues(
+                    key1 = "MC-1",
+                    key2 = "MC-10",
+                    type = "Relates",
+                    outwards = false,
+                    createLink = createLink
+                )
+            )
+        )
+
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(link, RELATES_LINK)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        hasTransferred.shouldBeFalse()
     }
 
     "should remove links" {
@@ -450,10 +490,11 @@ private fun linkIssues(
     outwards: Boolean = true,
     createLink: (key1: String, type: String, key2: String) -> Either<Throwable, Unit> = { _, _, _ -> Unit.right() },
     removeLink: (key1: String, key2: String, type: String) -> Either<Throwable, Unit> = { _, _, _ -> Unit.right() },
+    additionalLinksOnParent: List<Link> = emptyList(),
     getFullIssue: () -> Either<Throwable, Issue> = {
         mockIssue(
             key = key2,
-            links = listOf(
+            links = mutableListOf(
                 mockLink(
                     type = type,
                     outwards = !outwards,
@@ -463,7 +504,7 @@ private fun linkIssues(
                     ),
                     remove = { removeLink(key2, type, key1) }
                 )
-            ),
+            ).also { it.addAll(additionalLinksOnParent) },
             createLink = { linkType, key -> createLink(key2, linkType, key) }
         ).right()
     }

@@ -32,7 +32,7 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the links have directions" {
+    "should return OperationNotNeededModuleResponse when the links have different directions" {
         val link1 = mockLink(
             outwards = true
         )
@@ -94,6 +94,32 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         val link2 = mockLink(
             remove = { hasRemovedLink2 = true; Unit.right() }
         )
+        val issue = mockIssue(
+            links = listOf(link1, link2)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        hasRemovedLink1 shouldBe false
+        hasRemovedLink2 shouldBe true
+    }
+
+    "should remove extra relates link that is identical to the former one regardless of directions" {
+        var hasRemovedLink1 = false
+        var hasRemovedLink2 = false
+
+        val link1 = mockLink(
+            type = "Relates",
+            outwards = true,
+            remove = { hasRemovedLink1 = true; Unit.right() }
+        )
+        val link2 = mockLink(
+            type = "Relates",
+            outwards = false,
+            remove = { hasRemovedLink2 = true; Unit.right() }
+        )
+
         val issue = mockIssue(
             links = listOf(link1, link2)
         )

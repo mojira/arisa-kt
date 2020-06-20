@@ -27,7 +27,7 @@ class TransferLinksModule : AbstractTransferFieldModule() {
     private fun parentDoesNotHaveLink(parentLinks: List<Link>, other: Link) =
         parentLinks.none {
             it.type == other.type &&
-                it.outwards == other.outwards &&
+                (it.type.toLowerCase() == "relates" || it.outwards == other.outwards) &&
                 it.issue.key == other.issue.key
         }
 

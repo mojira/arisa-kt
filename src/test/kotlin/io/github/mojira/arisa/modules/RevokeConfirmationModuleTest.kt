@@ -238,6 +238,6 @@ private fun mockChangeLogItem(
 ) = mockChangeLogItem(
     created = created,
     field = field,
-    changedTo = value,
+    changedToString = value,
     getAuthorGroups = getAuthorGroups
 )

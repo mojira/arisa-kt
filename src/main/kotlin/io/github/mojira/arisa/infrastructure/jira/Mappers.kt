@@ -179,8 +179,9 @@ fun JiraComment.toDomain(
     )
 }
 
-fun JiraUser.toDomain() = User(
-    name, displayName
+fun JiraUser.toDomain(jiraClient: JiraClient) = User(
+    name, displayName,
+    ::getUserGroups.partially1(jiraClient).partially1(name)
 )
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
@@ -216,9 +217,11 @@ fun JiraIssueLink.toDomain(
 fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
     entry.created.toInstant(),
     field,
+    from,
     fromString,
+    to,
     toString,
-    entry.author.toDomain(),
+    entry.author.toDomain(jiraClient),
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 

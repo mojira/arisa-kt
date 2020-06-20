@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 private val REMOVE_SECURITY = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "security",
-    changedFrom = "10318"
+    changedFromString = "10318"
 )
 
 class KeepPrivateModuleTest : StringSpec({

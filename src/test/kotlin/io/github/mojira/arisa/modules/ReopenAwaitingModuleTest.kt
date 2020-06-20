@@ -6,6 +6,7 @@ import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -30,12 +31,12 @@ private val MODULE = ReopenAwaitingModule(
 private val AWAITING_RESOLVE = mockChangeLogItem(
     created = TEN_SECONDS_AGO,
     field = "resolution",
-    changedTo = "Awaiting Response"
+    changedToString = "Awaiting Response"
 )
 private val OLD_AWAITING_RESOLVE = mockChangeLogItem(
     created = TWO_YEARS_AGO,
     field = "resolution",
-    changedTo = "Awaiting Response"
+    changedToString = "Awaiting Response"
 )
 
 class ReopenAwaitingModuleTest : StringSpec({
@@ -97,34 +98,6 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when there is a keep AR tag and the message is null" {
-        val module = ReopenAwaitingModule(
-            listOf("staff", "global-moderators"),
-            listOf("helper", "staff", "global-moderators"),
-            365,
-            "MEQS_KEEP_AR",
-            null
-        )
-
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val comment = getComment(
-            body = "MEQS_KEEP_AR",
-            visibilityType = "group",
-            visibilityValue = "staff"
-        )
-        val issue = mockIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = REPORTER,
-            comments = listOf(comment),
-            changeLog = listOf(AWAITING_RESOLVE)
-        )
-
-        val result = module(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should return OperationNotNeededModuleResponse when there is only a comment from before the resolve" {
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(
@@ -149,7 +122,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val oldResolve = mockChangeLogItem(
             created = RIGHT_NOW.minusSeconds(30),
             field = "resolution",
-            changedTo = "Awaiting Response"
+            changedToString = "Awaiting Response"
         )
         val comment = getComment(
             RIGHT_NOW.minusSeconds(20),
@@ -173,12 +146,12 @@ class ReopenAwaitingModuleTest : StringSpec({
         val oldResolve = mockChangeLogItem(
             created = RIGHT_NOW.minusSeconds(30),
             field = "resolution",
-            changedTo = "Awaiting Response"
+            changedToString = "Awaiting Response"
         )
         val changeLog = mockChangeLogItem(
             created = RIGHT_NOW.minusSeconds(15),
             field = "customfield_00042",
-            changedTo = "Confirmed"
+            changedToString = "Confirmed"
         )
         val issue = mockIssue(
             resolution = "Awaiting Response",
@@ -242,10 +215,10 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there's no change after resolved" {
         val changeLog = mockChangeLogItem(
-            author = REPORTER,
             created = RIGHT_NOW.minusSeconds(20),
             field = "Versions",
-            changedTo = "1.15.2"
+            changedToString = "1.15.2",
+            author = REPORTER
         )
         val updated = RIGHT_NOW.plusSeconds(3)
         val issue = mockIssue(
@@ -264,7 +237,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val changeLog = mockChangeLogItem(
             created = RIGHT_NOW.plusSeconds(3),
             field = "Versions",
-            changedTo = "1.15.2"
+            changedToString = "1.15.2"
         )
         val updated = RIGHT_NOW.plusSeconds(3)
         val issue = mockIssue(
@@ -283,7 +256,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val changeLog = mockChangeLogItem(
             created = RIGHT_NOW.plusSeconds(3),
             field = "Versions",
-            changedTo = "1.15.2"
+            changedToString = "1.15.2"
         )
         val updated = RIGHT_NOW.plusSeconds(3)
         val issue = mockIssue(
@@ -302,8 +275,8 @@ class ReopenAwaitingModuleTest : StringSpec({
         val changeLog = mockChangeLogItem(
             created = RIGHT_NOW.plusSeconds(3),
             field = "Comment",
-            changedFrom = "aaa",
-            changedTo = "AAA",
+            changedFromString = "aaa",
+            changedToString = "AAA",
             author = REPORTER
         ) { emptyList() }
         val updated = RIGHT_NOW.plusSeconds(3)
@@ -397,8 +370,8 @@ class ReopenAwaitingModuleTest : StringSpec({
         val change = mockChangeLogItem(
             created = RIGHT_NOW.plusSeconds(3),
             field = "",
-            changedFrom = "",
-            changedTo = "Confirmed"
+            changedFromString = "",
+            changedToString = "Confirmed"
         ) { emptyList() }
         val issue = mockIssue(
             resolution = "Awaiting Response",
@@ -631,10 +604,10 @@ class ReopenAwaitingModuleTest : StringSpec({
         var hasCommented = false
 
         val changeLog = mockChangeLogItem(
-            author = REPORTER,
             created = RIGHT_NOW.plusSeconds(3),
             field = "Versions",
-            changedTo = "1.15.2"
+            changedToString = "1.15.2",
+            author = REPORTER
         )
         val updated = RIGHT_NOW.plusSeconds(3)
         val issue = mockIssue(
@@ -658,10 +631,10 @@ class ReopenAwaitingModuleTest : StringSpec({
         var hasCommented = false
 
         val changeLog = mockChangeLogItem(
-            author = REPORTER,
             created = RIGHT_NOW.plusSeconds(3),
             field = "Versions",
-            changedTo = "1.15.2"
+            changedToString = "1.15.2",
+            author = REPORTER
         )
         val comment = getComment()
         val updated = RIGHT_NOW.plusSeconds(3)
@@ -752,4 +725,4 @@ private fun getComment(
     visibilityValue = visibilityValue
 )
 
-private fun getUser(name: String) = User(name, "User")
+private fun getUser(name: String) = mockUser(name = name, displayName = "User")

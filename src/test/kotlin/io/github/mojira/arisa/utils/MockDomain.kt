@@ -32,14 +32,18 @@ fun mockChangeLogItem(
     created: Instant = RIGHT_NOW,
     field: String = "",
     changedFrom: String? = null,
+    changedFromString: String? = null,
     changedTo: String? = null,
+    changedToString: String? = null,
     author: User = mockUser(),
     getAuthorGroups: () -> List<String>? = { emptyList() }
 ) = ChangeLogItem(
     created,
     field,
     changedFrom,
+    changedFromString,
     changedTo,
+    changedToString,
     author,
     getAuthorGroups
 )
@@ -182,10 +186,12 @@ fun mockProject(
 
 fun mockUser(
     name: String = "user",
-    displayName: String = "User"
+    displayName: String = "User",
+    getGroups: () -> List<String>? = { null }
 ) = User(
     name,
-    displayName
+    displayName,
+    getGroups
 )
 
 fun mockVersion(

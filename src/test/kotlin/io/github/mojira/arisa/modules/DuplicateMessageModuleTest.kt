@@ -45,7 +45,7 @@ class DuplicateMessageModuleTest : StringSpec({
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Confirmation Status",
-                    changedTo = "Confirmed"
+                    changedToString = "Confirmed"
                 )
             )
         )
@@ -60,7 +60,7 @@ class DuplicateMessageModuleTest : StringSpec({
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Link",
-                    changedTo = "This issue relates to MC-42"
+                    changedToString = "This issue relates to MC-42"
                 )
             )
         )
@@ -74,9 +74,9 @@ class DuplicateMessageModuleTest : StringSpec({
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
+                    created = TWO_SECONDS_AGO,
                     field = "Link",
-                    changedTo = "This issue duplicates MC-42",
-                    created = TWO_SECONDS_AGO
+                    changedToString = "This issue duplicates MC-42"
                 )
             )
         )
@@ -392,37 +392,6 @@ class DuplicateMessageModuleTest : StringSpec({
         commentOptions shouldBe CommentOptions("duplicate", "MC-1* and *MC-2")
     }
 
-    "should add the normal comment if there's no special message for private parents" {
-        val module = DuplicateMessageModule(
-            0L,
-            "duplicate",
-            mapOf("MC-297" to "duplicate-of-mc-297"),
-            null,
-            mapOf("Fixed" to "duplicate-fixed")
-        )
-        var commentOptions: CommentOptions? = null
-        val issue = getIssue(
-            links = listOf(
-                mockLink(
-                    issue = mockLinkedIssue(
-                        key = "MC-1",
-                        getFullIssue = {
-                            mockIssue(
-                                securityLevel = "private"
-                            ).right()
-                        }
-                    )
-                )
-            ),
-            addComment = { commentOptions = it; Unit.right() }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
-    }
-
     "should add the comment for specific resolution when the only parent has that resolution" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
@@ -627,9 +596,9 @@ private fun getIssue(
     links: List<Link> = emptyList(),
     changeLog: List<ChangeLogItem> = listOf(
         mockChangeLogItem(
+            created = TEN_THOUSAND_YEARS_LATER,
             field = "Link",
-            changedTo = "This issue duplicates MC-42",
-            created = TEN_THOUSAND_YEARS_LATER
+            changedToString = "This issue duplicates MC-42"
         )
     ),
     comments: List<Comment> = emptyList(),

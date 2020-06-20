@@ -103,10 +103,10 @@ object Arisa : ConfigSpec() {
         }
 
         object Privacy : ModuleConfigSpec() {
-            val message by Privacy.required<String>(
+            val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
-            val commentNote by Privacy.optional(
+            val commentNote by optional(
                 "",
                 description = "The text which will be appended at the comments that are restricted by this module."
             )

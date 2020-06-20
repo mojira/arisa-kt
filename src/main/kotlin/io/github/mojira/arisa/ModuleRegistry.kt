@@ -72,7 +72,7 @@ class ModuleRegistry(private val config: Config) {
         getJql: (lastRun: Instant) -> String = DEFAULT_JQL
     ) = { issue: Issue, lastRun: Instant ->
         config::class.simpleName!! to
-            ({ lastRun pipe (issue pipe2 module::invoke) } pipe ::tryExecuteModule)
+                ({ lastRun pipe (issue pipe2 module::invoke) } pipe ::tryExecuteModule)
     } pipe (getJql pipe2 (config pipe3 (config::class.simpleName!! pipe4 ModuleRegistry::Entry))) pipe modules::add
 
     @Suppress("TooGenericExceptionCaught")
@@ -214,7 +214,7 @@ class ModuleRegistry(private val config: Config) {
             val intervalStart = now.minus(config[Modules.UpdateLinked.updateIntervalHours], ChronoUnit.HOURS)
             val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
             return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
-                " AND updated > ${intervalEnd.toEpochMilli()})"
+                    " AND updated > ${intervalEnd.toEpochMilli()})"
         }
     }
 }

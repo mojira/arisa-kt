@@ -13,7 +13,7 @@ import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.SortedMap
 
 class CrashModule(
     private val crashReportExtensions: List<String>,

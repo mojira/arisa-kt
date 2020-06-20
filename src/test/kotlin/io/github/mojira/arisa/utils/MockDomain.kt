@@ -34,14 +34,18 @@ fun mockChangeLogItem(
     created: Instant = RIGHT_NOW,
     field: String = "",
     changedFrom: String? = null,
+    changedFromString: String? = null,
     changedTo: String? = null,
+    changedToString: String? = null,
     author: User = mockUser(),
     getAuthorGroups: () -> List<String>? = { emptyList() }
 ) = ChangeLogItem(
     created,
     field,
     changedFrom,
+    changedFromString,
     changedTo,
+    changedToString,
     author,
     getAuthorGroups
 )
@@ -106,7 +110,8 @@ fun mockIssue(
     addComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
     addRestrictedComment: (options: CommentOptions) -> Either<Throwable, Unit> = { Unit.right() },
     addNotEnglishComment: (language: String) -> Either<Throwable, Unit> = { Unit.right() },
-    addRawRestrictedComment: (body: String, restrictions: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() }
+    addRawRestrictedComment: (body: String, restrictions: String) -> Either<Throwable, Unit> = { _, _ -> Unit.right() },
+    markAsFixedInASpecificVersion: (version: String) -> Either<Throwable, Unit> = { _ -> Unit.right() }
 ) = Issue(
     key,
     summary,
@@ -145,7 +150,8 @@ fun mockIssue(
     addComment,
     addRestrictedComment,
     addNotEnglishComment,
-    addRawRestrictedComment
+    addRawRestrictedComment,
+    markAsFixedInASpecificVersion
 )
 
 fun mockLink(
@@ -184,10 +190,12 @@ fun mockProject(
 
 fun mockUser(
     name: String = "user",
-    displayName: String = "User"
+    displayName: String = "User",
+    getGroups: () -> List<String>? = { null }
 ) = User(
     name,
-    displayName
+    displayName,
+    getGroups
 )
 
 fun mockVersion(

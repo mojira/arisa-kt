@@ -63,7 +63,7 @@
           "odt",
           "rtf"
         ],
-        "message": "attach-new-attachment"
+        "comment": "attach-new-attachment"
       },
       "duplicateMessage": {
         "resolutions": [
@@ -153,7 +153,7 @@
           "staff",
           "global-moderators"
         ],
-        "blacklistedRestrictions": [
+        "blacklistedVisibilities": [
           "helper",
           "staff",
           "global-moderators"
@@ -276,21 +276,14 @@
         "message": "panel-unmark-private-issue"
       },
       "language": {
-        "excludedStatuses": ["Postponed"],
-        "allowedLanguages": ["en", "nl"],
-        "messages": {
-          "zh": "I have detected that this ticket is in *Chinese*.",
-          "fr": "I have detected that this ticket is in *French*.",
-          "de": "I have detected that this ticket is in *German*.",
-          "ja": "I have detected that this ticket is in *Japanese*.",
-          "ko": "I have detected that this ticket is in *Korean*.",
-          "pl": "I have detected that this ticket is in *Polish*.",
-          "pt": "I have detected that this ticket is in *Portuguese*.",
-          "ru": "I have detected that this ticket is in *Russian*.",
-          "es": "I have detected that this ticket is in *Spanish*.",
-          "it": "I have detected that this ticket is in *Italian*."
-        },
-        "defaultMessage": "I would have closed this ticket as Invalid. This module is currently in the testing phase. If you find any issues, please [report them on GitHub|https://github.com/mojira/arisa-kt/issues].\nARISA_LANGUAGE_MODULE_TEST\n\n~{color:#888}-- I am a bot. This action was performed automagically!{color}~",
+        "excludedStatuses": [
+          "Postponed"
+        ],
+        "allowedLanguages": [
+          "en",
+          "nl"
+        ],
+        "message": "report-not-in-english-bot",
         "lengthThreshold": 80
       },
       "hideImpostors": {},

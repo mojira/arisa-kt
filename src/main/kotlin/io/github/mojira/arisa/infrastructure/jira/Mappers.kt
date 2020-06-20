@@ -65,7 +65,7 @@ fun JiraIssue.toDomain(
     description,
     getEnvironment(),
     security?.id,
-    reporter.toDomain(),
+    reporter.toDomain(jiraClient),
     resolution?.name,
     createdDate.toInstant(),
     updatedDate.toInstant(),
@@ -111,26 +111,14 @@ fun JiraIssue.toDomain(
         )
     },
     { language ->
-        // Should we move this?
-        // Most likely, no ;D
-        // addRestrictedComment(this, messages.getMessageWithBotSignature(
-        //     issue.project.key, config[Modules.Language.message], lang = language
-        // ), "helper")
-        val translatedMessage = config[Arisa.Modules.Language.messages][language]
-        val defaultMessage = config[Arisa.Modules.Language.defaultMessage]
-        val text =
-            if (translatedMessage != null) config[Arisa.Modules.Language.messageFormat].format(
-                translatedMessage,
-                defaultMessage
-            ) else defaultMessage
-
-        addRestrictedComment(
-            this,
-            text,
-            "helper"
+        createComment(
+            this, messages.getMessageWithBotSignature(
+                project.key, config[Arisa.Modules.Language.message], lang = language
+            )
         )
     },
-    ::addRestrictedComment.partially1(this)
+    ::addRestrictedComment.partially1(this),
+    ::markAsFixedWithSpecificVersion.partially1(this)
 )
 
 fun JiraProject.toDomain(
@@ -146,7 +134,7 @@ fun JiraComment.toDomain(
     jiraClient: JiraClient
 ) = Comment(
     body,
-    author.toDomain(),
+    author.toDomain(jiraClient),
     { getGroups(jiraClient, author.name).fold({ null }, { it }) },
     createdDate.toInstant(),
     updatedDate.toInstant(),
@@ -156,8 +144,9 @@ fun JiraComment.toDomain(
     ::updateCommentBody.partially1(this)
 )
 
-fun JiraUser.toDomain() = User(
-    name, displayName
+fun JiraUser.toDomain(jiraClient: JiraClient) = User(
+    name, displayName,
+    ::getUserGroups.partially1(jiraClient).partially1(name)
 )
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
@@ -190,9 +179,11 @@ fun JiraIssueLink.toDomain(
 fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
     entry.created.toInstant(),
     field,
+    from,
     fromString,
+    to,
     toString,
-    entry.author.toDomain(),
+    entry.author.toDomain(jiraClient),
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 

@@ -17,7 +17,7 @@ class DuplicateMessageModule(
     private val commentDelayMinutes: Long,
     private val message: String,
     private val ticketMessages: Map<String, String>,
-    private val privateMessage: String?,
+    private val privateMessage: String,
     private val resolutionMessages: Map<String, String>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -63,7 +63,7 @@ class DuplicateMessageModule(
     }
 
     private fun isAddingDuplicateLink(item: ChangeLogItem) = item.field == "Link" &&
-            item.changedTo != null && item.changedTo.startsWith("This issue duplicates ")
+            item.changedToString != null && item.changedToString.startsWith("This issue duplicates ")
 
     private fun List<LinkedIssue>.getFilledText() = this
         .map { it.key }

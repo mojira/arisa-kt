@@ -17,7 +17,17 @@ class RemoveIdenticalLinkModule : Module {
             assertNotEmpty(links).bind()
 
             val removeLinkFunctions = links
-                .groupBy { GroupingLink(it.type, it.outwards, it.issue.key) }
+                .groupBy {
+                    GroupingLink(
+                        it.type,
+                        if (it.type.toLowerCase() == "relates") {
+                            true
+                        } else {
+                            it.outwards
+                        },
+                        it.issue.key
+                    )
+                }
                 .filterValues { it.size > 1 }
                 .values
                 .flatMap { list ->

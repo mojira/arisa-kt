@@ -188,3 +188,12 @@ fun updateDescription(issue: Issue, description: String) = runBlocking {
             .execute()
     }
 }
+
+fun markAsFixedWithSpecificVersion(issue: Issue, fixVersion: String) = runBlocking {
+    Either.catch {
+        issue
+            .transition()
+            .field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersion)))
+            .execute("Resolve Issue")
+    }
+}

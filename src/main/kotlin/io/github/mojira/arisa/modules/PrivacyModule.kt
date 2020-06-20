@@ -10,9 +10,11 @@ class PrivacyModule(
     private val message: String,
     private val commentNote: String
 ) : Module {
-    private val patterns: List<Regex> = listOf(
-        """\(Session ID is token:""".toRegex(),
-        """\S+@\S+\.\S{2,}""".toRegex()
+    private val fullTextPatterns: List<Regex> = listOf(
+        """\(Session ID is token:""".toRegex()
+    )
+    private val wordPatterns: List<Regex> = listOf(
+        "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])".toRegex()
     )
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -36,13 +38,13 @@ class PrivacyModule(
                 .filter { it.changedFromString == null }
                 .forEach { string += "${it.changedToString} " }
 
-            val doesStringMatchPatterns = string.matches(patterns)
+            val doesStringMatchPatterns = string.matches(fullTextPatterns) || (string.split(" ").any { it.matches(wordPatterns) })
 
             val restrictCommentFunctions = comments
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
-                .filter { it.body?.matches(patterns) ?: false }
+                .filter { it.body?.matches(fullTextPatterns) ?: false }
                 .map { { it.restrict("${it.body}$commentNote") } }
                 .toList()
 

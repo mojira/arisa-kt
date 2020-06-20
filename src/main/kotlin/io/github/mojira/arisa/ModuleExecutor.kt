@@ -103,9 +103,11 @@ class ModuleExecutor(
         issueUpdateContextCache.storage
             .mapValues { applyIssueChanges(it.value) }
             .filterValues { it.isLeft() }
-            .forEach {
-                log.error("[UPDATE] [${it.key}] Failed", (it.value as Either.Left).a)
-                addFailedTicket(it.key)
+            .forEach { entry ->
+                (entry.value as Either.Left).a.exceptions.forEach {
+                    log.error("[UPDATE] [${entry.key}] Failed", it)
+                }
+                addFailedTicket(entry.key)
             }
         issueUpdateContextCache.clear()
     }
@@ -142,11 +144,10 @@ class ModuleExecutor(
 
         queryCache.add(jql, issues)
 
-        issues
+        return issues
             .filter { it.project.key in projects }
             .filter { it.status.toLowerCase() !in excludedStatuses }
             .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
-        return issues
     }
 
     private fun searchIssues(

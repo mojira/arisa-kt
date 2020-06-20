@@ -100,15 +100,17 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
 fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
     val functions = context.otherOperations.toMutableList()
     if (context.hasEdits) {
-        functions.add(::applyFluentUpdate.partially1(context.edit))
+        functions.add(0, ::applyFluentUpdate.partially1(context.edit))
     }
     if (context.hasUpdates) {
         functions.add(
+            0,
             ::applyFluentTransition.partially1(context.update).partially1("Update Issue")
         )
     }
     if (context.transitionName != null) {
         functions.add(
+            0,
             ::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!)
         )
     }
@@ -131,6 +133,7 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
+
                 context.value.jiraClient.restClient.delete(URI(attachment.self))
                 Unit
             }
@@ -149,7 +152,11 @@ fun createComment(context: Lazy<IssueUpdateContext>, comment: String) {
     }
 }
 
-fun addRestrictedComment(context: Lazy<IssueUpdateContext>, comment: String, restrictionLevel: String) {
+fun addRestrictedComment(
+    context: Lazy<IssueUpdateContext>,
+    comment: String,
+    restrictionLevel: String
+) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {

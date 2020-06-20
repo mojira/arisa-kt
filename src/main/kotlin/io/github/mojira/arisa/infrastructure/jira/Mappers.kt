@@ -126,7 +126,8 @@ fun JiraIssue.toDomain(
             "helper"
         )
     },
-    ::addRestrictedComment.partially1(this)
+    ::addRestrictedComment.partially1(this),
+    ::markAsFixedWithSpecificVersion.partially1(this)
 )
 
 fun JiraProject.toDomain(

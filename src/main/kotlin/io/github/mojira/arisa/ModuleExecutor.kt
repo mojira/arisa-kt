@@ -5,27 +5,20 @@ import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.applyIssueChanges
-import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
-import net.rcarz.jiraclient.JiraClient
 import java.time.Instant
-import net.rcarz.jiraclient.Issue as JiraIssue
 
-private const val MAX_RESULTS = 50
 
 class ModuleExecutor(
-    private val jiraClient: JiraClient,
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,
-    private val issueUpdateContextCache: IssueUpdateContextCache,
-    private val helperMessages: HelperMessages
+    private val issueUpdateContextCache: IssueUpdateContextCache
 ) {
     private val registry = ModuleRegistry(config)
 
@@ -35,7 +28,11 @@ class ModuleExecutor(
     )
 
     @Suppress("TooGenericExceptionCaught")
-    fun execute(lastRun: Instant, rerunTickets: Set<String>): ExecutionResults {
+    fun execute(
+        lastRun: Instant,
+        rerunTickets: Set<String>,
+        searchIssues: (String, Int, () -> Unit) -> List<Issue>
+    ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
 
         try {
@@ -54,7 +51,8 @@ class ModuleExecutor(
                         startAt,
                         failedTickets::add,
                         { missingResultsPage = true },
-                        exec.partially2(lastRun)
+                        exec.partially2(lastRun),
+                        searchIssues
                     )
                 }
 
@@ -77,9 +75,10 @@ class ModuleExecutor(
         startAt: Int,
         addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>,
+        searchIssues: (String, Int, () -> Unit) -> List<Issue>
     ) {
-        getIssues(moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd)
+        getIssues(moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd, searchIssues)
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
@@ -119,7 +118,8 @@ class ModuleExecutor(
         moduleJql: String,
         queryCache: Cache<List<Issue>>,
         startAt: Int,
-        onQueryNotAtResultEnd: () -> Unit
+        onQueryNotAtResultEnd: () -> Unit,
+        searchIssues: (String, Int, () -> Unit) -> List<Issue>
     ): List<Issue> {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
@@ -132,15 +132,6 @@ class ModuleExecutor(
 
         val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
-            .map {
-                it.toDomain(
-                    jiraClient,
-                    jiraClient.getProject(it.project.key),
-                    helperMessages,
-                    config,
-                    issueUpdateContextCache
-                )
-            }
 
         queryCache.add(jql, issues)
 
@@ -148,20 +139,5 @@ class ModuleExecutor(
             .filter { it.project.key in projects }
             .filter { it.status.toLowerCase() !in excludedStatuses }
             .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
-    }
-
-    private fun searchIssues(
-        jql: String,
-        startAt: Int,
-        onQueryPaginated: () -> Unit
-    ): List<JiraIssue> {
-        val searchResult = jiraClient
-            .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
-
-        if (startAt + searchResult.max < searchResult.total)
-            onQueryPaginated()
-
-        return searchResult
-            .issues
     }
 }

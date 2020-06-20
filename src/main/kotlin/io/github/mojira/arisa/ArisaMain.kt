@@ -1,13 +1,18 @@
 package io.github.mojira.arisa
 
+import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
+import io.github.mojira.arisa.infrastructure.jira.toDomain
+import net.rcarz.jiraclient.JiraClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -18,6 +23,7 @@ import java.util.concurrent.TimeUnit
 val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
+const val MAX_RESULTS = 50
 
 fun main() {
     val config = Config { addSpec(Arisa) }
@@ -59,12 +65,17 @@ fun main() {
     var helperMessages = helperMessagesFile.getHelperMessages()
     var helperMessagesLastFetch = Instant.now()
 
-    var moduleExecutor = ModuleExecutor(jiraClient, config, queryCache, issueUpdateContextCache, helperMessages)
+    var moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache)
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
         val curRunTime = Instant.now()
-        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
+        val searchIssues = ::searchIssues
+            .partially1(jiraClient)
+            .partially1(helperMessages)
+            .partially1(config)
+            .partially1(issueUpdateContextCache)
+        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets, searchIssues)
 
         if (executionResults.successful) {
             rerunTickets = emptySet()
@@ -80,15 +91,44 @@ fun main() {
                 config[Arisa.Credentials.password],
                 config[Arisa.Issues.url]
             )
-            moduleExecutor = ModuleExecutor(jiraClient, config, queryCache, issueUpdateContextCache, helperMessages)
+            moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache)
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
-            moduleExecutor = ModuleExecutor(jiraClient, config, queryCache, issueUpdateContextCache, helperMessages)
+            moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache)
             helperMessagesLastFetch = curRunTime
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
     }
+}
+
+
+private fun searchIssues(
+    jiraClient: JiraClient,
+    helperMessages: HelperMessages,
+    config: Config,
+    issueUpdateContextCache: IssueUpdateContextCache,
+    jql: String,
+    startAt: Int,
+    onQueryPaginated: () -> Unit
+): List<Issue> {
+    val searchResult = jiraClient
+        .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
+
+    if (startAt + searchResult.max < searchResult.total)
+        onQueryPaginated()
+
+    return searchResult
+        .issues
+        .map {
+            it.toDomain(
+                jiraClient,
+                jiraClient.getProject(it.project.key),
+                helperMessages,
+                config,
+                issueUpdateContextCache
+            )
+        }
 }

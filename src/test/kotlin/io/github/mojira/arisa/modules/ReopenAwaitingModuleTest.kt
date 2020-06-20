@@ -4,6 +4,7 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
+import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -713,19 +714,15 @@ private fun getComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     author: User = RANDOM_USER,
-    <<<<<<< HEAD
-authorGroups: List<String> = emptyList()
-=======
-authorGroups: List<String> = emptyList<String>()
->>>>>>> master
+    authorGroups: List<String> = emptyList()
 ) = mockComment(
-body = body,
-author = author,
-getAuthorGroups = { authorGroups },
-created = created,
-updated = updated,
-visibilityType = visibilityType,
-visibilityValue = visibilityValue
+    body = body,
+    author = author,
+    getAuthorGroups = { authorGroups },
+    created = created,
+    updated = updated,
+    visibilityType = visibilityType,
+    visibilityValue = visibilityValue
 )
 
 private fun getUser(name: String) = mockUser(name = name, displayName = "User")

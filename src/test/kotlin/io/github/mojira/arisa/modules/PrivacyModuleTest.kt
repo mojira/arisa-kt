@@ -1,18 +1,16 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
-import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
+import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
-private val MODULE = PrivacyModule()
+private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??")
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
@@ -99,6 +97,22 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the change log item is created before lastRun" {
+        val issue = mockIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_SECONDS_AGO,
+                    changedFromString = null,
+                    changedToString = "foo@example.com"
+                )
+            )
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when the ticket doesn't match the patterns" {
         val issue = mockIssue(
             summary = "Test"
@@ -114,7 +128,7 @@ class PrivacyModuleTest : StringSpec({
 
         val issue = mockIssue(
             summary = "foo@example.com",
-            setPrivate = { hasSetPrivate = true; Unit.right() }
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = MODULE(issue, TWO_SECONDS_AGO)
@@ -128,7 +142,7 @@ class PrivacyModuleTest : StringSpec({
 
         val issue = mockIssue(
             environment = "foo@example.com",
-            setPrivate = { hasSetPrivate = true; Unit.right() }
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = MODULE(issue, TWO_SECONDS_AGO)
@@ -142,7 +156,7 @@ class PrivacyModuleTest : StringSpec({
 
         val issue = mockIssue(
             description = "foo@example.com",
-            setPrivate = { hasSetPrivate = true; Unit.right() }
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = MODULE(issue, TWO_SECONDS_AGO)
@@ -160,7 +174,7 @@ class PrivacyModuleTest : StringSpec({
                     getContent = { "foo@example.com".toByteArray() }
                 )
             ),
-            setPrivate = { hasSetPrivate = true; Unit.right() }
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = MODULE(issue, TWO_SECONDS_AGO)
@@ -178,7 +192,27 @@ class PrivacyModuleTest : StringSpec({
                     getContent = { "(Session ID is token:My1_hnfNSd3nyQ7IbbnGbTS1fgJuM6JkfH2WEKaTTOLPc)".toByteArray() }
                 )
             ),
-            setPrivate = { hasSetPrivate = true; Unit.right() }
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should mark as private when the change log item contains email" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    field = "environment",
+                    changedFromString = null,
+                    changedToString = "My email is foo@example.com."
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = MODULE(issue, TWO_SECONDS_AGO)
@@ -195,10 +229,13 @@ class PrivacyModuleTest : StringSpec({
             comments = listOf(
                 mockComment(
                     body = "foo@example.com",
-                    restrict = { hasRestrictedComment = true; Unit.right() }
+                    restrict = {
+                        hasRestrictedComment = true
+                        it shouldBe "foo@example.com\n----\nRestricted by PrivacyModule ??[~arisabot]??"
+                    }
                 )
             ),
-            setPrivate = { hasSetPrivate = true; Unit.right() }
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = MODULE(issue, TWO_SECONDS_AGO)
@@ -206,43 +243,5 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         hasSetPrivate shouldBe false
         hasRestrictedComment shouldBe true
-    }
-
-    "should return FailedModuleResponse when restricting comment fails" {
-        val issue = mockIssue(
-            comments = listOf(
-                mockComment(
-                    body = "foo@example.com",
-                    restrict = { RuntimeException().left() }
-                )
-            )
-        )
-
-        val result = MODULE(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse when all exceptions" {
-        val issue = mockIssue(
-            comments = listOf(
-                mockComment(
-                    body = "foo@example.com",
-                    restrict = { RuntimeException().left() }
-                ),
-                mockComment(
-                    body = "bar@example.com",
-                    restrict = { RuntimeException().left() }
-                )
-            )
-        )
-
-        val result = MODULE(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 2
     }
 })

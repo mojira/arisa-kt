@@ -118,7 +118,8 @@
         ]
       },
       "privacy": {
-        "message": "panel-mark-private"
+        "message": "panel-mark-private",
+        "commentNote": "\n----\nRestricted by PrivacyModule ??[~arisabot]??"
       },
       "removeTriagedMeqs": {
         "meqsTags": [

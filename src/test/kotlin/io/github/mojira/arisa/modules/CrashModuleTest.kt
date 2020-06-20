@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
+import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -899,19 +900,10 @@ private fun getAttachment(
     content: String,
     name: String = "crash.txt",
     created: Instant = NOW,
-    <<<<<<< HEAD
-remove: () -> Either<Throwable, Unit> = { Unit.right() }
+    remove: () -> Unit = { Unit }
 ) = mockAttachment(
-name = name,
-created = created,
-remove = remove,
-getContent = { content.toByteArray() }
-=======
-remove: () -> Unit = { Unit }
-) = Attachment(
-name,
-created,
-remove,
-{ content.toByteArray() }
->>>>>>> master
+    name = name,
+    created = created,
+    remove = remove,
+    getContent = { content.toByteArray() }
 )

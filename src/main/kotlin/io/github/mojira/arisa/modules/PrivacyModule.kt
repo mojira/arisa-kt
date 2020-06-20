@@ -7,7 +7,8 @@ import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class PrivacyModule(
-    private val message: String
+    private val message: String,
+    private val commentNote: String
 ) : Module {
     private val patterns: List<Regex> = listOf(
         """\(Session ID is token:""".toRegex(),
@@ -30,22 +31,27 @@ class PrivacyModule(
                 .filter { it.mimeType.startsWith("text/") }
                 .forEach { string += "${String(it.getContent())} " }
 
-            val stringMatchesPatterns = string.matches(patterns)
+            changeLog
+                .filter { it.created.isAfter(lastRun) }
+                .filter { it.changedFromString == null }
+                .forEach { string += "${it.changedToString} " }
+
+            val doesStringMatchPatterns = string.matches(patterns)
 
             val restrictCommentFunctions = comments
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
                 .filter { it.body?.matches(patterns) ?: false }
-                .map { { it.restrict("${it.body}\n----\n[~arisabot]: Restricted by PrivacyModule") } }
+                .map { { it.restrict("${it.body}$commentNote") } }
                 .toList()
 
             assertEither(
-                assertTrue(stringMatchesPatterns),
+                assertTrue(doesStringMatchPatterns),
                 assertNotEmpty(restrictCommentFunctions)
             ).bind()
 
-            if (stringMatchesPatterns) {
+            if (doesStringMatchPatterns) {
                 setPrivate()
                 addComment(CommentOptions(message))
             }

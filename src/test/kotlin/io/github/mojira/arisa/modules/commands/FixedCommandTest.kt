@@ -1,9 +1,5 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.mockIssue
@@ -12,8 +8,6 @@ import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 
 class FixedCommandTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no argument is passed" {

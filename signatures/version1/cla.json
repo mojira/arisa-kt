@@ -1,3 +1,12 @@
 {
-  "signedContributors": []
+  "signedContributors": [
+    {
+      "name": "urielsalis",
+      "id": 7349355,
+      "comment_id": 647031910,
+      "created_at": "2020-06-20T18:42:56Z",
+      "repoId": 232186069,
+      "pullRequestNo": 321
+    }
+  ]
 }

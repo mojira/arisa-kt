@@ -20,6 +20,5 @@ jobs:
           path-To-cladocument: 'https://github.com/mojira/arisa-kt/blob/master/.github/cla.md'
           # branch should not be protected
           branch: 'master'
-          whitelist: *bot,bot*
           empty-commit-flag: false
           blockchain-storage-flag: false

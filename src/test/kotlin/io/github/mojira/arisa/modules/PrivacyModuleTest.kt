@@ -137,6 +137,48 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
+    "should mark as private when the Email address contains dots" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            summary = "f.o.o@example.com",
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should mark as private when the Email address uses .cc tld" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            summary = "foo@example.cc",
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should mark as private when the Email address uses .americanexpress tld" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            summary = "foo@example.americanexpress",
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
     "should mark as private when the environment contains Email" {
         var hasSetPrivate = false
 

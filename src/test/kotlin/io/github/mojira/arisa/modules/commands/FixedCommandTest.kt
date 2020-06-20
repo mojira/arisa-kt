@@ -65,35 +65,14 @@ class FixedCommandTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
     }
-
-    "should return FailedModuleResponse when adding a version fails" {
-        val command = FixedCommand()
-
-        val issue = mockIssue(
-            project = mockProject(
-                versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b", add = { RuntimeException().left() })
-                )
-            ),
-            markAsFixedInASpecificVersion = { _ -> RuntimeException().left() },
-            affectedVersions = listOf(getVersion(true, false))
-        )
-
-        val result = command(issue, "ARISA_FIXED", "12w34b")
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
 })
 
 private fun getVersion(
     released: Boolean,
     archived: Boolean,
     name: String = "12w34a",
-    add: () -> Either<Throwable, Unit> = { Unit.right() },
-    remove: () -> Either<Throwable, Unit> = { Unit.right() }
+    add: () -> Unit = { Unit },
+    remove: () -> Unit = { Unit }
 ) = mockVersion(
     name = name,
     released = released,

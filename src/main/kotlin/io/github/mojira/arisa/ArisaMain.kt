@@ -26,11 +26,7 @@ const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
 
 fun main() {
-    val config = Config { addSpec(Arisa) }
-        .from.yaml.watchFile("arisa.yml")
-        .from.json.watchFile("arisa.json")
-        .from.env()
-        .from.systemProperties()
+    val config = readConfig()
 
     var jiraClient =
         connectToJira(
@@ -43,16 +39,9 @@ fun main() {
     log.info("Connected to jira")
 
     val lastRunFile = File("last-run")
-    val lastRun =
-        (if (lastRunFile.exists())
-            lastRunFile.readText()
-        else "")
-            .split(",")
+    val lastRun = readLastRun(lastRunFile)
 
-    var lastRunTime =
-        if (lastRun[0].isNotEmpty())
-            Instant.ofEpochMilli(lastRun[0].toLong())
-        else Instant.now().minus(TIME_MINUTES, ChronoUnit.MINUTES)
+    var lastRunTime = readLastRunTime(lastRun)
 
     var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
     val failedTickets = mutableSetOf<String>()
@@ -104,7 +93,28 @@ fun main() {
     }
 }
 
+private fun readLastRunTime(lastRun: List<String>): Instant {
+    return if (lastRun[0].isNotEmpty())
+        Instant.ofEpochMilli(lastRun[0].toLong())
+    else Instant.now().minus(TIME_MINUTES, ChronoUnit.MINUTES)
+}
 
+private fun readLastRun(lastRunFile: File): List<String> {
+    return (if (lastRunFile.exists())
+        lastRunFile.readText()
+    else "")
+        .split(",")
+}
+
+private fun readConfig(): Config {
+    return Config { addSpec(Arisa) }
+        .from.yaml.watchFile("arisa.yml")
+        .from.json.watchFile("arisa.json")
+        .from.env()
+        .from.systemProperties()
+}
+
+@Suppress("LongParameterList")
 private fun searchIssues(
     jiraClient: JiraClient,
     helperMessages: HelperMessages,

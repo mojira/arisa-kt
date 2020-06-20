@@ -14,7 +14,6 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import java.time.Instant
 
-
 class ModuleExecutor(
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,

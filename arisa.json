@@ -117,6 +117,10 @@
           "Titan"
         ]
       },
+      "privacy": {
+        "message": "panel-mark-private",
+        "commentNote": "\n----\nRestricted by PrivacyModule ??[~arisabot]??"
+      },
       "removeTriagedMeqs": {
         "meqsTags": [
           "MEQS_WAI",

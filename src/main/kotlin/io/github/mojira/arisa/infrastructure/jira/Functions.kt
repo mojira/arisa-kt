@@ -104,7 +104,8 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
     }
     if (context.hasUpdates) {
         functions.add(
-            ::applyFluentTransition.partially1(context.update).partially1("Update Issue"))
+            ::applyFluentTransition.partially1(context.update).partially1("Update Issue")
+        )
     }
     if (context.transitionName != null) {
         functions.add(

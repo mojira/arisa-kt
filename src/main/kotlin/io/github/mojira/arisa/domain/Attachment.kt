@@ -5,6 +5,7 @@ import java.time.Instant
 data class Attachment(
     val name: String,
     val created: Instant,
+    val mimeType: String,
     val remove: () -> Unit,
     val getContent: () -> ByteArray
 )

@@ -714,7 +714,7 @@ private fun getComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     author: User = RANDOM_USER,
-    authorGroups: List<String> = emptyList<String>()
+    authorGroups: List<String> = emptyList()
 ) = mockComment(
     body = body,
     author = author,

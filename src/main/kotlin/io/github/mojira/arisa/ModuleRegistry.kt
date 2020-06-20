@@ -29,6 +29,7 @@ import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.PiracyModule
+import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
@@ -151,6 +152,14 @@ class ModuleRegistry(private val config: Config) {
             Modules.Piracy, PiracyModule(
                 config[Modules.Piracy.piracySignatures],
                 config[Modules.Piracy.message]
+            )
+        )
+
+        register(
+            Modules.Privacy,
+            PrivacyModule(
+                config[Modules.Privacy.message],
+                config[Modules.Privacy.commentNote]
             )
         )
 

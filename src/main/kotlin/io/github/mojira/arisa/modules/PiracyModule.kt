@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class PiracyModule(
@@ -18,8 +18,8 @@ class PiracyModule(
                 piracySignatures,
                 "$description $environment $summary"
             ).bind()
-            addComment(CommentOptions(message)).toFailedModuleEither().bind()
-            resolveAsInvalid().toFailedModuleEither().bind()
+            resolveAsInvalid()
+            addComment(CommentOptions(message))
         }
     }
 

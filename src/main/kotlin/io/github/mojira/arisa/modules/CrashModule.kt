@@ -5,15 +5,15 @@ import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
 import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import io.github.mojira.arisa.domain.CommentOptions
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.SortedMap
+import java.util.*
 
 class CrashModule(
     private val crashReportExtensions: List<String>,
@@ -52,15 +52,15 @@ class CrashModule(
 
             if (key == null) {
                 if (anyModded) {
-                    addComment(CommentOptions(moddedMessage)).toFailedModuleEither().bind()
-                    resolveAsInvalid().toFailedModuleEither().bind()
+                    resolveAsInvalid()
+                    addComment(CommentOptions(moddedMessage))
                 } else {
                     assertNotNull(key).bind()
                 }
             } else {
-                addComment(CommentOptions(dupeMessage, key)).toFailedModuleEither().bind()
-                resolveAsDuplicate().toFailedModuleEither().bind()
-                createLink(key, "Duplicate").toFailedModuleEither().bind()
+                resolveAsDuplicate()
+                addComment(CommentOptions(dupeMessage, key))
+                createLink(key, "Duplicate")
             }
         }
     }

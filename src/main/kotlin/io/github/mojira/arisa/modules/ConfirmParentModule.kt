@@ -16,7 +16,7 @@ class ConfirmParentModule(
         Either.fx {
             assertLinkedMoreThanThreshold(linked).bind()
             assertConfirmationStatusWhitelisted(confirmationStatus, confirmationStatusWhitelist).bind()
-            updateConfirmationStatus(targetConfirmationStatus).toFailedModuleEither().bind()
+            updateConfirmationStatus(targetConfirmationStatus)
         }
     }
 

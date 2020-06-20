@@ -1,16 +1,14 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
+import arrow.core.right
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
-import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -706,43 +704,6 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasReopened shouldBe false
         hasCommented shouldBe true
     }
-
-    "should return FailedModuleResponse with all exceptions when reopening fails" {
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = REPORTER,
-            comments = listOf(getComment()),
-            changeLog = listOf(AWAITING_RESOLVE),
-            reopen = { RuntimeException().left() }
-        )
-
-        val result = MODULE(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
-
-    "should return FailedModuleResponse with all exceptions when commenting fails" {
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val comment = getComment()
-        val issue = mockIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = REPORTER,
-            comments = listOf(comment),
-            changeLog = listOf(OLD_AWAITING_RESOLVE),
-            addComment = { RuntimeException().left() }
-        )
-
-        val result = MODULE(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
 })
 
 private fun getComment(
@@ -752,15 +713,19 @@ private fun getComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     author: User = RANDOM_USER,
-    authorGroups: List<String> = emptyList()
+    <<<<<<< HEAD
+authorGroups: List<String> = emptyList()
+=======
+authorGroups: List<String> = emptyList<String>()
+>>>>>>> master
 ) = mockComment(
-    body = body,
-    author = author,
-    getAuthorGroups = { authorGroups },
-    created = created,
-    updated = updated,
-    visibilityType = visibilityType,
-    visibilityValue = visibilityValue
+body = body,
+author = author,
+getAuthorGroups = { authorGroups },
+created = created,
+updated = updated,
+visibilityType = visibilityType,
+visibilityValue = visibilityValue
 )
 
 private fun getUser(name: String) = mockUser(name = name, displayName = "User")

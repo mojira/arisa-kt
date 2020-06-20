@@ -29,7 +29,7 @@ abstract class AbstractTransferFieldModule : Module {
             val functions = getFunctions(parents, issue)
 
             assertNotEmpty(functions).bind()
-            tryRunAll(functions).bind()
+            functions.forEach { it.invoke() }
         }
     }
 
@@ -49,7 +49,7 @@ abstract class AbstractTransferFieldModule : Module {
     protected abstract fun getFunctions(
         parents: Collection<Issue>,
         issue: Issue
-    ): Collection<() -> Either<Throwable, Unit>>
+    ): Collection<() -> Unit>
 
     protected fun isDuplicatesLink(link: Link) =
         link.type.toLowerCase() == "duplicate" && link.outwards

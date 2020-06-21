@@ -16,12 +16,11 @@ import java.time.Instant
 
 class ModuleExecutor(
     private val config: Config,
+    private val registry: ModuleRegistry,
     private val queryCache: Cache<List<Issue>>,
     private val issueUpdateContextCache: IssueUpdateContextCache,
     private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
 ) {
-    private val registry = ModuleRegistry(config)
-
     data class ExecutionResults(
         val successful: Boolean,
         val failedTickets: Collection<String>

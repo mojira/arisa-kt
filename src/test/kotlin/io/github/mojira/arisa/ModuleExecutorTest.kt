@@ -11,6 +11,7 @@ import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockProject
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -71,6 +72,132 @@ class ModuleExecutorTest : StringSpec({
 
         result.failedTickets.shouldBeEmpty()
         result.successful shouldBe false
+    }
+
+    "should allow issues that pass all checks for CHK" {
+        val moduleExecutor = getMockModuleExecutor(registry = moduleRegistryMock)
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.CHK,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.size shouldBe 1
+    }
+
+    "should allow issues that pass all checks for Reopen Awaiting" {
+        val moduleExecutor = getMockModuleExecutor(
+            registry = moduleRegistryMock,
+            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(resolution = "Awaiting Response")) }
+        )
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.ReopenAwaiting,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.size shouldBe 1
+    }
+
+    "should filter issues where project is not in global whitelist" {
+        val moduleExecutor = getMockModuleExecutor(
+            registry = moduleRegistryMock,
+            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(project = mockProject(key = "TEST"))) }
+        )
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.CHK,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.shouldBeEmpty()
+    }
+
+    "should filter issues where project is not in module whitelist" {
+        val moduleExecutor = getMockModuleExecutor(
+            registry = moduleRegistryMock,
+            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(project = mockProject(key = "MCD"))) }
+        )
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.CHK,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.shouldBeEmpty()
+    }
+
+    "should filter issues where status is in excluded status" {
+        val moduleExecutor = getMockModuleExecutor(
+            registry = moduleRegistryMock,
+            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(status = "Postponed")) }
+        )
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.CHK,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.shouldBeEmpty()
+    }
+
+    "should filter issues where resolution is in excluded resolution" {
+        val moduleExecutor = getMockModuleExecutor(registry = moduleRegistryMock)
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.ReopenAwaiting,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.shouldBeEmpty()
+    }
+    "should filter issues where resolution is null and unresolved is in excluded resolution" {
+        val moduleExecutor = getMockModuleExecutor(
+            registry = moduleRegistryMock,
+            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(resolution = null)) }
+        )
+
+        val result = moduleExecutor.getIssues(
+            Arisa.Modules.ReopenAwaiting,
+            listOf(),
+            "",
+            Cache(),
+            0,
+            { Unit },
+            Cache()
+        )
+
+        result.shouldBeEmpty()
     }
 
     "should execute each module" {

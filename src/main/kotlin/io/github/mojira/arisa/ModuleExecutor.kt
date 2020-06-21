@@ -118,7 +118,7 @@ class ModuleExecutor(
     }
 
     @Suppress("LongParameterList")
-    private fun getIssues(
+    fun getIssues(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         rerunTickets: Collection<String>,
         moduleJql: String,

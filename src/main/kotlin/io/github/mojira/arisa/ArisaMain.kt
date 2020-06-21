@@ -54,8 +54,7 @@ fun main() {
     val queryCache = Cache<List<Issue>>()
     val issueUpdateContextCache = Cache<IssueUpdateContext>()
     val moduleRegistry = ModuleRegistry(config)
-
-
+    
     // Create module executor
     var moduleExecutor = ModuleExecutor(
         config, moduleRegistry, queryCache, issueUpdateContextCache,

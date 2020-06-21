@@ -18,7 +18,7 @@ class ModuleExecutor(
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,
     private val issueUpdateContextCache: IssueUpdateContextCache,
-    private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
+    private val searchIssues: (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
 ) {
     private val registry = ModuleRegistry(config)
 
@@ -137,7 +137,13 @@ class ModuleExecutor(
         }
 
         val jql = "$failedTicketsJQL($moduleJql)"
-        val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
+        val issues = queryCache.get(jql) ?: searchIssues(
+            postedCommentCache,
+            newPostedCommentCache,
+            jql,
+            startAt,
+            onQueryNotAtResultEnd
+        )
 
         queryCache.add(jql, issues)
 

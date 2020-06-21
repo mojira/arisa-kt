@@ -5,6 +5,8 @@ package io.github.mojira.arisa.infrastructure.jira
 import arrow.core.Either
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.tryRunAll
@@ -73,8 +75,8 @@ fun resolveAs(context: Lazy<IssueUpdateContext>, resolution: String) {
 }
 
 fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
-    context.value.hasUpdates = true
-    context.value.update.field(Field.SECURITY, Field.valueById(levelId))
+    context.value.hasEdits = true
+    context.value.edit.field(Field.SECURITY, Field.valueById(levelId))
 }
 
 fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
@@ -141,11 +143,26 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
     }
 }
 
-fun createComment(context: Lazy<IssueUpdateContext>, comment: String) {
+fun createComment(
+    context: Lazy<IssueUpdateContext>,
+    comment: String,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
+) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                context.value.jiraIssue.addComment(comment)
+                val key = context.value.jiraIssue.key
+                val oldPostedComments = oldPostedCommentCache.get(key)
+                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
+
+                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
+                    log.warn("The comment has already been posted under $key in last run: $comment")
+                } else {
+                    context.value.jiraIssue.addComment(comment)
+                }
+
+                newPostedComments.add(comment)
                 Unit
             }
         }
@@ -155,12 +172,24 @@ fun createComment(context: Lazy<IssueUpdateContext>, comment: String) {
 fun addRestrictedComment(
     context: Lazy<IssueUpdateContext>,
     comment: String,
-    restrictionLevel: String
+    restrictionLevel: String,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                val key = context.value.jiraIssue.key
+                val oldPostedComments = oldPostedCommentCache.get(key)
+                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
+
+                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
+                    log.warn("The comment has already been posted under $key in last run: $comment")
+                } else {
+                    context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                }
+
+                newPostedComments.add(comment)
                 Unit
             }
         }

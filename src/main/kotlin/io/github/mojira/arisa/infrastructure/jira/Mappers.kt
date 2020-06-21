@@ -6,6 +6,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
+import arrow.syntax.function.partially3
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
@@ -17,6 +18,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -71,7 +73,9 @@ fun JiraIssue.toDomain(
     project: JiraProject,
     messages: HelperMessages,
     config: Config,
-    cache: IssueUpdateContextCache
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
 ): Issue {
     val context = getUpdateContext(jiraClient, cache)
     return Issue(
@@ -95,7 +99,7 @@ fun JiraIssue.toDomain(
         mapVersions(jiraClient, cache),
         mapAttachments(jiraClient, cache),
         mapComments(jiraClient, cache),
-        mapLinks(jiraClient, messages, config, cache),
+        mapLinks(jiraClient, messages, config, cache, oldPostedCommentCache, newPostedCommentCache),
         getChangeLogEntries(jiraClient),
         ::reopen.partially1(context),
         ::resolveAs.partially1(context).partially1("Awaiting Response"),
@@ -114,7 +118,9 @@ fun JiraIssue.toDomain(
                 context,
                 messages.getMessageWithBotSignature(
                     project.key, messageKey, variable, language
-                )
+                ),
+                oldPostedCommentCache,
+                newPostedCommentCache
             )
         },
         { (messageKey, variable, language) ->
@@ -123,17 +129,21 @@ fun JiraIssue.toDomain(
                 messages.getMessageWithBotSignature(
                     project.key, messageKey, variable, language
                 ),
-                "helper"
+                "helper",
+                oldPostedCommentCache,
+                newPostedCommentCache
             )
         },
         { language ->
             createComment(
                 context, messages.getMessageWithBotSignature(
                     project.key, config[Arisa.Modules.Language.message], lang = language
-                )
+                ),
+                oldPostedCommentCache,
+                newPostedCommentCache
             )
         },
-        ::addRestrictedComment.partially1(context),
+        ::addRestrictedComment.partially1(context).partially3(oldPostedCommentCache).partially3(newPostedCommentCache),
         ::markAsFixedWithSpecificVersion.partially1(context)
     )
 }
@@ -182,11 +192,13 @@ fun JiraIssue.toLinkedIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config,
-    cache: IssueUpdateContextCache
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
 ) = LinkedIssue(
     key,
     status.name,
-    ::getFullIssue.partially1(jiraClient).partially1(messages).partially1(config).partially1(cache),
+    { getFullIssue(jiraClient, messages, config, cache, oldPostedCommentCache, newPostedCommentCache) },
     ::createLink.partially1(getUpdateContext(jiraClient, cache))
 )
 
@@ -195,11 +207,20 @@ fun JiraIssueLink.toDomain(
     issue: JiraIssue,
     messages: HelperMessages,
     config: Config,
-    cache: IssueUpdateContextCache
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
 ) = Link(
     type.name,
     outwardIssue != null,
-    (outwardIssue ?: inwardIssue).toLinkedIssue(jiraClient, messages, config, cache),
+    (outwardIssue ?: inwardIssue).toLinkedIssue(
+        jiraClient,
+        messages,
+        config,
+        cache,
+        oldPostedCommentCache,
+        newPostedCommentCache
+    ),
     ::deleteLink.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this)
 )
 
@@ -218,8 +239,12 @@ private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config,
-    cache: IssueUpdateContextCache
-) = issueLinks.map { it.toDomain(jiraClient, this, messages, config, cache) }
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
+) = issueLinks.map {
+    it.toDomain(jiraClient, this, messages, config, cache, oldPostedCommentCache, newPostedCommentCache)
+}
 
 private fun JiraIssue.mapComments(jiraClient: JiraClient, cache: IssueUpdateContextCache) =
     comments.map { it.toDomain(jiraClient, this, cache) }
@@ -256,9 +281,21 @@ private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
     config: Config,
-    cache: IssueUpdateContextCache
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>
 ): Either<Throwable, Issue> =
     getIssue(jiraClient, key).fold(
         { it.left() },
-        { it.toDomain(jiraClient, jiraClient.getProject(it.project.key), messages, config, cache).right() }
+        {
+            it.toDomain(
+                jiraClient,
+                jiraClient.getProject(it.project.key),
+                messages,
+                config,
+                cache,
+                oldPostedCommentCache,
+                newPostedCommentCache
+            ).right()
+        }
     )

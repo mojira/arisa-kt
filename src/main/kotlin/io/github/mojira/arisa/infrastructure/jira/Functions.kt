@@ -75,8 +75,8 @@ fun resolveAs(context: Lazy<IssueUpdateContext>, resolution: String) {
 }
 
 fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
-    context.value.hasUpdates = true
-    context.value.update.field(Field.SECURITY, Field.valueById(levelId))
+    context.value.hasEdits = true
+    context.value.edit.field(Field.SECURITY, Field.valueById(levelId))
 }
 
 fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {

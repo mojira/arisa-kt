@@ -67,7 +67,7 @@ fun JiraIssue.getUpdateContext(jiraClient: JiraClient, cache: IssueUpdateContext
         ).also { cache.add(key, it) }
     }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 fun JiraIssue.toDomain(
     jiraClient: JiraClient,
     project: JiraProject,
@@ -188,6 +188,7 @@ private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
     username
 ).fold({ null }, { it })
 
+@Suppress("LongParameterList")
 fun JiraIssue.toLinkedIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,
@@ -202,6 +203,7 @@ fun JiraIssue.toLinkedIssue(
     ::createLink.partially1(getUpdateContext(jiraClient, cache))
 )
 
+@Suppress("LongParameterList")
 fun JiraIssueLink.toDomain(
     jiraClient: JiraClient,
     issue: JiraIssue,
@@ -235,6 +237,7 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 
+@Suppress("LongParameterList")
 private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
     messages: HelperMessages,
@@ -277,6 +280,7 @@ private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[A
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 
+@Suppress("LongParameterList")
 private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,

@@ -62,7 +62,10 @@ class ModuleExecutorTest : StringSpec({
 
     "should fail execution if search issues fails" {
         val moduleExecutor =
-            getMockModuleExecutor(registry = moduleRegistryMock, searchIssues = { _, _, _ -> throw RuntimeException() })
+            getMockModuleExecutor(
+                registry = moduleRegistryMock,
+                searchIssues = { _, _, _, _, _ -> throw RuntimeException() }
+            )
 
         val result = moduleExecutor.execute(Instant.now(), setOf("MC-1"))
 
@@ -104,7 +107,8 @@ fun getMockModuleExecutor(
     registry: ModuleRegistry = moduleRegistryMock,
     queryCache: Cache<List<Issue>> = Cache(),
     issueUpdateContextCache: IssueUpdateContextCache = IssueUpdateContextCache(),
-    searchIssues: (String, Int, () -> Unit) -> List<Issue> = { _, _, _ -> listOf(mockIssue()) }
+    searchIssues: (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue> =
+        { _, _, _, _, _ -> listOf(mockIssue()) }
 ): ModuleExecutor = ModuleExecutor(
     getConfig(),
     registry,

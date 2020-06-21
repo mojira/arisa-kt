@@ -17,28 +17,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - uses: actions/cache@v1
+    - uses: eskatos/gradle-command-action@v1.3.1
       with:
-        path: ~/.gradle/caches/build-cache-*
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle/caches/build-cache*/*') }}
-        restore-keys: |
-          ${{ runner.os }}-gradlebuild-
-    - uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches/6.4
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle/caches/6.4/*') }}
-        restore-keys: |
-          ${{ runner.os }}-gradlewrapper-
-    - uses: actions/cache@v1
-      with:
-        path: ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradlewrapper-${{ hashFiles('**/*.gradle/wrapper/*') }}
-        restore-keys: |
-          ${{ runner.os }}-gradlewrapper-
-    - name: Build with Gradle
-      run: ./gradlew clean installDist
+        arguments: clean installDist
+        wrapper-cache-enabled: true
+        dependencies-cache-enabled: true
+        configuration-cache-enabled: true
     - name: Upload new libraries
       uses: urielsalis/rsync-deploy@v1.4
       env:

@@ -54,17 +54,17 @@ fun main() {
     var helperMessages = helperMessagesFile.getHelperMessages()
     var helperMessagesLastFetch = Instant.now()
 
-    var moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache)
+    val searchIssues = ::searchIssues
+        .partially1(jiraClient)
+        .partially1(helperMessages)
+        .partially1(config)
+        .partially1(issueUpdateContextCache)
+    var moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache, searchIssues)
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
         val curRunTime = Instant.now()
-        val searchIssues = ::searchIssues
-            .partially1(jiraClient)
-            .partially1(helperMessages)
-            .partially1(config)
-            .partially1(issueUpdateContextCache)
-        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets, searchIssues)
+        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
 
         if (executionResults.successful) {
             rerunTickets = emptySet()
@@ -80,12 +80,12 @@ fun main() {
                 config[Arisa.Credentials.password],
                 config[Arisa.Issues.url]
             )
-            moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache)
+            moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache, searchIssues)
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
-            moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache)
+            moduleExecutor = ModuleExecutor(config, queryCache, issueUpdateContextCache, searchIssues)
             helperMessagesLastFetch = curRunTime
         }
 

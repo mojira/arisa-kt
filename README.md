@@ -51,6 +51,7 @@ To run the bot, you need to run the following command and it will use the defaul
 ./build/install/arisa-kt/bin/arisa-kt
 ```
 
+
 ## Built with
 
 This project depends on the following projects, thanks to every developer who makes their code open-source! :heart:

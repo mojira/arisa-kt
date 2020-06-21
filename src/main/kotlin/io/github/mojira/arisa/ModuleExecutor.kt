@@ -17,7 +17,8 @@ import java.time.Instant
 class ModuleExecutor(
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,
-    private val issueUpdateContextCache: IssueUpdateContextCache
+    private val issueUpdateContextCache: IssueUpdateContextCache,
+    private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
 ) {
     private val registry = ModuleRegistry(config)
 
@@ -29,8 +30,7 @@ class ModuleExecutor(
     @Suppress("TooGenericExceptionCaught")
     fun execute(
         lastRun: Instant,
-        rerunTickets: Set<String>,
-        searchIssues: (String, Int, () -> Unit) -> List<Issue>
+        rerunTickets: Set<String>
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
 
@@ -50,8 +50,7 @@ class ModuleExecutor(
                         startAt,
                         failedTickets::add,
                         { missingResultsPage = true },
-                        exec.partially2(lastRun),
-                        searchIssues
+                        exec.partially2(lastRun)
                     )
                 }
 
@@ -74,10 +73,9 @@ class ModuleExecutor(
         startAt: Int,
         addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>,
-        searchIssues: (String, Int, () -> Unit) -> List<Issue>
+        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
-        getIssues(moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd, searchIssues)
+        getIssues(moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd)
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
@@ -117,8 +115,7 @@ class ModuleExecutor(
         moduleJql: String,
         queryCache: Cache<List<Issue>>,
         startAt: Int,
-        onQueryNotAtResultEnd: () -> Unit,
-        searchIssues: (String, Int, () -> Unit) -> List<Issue>
+        onQueryNotAtResultEnd: () -> Unit
     ): List<Issue> {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)

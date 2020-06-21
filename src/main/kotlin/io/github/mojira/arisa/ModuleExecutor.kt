@@ -18,9 +18,12 @@ class ModuleExecutor(
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,
     private val issueUpdateContextCache: IssueUpdateContextCache,
-    private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
+    private val searchIssues:
+        (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
 ) {
     private val registry = ModuleRegistry(config)
+
+    private var postedCommentCache = Cache<MutableSet<String>>()
 
     data class ExecutionResults(
         val successful: Boolean,
@@ -33,6 +36,7 @@ class ModuleExecutor(
         rerunTickets: Set<String>
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
+        val newPostedCommentCache = Cache<MutableSet<String>>()
 
         try {
             var missingResultsPage: Boolean
@@ -50,7 +54,8 @@ class ModuleExecutor(
                         startAt,
                         failedTickets::add,
                         { missingResultsPage = true },
-                        exec.partially2(lastRun)
+                        exec.partially2(lastRun),
+                        newPostedCommentCache
                     )
                 }
 
@@ -61,6 +66,8 @@ class ModuleExecutor(
         } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)
             return ExecutionResults(false, failedTickets)
+        } finally {
+            postedCommentCache = newPostedCommentCache
         }
     }
 
@@ -73,9 +80,12 @@ class ModuleExecutor(
         startAt: Int,
         addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>,
+        newPostedCommentCache: Cache<MutableSet<String>>
     ) {
-        getIssues(moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd)
+        getIssues(
+            moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd, newPostedCommentCache
+        )
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
@@ -115,7 +125,8 @@ class ModuleExecutor(
         moduleJql: String,
         queryCache: Cache<List<Issue>>,
         startAt: Int,
-        onQueryNotAtResultEnd: () -> Unit
+        onQueryNotAtResultEnd: () -> Unit,
+        newPostedCommentCache: Cache<MutableSet<String>>
     ): List<Issue> {
         val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
@@ -127,7 +138,13 @@ class ModuleExecutor(
         }
 
         val jql = "$failedTicketsJQL($moduleJql)"
-        val issues = queryCache.get(jql) ?: searchIssues(jql, startAt, onQueryNotAtResultEnd)
+        val issues = queryCache.get(jql) ?: searchIssues(
+            postedCommentCache,
+            newPostedCommentCache,
+            jql,
+            startAt,
+            onQueryNotAtResultEnd
+        )
 
         queryCache.add(jql, issues)
 

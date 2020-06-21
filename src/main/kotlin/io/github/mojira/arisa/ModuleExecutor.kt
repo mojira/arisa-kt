@@ -18,7 +18,8 @@ class ModuleExecutor(
     private val config: Config,
     private val queryCache: Cache<List<Issue>>,
     private val issueUpdateContextCache: IssueUpdateContextCache,
-    private val searchIssues: (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
+    private val searchIssues:
+        (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
 ) {
     private val registry = ModuleRegistry(config)
 

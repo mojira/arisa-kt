@@ -36,6 +36,7 @@ class IntegrationTest : StringSpec({
             this shouldContainKey "duplicate-of-mcl-5638"
             this shouldContainKey "duplicate-private"
             this shouldContainKey "duplicate-wai"
+            this shouldContainKey "duplicate-wf"
             this shouldContainKey "pirated-minecraft"
             this shouldContainKey "provide-affected-versions"
             this shouldContainKey "incomplete"

@@ -16,13 +16,12 @@ import java.time.Instant
 
 class ModuleExecutor(
     private val config: Config,
+    private val registry: ModuleRegistry,
     private val queryCache: Cache<List<Issue>>,
     private val issueUpdateContextCache: IssueUpdateContextCache,
     private val searchIssues:
         (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
 ) {
-    private val registry = ModuleRegistry(config)
-
     private var postedCommentCache = Cache<MutableSet<String>>()
 
     data class ExecutionResults(
@@ -119,7 +118,7 @@ class ModuleExecutor(
     }
 
     @Suppress("LongParameterList")
-    private fun getIssues(
+    fun getIssues(
         moduleConfig: Arisa.Modules.ModuleConfigSpec,
         rerunTickets: Collection<String>,
         moduleJql: String,

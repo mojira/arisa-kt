@@ -79,7 +79,8 @@
         "privateMessage": "duplicate-private",
         "resolutionMessages": {
           "Fixed": "duplicate-fixed",
-          "Works As Intended": "duplicate-wai"
+          "Works As Intended": "duplicate-wai",
+          "Won't Fix": "duplicate-wf"
         }
       },
       "piracy": {

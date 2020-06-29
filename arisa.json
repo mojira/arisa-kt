@@ -305,9 +305,14 @@
         "excludedStatuses": ["Postponed"],
         "updateIntervalHours": 24,
         "whitelist": [
-          "MC",
-          "MCL",
-          "MCPE"
+        "MC",
+        "MCPE",
+        "MCL",
+        "MCD",
+        "MCE",
+        "BDS",
+        "REALMS",
+        "WEB"
         ]
       },
       "transferVersions": {

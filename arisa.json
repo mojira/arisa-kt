@@ -306,8 +306,13 @@
         "updateIntervalHours": 24,
         "whitelist": [
           "MC",
+          "MCPE",
           "MCL",
-          "MCPE"
+          "MCD",
+          "MCE",
+          "BDS",
+          "REALMS",
+          "WEB"
         ]
       },
       "transferVersions": {

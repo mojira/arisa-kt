@@ -60,7 +60,7 @@ class CrashModule(
             } else {
                 resolveAsDuplicate()
                 addComment(CommentOptions(dupeMessage, key))
-                createLink(key, "Duplicate")
+                createLink("Duplicate", key)
             }
         }
     }

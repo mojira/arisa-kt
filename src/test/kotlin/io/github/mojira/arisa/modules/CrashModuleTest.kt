@@ -674,7 +674,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { key, type -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            createLink = { type, key -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
             addComment = { Unit.right() }
         )
 
@@ -789,7 +789,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { key, type -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            createLink = { type, key -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
             addComment = { Unit.right() }
         )
 
@@ -828,7 +828,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { key, type -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            createLink = { type, key -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
             addComment = { Unit.right() }
         )
 

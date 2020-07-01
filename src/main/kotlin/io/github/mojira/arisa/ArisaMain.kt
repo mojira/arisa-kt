@@ -1,6 +1,9 @@
 package io.github.mojira.arisa
 
 import arrow.syntax.function.partially1
+import ch.qos.logback.classic.AsyncAppender
+import ch.qos.logback.classic.LoggerContext
+import com.github.napstr.logback.DiscordAppender
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
@@ -20,14 +23,13 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-val log: Logger = LoggerFactory.getLogger("Arisa")
+private val config = readConfig()
+val log: Logger = getLogger(config)
 
 const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
 
 fun main() {
-    val config = readConfig()
-
     var jiraClient =
         connectToJira(
             config[Arisa.Credentials.username],
@@ -131,6 +133,14 @@ private fun readConfig(): Config {
         .from.json.watchFile("arisa.json")
         .from.env()
         .from.systemProperties()
+}
+
+private fun getLogger(config: Config): Logger {
+    val context = LoggerFactory.getILoggerFactory() as LoggerContext
+    val discordAsync = context.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD") as AsyncAppender
+    val discordAppender = discordAsync.getAppender("DISCORD") as DiscordAppender
+    discordAppender.webhookUri = config[Arisa.Credentials.discordLogWebhook]
+    return LoggerFactory.getLogger("Arisa")
 }
 
 @Suppress("LongParameterList")

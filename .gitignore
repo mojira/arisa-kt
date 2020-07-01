@@ -2,7 +2,7 @@
 /.gradle/
 /build/
 .idea/
-a.arisa.yml
+arisa.yml
 helper-messages.json
 /.kotest
 /out/

@@ -57,7 +57,8 @@ This project depends on the following projects, thanks to every developer who ma
 
 - [Kotlin](https://kotlinlang.org/)
 - [Arrow](https://arrow-kt.io/)
-- [jira-client by rcarz](https://github.com/rcarz/jira-client)
+- [jira-client](https://github.com/rcarz/jira-client) by [rcarz](https://github.com/rcarz)
+- [logback-discord-appender](https://github.com/napstr/logback-discord-appender) by [napstr](https://github.com/napstr)
 
 ## Contributing
 

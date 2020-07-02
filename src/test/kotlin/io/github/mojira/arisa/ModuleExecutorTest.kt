@@ -250,6 +250,7 @@ private fun getConfig() = Config { addSpec(Arisa) }
         mapOf(
             "arisa.credentials.username" to "test",
             "arisa.credentials.password" to "test",
-            "arisa.credentials.dandelionToken" to "test"
+            "arisa.credentials.dandelionToken" to "test",
+            "arisa.credentials.discordLogWebhook" to "test"
         )
     )

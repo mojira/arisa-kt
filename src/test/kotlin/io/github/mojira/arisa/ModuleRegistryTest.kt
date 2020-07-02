@@ -51,6 +51,7 @@ private fun getConfig(only: Boolean = false) = Config { addSpec(Arisa) }
             "arisa.modules.attachment.only" to only.toString(),
             "arisa.credentials.username" to "test",
             "arisa.credentials.password" to "test",
-            "arisa.credentials.dandelionToken" to "test"
+            "arisa.credentials.dandelionToken" to "test",
+            "arisa.credentials.discordLogWebhook" to "test"
         )
     )

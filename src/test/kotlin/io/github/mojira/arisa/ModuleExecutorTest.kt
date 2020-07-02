@@ -241,8 +241,7 @@ fun getMockModuleExecutor(
     registry,
     queryCache,
     issueUpdateContextCache,
-    searchIssues,
-    doLog = false
+    searchIssues
 )
 
 private fun getConfig() = Config { addSpec(Arisa) }

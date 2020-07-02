@@ -23,13 +23,15 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-private val config = readConfig()
-val log: Logger = getLogger(config)
+val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
 
 fun main() {
+    val config = readConfig()
+    setWebhookOfLogger(config)
+
     var jiraClient =
         connectToJira(
             config[Arisa.Credentials.username],
@@ -129,18 +131,19 @@ private fun readLastRun(lastRunFile: File): List<String> {
 
 private fun readConfig(): Config {
     return Config { addSpec(Arisa) }
-        .from.yaml.watchFile("arisa.yml")
+        .from.yaml.watchFile("arisa.yml", optional = true)
         .from.json.watchFile("arisa.json")
         .from.env()
         .from.systemProperties()
 }
 
-private fun getLogger(config: Config): Logger {
+private fun setWebhookOfLogger(config: Config) {
     val context = LoggerFactory.getILoggerFactory() as LoggerContext
-    val discordAsync = context.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD") as AsyncAppender
-    val discordAppender = discordAsync.getAppender("DISCORD") as DiscordAppender
-    discordAppender.webhookUri = config[Arisa.Credentials.discordLogWebhook]
-    return LoggerFactory.getLogger("Arisa")
+    val discordAsync = context.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD") as AsyncAppender?
+    if (discordAsync != null) {
+        val discordAppender = discordAsync.getAppender("DISCORD") as DiscordAppender
+        discordAppender.webhookUri = config[Arisa.Credentials.discordLogWebhook]
+    }
 }
 
 @Suppress("LongParameterList")

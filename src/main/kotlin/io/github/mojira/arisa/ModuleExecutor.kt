@@ -20,8 +20,7 @@ class ModuleExecutor(
     private val queryCache: Cache<List<Issue>>,
     private val issueUpdateContextCache: IssueUpdateContextCache,
     private val searchIssues:
-        (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>,
-    private val doLog: Boolean = true
+        (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
 ) {
     private var postedCommentCache = Cache<MutableSet<String>>()
 
@@ -64,7 +63,7 @@ class ModuleExecutor(
             } while (missingResultsPage)
             return ExecutionResults(true, failedTickets)
         } catch (ex: Throwable) {
-            if (doLog) log.error("Failed to execute modules", ex)
+            log.error("Failed to execute modules", ex)
             return ExecutionResults(false, failedTickets)
         } finally {
             postedCommentCache = newPostedCommentCache
@@ -91,18 +90,18 @@ class ModuleExecutor(
                 response.second.fold({
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) {
-                            if (doLog) log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                            log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         }
                         is FailedModuleResponse -> {
                             addFailedTicket(issue)
 
                             for (exception in it.exceptions) {
-                                if (doLog) log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
+                                log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
                             }
                         }
                     }
                 }, {
-                    if (doLog) log.info("[RESPONSE] [$issue] [${response.first}] Successful")
+                    log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
             }
 
@@ -111,7 +110,7 @@ class ModuleExecutor(
             .filterValues { it.isLeft() }
             .forEach { entry ->
                 (entry.value as Either.Left).a.exceptions.forEach {
-                    if (doLog) log.error("[UPDATE] [${entry.key}] Failed", it)
+                    log.error("[UPDATE] [${entry.key}] Failed", it)
                 }
                 addFailedTicket(entry.key)
             }

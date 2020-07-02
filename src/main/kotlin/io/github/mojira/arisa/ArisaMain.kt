@@ -131,7 +131,7 @@ private fun readLastRun(lastRunFile: File): List<String> {
 
 private fun readConfig(): Config {
     return Config { addSpec(Arisa) }
-        .from.yaml.watchFile("arisa.yml", optional = true)
+        .from.yaml.watchFile("arisa.yml")
         .from.json.watchFile("arisa.json")
         .from.env()
         .from.systemProperties()

@@ -144,6 +144,12 @@ private fun setWebhookOfLogger(config: Config) {
         val discordAppender = discordAsync.getAppender("DISCORD") as DiscordAppender
         discordAppender.webhookUri = config[Arisa.Credentials.discordLogWebhook]
     }
+    val discordErrorAsync =
+        context.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_ERROR_DISCORD") as AsyncAppender?
+    if (discordErrorAsync != null) {
+        val discordErrorAppender = discordErrorAsync.getAppender("ERROR_DISCORD") as DiscordAppender
+        discordErrorAppender.webhookUri = config[Arisa.Credentials.discordErrorLogWebhook]
+    }
 }
 
 @Suppress("LongParameterList")

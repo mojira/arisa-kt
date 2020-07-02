@@ -9,7 +9,14 @@ object Arisa : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
         val dandelionToken by required<String>(description = "Token for dandelion.eu")
-        val discordLogWebhook by required<String>(description = "Webhook to post log in a Discord channel")
+        val discordLogWebhook by optional<String?>(
+            null,
+            description = "Webhook to post log in a Discord channel"
+        )
+        val discordErrorLogWebhook by optional<String?>(
+            null,
+            description = "Webhook to post errors in a Discord channel"
+        )
     }
 
     object Issues : ConfigSpec() {

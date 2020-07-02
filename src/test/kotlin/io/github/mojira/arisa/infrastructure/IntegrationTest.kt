@@ -13,8 +13,7 @@ class IntegrationTest : StringSpec({
                 mapOf(
                     "arisa.credentials.username" to "test",
                     "arisa.credentials.password" to "test",
-                    "arisa.credentials.dandelionToken" to "test",
-                    "arisa.credentials.discordLogWebhook" to "test"
+                    "arisa.credentials.dandelionToken" to "test"
                 )
             )
             .from.json.watchFile("arisa.json")

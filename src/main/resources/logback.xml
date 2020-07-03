@@ -24,7 +24,7 @@
     <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
         <webhookUri />
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>```%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n```</pattern>
+            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg`%n%replace(```%ex{full}```){'``````',''}%nopex</pattern>
         </layout>
         <username>Arisa</username>
         <avatarUrl>https://raw.githubusercontent.com/mojira/arisa-kt/master/arisa.png</avatarUrl>
@@ -38,7 +38,7 @@
     <appender name="ERROR_DISCORD" class="com.github.napstr.logback.DiscordAppender">
         <webhookUri />
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>```%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n```</pattern>
+            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg`%n%replace(```%ex{full}```){'``````',''}%nopex</pattern>
         </layout>
         <username>Arisa</username>
         <avatarUrl>https://raw.githubusercontent.com/mojira/arisa-kt/master/arisa.png</avatarUrl>

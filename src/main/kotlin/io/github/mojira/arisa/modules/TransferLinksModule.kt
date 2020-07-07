@@ -18,6 +18,7 @@ class TransferLinksModule : AbstractTransferFieldModule() {
             .flatMap { parent ->
                 links
                     .filter(::parentDoesNotHaveLink.partially1(parent.links))
+                    .filter(::doesNotLinkToParent.partially1(parent.key))
                     .map(::toLinkAdder.partially2(parent))
             }
 
@@ -30,6 +31,8 @@ class TransferLinksModule : AbstractTransferFieldModule() {
                 (it.type.toLowerCase() == "relates" || it.outwards == other.outwards) &&
                 it.issue.key == other.issue.key
         }
+
+    private fun doesNotLinkToParent(key: String, link: Link) = key != link.issue.key
 
     private fun toLinkAdder(
         link: Link,

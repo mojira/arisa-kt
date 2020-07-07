@@ -138,6 +138,41 @@ class TransferLinksModuleTest : StringSpec({
         hasTransferred.shouldBeFalse()
     }
 
+    "should not transfer links that link to the parent" {
+        var hasTransferred = false
+        val module = TransferLinksModule()
+
+        val createLink = { _: String, _: String, _: String -> hasTransferred = true; Unit.right() }
+
+        /**
+         * MC-42 duplicates MC-1
+         */
+        val duplicatesLink = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-1",
+            createLink = createLink
+        )
+
+        /**
+         * MC-42 relates to MC-1
+         */
+        val relatesLink = linkIssues(
+            key1 = "MC-42",
+            key2 = "MC-1",
+            type = "Relates"
+        )
+
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(duplicatesLink, relatesLink)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        hasTransferred.shouldBeFalse()
+    }
+
     "should remove links" {
         var linkRemoved = false
         val module = TransferLinksModule()

@@ -130,8 +130,6 @@ class ModuleRegistry(private val config: Config) {
             "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
         }
 
-        register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
-
         register(Modules.HideImpostors, HideImpostorsModule())
 
         register(
@@ -203,6 +201,8 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.RevokeConfirmation, RevokeConfirmationModule())
 
         register(Modules.ResolveTrash, ResolveTrashModule())
+
+        register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
 
         register(Modules.Command, CommandModule())
 

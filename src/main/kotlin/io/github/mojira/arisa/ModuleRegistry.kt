@@ -203,7 +203,7 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.ResolveTrash, ResolveTrashModule())
 
         register(Modules.FutureVersion, FutureVersionModule(config[Modules.FutureVersion.message]))
-        
+
         register(Modules.Command, CommandModule())
 
         register(

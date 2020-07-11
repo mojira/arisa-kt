@@ -125,7 +125,8 @@
       "removeTriagedMeqs": {
         "meqsTags": [
           "MEQS_WAI",
-          "MEQS_WONTFIX"
+          "MEQS_WONTFIX",
+          "MEQS_TRIAGE"
         ],
         "removalReason": "Ticket has been triaged."
       },

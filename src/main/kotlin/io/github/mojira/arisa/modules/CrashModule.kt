@@ -71,7 +71,7 @@ class CrashModule(
     private fun getDuplicateLink(
         crash: Pair<TextDocument, Crash>,
         crashDupeConfigs: List<CrashDupeConfig>
-    ): String? = with (crash.second) {
+    ): String? = with(crash.second) {
         val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
         val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
 

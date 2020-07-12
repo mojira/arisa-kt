@@ -104,7 +104,6 @@ class ModuleRegistry(private val config: Config) {
             CrashModule(
                 config[Modules.Crash.crashExtensions],
                 config[Modules.Crash.duplicates],
-                config[Modules.Crash.maxAttachmentAge],
                 CrashReader(),
                 config[Modules.Crash.duplicateMessage],
                 config[Modules.Crash.moddedMessage]

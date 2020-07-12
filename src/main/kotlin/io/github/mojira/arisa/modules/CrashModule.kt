@@ -4,6 +4,9 @@ import arrow.core.Either
 import arrow.core.Some
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
+import arrow.core.left
+import arrow.core.right
+import arrow.syntax.function.partially2
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
@@ -12,13 +15,10 @@ import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import me.urielsalis.mccrashlib.parser.ParserError
 import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.SortedMap
 
 class CrashModule(
     private val crashReportExtensions: List<String>,
     private val crashDupeConfigs: List<CrashDupeConfig>,
-    private val maxAttachmentAge: Int,
     private val crashReader: CrashReader,
     private val dupeMessage: String,
     private val moddedMessage: String
@@ -37,26 +37,23 @@ class CrashModule(
 
             val crashes = textDocuments
                 .asSequence()
-                .filter(::isTextDocumentRecent)
                 .map { processCrash(it) }
                 .filter { it.second.isRight() }
                 .map { extractCrash(it) }
                 .filter { it.second is Crash.Minecraft || it.second is Crash.Java }
                 .toList()
 
-            assertNotEmpty(crashes).bind()
+            assertContainsNewCrash(crashes, lastRun).bind()
+            assertNoValidCrash(crashes).bind()
 
-            val anyModded = crashes.any { it.second is Crash.Minecraft && (it.second as Crash.Minecraft).modded }
-            val sortedMap = crashes.toMap().toSortedMap(compareByDescending { it.created })
-            val key = findDuplicate(sortedMap, crashDupeConfigs)
+            val key = crashes
+                .sortedByDescending { it.first.created }
+                .mapNotNull(::getDuplicateLink.partially2(crashDupeConfigs))
+                .firstOrNull()
 
             if (key == null) {
-                if (anyModded) {
-                    resolveAsInvalid()
-                    addComment(CommentOptions(moddedMessage))
-                } else {
-                    assertNotNull(key).bind()
-                }
+                resolveAsInvalid()
+                addComment(CommentOptions(moddedMessage))
             } else {
                 resolveAsDuplicate()
                 addComment(CommentOptions(dupeMessage, key))
@@ -71,40 +68,51 @@ class CrashModule(
     private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.getContent().lines())
 
     @Suppress("ReturnCount")
-    private fun findDuplicate(
-        sortedMap: SortedMap<TextDocument, Crash>,
+    private fun getDuplicateLink(
+        crash: Pair<TextDocument, Crash>,
         crashDupeConfigs: List<CrashDupeConfig>
-    ): String? {
+    ): String? = with(crash.second) {
         val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
         val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
 
-        sortedMap.forEach { (_, crash) ->
-            when (crash) {
+            when (this) {
                 is Crash.Minecraft -> {
                     val config =
-                        minecraftConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
+                        minecraftConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(exception) }
                     if (config.isDefined()) {
                         return (config as Some).t.duplicates
                     }
                 }
                 is Crash.Java -> {
-                    val config = javaConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
+                    val config = javaConfigs.firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(code) }
                     if (config.isDefined()) {
                         return (config as Some).t.duplicates
                     }
                 }
             }
-        }
         return null
     }
 
     private fun isCrashAttachment(fileName: String) =
         crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
-    private fun isTextDocumentRecent(textDocument: TextDocument) =
-        textDocument.created
-            .plus(maxAttachmentAge.toLong(), ChronoUnit.DAYS)
-            .isAfter(Instant.now())
+    private fun isModded(crash: Pair<TextDocument, Crash>) =
+        crash.second is Crash.Minecraft && (crash.second as Crash.Minecraft).modded
+
+    private fun crashNewlyAdded(crash: Pair<TextDocument, Crash>, lastRun: Instant) =
+        crash.first.created.isAfter(lastRun)
+
+    private fun assertContainsNewCrash(crashes: List<Pair<TextDocument, Crash>>, lastRun: Instant) =
+        if (crashes.any(::crashNewlyAdded.partially2(lastRun)))
+            Unit.right()
+        else
+            OperationNotNeededModuleResponse.left()
+
+    private fun assertNoValidCrash(crashes: List<Pair<TextDocument, Crash>>) =
+        if (crashes.all { isModded(it) || getDuplicateLink(it, crashDupeConfigs) != null })
+            Unit.right()
+        else
+            OperationNotNeededModuleResponse.left()
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val getText = {

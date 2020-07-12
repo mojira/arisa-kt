@@ -189,7 +189,6 @@
       },
       "crash": {
         "excludedStatuses": ["Postponed"],
-        "maxAttachmentAge": 30,
         "crashExtensions": [
           "txt",
           "log"

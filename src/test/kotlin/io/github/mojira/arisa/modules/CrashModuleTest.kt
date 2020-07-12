@@ -15,6 +15,24 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 const val EXAMPLE_CRASH = """---- Minecraft Crash Report ----
+// Surprise! Haha. Well, this is awkward.
+
+Time: 26.06.20 11:23
+Description: Unexpected error
+
+java.util.ConcurrentModificationException
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.1
+	Minecraft Version ID: 1.16.1
+	Operating System: Windows 10 (amd64) version 10.0
+	Java Version: 1.8.0_51, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Is Modded: Probably not. Jar signature remains and client brand is untouched.
+	Type: Client (map_client.txt)"""
+
+const val PIXEL_FORMAT_CRASH = """---- Minecraft Crash Report ----
 // Daisy, daisy...
 
 Time: 6/28/17 11:44 AM
@@ -29,7 +47,7 @@ Details:
 Is Modded: Probably not. Jar signature remains and client brand is untouched.
 """
 
-const val SERVER_UNMODDED_CRASH = """---- Minecraft Crash Report ----
+const val UNKOWN_MODDED_CRASH = """---- Minecraft Crash Report ----
 // Oh - I know what I did wrong!
 
 Time: 6/5/18 9:20 PM
@@ -52,7 +70,7 @@ Details:
 	Type: Dedicated Server (map_server.txt)
 """
 
-const val SERVER_MODDED_CRASH = """---- Minecraft Crash Report ----
+const val DEFINITELY_MODDED_SERVER_CRASH = """---- Minecraft Crash Report ----
 // Oh - I know what I did wrong!
 
 Time: 6/5/18 9:20 PM
@@ -75,7 +93,7 @@ Details:
 	Type: Dedicated Server (map_server.txt)
 """
 
-const val SERVER_MODDED_CRASH_2 = """---- Minecraft Crash Report ----
+const val VERY_LIKELY_MODDED_CRASH = """---- Minecraft Crash Report ----
 // Surprise! Haha. Well, this is awkward.
 
 Time: 04.10.19 17:39
@@ -99,7 +117,7 @@ Details:
 	Is Modded: Very likely; Jar signature invalidated
 """
 
-const val EXAMPLE_CRASH_2 = """---- Minecraft Crash Report ----
+const val DRIVER_NO_OPENGL = """---- Minecraft Crash Report ----
 // I feel sad now :(
 
 Time: 12/04/18 18:49
@@ -114,7 +132,7 @@ Details:
 	Is Modded: Probably not. Jar signature remains and client brand is untouched.
 """
 
-const val MODDED_CRASH = """---- Minecraft Crash Report ----
+const val DEFINITELY_MODDED_CLIENT_CRASH = """---- Minecraft Crash Report ----
 // You're mean.
 
 Time: 06.11.19 10:54
@@ -155,6 +173,7 @@ const val JAVA_CRASH = """#
 #"""
 
 private val NOW = Instant.now()
+private val A_SECOND_AGO = NOW.minusSeconds(1)
 
 const val Unconfirmed = "Unconfirmed"
 val NoPriority = null
@@ -166,7 +185,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -183,7 +201,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -192,7 +210,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -200,7 +217,7 @@ class CrashModuleTest : StringSpec({
 
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW.minus(42, ChronoUnit.DAYS),
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -210,7 +227,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -219,14 +236,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -236,7 +252,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -245,7 +261,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("hytale", "The game has not yet been released", "HT-1")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -253,7 +268,7 @@ class CrashModuleTest : StringSpec({
 
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -263,7 +278,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -272,7 +287,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -280,7 +294,7 @@ class CrashModuleTest : StringSpec({
 
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -290,7 +304,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -299,14 +313,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
 
         val attachment = getAttachment(
-            content = EXAMPLE_CRASH,
+            content = PIXEL_FORMAT_CRASH,
             created = NOW.minus(42, ChronoUnit.DAYS)
         )
 
@@ -322,7 +335,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
@@ -330,14 +343,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
 
         val attachment = getAttachment(
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
@@ -351,7 +363,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -360,7 +372,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -368,7 +379,7 @@ class CrashModuleTest : StringSpec({
 
         val attachment = getAttachment(
             name = "crash.png",
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
@@ -382,7 +393,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -391,14 +402,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
 
         val attachment = getAttachment(
-            content = SERVER_UNMODDED_CRASH
+            content = UNKOWN_MODDED_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
@@ -412,7 +422,72 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when there is both a modded crash and an unmodded one" {
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+
+        val moddedCrash = getAttachment(
+            content = DEFINITELY_MODDED_SERVER_CRASH
+        )
+        val unmoddedCrash = getAttachment(
+            content = EXAMPLE_CRASH,
+            created = NOW.minusSeconds(42)
+        )
+        val issue = mockIssue(
+            attachments = listOf(moddedCrash, unmoddedCrash),
+            description = "",
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { Unit.right() },
+            resolveAsDuplicate = { Unit.right() },
+            createLink = { _, _ -> Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when there is both a duped crash and one that should not get resolved" {
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val pixelFormatCrash = getAttachment(
+            content = PIXEL_FORMAT_CRASH
+        )
+        val unmoddedCrash = getAttachment(
+            content = EXAMPLE_CRASH,
+            created = NOW.minusSeconds(42)
+        )
+        val issue = mockIssue(
+            attachments = listOf(pixelFormatCrash, unmoddedCrash),
+            description = "",
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsInvalid = { Unit.right() },
+            resolveAsDuplicate = { Unit.right() },
+            createLink = { _, _ -> Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -423,14 +498,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = SERVER_MODDED_CRASH,
+            description = DEFINITELY_MODDED_SERVER_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -440,7 +514,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsInvalid.shouldBeTrue()
@@ -452,14 +526,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = SERVER_MODDED_CRASH_2,
+            description = VERY_LIKELY_MODDED_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -469,7 +542,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsInvalid.shouldBeTrue()
@@ -481,14 +554,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = MODDED_CRASH,
+            description = DEFINITELY_MODDED_CLIENT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -498,7 +570,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsInvalid.shouldBeTrue()
@@ -510,14 +582,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
 
         val attachment = getAttachment(
-            content = MODDED_CRASH
+            content = DEFINITELY_MODDED_CLIENT_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
@@ -531,7 +602,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsInvalid.shouldBeTrue()
@@ -543,14 +614,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -560,7 +630,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
@@ -572,14 +642,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
 
         val attachment = getAttachment(
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
@@ -593,7 +662,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
@@ -605,7 +674,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -622,7 +690,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
@@ -634,7 +702,6 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -651,7 +718,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
@@ -661,14 +728,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
@@ -678,7 +744,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -689,19 +755,18 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val modded = getAttachment(
             name = "crash_modded.txt",
-            content = EXAMPLE_CRASH,
+            content = PIXEL_FORMAT_CRASH,
             created = NOW.minusMillis(10000)
         )
         val dupe = getAttachment(
             name = "crash_dupe.txt",
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(modded, dupe),
@@ -715,7 +780,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
@@ -727,18 +792,17 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val modded = getAttachment(
             name = "crash_modded.txt",
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val dupe = getAttachment(
             name = "crash_dupe.txt",
-            content = EXAMPLE_CRASH,
+            content = PIXEL_FORMAT_CRASH,
             created = NOW.minusMillis(10000)
         )
         val issue = mockIssue(
@@ -753,7 +817,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
@@ -766,7 +830,6 @@ class CrashModuleTest : StringSpec({
                 CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
                 CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302")
             ),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -774,11 +837,11 @@ class CrashModuleTest : StringSpec({
 
         val fromNow = getAttachment(
             name = "recent.txt",
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val fromYesterday = getAttachment(
             name = "crash_dupe.txt",
-            content = EXAMPLE_CRASH_2,
+            content = DRIVER_NO_OPENGL,
             created = NOW.minus(1, ChronoUnit.DAYS)
         )
         val issue = mockIssue(
@@ -793,7 +856,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -805,7 +868,6 @@ class CrashModuleTest : StringSpec({
                 CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
                 CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302")
             ),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
@@ -813,11 +875,11 @@ class CrashModuleTest : StringSpec({
 
         val fromNow = getAttachment(
             name = "recent.txt",
-            content = EXAMPLE_CRASH
+            content = PIXEL_FORMAT_CRASH
         )
         val fromYesterday = getAttachment(
             name = "crash_dupe.txt",
-            content = EXAMPLE_CRASH_2,
+            content = DRIVER_NO_OPENGL,
             created = NOW.minus(1, ChronoUnit.DAYS)
         )
         val issue = mockIssue(
@@ -832,7 +894,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -843,14 +905,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = "Confirmed",
             priority = NoPriority,
@@ -860,7 +921,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         resolvedAsDupe.shouldBeFalse()
@@ -872,14 +933,13 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
-            10,
             crashReader,
             "duplicate-tech",
             "modified-game"
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = EXAMPLE_CRASH,
+            description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = "Medium",
@@ -889,7 +949,7 @@ class CrashModuleTest : StringSpec({
             addComment = { Unit.right() }
         )
 
-        val result = module(issue, NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         resolvedAsDupe.shouldBeFalse()

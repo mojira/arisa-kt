@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue
@@ -20,6 +21,7 @@ private val VERSION_1 = getVersion(name = "v1", releaseDate = RIGHT_NOW.minusSec
 private val VERSION_2 = getVersion(name = "v2", releaseDate = RIGHT_NOW.minusSeconds(200))
 private val VERSION_3 = getVersion(name = "v3", releaseDate = RIGHT_NOW.minusSeconds(100))
 private val VERSION_X = getVersion(name = "vX", releaseDate = null)
+private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 
 class TransferVersionsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no issue links" {
@@ -28,7 +30,7 @@ class TransferVersionsModuleTest : StringSpec({
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -38,12 +40,17 @@ class TransferVersionsModuleTest : StringSpec({
         val link = mockLink(
             type = "Relates"
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -53,12 +60,17 @@ class TransferVersionsModuleTest : StringSpec({
         val link = mockLink(
             outwards = false
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -71,12 +83,17 @@ class TransferVersionsModuleTest : StringSpec({
                 status = "Resolved"
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -84,8 +101,31 @@ class TransferVersionsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the issue has no affected versions" {
         val module = TransferVersionsModule()
         val link = mockLink()
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
-            links = listOf(link)
+            links = listOf(link),
+            changeLog = listOf(changeLogItem)
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when no link was added since last run" {
+        val module = TransferVersionsModule()
+        val link = mockLink()
+        val changeLogItem = mockChangeLogItem(
+            created = A_SECOND_AGO,
+            changedTo = "MC-1"
+        )
+        val issue = mockIssue(
+            links = listOf(link),
+            changeLog = listOf(changeLogItem),
+            affectedVersions = listOf(VERSION_1)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -105,12 +145,17 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -122,12 +167,17 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MCL-1"
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -144,11 +194,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -165,11 +220,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_X)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -181,12 +241,17 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1"
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -199,12 +264,17 @@ class TransferVersionsModuleTest : StringSpec({
                 status = "Reopened"
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -229,11 +299,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1, VERSION_2)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
@@ -261,11 +336,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1, VERSION_2)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         firstVersionAdded.shouldBeTrue()
@@ -293,11 +373,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1, VERSION_3)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         version1Added.shouldBeFalse()
@@ -325,11 +410,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_X, VERSION_2)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         versionXAdded.shouldBeFalse()
@@ -357,11 +447,16 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1, VERSION_3)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         version1Added.shouldBeFalse()
@@ -388,7 +483,7 @@ class TransferVersionsModuleTest : StringSpec({
 
         val link2 = mockLink(
             issue = mockLinkedIssue(
-                key = "MC-1",
+                key = "MC-2",
                 getFullIssue = {
                     mockIssue(
                         addAffectedVersion = {
@@ -399,13 +494,22 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem1 = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
+        val changeLogItem2 = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-2"
+        )
 
         val issue = mockIssue(
             links = listOf(link1, link2),
+            changeLog = listOf(changeLogItem1, changeLogItem2),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -422,12 +526,17 @@ class TransferVersionsModuleTest : StringSpec({
                 }
             )
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
         val issue = mockIssue(
             links = listOf(link),
+            changeLog = listOf(changeLogItem),
             affectedVersions = listOf(VERSION_1)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

@@ -200,9 +200,6 @@ object Arisa : ConfigSpec() {
         }
 
         object Crash : ModuleConfigSpec() {
-            val maxAttachmentAge by required<Int>(
-                description = "Max age in days the attachment can have to be considered"
-            )
             val crashExtensions by required<List<String>>(
                 description = "File extensions that should be checked for crash reports."
             )

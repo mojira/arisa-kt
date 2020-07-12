@@ -322,7 +322,7 @@ class TransferLinksModuleTest : StringSpec({
                 Unit.right()
             }
         )
-        
+
         val mc100LinkChangeLog = mockChangeLogItem(
             created = RIGHT_NOW,
             changedTo = "MC-100"

@@ -29,7 +29,6 @@ Details:
 	Is Modded: Probably not. Jar signature remains and client brand is untouched.
 	Type: Client (map_client.txt)"""
 
-
 private val NOW = Instant.now()
 private val A_SECOND_AGO = NOW.minusSeconds(1)
 
@@ -108,7 +107,6 @@ class MissingCrashModuleTest : StringSpec({
             content = CRASH,
             created = NOW.minus(42, ChronoUnit.DAYS)
         )
-
 
         val issue = mockIssue(
             attachments = listOf(attachment),

@@ -14,6 +14,7 @@ class PiracyModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
+            assertAfter(issue.created, lastRun).bind()
             assertContainsSignatures(
                 piracySignatures,
                 "$description $environment $summary"

@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.left
+import io.github.mojira.arisa.infrastructure.jira.removeAffectedVersion
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
@@ -10,6 +11,8 @@ import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
@@ -230,17 +233,21 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should remove future versions added upon ticket creation" {
+        var isResolved = false
+
         val module = FutureVersionModule("message")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
-            )
+            ),
+            resolveAsAwaitingResponse = { isResolved = true }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isResolved.shouldBeTrue()
     }
 
     "should remove future versions added upon ticket creation by users" {
@@ -277,6 +284,8 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should not resolve if there is another version" {
+        var isResolved = false
+
         val module = FutureVersionModule("message")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -284,12 +293,14 @@ class FutureVersionModuleTest : StringSpec({
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
-            )
+            ),
+            resolveAsAwaitingResponse = { isResolved = true }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isResolved.shouldBeFalse()
     }
 
     "should remove future versions added by users via editing" {

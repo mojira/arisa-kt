@@ -146,6 +146,9 @@ object Arisa : ConfigSpec() {
             val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
+            val panel by required<String>(
+                description = "The key of the message that is posted when there are more versions."
+            )
         }
 
         object CHK : ModuleConfigSpec()

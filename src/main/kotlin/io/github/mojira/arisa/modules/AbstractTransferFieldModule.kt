@@ -5,6 +5,7 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
+import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
@@ -15,6 +16,7 @@ abstract class AbstractTransferFieldModule : Module {
         Either.fx {
             val relevantParents = links
                 .filter(::isDuplicatesLink)
+                .filter(::createdSinceLastRun.partially2(changeLog).partially2(lastRun))
                 .map { it.issue }
                 .filter(::filterParents.partially2(issue))
             assertGreaterThan(relevantParents.size, 0).bind()
@@ -42,6 +44,9 @@ abstract class AbstractTransferFieldModule : Module {
             { it.right() }
         )
     }
+
+    private fun createdSinceLastRun(link: Link, changeLog: List<ChangeLogItem>, lastRun: Instant) =
+        changeLog.lastOrNull { it.changedTo == link.issue.key }?.created?.isAfter(lastRun) ?: false
 
     protected open fun filterParents(linkedIssue: LinkedIssue, issue: Issue) =
         true

@@ -6,6 +6,7 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue
@@ -35,6 +36,17 @@ private val RELATES_LINK = linkIssues(
     type = "Relates"
 )
 
+private val MC_1_LINK_CHANGELOG = mockChangeLogItem(
+    created = RIGHT_NOW,
+    changedTo = "MC-1"
+)
+
+private val MC_10_LINK_CHANGELOG = mockChangeLogItem(
+    created = RIGHT_NOW,
+    changedTo = "MC-10"
+)
+private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
+
 class TransferLinksModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there are no issue links" {
         val module = TransferLinksModule()
@@ -42,7 +54,7 @@ class TransferLinksModuleTest : StringSpec({
             key = "MC-42"
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -51,10 +63,11 @@ class TransferLinksModuleTest : StringSpec({
         val module = TransferLinksModule()
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(RELATES_LINK)
+            links = listOf(RELATES_LINK),
+            changeLog = listOf(MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -66,12 +79,17 @@ class TransferLinksModuleTest : StringSpec({
             key2 = "MC-42",
             outwards = false
         )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-42"
+        )
         val issue = mockIssue(
             key = "MC-1",
-            links = listOf(link)
+            links = listOf(link),
+            changeLog = listOf(changeLogItem)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -80,7 +98,26 @@ class TransferLinksModuleTest : StringSpec({
         val module = TransferLinksModule()
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(DUPLICATES_LINK)
+            links = listOf(DUPLICATES_LINK),
+            changeLog = listOf(MC_1_LINK_CHANGELOG)
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the issue has no new parent links" {
+        val module = TransferLinksModule()
+
+        val oldDuplicatesLinkChangeLog = mockChangeLogItem(
+            created = A_SECOND_AGO,
+            changedTo = "MC-1"
+        )
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(DUPLICATES_LINK, RELATES_LINK),
+            changeLog = listOf(oldDuplicatesLinkChangeLog, MC_10_LINK_CHANGELOG)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -92,10 +129,11 @@ class TransferLinksModuleTest : StringSpec({
         val module = TransferLinksModule()
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(DUPLICATES_LINK, RELATES_LINK)
+            links = listOf(DUPLICATES_LINK, RELATES_LINK),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -129,10 +167,11 @@ class TransferLinksModuleTest : StringSpec({
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(link, RELATES_LINK)
+            links = listOf(link, RELATES_LINK),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         hasTransferred.shouldBeFalse()
@@ -164,10 +203,11 @@ class TransferLinksModuleTest : StringSpec({
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(duplicatesLink, relatesLink)
+            links = listOf(duplicatesLink, relatesLink),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_1_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         hasTransferred.shouldBeFalse()
@@ -195,10 +235,11 @@ class TransferLinksModuleTest : StringSpec({
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(DUPLICATES_LINK, linkToTransfer)
+            links = listOf(DUPLICATES_LINK, linkToTransfer),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         linkRemoved.shouldBeTrue()
@@ -222,10 +263,11 @@ class TransferLinksModuleTest : StringSpec({
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(duplicatesLink, RELATES_LINK)
+            links = listOf(duplicatesLink, RELATES_LINK),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         parentLinkRemoved.shouldBeFalse()
@@ -281,10 +323,21 @@ class TransferLinksModuleTest : StringSpec({
             }
         )
 
-        val issue = mockIssue(
-            links = listOf(link, link1, link2)
+        val mc100LinkChangeLog = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-100"
         )
-        val result = module(issue, RIGHT_NOW)
+
+        val mc101LinkChangeLog = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-101"
+        )
+
+        val issue = mockIssue(
+            links = listOf(link, link1, link2),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, mc100LinkChangeLog, mc101LinkChangeLog)
+        )
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         firstLinkAdded.shouldBeTrue()
@@ -311,7 +364,7 @@ class TransferLinksModuleTest : StringSpec({
                         key1 shouldBe "MC-100"
                         type shouldBe "Duplicate"
                     }
-                    "MC-2" -> {
+                    "MC-10" -> {
                         addedToSecondParent = true
                         key1 shouldBe "MC-100"
                         type shouldBe "Duplicate"
@@ -331,19 +384,25 @@ class TransferLinksModuleTest : StringSpec({
         )
 
         /**
-         * MC-42 duplicates MC-2.
+         * MC-42 duplicates MC-10.
          */
         val duplicatesLink2 = linkIssues(
             key1 = "MC-42",
-            key2 = "MC-2"
+            key2 = "MC-10"
+        )
+
+        val mc100LinkChangeLog = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-100"
         )
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(duplicatesLink1, duplicatesLink2, linkToTransfer)
+            links = listOf(duplicatesLink1, duplicatesLink2, linkToTransfer),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG, mc100LinkChangeLog)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -398,11 +457,17 @@ class TransferLinksModuleTest : StringSpec({
             }
         )
 
+        val mc11LinkChangeLog = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-11"
+        )
+
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(duplicatesLink, outwardsRelates1, outwardsRelates2)
+            links = listOf(duplicatesLink, outwardsRelates1, outwardsRelates2),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG, mc11LinkChangeLog)
         )
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         firstLinkAdded.shouldBeTrue()
@@ -453,12 +518,18 @@ class TransferLinksModuleTest : StringSpec({
             }
         )
 
-        val issue = mockIssue(
-            key = "MC-42",
-            links = listOf(duplicatesLink1, duplicatesLink2, outwardsRelates)
+        val mc2LinkChangeLog = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-2"
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val issue = mockIssue(
+            key = "MC-42",
+            links = listOf(duplicatesLink1, duplicatesLink2, outwardsRelates),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG, mc2LinkChangeLog)
+        )
+
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         addedToFirstParent.shouldBeTrue()
@@ -481,10 +552,11 @@ class TransferLinksModuleTest : StringSpec({
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(link, RELATES_LINK)
+            links = listOf(link, RELATES_LINK),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
@@ -507,10 +579,11 @@ class TransferLinksModuleTest : StringSpec({
 
         val issue = mockIssue(
             key = "MC-42",
-            links = listOf(link, link, RELATES_LINK)
+            links = listOf(link, link, RELATES_LINK),
+            changeLog = listOf(MC_1_LINK_CHANGELOG, MC_1_LINK_CHANGELOG, MC_10_LINK_CHANGELOG)
         )
 
-        val result = module(issue, RIGHT_NOW)
+        val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }

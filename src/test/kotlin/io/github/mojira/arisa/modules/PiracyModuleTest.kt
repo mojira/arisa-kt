@@ -9,6 +9,18 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 class PiracyModuleTest : StringSpec({
+    "should return OperationNotNeededModuleResponse when the ticket was created after last run" {
+        val module = PiracyModule(listOf("test"), "message")
+        val issue = mockIssue(
+            created = RIGHT_NOW.minusSeconds(3),
+            description = "test"
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
         val module = PiracyModule(listOf("test"), "message")
         val issue = mockIssue()

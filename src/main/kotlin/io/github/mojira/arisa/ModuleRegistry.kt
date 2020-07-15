@@ -1,3 +1,5 @@
+@file:Suppress("WildcardImport")
+
 package io.github.mojira.arisa
 
 import arrow.core.Either

@@ -13,33 +13,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.getLanguage
-import io.github.mojira.arisa.modules.AttachmentModule
-import io.github.mojira.arisa.modules.CHKModule
-import io.github.mojira.arisa.modules.CommandModule
-import io.github.mojira.arisa.modules.ConfirmParentModule
-import io.github.mojira.arisa.modules.CrashModule
-import io.github.mojira.arisa.modules.DuplicateMessageModule
-import io.github.mojira.arisa.modules.EmptyModule
-import io.github.mojira.arisa.modules.FailedModuleResponse
-import io.github.mojira.arisa.modules.FutureVersionModule
-import io.github.mojira.arisa.modules.HideImpostorsModule
-import io.github.mojira.arisa.modules.KeepPrivateModule
-import io.github.mojira.arisa.modules.LanguageModule
-import io.github.mojira.arisa.modules.Module
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.PiracyModule
-import io.github.mojira.arisa.modules.PrivacyModule
-import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
-import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
-import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
-import io.github.mojira.arisa.modules.ReopenAwaitingModule
-import io.github.mojira.arisa.modules.ReplaceTextModule
-import io.github.mojira.arisa.modules.ResolveTrashModule
-import io.github.mojira.arisa.modules.RevokeConfirmationModule
-import io.github.mojira.arisa.modules.TransferLinksModule
-import io.github.mojira.arisa.modules.TransferVersionsModule
-import io.github.mojira.arisa.modules.UpdateLinkedModule
+import io.github.mojira.arisa.modules.*
 import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -107,6 +81,15 @@ class ModuleRegistry(private val config: Config) {
                 CrashReader(),
                 config[Modules.Crash.duplicateMessage],
                 config[Modules.Crash.moddedMessage]
+            )
+        )
+
+        register(
+            Modules.MissingCrash,
+            MissingCrashModule(
+                config[Modules.MissingCrash.crashExtensions],
+                CrashReader(),
+                config[Modules.MissingCrash.message]
             )
         )
 

@@ -104,7 +104,7 @@ class ModuleExecutor(
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
                 issueUpdateContextCache.storage.forEach {
-                    it.value.triggeredBy = issue
+                    it.value.triggeredBy = it.value.triggeredBy ?: issue
                 }
             }
 
@@ -114,7 +114,7 @@ class ModuleExecutor(
             .forEach { (updateTo, pair) ->
                 val (triggeredBy, result) = pair
                 (result as Either.Left).a.exceptions.forEach {
-                    log.error("[UPDATE] [TO ${updateTo}] [BY ${triggeredBy}] Failed", it)
+                    log.error("[UPDATE] [TO $updateTo] [BY $triggeredBy] Failed", it)
                 }
                 addFailedTicket(triggeredBy!!)
             }

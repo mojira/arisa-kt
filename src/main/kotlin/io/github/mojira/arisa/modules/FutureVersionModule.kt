@@ -25,7 +25,9 @@ class FutureVersionModule(
 
             latestVersion!!.add()
             removeFutureVersions.forEach(::run)
-            resolveAsAwaitingResponse()
+            if (affectedVersions.size <= removeFutureVersions.size) {
+                resolveAsAwaitingResponse()
+            }
             addComment(CommentOptions(message))
         }
     }

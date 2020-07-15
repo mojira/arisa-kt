@@ -276,6 +276,22 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 
+    "should not resolve if there is another version" {
+        val module = FutureVersionModule("message")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
+            affectedVersions = listOf(FUTURE_VERSION, RELEASED_VERSION),
+            changeLog = listOf(ADD_FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION)
+            )
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+    }
+
     "should remove future versions added by users via editing" {
         val module = FutureVersionModule("message")
         val issue = mockIssue(

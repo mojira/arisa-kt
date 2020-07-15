@@ -34,7 +34,7 @@ private val ADD_FUTURE_VERSION = mockChangeLogItem(field = "Version", changedTo 
 
 class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -49,7 +49,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there are no version changes" {
-        val module = FutureVersionModule("messgit age")
+        val module = FutureVersionModule("messgit age", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -69,7 +69,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the version change is before last run" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -91,7 +91,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the version change is an removal" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -112,7 +112,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the future version is added by a staff upon ticket creation" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("staff") }
@@ -129,7 +129,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the future version is added by a staff via editing" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -151,7 +151,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when affected versions are empty" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
@@ -164,7 +164,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when project versions are empty" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION)
@@ -176,7 +176,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when project versions are null" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION)
@@ -188,7 +188,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when project versions do not contain released versions" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION),
@@ -203,7 +203,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse if no future version is marked affected" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(RELEASED_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION),
@@ -218,7 +218,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse if only an archived version is marked affected" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(ARCHIVED_VERSION),
             changeLog = listOf(ADD_ARCHIVED_VERSION),
@@ -235,7 +235,7 @@ class FutureVersionModuleTest : StringSpec({
     "should remove future versions added upon ticket creation" {
         var isResolved = false
 
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             project = mockProject(
@@ -251,7 +251,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should remove future versions added upon ticket creation by users" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("user") }
@@ -268,7 +268,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should remove future versions added via editing" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -286,7 +286,7 @@ class FutureVersionModuleTest : StringSpec({
     "should not resolve if there is another version" {
         var isResolved = false
 
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION, RELEASED_VERSION),
@@ -304,7 +304,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should remove future versions added by users via editing" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -326,7 +326,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should remove future versions added by users without a group via editing" {
-        val module = FutureVersionModule("message")
+        val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -347,11 +347,3 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
     }
 })
-
-private fun getVersion(
-    released: Boolean,
-    archived: Boolean
-) = mockVersion(
-    released = released,
-    archived = archived
-)

@@ -9,7 +9,8 @@ import io.github.mojira.arisa.domain.Version
 import java.time.Instant
 
 class FutureVersionModule(
-    private val message: String
+    private val messageFull: String,
+    private val messagePanel: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -25,10 +26,12 @@ class FutureVersionModule(
 
             latestVersion!!.add()
             removeFutureVersions.forEach(::run)
-            if (affectedVersions.size <= removeFutureVersions.size) {
+            if (affectedVersions.size > removeFutureVersions.size) {
+                addComment(CommentOptions(messagePanel))
+            } else {
                 resolveAsAwaitingResponse()
+                addComment(CommentOptions(messageFull))
             }
-            addComment(CommentOptions(message))
         }
     }
 

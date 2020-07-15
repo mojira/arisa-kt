@@ -130,7 +130,8 @@
         "removalReason": "Ticket has been triaged."
       },
       "futureVersion": {
-        "message": "provide-affected-versions"
+        "message": "provide-affected-versions",
+        "panel": "panel-future-version"
       },
       "chk": {
         "excludedStatuses": ["Postponed"],

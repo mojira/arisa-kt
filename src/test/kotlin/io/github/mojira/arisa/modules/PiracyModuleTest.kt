@@ -8,17 +8,17 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-private val TWO_SECONDS_LATER = RIGHT_NOW.plusSeconds(2)
+private val TWO_SECONDS_BEFORE = RIGHT_NOW.minusSeconds(2)
 
 class PiracyModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the ticket was created after last run" {
         val module = PiracyModule(listOf("test"), "message")
         val issue = mockIssue(
-            created = RIGHT_NOW,
+            created = TWO_SECONDS_BEFORE,
             description = "test"
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -27,7 +27,7 @@ class PiracyModuleTest : StringSpec({
         val module = PiracyModule(listOf("test"), "message")
         val issue = mockIssue()
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -40,7 +40,7 @@ class PiracyModuleTest : StringSpec({
             description = ""
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -53,7 +53,7 @@ class PiracyModuleTest : StringSpec({
             description = "test"
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -66,7 +66,7 @@ class PiracyModuleTest : StringSpec({
             description = "something"
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -79,7 +79,7 @@ class PiracyModuleTest : StringSpec({
             description = "test"
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeRight(ModuleResponse)
     }
@@ -92,7 +92,7 @@ class PiracyModuleTest : StringSpec({
             description = "testusername"
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
@@ -108,7 +108,7 @@ class PiracyModuleTest : StringSpec({
             addComment = { hasCommented = true; Unit.right() }
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true
@@ -125,7 +125,7 @@ class PiracyModuleTest : StringSpec({
             addComment = { hasCommented = true; Unit.right() }
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true
@@ -142,7 +142,7 @@ class PiracyModuleTest : StringSpec({
             addComment = { hasCommented = true; Unit.right() }
         )
 
-        val result = module(issue, TWO_SECONDS_LATER)
+        val result = module(issue, TWO_SECONDS_BEFORE)
 
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true

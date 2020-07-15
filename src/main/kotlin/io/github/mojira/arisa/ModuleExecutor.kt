@@ -103,16 +103,20 @@ class ModuleExecutor(
                 }, {
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
+                issueUpdateContextCache.storage.forEach {
+                    it.value.triggeredBy = issue
+                }
             }
 
         issueUpdateContextCache.storage
-            .mapValues { applyIssueChanges(it.value) }
-            .filterValues { it.isLeft() }
-            .forEach { entry ->
-                (entry.value as Either.Left).a.exceptions.forEach {
-                    log.error("[UPDATE] [${entry.key}] Failed", it)
+            .mapValues { Pair(it.value.triggeredBy, applyIssueChanges(it.value)) }
+            .filterValues { (_, result) -> result.isLeft() }
+            .forEach { (updateTo, pair) ->
+                val (triggeredBy, result) = pair
+                (result as Either.Left).a.exceptions.forEach {
+                    log.error("[UPDATE] [TO ${updateTo}] [BY ${triggeredBy}] Failed", it)
                 }
-                addFailedTicket(entry.key)
+                addFailedTicket(triggeredBy!!)
             }
         issueUpdateContextCache.clear()
     }

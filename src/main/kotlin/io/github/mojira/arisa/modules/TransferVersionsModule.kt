@@ -10,7 +10,6 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
     }
 
     override fun getFunctions(parents: Collection<Issue>, issue: Issue): Collection<() -> Unit> =
-
         parents.flatMap { parent ->
             val parentVersionIds = parent.affectedVersions
                 .map { it.id }

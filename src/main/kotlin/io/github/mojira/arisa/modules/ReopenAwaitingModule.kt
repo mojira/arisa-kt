@@ -35,7 +35,7 @@ class ReopenAwaitingModule(
                 assertNotEmpty(validChangeLog)
             ).bind()
 
-            val shouldReopen = shouldReopen(comments, validComments, reporter, resolveTime)
+            val shouldReopen = shouldReopen(comments, validComments, validChangeLog, reporter, resolveTime)
             if (shouldReopen) {
                 reopen()
             } else {
@@ -48,11 +48,14 @@ class ReopenAwaitingModule(
     private fun shouldReopen(
         comments: List<Comment>,
         validComments: List<Comment>,
+        validChangeLog: List<ChangeLogItem>,
         reporter: User?,
         resolveTime: Instant
     ): Boolean {
         val isSoftAR = resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now())
-        return comments.none(::isKeepARTag) && (isSoftAR || validComments.any { it.author.name == reporter?.name })
+        return comments.none(::isKeepARTag) && (isSoftAR ||
+                validChangeLog.isNotEmpty() ||
+                validComments.any { it.author.name == reporter?.name })
     }
 
     private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&

@@ -6,7 +6,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import java.time.Instant
-import kotlin.reflect.KFunction1
 
 fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
     { FailedModuleResponse(listOf(it)) },
@@ -32,8 +31,9 @@ fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert() =
         OperationNotNeededModuleResponse.left()
     }
 
-fun <E> assertNotContains(c: Collection<E>, predicate: KFunction1<E, Boolean>) = when {
-    c.none(predicate) -> Unit.right()
+fun assertContains(original: String?, match: String) = when {
+    original.isNullOrEmpty() -> OperationNotNeededModuleResponse.left()
+    original.contains(match, true) -> Unit.right()
     else -> OperationNotNeededModuleResponse.left()
 }
 

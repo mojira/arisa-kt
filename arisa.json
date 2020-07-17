@@ -253,6 +253,18 @@
           }
         ]
       },
+      "missingCrash": {
+        "crashExtensions": [
+          "txt",
+          "log"
+        ],
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCTEST"
+        ],
+        "message": "attach-crash-report"
+      },
       "revokeConfirmation": {
         "excludedStatuses": ["Postponed"],
         "whitelist": [

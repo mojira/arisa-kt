@@ -6,4 +6,5 @@
 
 #### Checklist
 - [ ] Included tests
+- [ ] Edited documentation
 - [ ] Tested in MCTEST-xxx

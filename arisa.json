@@ -259,9 +259,6 @@
           "log"
         ],
         "whitelist": [
-          "MC",
-          "MCL",
-          "MCTEST"
         ],
         "message": "attach-crash-report"
       },

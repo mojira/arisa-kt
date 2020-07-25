@@ -7,9 +7,9 @@ import arrow.core.left
 import arrow.core.right
 import java.time.Instant
 
-fun Either<Throwable, Unit>.toFailedModuleEither() = this.bimap(
+fun <T> Either<Throwable, T>.toFailedModuleEither() = this.bimap(
     { FailedModuleResponse(listOf(it)) },
-    { ModuleResponse }
+    { it }
 )
 
 fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleError, ModuleResponse> {

@@ -5,6 +5,7 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Link
 import java.time.Instant
 
 class ConfirmParentModule(
@@ -14,17 +15,36 @@ class ConfirmParentModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertLinkedMoreThanThreshold(linked).bind()
             assertConfirmationStatusWhitelisted(confirmationStatus, confirmationStatusWhitelist).bind()
+            assertTrue(isDuplicatedEnough(issue).bind()).bind()
             updateConfirmationStatus(targetConfirmationStatus)
         }
     }
 
-    private fun assertLinkedMoreThanThreshold(linked: Double?) = if ((linked ?: 0.0) >= linkedThreshold) {
-            Unit.right()
-        } else {
-            OperationNotNeededModuleResponse.left()
-        }
+    private fun isDuplicatedEnough(issue: Issue): Either<ModuleError, Boolean> = Either.fx {
+        val reporters = mutableSetOf(issue.reporter?.name)
+        var amount = 0
+        issue.links
+            .filter(::isDuplicatedLink)
+            .forEach {
+                val child = it.issue.getFullIssue().toFailedModuleEither().bind()
+                if (child.reporter?.name !in reporters) {
+                    if (++amount >= linkedThreshold) {
+                        return@fx true
+                    }
+                    reporters.add(child.reporter?.name)
+                }
+            }
+        false
+    }
+
+    private fun isDuplicatedLink(link: Link): Boolean = link.type == "Duplicate" && !link.outwards
+
+    private fun assertLinkedMoreThanThreshold(linked: Double) = if (linked >= linkedThreshold) {
+        Unit.right()
+    } else {
+        OperationNotNeededModuleResponse.left()
+    }
 
     private fun assertConfirmationStatusWhitelisted(status: String?, whitelist: List<String>) =
         if ((status.getOrDefault("Unconfirmed")) in whitelist) {

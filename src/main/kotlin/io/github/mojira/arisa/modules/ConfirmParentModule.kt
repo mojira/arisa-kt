@@ -40,12 +40,6 @@ class ConfirmParentModule(
 
     private fun isDuplicatedLink(link: Link): Boolean = link.type == "Duplicate" && !link.outwards
 
-    private fun assertLinkedMoreThanThreshold(linked: Double) = if (linked >= linkedThreshold) {
-        Unit.right()
-    } else {
-        OperationNotNeededModuleResponse.left()
-    }
-
     private fun assertConfirmationStatusWhitelisted(status: String?, whitelist: List<String>) =
         if ((status.getOrDefault("Unconfirmed")) in whitelist) {
             Unit.right()

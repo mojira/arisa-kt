@@ -24,14 +24,14 @@ class FutureVersionModule(
             val latestVersion = project.versions.lastOrNull(::isFutureVersion.complement())
             assertNotNull(latestVersion).bind()
 
-            latestVersion!!.add()
-            removeFutureVersions.forEach(::run)
             if (affectedVersions.size > removeFutureVersions.size) {
                 addComment(CommentOptions(messagePanel))
             } else {
+                latestVersion!!.add()
                 resolveAsAwaitingResponse()
                 addComment(CommentOptions(messageFull))
             }
+            removeFutureVersions.forEach(::run)
         }
     }
 

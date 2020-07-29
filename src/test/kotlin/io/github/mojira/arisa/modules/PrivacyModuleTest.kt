@@ -123,6 +123,16 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {
+        val issue = mockIssue(
+            summary = "[~foo@example.com]"
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should mark as private when the summary contains Email" {
         var hasSetPrivate = false
 

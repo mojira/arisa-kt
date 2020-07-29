@@ -24,15 +24,18 @@ class DuplicateMessageModule(
         Either.fx {
             assertLinkedAfterLastRun(changeLog, lastRun).bind()
 
+            val historicalParentKeys = changeLog
+                .filter(::isAddingDuplicateLink)
+                .map { it.changedTo!! }
+            val visibleComments = comments
+                .filter(::isPublicComment)
+            assertNoneIsMentioned(visibleComments, historicalParentKeys).bind()
+
             val parents = links
                 .filter(::isDuplicatesLink)
                 .map { it.issue }
                 .sortedBy { it.key }
             assertNotEmpty(parents).bind()
-
-            val visibleComments = comments
-                .filter(::isPublicComment)
-            assertNoneIsMentioned(visibleComments, parents).bind()
 
             val parentKey = parents.getCommonFieldOrNull { it.key }
             var messageKey = ticketMessages[parentKey]
@@ -62,7 +65,7 @@ class DuplicateMessageModule(
         assertAfter(lastChange!!.created, lastRun.minus(commentDelayMinutes, ChronoUnit.MINUTES)).bind()
     }
 
-    private fun isAddingDuplicateLink(item: ChangeLogItem) = item.field == "Link" &&
+    private fun isAddingDuplicateLink(item: ChangeLogItem) = item.field == "Link" && item.changedTo != null &&
             item.changedToString != null && item.changedToString.startsWith("This issue duplicates ")
 
     private fun List<LinkedIssue>.getFilledText() = this
@@ -92,11 +95,11 @@ class DuplicateMessageModule(
         return resolutionMessages[parentResolution]
     }
 
-    private fun assertNoneIsMentioned(comments: List<Comment>, parents: List<LinkedIssue>) =
+    private fun assertNoneIsMentioned(comments: List<Comment>, parents: List<String>) =
         assertTrue(parents.any(::hasBeenMentioned.partially1(comments))).invert()
 
-    private fun hasBeenMentioned(comments: List<Comment>, issue: LinkedIssue) =
-        comments.any { it.body?.contains(issue.key) ?: false }
+    private fun hasBeenMentioned(comments: List<Comment>, key: String) =
+        comments.any { it.body?.contains(key) ?: false }
 
     private fun isPublicComment(comment: Comment) =
         comment.visibilityType == null

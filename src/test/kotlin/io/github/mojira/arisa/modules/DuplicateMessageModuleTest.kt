@@ -60,6 +60,7 @@ class DuplicateMessageModuleTest : StringSpec({
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Link",
+                    changedTo = "MC-42",
                     changedToString = "This issue relates to MC-42"
                 )
             )
@@ -76,6 +77,7 @@ class DuplicateMessageModuleTest : StringSpec({
                 mockChangeLogItem(
                     created = TWO_SECONDS_AGO,
                     field = "Link",
+                    changedTo = "MC-42",
                     changedToString = "This issue duplicates MC-42"
                 )
             )
@@ -96,6 +98,14 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the issue has no duplicate links" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-42",
+                    changedToString = "This issue relates to MC-42"
+                )
+            ),
             links = listOf(
                 mockLink(
                     type = "Relates"
@@ -110,6 +120,14 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the issue has no outward duplicate links" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-42",
+                    changedToString = "This issue is duplicated by MC-42"
+                )
+            ),
             links = listOf(
                 mockLink(
                     outwards = false
@@ -124,6 +142,14 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the parent has been mentioned in a public comment" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink()
             ),
@@ -141,6 +167,20 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when all the parents have been mentioned in a public comment" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -163,6 +203,20 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse even if only a portion of parents have been mentioned" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -185,6 +239,20 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when all the parents have been mentioned in different public comments" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -208,9 +276,52 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when an historical parent has been mentioned in comments" {
+        val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
+            links = listOf(
+                mockLink(
+                    issue = mockLinkedIssue(
+                        key = "MC-2"
+                    )
+                )
+            ),
+            comments = listOf(
+                mockComment(
+                    body = "This duplicates MC-1."
+                )
+            )
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should add comment when the parent hasn't been mentioned anywhere" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink()
             ),
@@ -226,6 +337,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add comment when the parent has only been mentioned in an restricted comment" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink()
             ),
@@ -248,6 +367,26 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add comment with all three parents' keys in ascending order" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-3",
+                    changedToString = "This issue duplicates MC-3"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -273,6 +412,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for specific ticket when there's only one parent" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-297",
+                    changedToString = "This issue duplicates MC-297"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -292,6 +439,20 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the normal comment even if one of the parents is a special ticket" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-297",
+                    changedToString = "This issue duplicates MC-297"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -312,6 +473,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for private parent when the only parent is private" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -336,6 +505,20 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for private parents when all parents are private" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -370,6 +553,20 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the normal comment even if portion of the parents are private" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -395,6 +592,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for specific resolution when the only parent has that resolution" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -419,6 +624,20 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for specific resolution when all parents have the same resolution" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -453,6 +672,20 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the normal comment even if portion of the parents have the special resolution" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(),
                 mockLink(
@@ -478,6 +711,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the normal comment if there's no special message for the resolution" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -502,6 +743,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for specific parent instead of the comment for private parents" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-297",
+                    changedToString = "This issue duplicates MC-297"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -526,6 +775,14 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the comment for private instead of the comment for specific resolution" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -550,6 +807,14 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return FailedModuleResponse when getting an issue fails" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -568,6 +833,20 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return FailedModuleResponse with all errors when getting an issue fails" {
         val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                ),
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-2",
+                    changedToString = "This issue duplicates MC-2"
+                )
+            ),
             links = listOf(
                 mockLink(
                     issue = mockLinkedIssue(
@@ -598,6 +877,7 @@ private fun getIssue(
         mockChangeLogItem(
             created = TEN_THOUSAND_YEARS_LATER,
             field = "Link",
+            changedTo = "MC-42",
             changedToString = "This issue duplicates MC-42"
         )
     ),

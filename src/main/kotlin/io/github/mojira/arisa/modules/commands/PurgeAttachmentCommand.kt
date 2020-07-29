@@ -10,10 +10,9 @@ import io.github.mojira.arisa.modules.toFailedModuleEither
 import kotlinx.coroutines.runBlocking
 
 class PurgeAttachmentCommand : Command {
-    private val argumentAmount = 3
-
+    @Suppress("MagicNumber")
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size <= argumentAmount).bind()
+        assertTrue(arguments.size <= 3).bind()
         val startID = arguments.getOrNull(1)?.toIntEither()?.bind() ?: 0
         val endID = arguments.getOrNull(2)?.toIntEither()?.bind() ?: Int.MAX_VALUE
         for (attachment in issue.attachments) {

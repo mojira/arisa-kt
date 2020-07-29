@@ -36,6 +36,7 @@ import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
 fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: IssueUpdateContextCache) = Attachment(
+    id,
     fileName,
     createdDate.toInstant(),
     mimeType,

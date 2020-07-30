@@ -14,13 +14,15 @@ class DeleteCommentsCommand : Command {
         assertTrue(arguments.size > 1).bind()
         val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
         val comments = issue.comments
-        comments.filter { it.visibilityValue != "staff" }.filter { it.author.name == name }
-            .forEachIndexed { index, it ->
-                it.restrict("Removed by arisa")
-                if (index % 10 == 0) {
-                    TimeUnit.SECONDS.sleep(1)
+        Thread {
+            comments.filter { it.visibilityValue != "staff" }.filter { it.author.name == name }
+                .forEachIndexed { index, it ->
+                    it.restrict("Removed by arisa")
+                    if (index % 10 == 0) {
+                        TimeUnit.SECONDS.sleep(1)
+                    }
                 }
-            }
+        }.start()
         ModuleResponse.right()
     }
 }

@@ -10,6 +10,7 @@ import io.github.mojira.arisa.modules.assertTrue
 import java.util.concurrent.TimeUnit
 
 class DeleteCommentsCommand : Command {
+    @Suppress("MagicNumber")
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
         val name = arguments.asList().subList(1, arguments.size).joinToString(" ")

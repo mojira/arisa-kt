@@ -12,7 +12,7 @@ class DeleteCommentsCommand : Command {
         assertTrue(arguments.size > 1).bind()
         val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
         val comments = issue.comments
-        comments.filter { it.author.name == name }.forEach {
+        comments.filter { it.visibilityValue != "staff" }.filter { it.author.name == name }.forEach {
             it.restrict("Removed by arisa")
         }
     }

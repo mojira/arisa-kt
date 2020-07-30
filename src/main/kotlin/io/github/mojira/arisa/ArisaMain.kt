@@ -124,7 +124,7 @@ private fun readLastRunTime(lastRun: List<String>): Instant {
 
 private fun readLastRun(lastRunFile: File): List<String> {
     return (if (lastRunFile.exists())
-        lastRunFile.readText()
+        lastRunFile.readText().trim()
     else "")
         .split(",")
 }

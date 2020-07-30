@@ -16,7 +16,7 @@ class AttachmentModule(
         Either.fx {
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)
             val functions = attachments
-                .filter { (name, _) -> endsWithBlacklistedExtensionAdapter(name) }
+                .filter { endsWithBlacklistedExtensionAdapter(it.name) }
                 .map { it.remove }
             assertNotEmpty(functions).bind()
             functions.forEach { it.invoke() }

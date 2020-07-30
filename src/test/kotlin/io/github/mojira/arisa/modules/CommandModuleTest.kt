@@ -14,6 +14,8 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
+private val TWO_SECONDS_LATER = RIGHT_NOW.plusSeconds(2)
+
 class CommandModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no comments" {
         val module = CommandModule(mockUnitCommand, mockUnitCommand)
@@ -169,6 +171,8 @@ private fun getComment(
     visibilityValue: String? = "staff",
     body: String = "ARISA_ADD_VERSION something"
 ) = mockComment(
+    created = TWO_SECONDS_LATER,
+    updated = TWO_SECONDS_LATER,
     getAuthorGroups = getAuthorGroups,
     visibilityType = visibilityType,
     visibilityValue = visibilityValue,

@@ -17,12 +17,14 @@ import java.time.Instant
 val RIGHT_NOW: Instant = Instant.now()
 
 fun mockAttachment(
+    id: String = "0",
     name: String = "",
     created: Instant = RIGHT_NOW,
     mimeType: String = "text/plain",
     remove: () -> Unit = { Unit },
     getContent: () -> ByteArray = { ByteArray(0) }
 ) = Attachment(
+    id,
     name,
     created,
     mimeType,

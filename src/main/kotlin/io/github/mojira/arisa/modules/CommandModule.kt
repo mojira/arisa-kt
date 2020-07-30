@@ -3,23 +3,27 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
+import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.AddVersionCommand
 import io.github.mojira.arisa.modules.commands.Command
 import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
 import io.github.mojira.arisa.modules.commands.FixedCommand
+import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry
 class CommandModule(
     val addVersionCommand: Command = AddVersionCommand(),
     val fixedCommand: Command = FixedCommand(),
+    val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
     val deleteCommentsCommand: Command = DeleteCommentsCommand()
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             val staffComments = comments
+                .filter(::isUpdatedAfterLastRun.partially1(lastRun))
                 .filter(::isStaffRestricted)
                 .filter(::userIsVolunteer)
                 .filter(::isProbablyACommand)
@@ -53,12 +57,17 @@ class CommandModule(
             "ARISA_FIXED" -> if (userIsMod) {
                 fixedCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
+            "ARISA_PURGE_ATTACHMENT" -> if (userIsMod) {
+                purgeAttachmentCommand(issue, *arguments)
+            } else OperationNotNeededModuleResponse.left()
             "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
                 deleteCommentsCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()
         }
     }
+
+    private fun isUpdatedAfterLastRun(lastRun: Instant, comment: Comment) = comment.updated.isAfter(lastRun)
 
     private fun isProbablyACommand(comment: Comment) =
         !comment.body.isNullOrBlank() &&

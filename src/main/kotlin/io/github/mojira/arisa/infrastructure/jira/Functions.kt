@@ -157,7 +157,7 @@ fun createComment(
                 val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
                 if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.warn("The comment has already been posted under $key in last run: $comment")
+                    log.error("The comment has already been posted under $key in last run: $comment")
                 } else {
                     context.value.jiraIssue.addComment(comment)
                 }

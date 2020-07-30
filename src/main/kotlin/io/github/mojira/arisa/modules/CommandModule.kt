@@ -8,6 +8,7 @@ import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.AddVersionCommand
 import io.github.mojira.arisa.modules.commands.Command
+import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
 import io.github.mojira.arisa.modules.commands.FixedCommand
 import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
 import java.time.Instant
@@ -16,7 +17,8 @@ import java.time.Instant
 class CommandModule(
     val addVersionCommand: Command = AddVersionCommand(),
     val fixedCommand: Command = FixedCommand(),
-    val purgeAttachmentCommand: Command = PurgeAttachmentCommand()
+    val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
+    val deleteCommentsCommand: Command = DeleteCommentsCommand()
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
@@ -57,6 +59,9 @@ class CommandModule(
             } else OperationNotNeededModuleResponse.left()
             "ARISA_PURGE_ATTACHMENT" -> if (userIsMod) {
                 purgeAttachmentCommand(issue, *arguments)
+            } else OperationNotNeededModuleResponse.left()
+            "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
+                deleteCommentsCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()
         }

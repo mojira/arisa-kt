@@ -137,7 +137,7 @@ class PrivacyModuleTest : StringSpec({
         var hasSetPrivate = false
 
         val issue = mockIssue(
-            summary = "foo@example.com",
+            summary = "foo_bar@example.com",
             setPrivate = { hasSetPrivate = true }
         )
 

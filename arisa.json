@@ -118,6 +118,18 @@
         ]
       },
       "privacy": {
+        "resolutions": [
+          "Awaiting Response",
+          "Cannot Reproduce",
+          "Done",
+          "Duplicate",
+          "Fixed",
+          "Incomplete",
+          "Invalid",
+          "Unresolved",
+          "Won't Fix",
+          "Works As Intended"
+        ],
         "message": "panel-mark-private",
         "commentNote": "\n----\nRestricted by PrivacyModule ??[~arisabot]??"
       },

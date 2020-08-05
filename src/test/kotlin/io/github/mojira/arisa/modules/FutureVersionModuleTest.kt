@@ -265,6 +265,25 @@ class FutureVersionModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
     }
+    
+    "should not resolve tickets if already resolved" {
+        var preResolved = true
+
+        val module = FutureVersionModule("message", "panel")
+        val issue = mockIssue(
+                affectedVersions = listOf(FUTURE_VERSION),
+                project = mockProject(
+                        versions = listOf(RELEASED_VERSION)
+                ),
+                resolution = "Invalid",
+                resolveAsAwaitingResponse = { preResolved = false }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        preResolved.shouldBeFalse()
+    }
 
     "should remove future versions added via editing" {
         val module = FutureVersionModule("message", "panel")

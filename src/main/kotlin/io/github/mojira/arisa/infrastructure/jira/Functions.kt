@@ -56,6 +56,13 @@ fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: Str
     context.value.hasUpdates = true
     context.value.update.field(confirmationField, jsonValue)
 }
+fun updatePriority(context: Lazy<IssueUpdateContext>, mojangPriorityField: String, value: String) {
+    val jsonValue = JSONObject()
+    jsonValue["value"] = value
+
+    context.value.hasUpdates = true
+    context.value.update.field(mojangPriorityField, jsonValue)
+}
 
 fun updateLinked(context: Lazy<IssueUpdateContext>, linkedField: String, value: Double) {
     context.value.hasUpdates = true

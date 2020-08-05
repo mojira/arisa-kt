@@ -33,6 +33,7 @@ data class Issue(
     val updateDescription: (description: String) -> Unit,
     val updateCHK: () -> Unit,
     val updateConfirmationStatus: (String) -> Unit,
+    val updatePriority: (String) -> Unit,
     val updateLinked: (Double) -> Unit,
     val setPrivate: () -> Unit,
     val addAffectedVersion: (id: String) -> Unit,

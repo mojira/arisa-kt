@@ -31,6 +31,8 @@ class FutureVersionModule(
                 if (resolution == null || resolution == "Unresolved") {
                     resolveAsAwaitingResponse()
                     addComment(CommentOptions(messageFull))
+                } else {
+                    addComment(CommentOptions(messagePanel))
                 }
             }
             removeFutureVersions.forEach(::run)

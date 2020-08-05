@@ -248,7 +248,7 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isResolved.shouldBeTrue()
     }
-    
+
     "should remove future versions added upon ticket creation by users" {
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(

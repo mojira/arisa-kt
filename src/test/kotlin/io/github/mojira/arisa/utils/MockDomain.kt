@@ -146,6 +146,7 @@ fun mockIssue(
     updateDescription,
     updateCHK,
     updateConfirmationStatus,
+    updatePriority,
     updateLinked,
     setPrivate,
     addAffectedVersion,

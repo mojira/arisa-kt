@@ -20,6 +20,18 @@ class FutureVersionModule(
                 .filter { it.id in addedVersions }
                 .map { it.remove }
             assertNotEmpty(removeFutureVersions).bind()
+            assertEither(
+                assertEquals(resolution, "Awaiting Response",),
+                assertEquals(resolution, "Cannot Reproduce"),
+                assertEquals(resolution, "Done"),
+                assertEquals(resolution, "Duplicate"),
+                assertEquals(resolution, "Fixed"),
+                assertEquals(resolution, "Incomplete"),
+                assertEquals(resolution, "Invalid"),
+                assertEquals(resolution, "Unresolved"),
+                assertEquals(resolution, "Won't Fix"),
+                assertEquals(resolution, "Works As Intended")
+            ).bind()
 
             val latestVersion = project.versions.lastOrNull(::isFutureVersion.complement())
             assertNotNull(latestVersion).bind()

@@ -258,8 +258,7 @@ class FutureVersionModuleTest : StringSpec({
             affectedVersions = listOf(FUTURE_VERSION),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
-            ),
-            resolveAsAwaitingResponse = { isResolved = true }
+            )
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

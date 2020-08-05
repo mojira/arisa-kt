@@ -30,7 +30,7 @@ jobs:
         SERVER_PORT: 22
         FOLDER: "build/install/arisa-kt/lib"
         ARGS: "-avh --delete"
-        SERVER_IP: azure.urielsalis.com
+        SERVER_IP: ssh.urielsalis.com
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new binaries
@@ -40,7 +40,7 @@ jobs:
         SERVER_PORT: 22
         FOLDER: "build/install/arisa-kt/bin"
         ARGS: "-avh --delete"
-        SERVER_IP: azure.urielsalis.com
+        SERVER_IP: ssh.urielsalis.com
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Upload new configuration
@@ -50,13 +50,13 @@ jobs:
         SERVER_PORT: 22
         FOLDER: "arisa.json"
         ARGS: "-avh --delete"
-        SERVER_IP: azure.urielsalis.com
+        SERVER_IP: ssh.urielsalis.com
         USERNAME: arisakt
         SERVER_DESTINATION: /home/arisakt/arisa-kt
     - name: Run internal deploy script
       uses: fifsky/ssh-action@master
       with:
-        host: azure.urielsalis.com
+        host: ssh.urielsalis.com
         user: arisakt
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         command: |

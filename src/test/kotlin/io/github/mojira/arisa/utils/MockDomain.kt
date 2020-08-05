@@ -105,6 +105,7 @@ fun mockIssue(
     updateDescription: (description: String) -> Unit = { Unit },
     updateCHK: () -> Unit = { Unit },
     updateConfirmationStatus: (String) -> Unit = { Unit },
+    updatePriority: (String) -> Unit = { Unit },
     updateLinked: (Double) -> Unit = { Unit },
     setPrivate: () -> Unit = { Unit },
     addAffectedVersion: (id: String) -> Unit = { Unit },

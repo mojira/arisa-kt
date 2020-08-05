@@ -21,7 +21,7 @@ class FutureVersionModule(
                 .map { it.remove }
             assertNotEmpty(removeFutureVersions).bind()
             assertEither(
-                assertEquals(resolution, "Awaiting Response",),
+                assertEquals(resolution, "Awaiting Response"),
                 assertEquals(resolution, "Cannot Reproduce"),
                 assertEquals(resolution, "Done"),
                 assertEquals(resolution, "Duplicate"),

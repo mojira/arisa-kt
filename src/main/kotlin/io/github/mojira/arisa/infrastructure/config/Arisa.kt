@@ -228,6 +228,8 @@ object Arisa : ConfigSpec() {
         }
 
         object RevokeConfirmation : ModuleConfigSpec()
+        
+        object RevokePriority : ModuleConfigSpec()
 
         object KeepPrivate : ModuleConfigSpec() {
             val message by required<String>(

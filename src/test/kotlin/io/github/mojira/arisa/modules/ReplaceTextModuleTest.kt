@@ -23,12 +23,12 @@ class ReplaceTextModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the comment is updated before last run" {
+    "should return OperationNotNeededModuleResponse when the comment is created before last run" {
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
                     body = "https://bugs.mojang.com/browse/MC-1",
-                    updated = TWO_SECONDS_AGO
+                    created = TWO_SECONDS_AGO
                 )
             )
         )

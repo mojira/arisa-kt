@@ -23,10 +23,12 @@ class ReplaceTextModule(
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            val needUpdateDescription = description != null && needReplacement(description)
+            val needUpdateDescription = created.isAfter(lastRun) &&
+                    description != null &&
+                    needReplacement(description)
 
             val filteredComments = comments
-                .filter { updatedAfterLastRun(it.updated, lastRun) }
+                .filter { createdAfterLastRun(it.created, lastRun) }
                 .filter { needReplacement(it.body) }
 
             assertEither(
@@ -44,7 +46,7 @@ class ReplaceTextModule(
         }
     }
 
-    private fun updatedAfterLastRun(updated: Instant, lastRun: Instant) = updated.isAfter(lastRun)
+    private fun createdAfterLastRun(updated: Instant, lastRun: Instant) = updated.isAfter(lastRun)
 
     private fun needReplacement(text: String?) = replacements.any { (regex, _) -> text?.contains(regex) ?: false }
 

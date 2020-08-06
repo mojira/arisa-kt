@@ -299,6 +299,11 @@
           "MCE"
         ]
       },
+      "revokePriority": {
+        "whitelist": [
+          "MC"
+        ]
+      },
       "keepPrivate": {
         "resolutions": [
           "Awaiting Response",

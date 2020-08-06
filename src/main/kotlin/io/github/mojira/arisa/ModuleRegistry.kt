@@ -209,7 +209,7 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.ReplaceText, ReplaceTextModule())
 
         register(Modules.RevokeConfirmation, RevokeConfirmationModule())
-        
+
         register(Modules.RevokePriority, RevokePriorityModule())
 
         register(Modules.ResolveTrash, ResolveTrashModule())

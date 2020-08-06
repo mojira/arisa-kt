@@ -38,6 +38,7 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.RevokePriorityModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
@@ -208,6 +209,8 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.ReplaceText, ReplaceTextModule())
 
         register(Modules.RevokeConfirmation, RevokeConfirmationModule())
+        
+        register(Modules.RevokePriority, RevokePriorityModule())
 
         register(Modules.ResolveTrash, ResolveTrashModule())
 

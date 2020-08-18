@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.assertTrue
@@ -15,6 +16,7 @@ class DeleteCommentsCommand : Command {
         assertTrue(arguments.size > 1).bind()
         val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
         val comments = issue.comments
+        CommandModule().modRestricted = true
         Thread {
             comments.filter { it.visibilityValue != "staff" }.filter { it.author.name == name }
                 .forEachIndexed { index, it ->

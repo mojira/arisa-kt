@@ -20,7 +20,7 @@ class CommandModule(
     val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
     val deleteCommentsCommand: Command = DeleteCommentsCommand()
 ) : Module {
-    var lateinit modRestricted: Boolean
+    private var modRestricted: Boolean = false
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             val staffComments = comments

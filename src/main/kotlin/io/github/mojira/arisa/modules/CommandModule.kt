@@ -20,6 +20,7 @@ class CommandModule(
     val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
     val deleteCommentsCommand: Command = DeleteCommentsCommand()
 ) : Module {
+    var modRestricted = false
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             val staffComments = comments
@@ -34,11 +35,21 @@ class CommandModule(
 
             when {
                 results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
-                    addRawRestrictedComment("Command execution failed", "helper")
+                    if(modRestricted) {
+                        addRawRestrictedComment("Command execution failed", "global-moderators")
+                    }
+                    else {
+                        addRawRestrictedComment("Command execution failed", "helper")
+                    }
                     results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
                 }
                 results.any { it.isRight() } -> {
-                    addRawRestrictedComment("Command execution was successful", "helper")
+                    if(modRestricted) {
+                        addRawRestrictedComment("Command execution was successful", "global-moderators")
+                    }
+                    else {
+                        addRawRestrictedComment("Command execution was successful", "helper")
+                    }
                     results.first { it.isRight() }.bind()
                 }
                 else -> OperationNotNeededModuleResponse.left().bind()

@@ -20,7 +20,7 @@ class CommandModule(
     val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
     val deleteCommentsCommand: Command = DeleteCommentsCommand()
 ) : Module {
-    var modRestricted = false
+    var lateinit modRestricted: Boolean
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             val staffComments = comments
@@ -62,14 +62,20 @@ class CommandModule(
         return when (split[0]) {
             // TODO this should be configurable if we move to a registry
             // TODO do we want to add the response of a module via editing the comment?
-            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
+            "ARISA_ADD_VERSION" -> {
+                modRestricted = false
+                addVersionCommand(issue, *arguments)
+            }
             "ARISA_FIXED" -> if (userIsMod) {
+                modRestricted = true
                 fixedCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             "ARISA_PURGE_ATTACHMENT" -> if (userIsMod) {
+                modRestricted = true
                 purgeAttachmentCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
+                modRestricted = true
                 deleteCommentsCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()

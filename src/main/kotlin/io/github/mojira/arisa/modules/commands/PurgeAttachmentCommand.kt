@@ -7,7 +7,6 @@ import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.assertTrue
 import io.github.mojira.arisa.modules.toFailedModuleEither
-import io.github.mojira.arisa.modules.CommandModule
 import kotlinx.coroutines.runBlocking
 
 class PurgeAttachmentCommand : Command {
@@ -16,7 +15,6 @@ class PurgeAttachmentCommand : Command {
         assertTrue(arguments.size <= 3).bind()
         val startID = arguments.getOrNull(1)?.toIntEither()?.bind() ?: 0
         val endID = arguments.getOrNull(2)?.toIntEither()?.bind() ?: Int.MAX_VALUE
-        CommandModule().modRestricted = true
         for (attachment in issue.attachments) {
             val attachmentID = attachment.id.toIntEither().bind()
             if (attachmentID in startID..endID) {

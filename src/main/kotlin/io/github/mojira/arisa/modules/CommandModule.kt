@@ -35,19 +35,17 @@ class CommandModule(
 
             when {
                 results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
-                    if(modRestricted) {
+                    if (modRestricted) {
                         addRawRestrictedComment("Command execution failed", "global-moderators")
-                    }
-                    else {
+                    } else {
                         addRawRestrictedComment("Command execution failed", "helper")
                     }
                     results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
                 }
                 results.any { it.isRight() } -> {
-                    if(modRestricted) {
+                    if (modRestricted) {
                         addRawRestrictedComment("Command execution was successful", "global-moderators")
-                    }
-                    else {
+                    } else {
                         addRawRestrictedComment("Command execution was successful", "helper")
                     }
                     results.first { it.isRight() }.bind()

@@ -7,6 +7,7 @@ import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.assertFalse
 import io.github.mojira.arisa.modules.assertTrue
+import io.github.mojira.arisa.modules.CommandModule
 
 class AddVersionCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
@@ -15,6 +16,7 @@ class AddVersionCommand : Command {
         assertFalse(issue.affectedVersions.any { it.name == version }).bind()
         assertTrue(issue.project.versions.any { it.name == version }).bind()
         val id = issue.project.versions.first { it.name == version }.id
+        CommandModule().modRestricted = false
         issue.addAffectedVersion(id)
     }
 }

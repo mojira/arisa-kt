@@ -20,6 +20,7 @@ class CommandModule(
     val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
     val deleteCommentsCommand: Command = DeleteCommentsCommand()
 ) : Module {
+    private lateinit var staffAuthor: User
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             val staffComments = comments
@@ -30,15 +31,15 @@ class CommandModule(
             assertNotEmpty(staffComments).bind()
 
             val results = staffComments
-                .map { executeCommand(it.body!!, this, userIsMod(it)) }
+                .map { executeCommand(it.body!!, this, userIsMod(it), it.author) }
 
             when {
                 results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
-                    addRawRestrictedComment("Command execution failed", "helper")
+                    addRawRestrictedComment("$staffAuthor Command execution failed", "helper")
                     results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
                 }
                 results.any { it.isRight() } -> {
-                    addRawRestrictedComment("Command execution was successful", "helper")
+                    addRawRestrictedComment("$staffAuthor Command execution was successful", "helper")
                     results.first { it.isRight() }.bind()
                 }
                 else -> OperationNotNeededModuleResponse.left().bind()
@@ -47,9 +48,10 @@ class CommandModule(
     }
 
     @Suppress("SpreadOperator")
-    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean): Either<ModuleError, ModuleResponse> {
+    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean, author: User): Either<ModuleError, ModuleResponse> {
         val split = comment.split("\\s+".toRegex())
         val arguments = split.toTypedArray()
+        staffAuthor = author
         return when (split[0]) {
             // TODO this should be configurable if we move to a registry
             // TODO do we want to add the response of a module via editing the comment?

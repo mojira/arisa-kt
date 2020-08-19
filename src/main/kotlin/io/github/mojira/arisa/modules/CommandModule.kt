@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.commands.AddVersionCommand
 import io.github.mojira.arisa.modules.commands.Command
 import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand

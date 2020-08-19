@@ -49,7 +49,8 @@ class CommandModule(
     }
 
     @Suppress("SpreadOperator")
-    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean, author: User): Either<ModuleError, ModuleResponse> {
+    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean, author: User):
+            Either<ModuleError, ModuleResponse> {
         val split = comment.split("\\s+".toRegex())
         val arguments = split.toTypedArray()
         staffAuthor = author

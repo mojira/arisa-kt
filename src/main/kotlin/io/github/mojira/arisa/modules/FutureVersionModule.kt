@@ -29,9 +29,6 @@ class FutureVersionModule(
             } else {
                 latestVersion!!.add()
                 if (resolution == null || resolution == "Unresolved") {
-                                        resolveAsAwaitingResponse()
-                }
-                addComment(CommentOptions(messagePanel))
                     resolveAsAwaitingResponse()
                     addComment(CommentOptions(messageFull))
                 } else {

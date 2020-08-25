@@ -162,11 +162,7 @@
         "whitelist": [
           "MC",
           "MCPE",
-          "MCL",
-          "MCD",
-          "MCE",
-          "BDS",
-          "REALMS"
+          "MCL"
         ]
       },
       "confirmParent": {

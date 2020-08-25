@@ -161,8 +161,12 @@
         "excludedStatuses": ["Postponed"],
         "whitelist": [
           "MC",
+          "MCPE",
           "MCL",
-          "MCPE"
+          "MCD",
+          "MCE",
+          "BDS",
+          "REALMS"
         ]
       },
       "confirmParent": {
@@ -209,7 +213,12 @@
       },
       "empty": {
         "excludedStatuses": ["Postponed"],
-        "message": "incomplete"
+        "message": "incomplete",
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCTEST"
+        ]
       },
       "command": {
         "resolutions": [

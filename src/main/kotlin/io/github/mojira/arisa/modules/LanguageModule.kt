@@ -55,7 +55,6 @@ class LanguageModule(
     private fun String.stripUrls() =
         this.replace("""(?:https?://|www\.)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+\S*""".toRegex(), "")
 
-
     private fun getDetectedLanguage(
         getLanguage: (String) -> Either<Any, Map<String, Double>>,
         text: String

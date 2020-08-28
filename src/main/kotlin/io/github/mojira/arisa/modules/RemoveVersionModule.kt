@@ -28,7 +28,7 @@ class RemoveVersionModule : Module {
             changeLog
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
-                .filter { it.field.toLowerCase(Locale(ENGLISH)) == "version" }
+                .filter { it.field.toLowerCase() == "version" }
                 .filterNot { isVolunteer(it.getAuthorGroups()) }
                 .mapNotNull { it.changedTo }
                 .toList()

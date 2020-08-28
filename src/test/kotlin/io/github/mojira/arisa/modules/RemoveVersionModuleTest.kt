@@ -156,30 +156,6 @@ class RemoveVersionModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when project versions are empty" {
-        val module = RemoveVersionModule()
-        val issue = mockIssue(
-            affectedVersions = listOf(VERSION),
-            changeLog = listOf(ADD_VERSION)
-        )
-
-        val result = module(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
-    "should return OperationNotNeededModuleResponse when project versions are null" {
-        val module = RemoveVersionModule()
-        val issue = mockIssue(
-            affectedVersions = listOf(VERSION),
-            changeLog = listOf(ADD_VERSION)
-        )
-
-        val result = module(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should remove extra versions added via editing" {
         val module = RemoveVersionModule()
         val issue = mockIssue(

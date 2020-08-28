@@ -1,17 +1,13 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
-import io.github.mojira.arisa.utils.mockUser
 import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.booleans.shouldBeTrue
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)

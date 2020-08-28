@@ -5,7 +5,7 @@ import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-class RemoveVersionModule: Module {
+class RemoveVersionModule : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
@@ -28,7 +28,7 @@ class RemoveVersionModule: Module {
             changeLog
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
-                .filter { it.field.toLowerCase() == "version" }
+                .filter { it.field.toLowerCase(locale: ENGLISH) == "version" }
                 .filterNot { isVolunteer(it.getAuthorGroups()) }
                 .mapNotNull { it.changedTo }
                 .toList()

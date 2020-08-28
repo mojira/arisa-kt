@@ -230,6 +230,15 @@
           "Works As Intended"
         ]
       },
+      "removeVersion": {
+        "resolutions": [
+          "Duplicate",
+          "Incomplete",
+          "Invalid",
+          "Works as Intended",
+          "Won't Fix"
+        ]
+      },
       "crash": {
         "excludedStatuses": ["Postponed"],
         "crashExtensions": [

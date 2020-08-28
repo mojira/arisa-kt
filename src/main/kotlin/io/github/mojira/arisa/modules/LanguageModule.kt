@@ -35,17 +35,26 @@ class LanguageModule(
         val trimmedSummary = (summary ?: "").trim()
         val trimmedDescription = (description ?: "").trim()
         return when {
-            trimmedDescription.contains(trimmedSummary, ignoreCase = true) -> trimmedDescription.completeDot()
-            trimmedSummary.contains(trimmedDescription, ignoreCase = true) -> trimmedSummary.completeDot()
-            else -> "${trimmedSummary.completeDot()} ${trimmedDescription.completeDot()}"
+            trimmedDescription.contains(trimmedSummary, ignoreCase = true) -> trimmedDescription.normalizeDescription()
+            trimmedSummary.contains(trimmedDescription, ignoreCase = true) -> trimmedSummary.normalizeDescription()
+            else -> "${trimmedSummary.normalizeDescription()} ${trimmedDescription.normalizeDescription()}"
         }
     }
+
+    private fun String.normalizeDescription() =
+        this
+            .stripUrls()
+            .completeDot()
 
     private fun String.completeDot() = if (this.endsWith(".")) {
         this
     } else {
         "$this."
     }
+
+    private fun String.stripUrls() =
+        this.replace("""(?:https?://|www\.)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+\S*""".toRegex(), "")
+
 
     private fun getDetectedLanguage(
         getLanguage: (String) -> Either<Any, Map<String, Double>>,

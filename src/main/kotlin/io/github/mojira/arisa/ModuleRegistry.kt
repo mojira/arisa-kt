@@ -219,7 +219,7 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.FutureVersion.panel]
             )
         )
-        
+
         register(Modules.RemoveVersion, RemoveVersionModule())
 
         register(Modules.Command, CommandModule())

@@ -19,9 +19,7 @@ class RemoveVersionModule : Module {
 
     private fun Issue.getExtraVersionsLatelyAddedByNonVolunteers(lastRun: Instant): List<String> =
         if (created.isAfter(lastRun)) {
-            if (isVolunteer(reporter?.getGroups?.invoke())) {
-                emptyList()
-            } else if (resolution == "Unresolved") {
+            if (resolution == "Unresolved" || isVolunteer(reporter?.getGroups?.invoke())) {
                 emptyList()
             } else {
                 affectedVersions.map { ver -> ver.id }
@@ -30,6 +28,8 @@ class RemoveVersionModule : Module {
             changeLog
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
+                .filter { it.field.toLowerCase() == "resolution" }
+                .filterNot { it.changedToString == "Unresolved" }
                 .filter { it.field.toLowerCase() == "version" }
                 .filterNot { isVolunteer(it.getAuthorGroups()) }
                 .mapNotNull { it.changedTo }

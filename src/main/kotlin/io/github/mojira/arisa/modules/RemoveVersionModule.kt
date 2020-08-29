@@ -34,5 +34,6 @@ class RemoveVersionModule : Module {
                 .toList()
         }
 
-    private fun isVolunteer(groups: List<String>?) = groups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+    private fun isVolunteer(groups: List<String>?) = 
+        groups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 }

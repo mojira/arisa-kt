@@ -19,7 +19,7 @@ class RemoveVersionModule : Module {
 
     private fun Issue.getExtraVersionsLatelyAddedByNonVolunteers(lastRun: Instant): List<String> =
         if (created.isAfter(lastRun)) {
-            if (isVolunteer(reporter?.getGroups?.invoke())) {
+            if (isVolunteer(reporter?.getGroups?.invoke()) || resolution == "Unresolved") {
                 emptyList()
             } else {
                 affectedVersions.map { ver -> ver.id }

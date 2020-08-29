@@ -34,7 +34,7 @@ class RemoveVersionModule : Module {
                 .mapNotNull { it.changedTo }
                 .toList()
         }
-    
+
     private fun isResolved(item: io.github.mojira.arisa.domain.ChangeLogItem) =
         item.field == "Resolution" && item.changedTo != null &&
         item.changedToString != null && item.changedToString != "Unresolved"

@@ -12,7 +12,7 @@ import io.kotest.core.spec.style.StringSpec
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
-private val VERSION = mockVersion(id = "2", released = true, archived = false)
+private val VERSION = mockVersion(id = "1", released = true, archived = false)
 
 private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1")
 

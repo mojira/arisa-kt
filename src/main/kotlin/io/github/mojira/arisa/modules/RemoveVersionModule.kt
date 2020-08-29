@@ -28,16 +28,11 @@ class RemoveVersionModule : Module {
             changeLog
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
-                .filter(::isResolved)
                 .filter { it.field.toLowerCase() == "version" }
                 .filterNot { isVolunteer(it.getAuthorGroups()) }
                 .mapNotNull { it.changedTo }
                 .toList()
         }
-
-    private fun isResolved(item: io.github.mojira.arisa.domain.ChangeLogItem) =
-        item.field == "Resolution" && item.changedTo != null &&
-        item.changedToString != null && item.changedToString != "Unresolved"
 
     private fun isVolunteer(groups: List<String>?) =
         groups?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false

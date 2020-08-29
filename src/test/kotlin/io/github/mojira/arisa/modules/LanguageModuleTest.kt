@@ -85,6 +85,22 @@ class LanguageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the combined text only contains a URL" {
+        val module = LanguageModule(
+            lengthThreshold = 2,
+            getLanguage = { mapOf("de" to 1.0).right() }
+        )
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            summary = "",
+            description = "https://www.minecraft.net/en-us/"
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should resolve as invalid if ticket is not in English" {
         val module = LanguageModule(
             getLanguage = { mapOf("de" to 1.0).right() }

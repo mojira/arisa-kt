@@ -120,28 +120,6 @@ class RemoveVersionModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
-    "should return OperationNotNeededModuleResponse when the ticket is unresolved" {
-        val module = RemoveVersionModule()
-        val issue = mockIssue(
-                created = FIVE_SECONDS_AGO,
-                affectedVersions = listOf(VERSION),
-                resolution = "Unresolved",
-                changeLog = listOf(
-                        mockChangeLogItem(
-                                field = "Version",
-                                changedTo = "1",
-                                getAuthorGroups = { listOf("user") }
-                        )
-                ),
-                project = mockProject(
-                        versions = listOf(VERSION)
-                )
-        )
-
-        val result = module(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
 
     "should return OperationNotNeededModuleResponse when affected versions are empty" {
         val module = RemoveVersionModule()

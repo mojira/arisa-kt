@@ -232,7 +232,9 @@
       },
       "removeVersion": {
         "resolutions": [
+          "Cannot Reproduce",
           "Duplicate",
+          "Fixed",
           "Incomplete",
           "Invalid",
           "Works as Intended",

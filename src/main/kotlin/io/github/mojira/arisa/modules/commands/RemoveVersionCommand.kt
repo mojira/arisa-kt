@@ -13,7 +13,8 @@ class RemoveVersionCommand : Command {
         val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
         assertTrue(issue.affectedVersions.any { it.name == version }).bind()
         assertTrue(issue.project.versions.any { it.name == version }).bind()
-        val idNum = issue.affectedVersions.indexOf(version)
+        assertNotNull(issue.affectedVersions.indexOf(issue.project.versions.first { it.name == version })).bind()
+        val idNum = issue.affectedVersions.indexOf(issue.project.versions.first { it.name == version })
         issue.affectedVersions[idNum].remove
     }
 }

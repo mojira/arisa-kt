@@ -34,6 +34,7 @@ import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
+import io.github.mojira.arisa.modules.RemoveVersionModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
@@ -218,6 +219,8 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.FutureVersion.panel]
             )
         )
+
+        register(Modules.RemoveVersion, RemoveVersionModule())
 
         register(Modules.Command, CommandModule())
 

@@ -161,8 +161,8 @@
         "excludedStatuses": ["Postponed"],
         "whitelist": [
           "MC",
-          "MCL",
-          "MCPE"
+          "MCPE",
+          "MCL"
         ]
       },
       "confirmParent": {
@@ -209,7 +209,12 @@
       },
       "empty": {
         "excludedStatuses": ["Postponed"],
-        "message": "incomplete"
+        "message": "incomplete",
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCTEST"
+        ]
       },
       "command": {
         "resolutions": [
@@ -223,6 +228,17 @@
           "Unresolved",
           "Won't Fix",
           "Works As Intended"
+        ]
+      },
+      "removeVersion": {
+        "resolutions": [
+          "Cannot Reproduce",
+          "Duplicate",
+          "Fixed",
+          "Incomplete",
+          "Invalid",
+          "Works as Intended",
+          "Won't Fix"
         ]
       },
       "crash": {

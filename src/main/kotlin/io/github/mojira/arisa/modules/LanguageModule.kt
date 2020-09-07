@@ -19,7 +19,7 @@ class LanguageModule(
             assertAfter(created, lastRun).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
 
-            val combinedText = combineSummaryAndDescription(summary, description)
+            val combinedText = combineSummaryAndDescription(summary ?: "", description ?: "")
             assertExceedLengthThreshold(combinedText).bind()
 
             val detectedLanguage = getDetectedLanguage(getLanguage, combinedText)
@@ -31,21 +31,28 @@ class LanguageModule(
         }
     }
 
-    private fun combineSummaryAndDescription(summary: String?, description: String?): String {
-        val trimmedSummary = (summary ?: "").trim()
-        val trimmedDescription = (description ?: "").trim()
+    private fun combineSummaryAndDescription(summary: String, description: String): String {
         return when {
-            trimmedDescription.contains(trimmedSummary, ignoreCase = true) -> trimmedDescription.completeDot()
-            trimmedSummary.contains(trimmedDescription, ignoreCase = true) -> trimmedSummary.completeDot()
-            else -> "${trimmedSummary.completeDot()} ${trimmedDescription.completeDot()}"
+            description.contains(summary, ignoreCase = true) -> description.normalizeDescription()
+            summary.contains(description, ignoreCase = true) -> summary.normalizeDescription()
+            else -> "${summary.normalizeDescription()} ${description.normalizeDescription()}"
         }
     }
+
+    private fun String.normalizeDescription() =
+        this
+            .stripUrls()
+            .trim()
+            .completeDot()
 
     private fun String.completeDot() = if (this.endsWith(".")) {
         this
     } else {
         "$this."
     }
+
+    private fun String.stripUrls() =
+        this.replace("""(?:https?://|www\.)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+\S*""".toRegex(), "")
 
     private fun getDetectedLanguage(
         getLanguage: (String) -> Either<Any, Map<String, Double>>,

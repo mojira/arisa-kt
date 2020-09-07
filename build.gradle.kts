@@ -34,7 +34,7 @@ buildscript {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val kotestVersion = "4.0.2"
+val kotestVersion = "4.2.3"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {

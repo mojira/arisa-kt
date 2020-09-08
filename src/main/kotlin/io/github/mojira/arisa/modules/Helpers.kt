@@ -176,7 +176,7 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
     TODO()
 }
 
-fun removeLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
+fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
     val tmp = linkTypes.filter {
         type in it.nameVariants
     }

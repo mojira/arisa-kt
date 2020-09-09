@@ -119,6 +119,29 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
     OperationNotNeededModuleResponse.left()
 }
 
+fun concatLinkName(vararg arguments: String): Array<String> {
+    fun check(str: String): Boolean = !str.matches(Regex("[A-Z]+\\-[0-9]+")) &&
+            !str.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+\\-[0-9]+"))
+    if (check(arguments[0])) {
+        val result = mutableListOf<String>(*arguments)
+        result.add(0, "")
+        return result.toTypedArray()
+    }
+    var linkName = arguments[0]
+    var iSaved = 0
+    for (i in arguments.indices) {
+        iSaved = i
+        if (!check(arguments[i]))
+            break
+        val word = arguments[i]
+        linkName = "$linkName $word"
+    }
+    var result = mutableListOf<String>(*arguments)
+    result = result.subList(iSaved, result.size)
+    result.add(0, linkName)
+    return result.toTypedArray()
+}
+
 fun convertLinks(vararg arguments: String): Array<String> {
     val newArgList = mutableListOf<String>()
     for (arg in arguments) {
@@ -161,7 +184,7 @@ private fun concatenateCombinations(list : List<String>): Set<String> {
         for (item in newList) {
             val tmp = mutableListOf<String>()
             tmp.add("$item $word")
-            newList.addAll(0, tmp)
+            newList.addAll(tmp)
         }
         newList.add(word)
     }

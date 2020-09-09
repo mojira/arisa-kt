@@ -6,19 +6,23 @@ import arrow.core.left
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.modules.commands.AddLinksCommand
 import io.github.mojira.arisa.modules.commands.AddVersionCommand
 import io.github.mojira.arisa.modules.commands.Command
 import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
+import io.github.mojira.arisa.modules.commands.DeleteLinksCommand
 import io.github.mojira.arisa.modules.commands.FixedCommand
 import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry
 class CommandModule(
+    val addLinksCommand: Command = AddLinksCommand(),
     val addVersionCommand: Command = AddVersionCommand(),
     val fixedCommand: Command = FixedCommand(),
     val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
-    val deleteCommentsCommand: Command = DeleteCommentsCommand()
+    val deleteCommentsCommand: Command = DeleteCommentsCommand(),
+    val deleteLinksCommand: Command = DeleteLinksCommand()
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
@@ -54,6 +58,9 @@ class CommandModule(
             // TODO this should be configurable if we move to a registry
             // TODO do we want to add the response of a module via editing the comment?
             "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
+            "ARISA_ADD_LINKS" -> if (userIsMod) {
+                addLinksCommand(issue, *arguments)
+            } else OperationNotNeededModuleResponse.left()
             "ARISA_FIXED" -> if (userIsMod) {
                 fixedCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
@@ -62,6 +69,9 @@ class CommandModule(
             } else OperationNotNeededModuleResponse.left()
             "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
                 deleteCommentsCommand(issue, *arguments)
+            } else OperationNotNeededModuleResponse.left()
+            "ARISA_REMOVE_LINKS" -> if (userIsMod) {
+                deleteLinksCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()
         }

@@ -120,7 +120,7 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
 }
 
 fun convertLinks(vararg arguments: String): Array<String> {
-    var newArgList = mutableListOf<String>()
+    val newArgList = mutableListOf<String>()
     for (arg in arguments) {
         var key = arg
         key = key.dropLastWhile { it == ',' }
@@ -144,17 +144,22 @@ data class LinkType(
 }
 
 val linkTypes = listOf<LinkType>(
-    LinkType(listOf("relates", "to"), "Relates", true),
-    LinkType(listOf("duplicates"), "Duplicates", false),
-    LinkType(listOf("is","duplicated", "by"), "Duplicates", true),
-    TODO("Fill the list")
+        LinkType(listOf("relates", "to"), "Relates", true),
+        LinkType(listOf("duplicates"), "Duplicate", true),
+        LinkType(listOf("is","duplicated", "by"), "Duplicate", false),
+        LinkType(listOf("clones"), "Cloners", true),
+        LinkType(listOf("is", "cloned", "by"), "Cloners", false),
+        LinkType(listOf("blocks"), "Blocks", true),
+        LinkType(listOf("is", "blocked", "by"), "Blocks", false),
+        LinkType(listOf("testing", "discovered"), "Bonfire Testing", true),
+        LinkType(listOf("discovered", "while", "testing"), "Bonfire Testing", false)
 )
 
 private fun concatenateCombinations(list : List<String>): Set<String> {
-    var newList = mutableListOf<String>()
+    val newList = mutableListOf<String>()
     for (word in list) {
         for (item in newList) {
-            var tmp = mutableListOf<String>()
+            val tmp = mutableListOf<String>()
             tmp.add("$item $word")
             newList.addAll(0, tmp)
         }
@@ -170,10 +175,13 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
     assertNotNull(tmp)
     assertTrue(tmp.size == 1)
     val linkType = tmp[0]
+    assertTrue(linkType.outwards)
     for (key in arguments) {
         assertTrue(key.matches(Regex("[A-Z]+\\-[0-9]+")))
     }
-    TODO()
+    for (key in arguments) {
+        issue.createLink(linkType.id, key)
+    }
 }
 
 fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {

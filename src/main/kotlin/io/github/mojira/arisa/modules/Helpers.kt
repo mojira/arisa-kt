@@ -136,8 +136,7 @@ fun concatLinkName(vararg arguments: String): Array<String> {
         val word = arguments[i]
         linkName = "$linkName $word"
     }
-    var result = mutableListOf<String>(*arguments)
-    result = result.subList(iSaved, result.size)
+    val result = mutableListOf<String>(*arguments).subList(iSaved, arguments.size)
     result.add(0, linkName)
     return result.toTypedArray()
 }

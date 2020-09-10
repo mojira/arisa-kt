@@ -186,11 +186,11 @@ val linkTypes = listOf(
 private fun concatenateCombinations(list : List<String>): Set<String> {
     val newList = mutableListOf<String>()
     for (word in list) {
+        val tmp = mutableListOf<String>()
         for (item in newList) {
-            val tmp = mutableListOf<String>()
             tmp.add("$item $word")
-            newList.addAll(tmp)
         }
+        newList.addAll(tmp)
         newList.add(word)
     }
     return newList.toSet()

@@ -3,7 +3,6 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
-import arrow.core.extensions.combine
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right

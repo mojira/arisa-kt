@@ -254,6 +254,8 @@ object Arisa : ConfigSpec() {
 
         object RemoveIdenticalLink : ModuleConfigSpec()
 
+        object RemoveVersion : ModuleConfigSpec()
+
         object Command : ModuleConfigSpec()
     }
 }

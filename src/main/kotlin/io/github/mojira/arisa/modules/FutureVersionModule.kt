@@ -28,8 +28,12 @@ class FutureVersionModule(
                 addComment(CommentOptions(messagePanel))
             } else {
                 latestVersion!!.add()
-                resolveAsAwaitingResponse()
-                addComment(CommentOptions(messageFull))
+                if (resolution == null || resolution == "Unresolved") {
+                    resolveAsAwaitingResponse()
+                    addComment(CommentOptions(messageFull))
+                } else {
+                    addComment(CommentOptions(messagePanel))
+                }
             }
             removeFutureVersions.forEach(::run)
         }

@@ -142,6 +142,18 @@
         "removalReason": "Ticket has been triaged."
       },
       "futureVersion": {
+        "resolutions": [
+                "Awaiting Response",
+                "Cannot Reproduce",
+                "Done",
+                "Duplicate",
+                "Fixed",
+                "Incomplete",
+                "Invalid",
+                "Unresolved",
+                "Won't Fix",
+                "Works As Intended"
+        ],
         "message": "provide-affected-versions",
         "panel": "panel-future-version"
       },
@@ -149,8 +161,8 @@
         "excludedStatuses": ["Postponed"],
         "whitelist": [
           "MC",
-          "MCL",
-          "MCPE"
+          "MCPE",
+          "MCL"
         ]
       },
       "confirmParent": {
@@ -197,7 +209,12 @@
       },
       "empty": {
         "excludedStatuses": ["Postponed"],
-        "message": "incomplete"
+        "message": "incomplete",
+        "whitelist": [
+          "MC",
+          "MCL",
+          "MCTEST"
+        ]
       },
       "command": {
         "resolutions": [
@@ -211,6 +228,17 @@
           "Unresolved",
           "Won't Fix",
           "Works As Intended"
+        ]
+      },
+      "removeVersion": {
+        "resolutions": [
+          "Cannot Reproduce",
+          "Duplicate",
+          "Fixed",
+          "Incomplete",
+          "Invalid",
+          "Works as Intended",
+          "Won't Fix"
         ]
       },
       "crash": {

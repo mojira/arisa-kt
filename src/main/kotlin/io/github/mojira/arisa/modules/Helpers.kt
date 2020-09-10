@@ -3,6 +3,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.Either
+import arrow.core.extensions.combine
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
@@ -200,10 +201,10 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
     val tmp = linkTypes.filter {
         type in it.nameVariants
     }
-    assertNotNull(tmp)
-    assertTrue(tmp.size == 1)
+    assertNotNull(tmp).bind()
+    assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
-    assertTrue(linkType.outwards)
+    assertTrue(linkType.outwards).bind()
     for (key in arguments) {
         issue.createLink(linkType.id, key)
     }
@@ -213,17 +214,17 @@ fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<Mo
     val tmp = linkTypes.filter {
         type in it.nameVariants
     }
-    assertNotNull(tmp)
-    assertTrue(tmp.size == 1)
+    assertNotNull(tmp).bind()
+    assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
     for (key in arguments) {
-        assertTrue(key.matches(Regex("[A-Z]+-[0-9]+")))
+        assertTrue(key.matches(Regex("[A-Z]+-[0-9]+"))).bind()
     }
     for (key in arguments) {
         val link = issue.links.find {
             it.type == linkType.id && it.issue.key == key && (linkType.id == "Relates" || it.outwards == linkType.outwards)
         }
-        assertNotNull(link)
+        assertNotNull(link).bind()
         link?.remove?.invoke()
     }
 }

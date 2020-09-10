@@ -120,23 +120,30 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
 }
 
 fun concatLinkName(vararg arguments: String): Array<String> {
-    fun check(str: String): Boolean = !str.matches(Regex("[A-Z]+\\-[0-9]+")) &&
-            !str.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+\\-[0-9]+"))
-    if (check(arguments[0])) {
-        val result = mutableListOf<String>(*arguments)
+    val args = arguments.flatMap { s ->
+        s.split(Regex(",")).filter {
+            it != ""
+        }
+    }.toTypedArray()
+    fun check(str: String): Boolean {
+        return !str.matches(Regex("[A-Z]+\\-[0-9]+")) &&
+                !str.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+\\-[0-9]+"))
+    }
+    if (check(args[0])) {
+        val result = mutableListOf(*args)
         result.add(0, "")
         return result.toTypedArray()
     }
-    var linkName = arguments[0]
+    var linkName = args[0]
     var iSaved = 0
-    for (i in arguments.indices) {
+    for (i in args.indices) {
         iSaved = i
-        if (!check(arguments[i]))
+        if (!check(args[i]))
             break
-        val word = arguments[i]
+        val word = args[i]
         linkName = "$linkName $word"
     }
-    val result = mutableListOf<String>(*arguments).subList(iSaved, arguments.size)
+    val result = mutableListOf(*args).subList(iSaved, arguments.size)
     result.add(0, linkName)
     return result.toTypedArray()
 }
@@ -145,7 +152,6 @@ fun convertLinks(vararg arguments: String): Array<String> {
     val newArgList = mutableListOf<String>()
     for (arg in arguments) {
         var key = arg
-        key = key.dropLastWhile { it == ',' }
         if (key.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+\\-[0-9]+"))) {
             key = key.drop(31)
         }
@@ -165,7 +171,7 @@ data class LinkType(
     }
 }
 
-val linkTypes = listOf<LinkType>(
+val linkTypes = listOf(
         LinkType(listOf("relates", "to"), "Relates", true),
         LinkType(listOf("duplicates"), "Duplicate", true),
         LinkType(listOf("is","duplicated", "by"), "Duplicate", false),

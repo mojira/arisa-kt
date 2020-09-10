@@ -121,13 +121,13 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
 
 fun concatLinkName(vararg arguments: String): Array<String> {
     val args = arguments.flatMap { s ->
-        s.split(Regex(",")).filter {
+        s.split(',').filter {
             it != ""
         }
     }.toTypedArray()
     fun check(str: String): Boolean {
-        return !str.matches(Regex("[A-Z]+\\-[0-9]+")) &&
-                !str.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+\\-[0-9]+"))
+        return !str.matches(Regex("[A-Z]+-[0-9]+")) &&
+                !str.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
     }
     if (check(args[0])) {
         val result = mutableListOf(*args)
@@ -152,7 +152,7 @@ fun convertLinks(vararg arguments: String): Array<String> {
     val newArgList = mutableListOf<String>()
     for (arg in arguments) {
         var key = arg
-        if (key.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+\\-[0-9]+"))) {
+        if (key.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))) {
             key = key.drop(31)
         }
         newArgList.add(newArgList.size, key)
@@ -205,9 +205,6 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
     val linkType = tmp[0]
     assertTrue(linkType.outwards)
     for (key in arguments) {
-        assertTrue(key.matches(Regex("[A-Z]+\\-[0-9]+")))
-    }
-    for (key in arguments) {
         issue.createLink(linkType.id, key)
     }
 }
@@ -220,7 +217,7 @@ fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<Mo
     assertTrue(tmp.size == 1)
     val linkType = tmp[0]
     for (key in arguments) {
-        assertTrue(key.matches(Regex("[A-Z]+\\-[0-9]+")))
+        assertTrue(key.matches(Regex("[A-Z]+-[0-9]+")))
     }
     for (key in arguments) {
         val link = issue.links.find {

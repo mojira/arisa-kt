@@ -39,7 +39,7 @@ class ReopenAwaitingModule(
             if (shouldReopen) {
                 reopen()
             } else {
-                assertNotEquals(changeLog.maxBy { it.created }?.author?.name, "arisabot")
+                assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
                 addComment(CommentOptions(message))
             }
         }

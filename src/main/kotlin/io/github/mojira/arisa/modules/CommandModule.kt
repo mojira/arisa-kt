@@ -55,7 +55,7 @@ class CommandModule(
         val split = comment.split("\\s+".toRegex())
         val arguments = split.toTypedArray()
         return when (split[0]) {
-            // TODO this should be configurable if we move to a registry
+            // TODO this should be configurable if we switch to a registry
             // TODO do we want to add the response of a module via editing the comment?
             "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
             "ARISA_ADD_LINKS" -> if (userIsMod) {

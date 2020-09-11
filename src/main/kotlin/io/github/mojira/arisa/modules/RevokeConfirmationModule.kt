@@ -37,5 +37,5 @@ class RevokeConfirmationModule : Module {
         if (isNullOrBlank())
             default
         else
-            this!!
+            this
 }

@@ -51,5 +51,5 @@ class ConfirmParentModule(
         if (isNullOrBlank())
             default
         else
-            this!!
+            this
 }

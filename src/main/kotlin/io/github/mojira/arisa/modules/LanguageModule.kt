@@ -62,7 +62,7 @@ class LanguageModule(
         return detected.fold(
             { null },
             { languages ->
-                languages.filter { it.value > MINIMUM_PERCENTAGE }.maxBy { it.value }?.key
+                languages.filter { it.value > MINIMUM_PERCENTAGE }.maxByOrNull { it.value }?.key
             }
         )
     }

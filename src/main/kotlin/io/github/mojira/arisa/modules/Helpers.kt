@@ -119,32 +119,32 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
     OperationNotNeededModuleResponse.left()
 }
 
+fun String.checkIfLinkNameRegexMatches(): Boolean {
+    return !this.matches(Regex("[A-Z]+-[0-9]+")) &&
+            !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
+}
+
 fun concatLinkName(vararg arguments: String): Array<String> {
     val args = arguments.flatMap { s ->
         s.split(',').filter {
             it != ""
         }
     }.toTypedArray()
-    fun check(str: String): Boolean {
-        return !str.matches(Regex("[A-Z]+-[0-9]+")) &&
-                !str.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
-    }
-    if (check(args[0])) {
+    if (args[0].checkIfLinkNameRegexMatches()) {
         val result = mutableListOf(*args)
         result.add(0, "")
         return result.toTypedArray()
     }
-    var linkName = args[0]
-    var iSaved = 0
-    for (i in args.indices) {
-        iSaved = i
-        if (!check(args[i]))
-            break
-        val word = args[i]
-        linkName = "$linkName $word"
+    val linkName = args.takeWhile {
+        !it.checkIfLinkNameRegexMatches()
+    }.joinToString(separator = " ")
+    val result = mutableListOf(*args)
+    result.apply {
+        this.dropWhile {
+            it.checkIfLinkNameRegexMatches()
+        }
+        this.add(0, linkName)
     }
-    val result = mutableListOf(*args).subList(iSaved, arguments.size)
-    result.add(0, linkName)
     return result.toTypedArray()
 }
 

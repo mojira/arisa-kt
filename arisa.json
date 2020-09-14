@@ -189,9 +189,7 @@
         ],
         "targetPlatform": ["Multiple"],
         "transferredPlatformBlacklist": ["None"],
-        "whitelist": [
-          "MCPE"
-        ]
+        "whitelist": ["MCPE"]
       },
       "reopenAwaiting": {
         "resolutions": [

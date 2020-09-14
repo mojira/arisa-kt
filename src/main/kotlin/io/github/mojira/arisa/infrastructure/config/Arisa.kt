@@ -170,11 +170,11 @@ object Arisa : ConfigSpec() {
 
         object MultiplePlatforms : ModuleConfigSpec() {
             val platformWhitelist by required<List<String>>(
-                description = "List of platforms that can be replaced by the target status if they are" +
+                description = "List of platforms that can be replaced by the target platform if they are" +
                         " different than the replacement."
             )
             val targetPlatform by required<String>(
-                description = "The target platform for tickets whose with more than one platform"
+                description = "The target platform for tickets with more than one platform"
             )
             val transferredPlatformBlacklist by required<List<String>>(
                 description = "List of platforms that do not contribute to having multiple platforms"

@@ -102,7 +102,7 @@ class ModuleRegistry(private val config: Config) {
             )
         )
 
-         register(
+        register(
             Modules.MultiplePlatforms,
             MultiplePlatformsModule(
                 config[Modules.MultiplePlatforms.platformWhitelist],

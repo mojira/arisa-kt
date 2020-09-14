@@ -162,17 +162,4 @@ class MultiplePlatformsModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         changedPlatform.shouldBe("Multiple")
     }
-
-    "should return FailedModuleResponse when getting an issue fails" {
-        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
-        val issue = mockIssue(
-            links = listOf(duplicatedLinkError)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-    }
 })

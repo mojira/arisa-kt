@@ -188,7 +188,7 @@
           "Xbox One"
         ],
         "targetPlatform": ["Multiple"],
-        "transferredPlatformBlacklist": ["None"],
+        "transferredPlatformBlacklist": ["None", ""],
         "whitelist": ["MCPE"]
       },
       "reopenAwaiting": {

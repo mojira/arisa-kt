@@ -97,6 +97,7 @@ fun JiraIssue.toDomain(
         getPriority(config),
         getTriagedTime(config),
         project.toDomain(jiraClient, this, config, cache),
+        getPlatform(config),
         mapVersions(jiraClient, cache),
         mapAttachments(jiraClient, cache),
         mapComments(jiraClient, cache),
@@ -110,6 +111,7 @@ fun JiraIssue.toDomain(
         ::updateDescription.partially1(context),
         ::updateCHK.partially1(context).partially1(config[Arisa.CustomFields.chkField]),
         ::updateConfirmation.partially1(context).partially1(config[Arisa.CustomFields.confirmationField]),
+        ::updatePlatform.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
@@ -278,6 +280,7 @@ private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Ar
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
+private fun JiraIssue.getPlatform(config: Config) = getFieldAsString(config[Arisa.CustomFields.platformField])
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 

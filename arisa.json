@@ -175,6 +175,24 @@
           "MCPE"
         ]
       },
+      "multiplePlatforms": {
+        "platformWhitelist": [
+          "Amazon",
+          "Android",
+          "Gear VR",
+          "iOS",
+          "Nintendo Switch",
+          "PlayStation 4",
+          "Windows 10 - PC",
+          "Windows 10 Mobile",
+          "Xbox One"
+        ],
+        "targetPlatform": ["Multiple"],
+        "transferredPlatformBlacklist": ["None"],
+        "whitelist": [
+          "MCPE"
+        ]
+      },
       "reopenAwaiting": {
         "resolutions": [
           "Awaiting Response"

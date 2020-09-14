@@ -57,7 +57,7 @@ fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: Str
     context.value.update.field(confirmationField, jsonValue)
 }
 
-fun updatePlatform(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
+fun updatePlatforms(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
     context.value.hasEdits = true
     context.value.edit.field(platformField, value)
 }

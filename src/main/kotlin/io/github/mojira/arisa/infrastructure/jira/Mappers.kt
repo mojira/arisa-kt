@@ -111,7 +111,7 @@ fun JiraIssue.toDomain(
         ::updateDescription.partially1(context),
         ::updateCHK.partially1(context).partially1(config[Arisa.CustomFields.chkField]),
         ::updateConfirmation.partially1(context).partially1(config[Arisa.CustomFields.confirmationField]),
-        ::updatePlatform.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
+        ::updatePlatforms.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),

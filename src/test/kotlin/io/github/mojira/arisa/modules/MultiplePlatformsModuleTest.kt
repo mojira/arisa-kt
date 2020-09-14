@@ -98,7 +98,7 @@ class MultiplePlatformsModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when child report Platform is blacklisted" {
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
         val issue = mockIssue(
-            platform = "Amazon",
+            platform = "Xbox One",
             links = listOf(duplicatedLink)
         )
 
@@ -111,7 +111,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
         val issue = mockIssue(
             platform = null,
-            links = listOf(duplicatedLink2),
+            links = listOf(duplicatedLink2)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -123,7 +123,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
         val issue = mockIssue(
             platform = "",
-            links = listOf(duplicatedLink2),
+            links = listOf(duplicatedLink2)
         )
 
         val result = module(issue, RIGHT_NOW)

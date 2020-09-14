@@ -108,16 +108,10 @@ class MultiplePlatformsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when Platform is null and there is a duplicate" {
-        var changedPlatform = ""
-
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
         val issue = mockIssue(
             platform = null,
             links = listOf(duplicatedLink2),
-            updatePlatforms = {
-                changedPlatform = it
-                Unit.right()
-            }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -126,16 +120,10 @@ class MultiplePlatformsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when Platform is empty and there is a duplicate" {
-        var changedPlatform = ""
-
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
         val issue = mockIssue(
             platform = "",
             links = listOf(duplicatedLink2),
-            updatePlatforms = {
-                changedPlatform = it
-                Unit.right()
-            }
         )
 
         val result = module(issue, RIGHT_NOW)

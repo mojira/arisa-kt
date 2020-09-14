@@ -108,7 +108,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should set to Multiple when Platform is null and there is a duplicate" {
+    "should return OperationNotNeededModuleResponse when Platform is null and there is a duplicate" {
         var changedPlatform = ""
 
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
@@ -123,11 +123,10 @@ class MultiplePlatformsModuleTest : StringSpec({
 
         val result = module(issue, RIGHT_NOW)
 
-        result.shouldBeRight(ModuleResponse)
-        changedPlatform.shouldBe("Multiple")
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should set to Multiple when Platform is empty and there is a duplicate" {
+    "should return OperationNotNeededModuleResponse when Platform is empty and there is a duplicate" {
         var changedPlatform = ""
 
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
@@ -142,8 +141,7 @@ class MultiplePlatformsModuleTest : StringSpec({
 
         val result = module(issue, RIGHT_NOW)
 
-        result.shouldBeRight(ModuleResponse)
-        changedPlatform.shouldBe("Multiple")
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should set to Multiple when Platform is Xbox One and there is a duplicate" {
@@ -165,29 +163,9 @@ class MultiplePlatformsModuleTest : StringSpec({
         changedPlatform.shouldBe("Multiple")
     }
 
-    "should set to Multiple when Platform is Amazon and there is a duplicate" {
-        var changedPlatform = ""
-
-        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
-        val issue = mockIssue(
-            platform = "Amazon",
-            links = listOf(duplicatedLink2),
-            updatePlatforms = {
-                changedPlatform = it
-                Unit.right()
-            }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeRight(ModuleResponse)
-        changedPlatform.shouldBe("Multiple")
-    }
-
     "should return FailedModuleResponse when getting an issue fails" {
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"))
         val issue = mockIssue(
-            platform = null,
             links = listOf(duplicatedLinkError)
         )
 

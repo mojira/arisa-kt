@@ -22,7 +22,7 @@
       "confirmationField": "customfield_10500",
       "mojangPriorityField": "customfield_12200",
       "triagedTimeField": "customfield_12201",
-      "platformField" "customfield_10402"
+      "platformField": "customfield_10402"
     },
     "privateSecurityLevel": {
       "default": "10318",

@@ -29,6 +29,7 @@ import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MissingCrashModule
+import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
@@ -98,6 +99,15 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.ConfirmParent.confirmationStatusWhitelist],
                 config[Modules.ConfirmParent.targetConfirmationStatus],
                 config[Modules.ConfirmParent.linkedThreshold]
+            )
+        )
+
+         register(
+            Modules.MultiplePlatforms,
+            MultiplePlatformsModule(
+                config[Modules.MultiplePlatforms.platformWhitelist],
+                config[Modules.MultiplePlatforms.targetPlatform],
+                config[Modules.MultiplePlatforms.transferredPlatformBlacklist]
             )
         )
 

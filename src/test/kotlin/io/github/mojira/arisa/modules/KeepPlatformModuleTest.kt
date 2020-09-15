@@ -85,6 +85,8 @@ class KeepPlatformModuleTest : StringSpec({
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
+            visibilityType = "group",
+            visibilityValue = "staff"
         )
         val issue = mockIssue(
             comments = listOf(comment),
@@ -101,7 +103,9 @@ class KeepPlatformModuleTest : StringSpec({
 
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-            body = "MEQS_KEEP_PLATFORM"
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff"
         )
         val issue = mockIssue(
             comments = listOf(comment),

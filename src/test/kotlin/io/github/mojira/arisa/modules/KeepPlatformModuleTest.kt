@@ -99,7 +99,7 @@ class KeepPlatformModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
-            changeLog = listOf(CHANGE_PLATFORM_STAFF, CHANGE_PLATFORM_USER),
+            changeLog = listOf(CHANGE_PLATFORM, CHANGE_PLATFORM_USER),
             updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 

@@ -26,13 +26,14 @@ private val CHANGE_PLATFORM_STAFF = mockChangeLogItem(
 private val CHANGE_PLATFORM_STAFF_OLD = mockChangeLogItem(
     created = RIGHT_NOW.minus(2, ChronoUnit.DAYS),
     field = "platform",
+    changedToString = "Amazon",
     getAuthorGroups = { listOf("staff") }
 )
 
 private val CHANGE_PLATFORM_USER = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "platform",
-    changedFromString = "Amazon",
+    changeToString = "None",
     getAuthorGroups = { listOf("users") }
 )
 

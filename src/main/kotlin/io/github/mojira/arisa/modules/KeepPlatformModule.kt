@@ -38,14 +38,18 @@ class KeepPlatformModule(
             .plus(1, ChronoUnit.DAYS)
             .isAfter(Instant.now())
 
-    private fun assertContainsKeepPlatformTag(comments: List<Comment>) = when {
-        comments.any(::isKeepPlatformTag) -> Unit.right()
-        else -> OperationNotNeededModuleResponse.left()
+    private fun assertContainsKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
+        val volunteerComments = comments.filter(::isVolunteerComment) return when {
+            volunteerComments.any(::isKeepPlatformTag) -> Unit.right()
+            else -> OperationNotNeededModuleResponse.left()
+        }
     }
 
-    private fun isKeepPlatformTag(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepPlatformTag) ?: false)
+    private fun isVolunteerComment(comment: Comment) = comment.visibilityType == "group" &&
+        comment.visibilityValue == "staff"
+    
+    private fun isKeepPlatformTag(comment: Comment) =
+            comment.body?.contains(keepPlatformTag) ?: true
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())

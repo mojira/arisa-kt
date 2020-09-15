@@ -26,6 +26,7 @@ import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
+import io.github.mojira.arisa.modules.KeepPlatformModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MissingCrashModule
@@ -108,6 +109,13 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.MultiplePlatforms.platformWhitelist],
                 config[Modules.MultiplePlatforms.targetPlatform],
                 config[Modules.MultiplePlatforms.transferredPlatformBlacklist]
+            )
+        )
+
+        register(
+            Modules.KeepPlatform,
+            KeepPlatformModule(
+                config[Modules.MultiplePlatforms.keepPlatformTag]
             )
         )
 

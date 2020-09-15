@@ -71,7 +71,7 @@ class KeepPlatformModuleTest : StringSpec({
         val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
         val issue = mockIssue(
             comments = listOf(comment),
-            platform = "Xbox One",
+            platform = "Amazon",
             changeLog = listOf(changeLogItem)
         )
 

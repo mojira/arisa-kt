@@ -18,26 +18,6 @@ private val CHANGE_PLATFORM = mockChangeLogItem(
     changedFromString = "Amazon"
 )
 
-private val CHANGE_PLATFORM_STAFF = mockChangeLogItem(
-    created = RIGHT_NOW.minusSeconds(10),
-    field = "platform",
-    getAuthorGroups = { listOf("staff") }
-)
-
-private val CHANGE_PLATFORM_STAFF_OLD = mockChangeLogItem(
-    created = RIGHT_NOW.minus(2, ChronoUnit.DAYS),
-    field = "platform",
-    changedToString = "Amazon",
-    getAuthorGroups = { listOf("staff") }
-)
-
-private val CHANGE_PLATFORM_USER = mockChangeLogItem(
-    created = RIGHT_NOW.minusSeconds(10),
-    field = "platform",
-    changedToString = "None",
-    getAuthorGroups = { listOf("users") }
-)
-
 class KeepPlatformModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when comments are empty" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
@@ -89,7 +69,7 @@ class KeepPlatformModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem()
+        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "Xbox One",
@@ -109,11 +89,12 @@ class KeepPlatformModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
+        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val userChange = mockChangeLogItem(value = "Unconfirmed") { listOf("users") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
-            changeLog = listOf(volunteerChange, CHANGE_PLATFORM_USER),
+            changeLog = listOf(volunteerChange, userChange),
             updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 

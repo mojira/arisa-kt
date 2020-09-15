@@ -17,19 +17,6 @@ private val CHANGE_PLATFORM = mockChangeLogItem(
 )
 
 class KeepPlatformModuleTest : StringSpec({
-    "should return OperationNotNeededModuleResponse when keep platform tag is null" {
-        val module = KeepPlatformModule(null)
-        val comment = mockComment("MEQS_KEEP_PLATFORM", visibilityType = "group", visibilityValue = "staff")
-        val issue = mockIssue(
-            comments = listOf(comment),
-            changeLog = listOf(CHANGE_PLATFORM)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should return OperationNotNeededModuleResponse when comments are empty" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val issue = mockIssue(
@@ -78,7 +65,7 @@ class KeepPlatformModuleTest : StringSpec({
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("helper") }
+        val changeLogItem = mockChangeLogItem(value = "Xbox One") { listOf("helper") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "Xbox One",
@@ -96,13 +83,13 @@ class KeepPlatformModuleTest : StringSpec({
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val volunteerChange = mockChangeLogItem(value = "Amazon") { listOf("staff") }
         val userChange = mockChangeLogItem(value = "None") { listOf("users") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
             changeLog = listOf(volunteerChange, userChange),
-            updatePlatform = { changedPlatform = it; Unit.right() }
+            updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

@@ -2,8 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
-//import io.github.mojira.arisa.utils.mockChangeLogItem
-import io.github.mojira.arisa.modules.mockChangeLogItem
+import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -66,7 +65,7 @@ class KeepPlatformModuleTest : StringSpec({
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val changeLogItem = mockChangeLogItem(value = "Xbox One") { listOf("helper") }
+        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("helper") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "Xbox One",
@@ -84,7 +83,7 @@ class KeepPlatformModuleTest : StringSpec({
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val volunteerChange = mockChangeLogItem(value = "Amazon") { listOf("staff") }
+        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
         val userChange = mockChangeLogItem(value = "None") { listOf("users") }
         val issue = mockIssue(
             comments = listOf(comment),

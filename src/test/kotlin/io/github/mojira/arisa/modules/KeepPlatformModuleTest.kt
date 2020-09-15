@@ -89,10 +89,11 @@ class KeepPlatformModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
+        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem()
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "Xbox One",
-            changeLog = listOf(CHANGE_PLATFORM_STAFF)
+            changeLog = listOf(changeLogItem)
         )
 
         val result = module(issue, RIGHT_NOW)

@@ -6,7 +6,6 @@ import arrow.core.left
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.commands.AddVersionCommand
 import io.github.mojira.arisa.modules.commands.Command
 import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
@@ -15,6 +14,7 @@ import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry
+data class CommandInfo(val modRestricted: Boolean, val author: String, val commandName: String)
 class CommandModule(
     val addVersionCommand: Command = AddVersionCommand(),
     val fixedCommand: Command = FixedCommand(),
@@ -32,15 +32,15 @@ class CommandModule(
             assertNotEmpty(staffComments).bind()
 
             val results = staffComments
-                .map { executeCommand(it.body!!, this, userIsMod(it), it.author) }
+                .map { executeCommand(it.body!!, this, userIsMod(it), , it.author.name!!) }
 
             when {
                 results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
-                    addRawRestrictedComment("$staffAuthor Command execution failed", "helper")
+                    addRawRestrictedComment("Command execution failed", "helper")
                     results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
                 }
                 results.any { it.isRight() } -> {
-                    addRawRestrictedComment("$staffAuthor Command execution was successful", "helper")
+                    addRawRestrictedComment("Command execution was successful", "helper")
                     results.first { it.isRight() }.bind()
                 }
                 else -> OperationNotNeededModuleResponse.left().bind()
@@ -49,7 +49,7 @@ class CommandModule(
     }
 
     @Suppress("SpreadOperator")
-    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean, author: User):
+    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean, author: String):
             Either<ModuleError, ModuleResponse> {
         val split = comment.split("\\s+".toRegex())
         val arguments = split.toTypedArray()
@@ -57,15 +57,15 @@ class CommandModule(
         return when (split[0]) {
             // TODO this should be configurable if we move to a registry
             // TODO do we want to add the response of a module via editing the comment?
-            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
+            "ARISA_ADD_VERSION" -> addVersionCommand(CommandInfo(false, author, "ARISA_ADD_VERSION"), issue, *arguments)
             "ARISA_FIXED" -> if (userIsMod) {
-                fixedCommand(issue, *arguments)
+                fixedCommand(CommandInfo(true, author, "ARISA_FIXED"), issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             "ARISA_PURGE_ATTACHMENT" -> if (userIsMod) {
-                purgeAttachmentCommand(issue, *arguments)
+                purgeAttachmentCommand(CommandInfo(true, author, "ARISA_PURGE_ATTACHMENT"), issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
-                deleteCommentsCommand(issue, *arguments)
+                deleteCommentsCommand(CommandInfo(true, author, "ARISA_REMOVE_COMMENTS"), issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()
         }

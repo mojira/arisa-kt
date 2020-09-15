@@ -9,6 +9,7 @@ import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import java.time.temporal.ChronoUnit
 
 private val CHANGE_PLATFORM = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
@@ -18,6 +19,12 @@ private val CHANGE_PLATFORM = mockChangeLogItem(
 
 private val CHANGE_PLATFORM_STAFF = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
+    field = "platform",
+    getAuthorGroups = { listOf("staff") }
+)
+
+private val CHANGE_PLATFORM_STAFF_OLD = mockChangeLogItem(
+    created = RIGHT_NOW.minus(2, ChronoUnit.DAYS),
     field = "platform",
     getAuthorGroups = { listOf("staff") }
 )
@@ -98,7 +105,7 @@ class KeepPlatformModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
-            changeLog = listOf(CHANGE_PLATFORM_STAFF, CHANGE_PLATFORM_USER),
+            changeLog = listOf(CHANGE_PLATFORM_STAFF_OLD, CHANGE_PLATFORM_USER),
             updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 

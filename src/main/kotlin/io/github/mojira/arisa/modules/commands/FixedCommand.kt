@@ -8,7 +8,7 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.assertTrue
 
 class FixedCommand : Command {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
+    override fun invoke(commandInfo: CommandInfo, issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
         val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
         issue.markAsFixedWithSpecificVersion(version)

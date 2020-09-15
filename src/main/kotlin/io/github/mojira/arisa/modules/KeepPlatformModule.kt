@@ -11,7 +11,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class KeepPlatformModule(
-  private val keepPlatformTag: String
+    private val keepPlatformTag: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -45,7 +45,7 @@ class KeepPlatformModule(
 
     private fun isKeepPlatformTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepPlatformTag) ?: false)         
+            (comment.body?.contains(keepPlatformTag) ?: false)
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())

@@ -16,18 +16,18 @@ private val CHANGE_PLATFORM = mockChangeLogItem(
     changedFromString = "Amazon"
 )
 
-private val CHANGE_PLATFORM_HELPER = mockChangeLogItem(
+private val CHANGE_PLATFORM_STAFF = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "platform",
     changedFromString = "Amazon",
-    getAuthorGroups = listOf("staff")
+    getAuthorGroups = listOf("staff")!!
 )
 
 private val CHANGE_PLATFORM_USER = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "platform",
-    changedFromString = "Amazon",
-    getAuthorGroups = listOf("users")
+    changedFromString = "None",
+    getAuthorGroups = listOf("users")!!
 )
 
 class KeepPlatformModuleTest : StringSpec({
@@ -96,7 +96,6 @@ class KeepPlatformModuleTest : StringSpec({
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val userChange = mockChangeLogItem(value = "None") { listOf("users") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",

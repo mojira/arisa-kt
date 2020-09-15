@@ -26,7 +26,7 @@ private val CHANGE_PLATFORM_STAFF = mockChangeLogItem(
 private val CHANGE_PLATFORM_USER = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "platform",
-    changedFromString = "Amazon",
+    changedToString = "None",
     getAuthorGroups = { listOf("users") }
 )
 

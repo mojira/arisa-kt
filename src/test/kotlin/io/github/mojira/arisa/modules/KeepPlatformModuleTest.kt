@@ -84,7 +84,7 @@ class KeepPlatformModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket’s platform was changed by staff" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-            body = "MEQS_KEEP_PLATFORM"
+            body = "MEQS_KEEP_PLATFORM",
             visibilityType = "group",
             visibilityValue = "staff"
         )

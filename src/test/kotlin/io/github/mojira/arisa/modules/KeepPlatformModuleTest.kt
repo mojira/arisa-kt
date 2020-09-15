@@ -110,3 +110,4 @@ class KeepPlatformModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         changedPlatform.shouldBe("Amazon")
     }
+})

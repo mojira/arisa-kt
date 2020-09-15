@@ -73,14 +73,14 @@ class KeepPlatformModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-"should return OperationNotNeededModuleResponse when Ticket’s platform was changed by helper" {
+    "should return OperationNotNeededModuleResponse when Ticket’s platform was changed by helper" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-       val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("helper") }
+        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("helper") }
+        val issue = mockIssue(
             comments = listOf(comment),
-            val issue = mockIssue(
             platform = "Xbox One",
             changeLog = listOf(changeLogItem)
         )
@@ -89,7 +89,7 @@ class KeepPlatformModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
- "should set back to platform set by volunteer, when regular user changes platform" {
+    "should set back to platform set by volunteer, when regular user changes platform" {
         var changedPlatform = ""
 
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")

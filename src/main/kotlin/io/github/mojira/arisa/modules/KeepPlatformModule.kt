@@ -39,7 +39,8 @@ class KeepPlatformModule(
             .isAfter(Instant.now())
 
     private fun assertContainsKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
-        val volunteerComments = comments.filter(::isVolunteerComment) return when {
+        val volunteerComments = comments.filter(::isVolunteerComment) 
+        return when {
             volunteerComments.any(::isKeepPlatformTag) -> Unit.right()
             else -> OperationNotNeededModuleResponse.left()
         }

@@ -6,5 +6,5 @@ import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 
 interface Command {
-    operator fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse>
+    operator fun invoke(commandInfo: CommandInfo, issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse>
 }

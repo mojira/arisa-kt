@@ -71,7 +71,6 @@ class KeepPlatformModuleTest : StringSpec({
         val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
         val issue = mockIssue(
             comments = listOf(comment),
-            platform = "Amazon",
             changeLog = listOf(changeLogItem)
         )
 
@@ -79,6 +78,7 @@ class KeepPlatformModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
+
     "should set back to platform set by volunteer, when regular user changes platform" {
         var changedPlatform = ""
 

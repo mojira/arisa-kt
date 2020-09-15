@@ -26,7 +26,7 @@ private val CHANGE_PLATFORM_STAFF = mockChangeLogItem(
 private val CHANGE_PLATFORM_USER = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "platform",
-    changedFromString = "None",
+    changedFromString = "Amazon",
     getAuthorGroups = { listOf("users") }
 )
 
@@ -99,7 +99,7 @@ class KeepPlatformModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
-            changeLog = listOf(CHANGE_PLATFORM, CHANGE_PLATFORM_USER),
+            changeLog = listOf(CHANGE_PLATFORM_STAFF, CHANGE_PLATFORM_USER),
             updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 

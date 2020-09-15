@@ -10,6 +10,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.time.temporal.ChronoUnit
+import java.time.Instant
 
 private val CHANGE_PLATFORM = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),

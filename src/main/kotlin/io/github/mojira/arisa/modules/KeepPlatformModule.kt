@@ -20,6 +20,7 @@ class KeepPlatformModule(
                 .filter(::changedByVolunteer)
                 .lastOrNull()
                 ?.changedToString.getOrDefault("None")
+            assertNotEquals(platform.getOrDefault("None"), volunteerPlatformChange).bind()
             assertNotNull(keepPlatformTag).bind()
             assertContainsKeepPlatformTag(comments).bind()
             updatePlatforms(volunteerPlatformChange)

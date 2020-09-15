@@ -115,7 +115,7 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.KeepPlatform,
             KeepPlatformModule(
-                config[Modules.MultiplePlatforms.keepPlatformTag]
+                config[Modules.KeepPlatform.keepPlatformTag]
             )
         )
 

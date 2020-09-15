@@ -16,6 +16,20 @@ private val CHANGE_PLATFORM = mockChangeLogItem(
     changedFromString = "Amazon"
 )
 
+private val CHANGE_PLATFORM_HELPER = mockChangeLogItem(
+    created = RIGHT_NOW.minusSeconds(10),
+    field = "platform",
+    changedFromString = "Amazon",
+    getAuthorGroups = listOf("staff")
+)
+
+private val CHANGE_PLATFORM_USER = mockChangeLogItem(
+    created = RIGHT_NOW.minusSeconds(10),
+    field = "platform",
+    changedFromString = "Amazon",
+    getAuthorGroups = listOf("users")
+)
+
 class KeepPlatformModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when comments are empty" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
@@ -60,16 +74,15 @@ class KeepPlatformModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when Ticket’s platform was changed by helper" {
+    "should return OperationNotNeededModuleResponse when Ticket’s platform was changed by staff" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("helper") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "Xbox One",
-            changeLog = listOf(changeLogItem)
+            changeLog = listOf(CHANGE_PLATFORM_STAFF)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -83,12 +96,11 @@ class KeepPlatformModuleTest : StringSpec({
         val comment = mockComment(
             body = "MEQS_KEEP_PLATFORM"
         )
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
         val userChange = mockChangeLogItem(value = "None") { listOf("users") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
-            changeLog = listOf(volunteerChange, userChange),
+            changeLog = listOf(CHANGE_PLATFORM_STAFF, CHANGE_PLATFORM_USER),
             updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 

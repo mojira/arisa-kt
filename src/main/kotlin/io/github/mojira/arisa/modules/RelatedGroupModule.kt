@@ -3,16 +3,15 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
-import arrow.core.right
-import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.relatedgroup.AddTicketsRelatedGroupSubmodule
 import io.github.mojira.arisa.modules.relatedgroup.RelatedGroupSubmodule
+import io.github.mojira.arisa.modules.relatedgroup.AddTicketsRelatedGroupSubmodule
 import java.time.Instant
 
 class RelatedGroupModule(
-    private val arisaUsername: String
+    private val arisaUsername: String,
+    val addTicketsRelatedGroupSubmodule: RelatedGroupSubmodule = AddTicketsRelatedGroupSubmodule()
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -27,39 +26,38 @@ class RelatedGroupModule(
                         && it.body.startsWith("ARISAGROUP_ERROR")
             }
 
-            val results = if (arisaComments.size > 1) {
-                null
-            } else {
-                executeSubmodules(arisaComments[0].body!!, issue)
+            var results: List<Either<ModuleError,ModuleResponse>> = listOf()
+            if (arisaComments.size == 1) {
+                val strings = arisaComments[0].body!!.split("\\n+".toRegex())
+                results = strings.filter {
+                    it.startsWith("ARISAGROUP_")
+                }.map {
+                    executeSubmodule(it, issue)
+                }
             }
 
             when {
                 isError -> OperationNotNeededModuleResponse.left().bind()
-                results == null -> {
+                results.isEmpty() -> {
                     addRawRestrictedComment("ARISAGROUP_ERROR Detected multiple groups on this ticket. Stopped processing this ticket", "staff")
                 }
-                results.isLeft() && (results as Either.Left).a is FailedModuleResponse -> {
-                    results.bind()
+                results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
+                    results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
                 }
-                results.isRight() -> {
-                    results.bind()
+                results.any { it.isRight() } -> {
+                    results.first { it.isRight() }.bind()
                 }
                 else -> OperationNotNeededModuleResponse.left().bind()
             }
         }
     }
 
-    private fun executeSubmodules(comment: String, issue: Issue): Either<ModuleError, ModuleResponse> {
-        val strings = comment.split("\\n+".toRegex())
-        for (string in strings) {
-            if (string.startsWith("ARISAGROUP_")) {
-                val split = comment.split("\\s+".toRegex())
-                val arguments = split.toTypedArray()
-                return when (split[0]) {
-                    "ARISAGROUP_ADD_TICKETS" -> AddTicketsRelatedGroupSubmodule(issue, *arguments)
-                    else -> OperationNotNeededModuleResponse.left()
-                }
-            }
+    private fun executeSubmodule(comment: String, issue: Issue): Either<ModuleError, ModuleResponse> {
+        val split = comment.split("\\s+".toRegex())
+        val arguments = split.toTypedArray()
+        return when (split[0]) {
+            "ARISAGROUP_ADD_TICKETS" -> addTicketsRelatedGroupSubmodule(issue, *arguments)
+            else -> OperationNotNeededModuleResponse.left()
         }
     }
 

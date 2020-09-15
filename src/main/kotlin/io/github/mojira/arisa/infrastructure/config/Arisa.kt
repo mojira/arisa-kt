@@ -181,6 +181,12 @@ object Arisa : ConfigSpec() {
             )
         }
 
+        object KeepPlatform: ModuleConfigSpec() {
+            val keepPlatformTag by required<String>(
+                description = "The meqs tag that when placed in the comments will prevent the" +
+                        " plaform from being changed. Must be the same as MultiplePlatforms"
+            )
+
         object ReopenAwaiting : ModuleConfigSpec() {
             val blacklistedRoles by required<List<String>>(
                 description = "Comments that were posted by someone who is member of this role should be ignored."

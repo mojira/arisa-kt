@@ -120,3 +120,15 @@ class KeepPlatformModuleTest : StringSpec({
         changedPlatform.shouldBe("Amazon")
     }
 })
+
+private fun mockChangeLogItem(
+    created: Instant = RIGHT_NOW,
+    field: String = "Platform",
+    value: String = "Amazon",
+    getAuthorGroups: () -> List<String>? = { emptyList() }
+) = mockChangeLogItem(
+    created = created,
+    field = field,
+    changedToString = value,
+    getAuthorGroups = getAuthorGroups
+)

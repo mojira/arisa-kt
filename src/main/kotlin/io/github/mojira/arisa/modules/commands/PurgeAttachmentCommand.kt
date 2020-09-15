@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 
 class PurgeAttachmentCommand : Command {
     @Suppress("MagicNumber")
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
+    override fun invoke(commandInfo: CommandInfo, issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size <= 3).bind()
         val startID = arguments.getOrNull(1)?.toIntEither()?.bind() ?: 0
         val endID = arguments.getOrNull(2)?.toIntEither()?.bind() ?: Int.MAX_VALUE

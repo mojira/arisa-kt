@@ -9,12 +9,13 @@ import io.github.mojira.arisa.modules.assertFalse
 import io.github.mojira.arisa.modules.assertTrue
 
 class AddVersionCommand : Command {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
+    override fun invoke(commandInfo: CommandInfo, issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
         val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
         assertFalse(issue.affectedVersions.any { it.name == version }).bind()
         assertTrue(issue.project.versions.any { it.name == version }).bind()
         val id = issue.project.versions.first { it.name == version }.id
+        commandInfo.right()
         issue.addAffectedVersion(id)
     }
 }

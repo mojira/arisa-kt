@@ -33,7 +33,7 @@ private val CHANGE_PLATFORM_STAFF_OLD = mockChangeLogItem(
 private val CHANGE_PLATFORM_USER = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "platform",
-    changeToString = "None",
+    changedToString = "None",
     getAuthorGroups = { listOf("users") }
 )
 

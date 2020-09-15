@@ -2,7 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
-import io.github.mojira.arisa.utils.mockChangeLogItem
+//import io.github.mojira.arisa.utils.mockChangeLogItem
+import io.github.mojira.arisa.modules.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft

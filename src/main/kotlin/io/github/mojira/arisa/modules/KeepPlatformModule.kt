@@ -39,7 +39,7 @@ class KeepPlatformModule(
             .isAfter(Instant.now())
 
     private fun assertContainsKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
-        val volunteerComments = comments.filter(::isVolunteerComment) 
+        val volunteerComments = comments.filter(::isVolunteerComment)
         return when {
             volunteerComments.any(::isKeepPlatformTag) -> Unit.right()
             else -> OperationNotNeededModuleResponse.left()
@@ -48,7 +48,7 @@ class KeepPlatformModule(
 
     private fun isVolunteerComment(comment: Comment) = comment.visibilityType == "group" &&
         comment.visibilityValue == "staff"
-    
+
     private fun isKeepPlatformTag(comment: Comment) =
             comment.body?.contains(keepPlatformTag) ?: true
 

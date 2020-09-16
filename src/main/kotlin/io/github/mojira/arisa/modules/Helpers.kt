@@ -124,6 +124,13 @@ fun String.checkIfLinkNameRegexMatches(): Boolean {
             !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
 }
 
+fun splitArrayByCommas(vararg arguments: String) = arguments.flatMap {
+    s ->
+    s.split(',').filter {
+        it != ""
+    }
+}.toTypedArray()
+
 fun concatLinkName(vararg arguments: String): Array<String> {
     val args = arguments.flatMap { s ->
         s.split(',').filter {

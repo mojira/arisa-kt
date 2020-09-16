@@ -154,7 +154,7 @@ class HelpersTest : StringSpec({
             checker += "c"
             return Unit.right()
         }
-        val moduleEither = tryRunAll(listOf({successful1()}, {successful2()}, {successful3()}))
+        val moduleEither = tryRunAll(listOf({ successful1() }, { successful2() }, { successful3() }))
 
         moduleEither shouldBeRight ModuleResponse
         checker shouldBe("abc")
@@ -174,8 +174,8 @@ class HelpersTest : StringSpec({
             checker += "c"
             return Unit.right()
         }
-        val moduleEither = tryRunAll(listOf({successful1()}, {successful2()}, {throwable.left()},
-            {Throwable(message="different error").left()}, {successful3()}))
+        val moduleEither = tryRunAll(listOf({ successful1() }, { successful2() }, { throwable.left() },
+            { Throwable(message="different error").left() }, { successful3() }))
 
         moduleEither shouldBeLeft FailedModuleResponse(listOf(throwable))
         checker shouldBe("ab")

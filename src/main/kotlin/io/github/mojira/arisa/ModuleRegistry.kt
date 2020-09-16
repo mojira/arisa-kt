@@ -108,7 +108,8 @@ class ModuleRegistry(private val config: Config) {
             MultiplePlatformsModule(
                 config[Modules.MultiplePlatforms.platformWhitelist],
                 config[Modules.MultiplePlatforms.targetPlatform],
-                config[Modules.MultiplePlatforms.transferredPlatformBlacklist]
+                config[Modules.MultiplePlatforms.transferredPlatformBlacklist],
+                config[Modules.MultiplePlatforms.keepPlatformTag]
             )
         )
 

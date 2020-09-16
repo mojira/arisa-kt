@@ -194,7 +194,7 @@
         "whitelist": ["MCPE"]
       },
       "keepPlatform": {
-        "keepPlatformTag": ["MEQS_KEEP_PLATFORM"],
+        "keepPlatformTag": "MEQS_KEEP_PLATFORM",
         "whitelist": ["MCPE"]
       },
       "reopenAwaiting": {

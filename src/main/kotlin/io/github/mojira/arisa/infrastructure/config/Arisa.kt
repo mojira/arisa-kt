@@ -179,6 +179,10 @@ object Arisa : ConfigSpec() {
             val transferredPlatformBlacklist by required<List<String>>(
                 description = "List of platforms that do not contribute to having multiple platforms"
             )
+            val keepPlatformTag by required<String>(
+                    description = "The meqs tag that when placed in the comments will prevent the" +
+                            " plaform from being changed. Must be the same as KeepPlatform"
+            )
         }
 
         object KeepPlatform : ModuleConfigSpec() {

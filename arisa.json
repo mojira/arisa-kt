@@ -190,6 +190,7 @@
         ],
         "targetPlatform": ["Multiple"],
         "transferredPlatformBlacklist": ["None"],
+        "keepPlatformTag": ["MEQS_KEEP_PLATFORM"],
         "whitelist": ["MCPE"]
       },
       "keepPlatform": {

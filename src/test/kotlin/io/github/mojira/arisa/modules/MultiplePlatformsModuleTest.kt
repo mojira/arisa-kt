@@ -102,7 +102,7 @@ class MultiplePlatformsModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the meqs comment is added" {
-        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM", "MEQS_KEEP_PLATFORM")
+        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
         val comment = mockComment(
                 body = "MEQS_KEEP_PLATFORM",
                 visibilityType = "group",

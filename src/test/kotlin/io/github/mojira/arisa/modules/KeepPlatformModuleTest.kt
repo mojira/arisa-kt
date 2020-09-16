@@ -5,6 +5,7 @@ import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.modules.mockPlatformChangeLogItem
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -68,7 +69,7 @@ class KeepPlatformModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val changeLogItem = io.github.mojira.arisa.modules.mockPlatformChangeLogItem { listOf("staff") }
         val issue = mockIssue(
             comments = listOf(comment),
             changeLog = listOf(changeLogItem)
@@ -88,8 +89,8 @@ class KeepPlatformModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "staff"
         )
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
-        val userChange = mockChangeLogItem(value = "Unconfirmed") { listOf("users") }
+        val volunteerChange = io.github.mojira.arisa.modules.mockPlatformChangeLogItem { listOf("staff") }
+        val userChange = mockPlatformChangeLogItem(value = "None") { listOf("users") }
         val issue = mockIssue(
             comments = listOf(comment),
             platform = "None",
@@ -104,7 +105,7 @@ class KeepPlatformModuleTest : StringSpec({
     }
 })
 
-private fun mockChangeLogItem(
+private fun mockPlatformChangeLogItem(
     created: Instant = RIGHT_NOW,
     field: String = "Platform",
     value: String = "Amazon",

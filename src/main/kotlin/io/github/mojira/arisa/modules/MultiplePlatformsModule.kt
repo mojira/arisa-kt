@@ -24,7 +24,8 @@ class MultiplePlatformsModule(
         }
     }
 
-    private fun isDuplicatedWithDifferentPlatforms(platform: String?, blacklist: List<String>, issue: Issue): Either<ModuleError, Boolean> = Either.fx {
+    private fun isDuplicatedWithDifferentPlatforms(platform: String?, blacklist: List<String>, issue: Issue):
+            Either<ModuleError, Boolean> = Either.fx {
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {

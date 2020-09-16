@@ -71,6 +71,7 @@ class KeepPlatformModuleTest : StringSpec({
         val changeLogItem = mockPlatformChangeLogItem { listOf("staff") }
         val issue = mockIssue(
             comments = listOf(comment),
+            platform = "Amazon",
             changeLog = listOf(changeLogItem)
         )
 

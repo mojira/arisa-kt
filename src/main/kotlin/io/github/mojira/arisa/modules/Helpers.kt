@@ -119,17 +119,17 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
     OperationNotNeededModuleResponse.left()
 }
 
-fun String.checkIfLinkNameRegexMatches(): Boolean {
-    return !this.matches(Regex("[A-Z]+-[0-9]+")) &&
-            !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
-}
-
-fun splitArrayByCommas(vararg arguments: String) = arguments.flatMap {
+fun splitArgsByCommas(vararg arguments: String) = arguments.flatMap {
     s ->
     s.split(',').filter {
         it.isNotEmpty()
     }
 }.toTypedArray()
+
+fun String.checkIfLinkNameRegexMatches(): Boolean {
+    return !this.matches(Regex("[A-Z]+-[0-9]+")) &&
+            !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
+}
 
 fun concatLinkName(vararg arguments: String): Array<String> {
     val args = arguments.flatMap { s ->

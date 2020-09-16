@@ -9,7 +9,7 @@ class DeleteLinksCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 2).bind()
         var args = listOf(*arguments).subList(1, arguments.size).toTypedArray()
-        args = splitArrayByCommas(*args)
+        args = splitArgsByCommas(*args)
         args = concatLinkName(*args)
         val type = args[0]
         assertFalse(type == "").bind()

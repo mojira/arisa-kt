@@ -39,7 +39,7 @@ class MultiplePlatformsModule(
 
     private fun isDuplicatedLink(link: Link): Boolean = link.type == "Duplicate" && !link.outwards
 
-    private fun assertNotKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse>  {
+    private fun assertNotKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
         val volunteerComments = comments.filter(::isVolunteerComment)
         return when {
             volunteerComments.any(::isKeepPlatformTag) -> OperationNotNeededModuleResponse.left()
@@ -52,7 +52,6 @@ class MultiplePlatformsModule(
 
     private fun isKeepPlatformTag(comment: Comment) =
             comment.body?.contains(keepPlatformTag) ?: false
-
 
     private fun assertPlatformWhitelisted(status: String?, whitelist: List<String>) =
         if ((status.getOrDefault("None")) in whitelist) {

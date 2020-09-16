@@ -127,7 +127,7 @@ fun String.checkIfLinkNameRegexMatches(): Boolean {
 fun splitArrayByCommas(vararg arguments: String) = arguments.flatMap {
     s ->
     s.split(',').filter {
-        it != ""
+        it.isNotEmpty()
     }
 }.toTypedArray()
 

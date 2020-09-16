@@ -99,7 +99,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesnt start with ARISA_" {
-        val module = CommandModule(mockUnitCommand, mockOperationNotNeededCommand)
+        val module = CommandModule(mockOperationNotNeededCommand, mockUnitCommand)
         val comment = getComment(
             body = "ARISA"
         )
@@ -127,7 +127,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return successfully when comment matches a command and it returns successfully" {
-        val module = CommandModule(mockUnitCommand, mockOperationNotNeededCommand)
+        val module = CommandModule(mockOperationNotNeededCommand, mockUnitCommand)
         val comment = getComment()
         val issue = mockIssue(
             comments = listOf(comment)
@@ -151,7 +151,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return failed when comment matches a command and it returns failed" {
-        val module = CommandModule(mockFailingCommand, mockOperationNotNeededCommand)
+        val module = CommandModule(mockOperationNotNeededCommand, mockFailingCommand)
         val comment = getComment()
         val issue = mockIssue(
             comments = listOf(comment)

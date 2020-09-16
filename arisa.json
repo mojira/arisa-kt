@@ -168,7 +168,7 @@
       },
       "confirmParent": {
         "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
-        "targetConfirmationStatus": ["Community Consensus"],
+        "targetConfirmationStatus": "Community Consensus",
         "linkedThreshold": 3.0,
         "whitelist": [
           "MC",
@@ -188,9 +188,9 @@
           "Windows 10 Mobile",
           "Xbox One"
         ],
-        "targetPlatform": ["Multiple"],
+        "targetPlatform": "Multiple",
         "transferredPlatformBlacklist": ["None"],
-        "keepPlatformTag": ["MEQS_KEEP_PLATFORM"],
+        "keepPlatformTag": "MEQS_KEEP_PLATFORM",
         "whitelist": ["MCPE"]
       },
       "keepPlatform": {

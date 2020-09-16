@@ -24,14 +24,15 @@ class MultiplePlatformsModule(
         }
     }
 
-    private fun isDuplicatedWithDifferentPlatforms(platform: String?, blacklist: List<String>, issue: Issue):
-            Either<ModuleError, Boolean> = Either.fx {
+    private fun isDuplicatedWithDifferentPlatforms(platform: String?, blacklist: List<String>, issue: Issue): Boolean {
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
-                val child = it.issue.getFullIssue().toFailedModuleEither().bind()
-                if (child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
-                    return@fx true
+                val child = it.issue.getFullIssue()
+                if (without toFailedModuleEither) {
+                    if (child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
+                        return true
+                    }
                 }
             }
         false

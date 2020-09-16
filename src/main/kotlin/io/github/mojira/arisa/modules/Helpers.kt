@@ -141,7 +141,7 @@ fun concatLinkName(vararg arguments: String): Array<String> {
     val result = mutableListOf(*args)
     result.apply {
         this.dropWhile {
-            it.checkIfLinkNameRegexMatches()
+            !it.checkIfLinkNameRegexMatches()
         }
         this.add(0, linkName)
     }

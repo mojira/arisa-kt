@@ -16,9 +16,7 @@ class KeepPlatformModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val volunteerPlatformChange = changeLog
-                .filter(::isPlatformChange)
-                .filter(::changedByVolunteer)
-                .lastOrNull()
+                .filter(::isPlatformChange).lastOrNull(::changedByVolunteer)
                 ?.changedToString.getOrDefault("None")
             assertNotEquals(platform.getOrDefault("None"), volunteerPlatformChange).bind()
             assertNotNull(keepPlatformTag).bind()

@@ -175,7 +175,7 @@ class HelpersTest : StringSpec({
             return Unit.right()
         }
         val moduleEither = tryRunAll(listOf({ successful1() }, { successful2() }, { throwable.left() },
-            { Throwable(message="different error").left() }, { successful3() }))
+            { Throwable(message = "different error").left() }, { successful3() }))
 
         moduleEither shouldBeLeft FailedModuleResponse(listOf(throwable))
         checker shouldBe("ab")

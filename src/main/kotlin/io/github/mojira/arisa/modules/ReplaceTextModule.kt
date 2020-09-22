@@ -12,7 +12,7 @@ class ReplaceTextModule(
         """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
         """(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
         """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
-        ".?(http://i.imgur.com)".toRegex() to "https://i.imgur.com"
+        "(http://i.imgur.com)".toRegex() to "https://i.imgur.com"
     )
 ) : Module {
     data class Request(

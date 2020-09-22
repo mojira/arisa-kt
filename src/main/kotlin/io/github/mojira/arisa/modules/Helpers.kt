@@ -119,52 +119,49 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
     OperationNotNeededModuleResponse.left()
 }
 
-fun splitArgsByCommas(vararg arguments: String) = arguments.flatMap {
-    s ->
-    s.split(',').filter {
-        it.isNotEmpty()
+fun splitElemsByCommas(list: MutableList<String>) {
+    val newList = list.flatMap {
+        s ->
+        s.split(',').filter {
+            it.isNotEmpty()
+        }
     }
-}.toTypedArray()
+    list.clear()
+    list.addAll(newList)
+}
 
 fun String.checkIfLinkNameRegexMatches(): Boolean {
     return !this.matches(Regex("[A-Z]+-[0-9]+")) &&
             !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
 }
 
-fun concatLinkName(vararg arguments: String): Array<String> {
-    val args = arguments.flatMap { s ->
-        s.split(',').filter {
-            it != ""
-        }
-    }.toTypedArray()
-    if (args[0].checkIfLinkNameRegexMatches()) {
-        val result = mutableListOf(*args)
-        result.add(0, "")
-        return result.toTypedArray()
+fun concatLinkName(list: MutableList<String>) {
+    if (list[0].checkIfLinkNameRegexMatches()) {
+        list.add(0, "")
+        return
     }
-    val linkName = args.takeWhile {
+    val linkName = list.takeWhile {
         !it.checkIfLinkNameRegexMatches()
     }.joinToString(separator = " ")
-    val result = mutableListOf(*args)
-    result.apply {
+    list.apply {
         this.dropWhile {
             !it.checkIfLinkNameRegexMatches()
         }
         this.add(0, linkName)
     }
-    return result.toTypedArray()
 }
 
-fun convertLinks(vararg arguments: String): Array<String> {
-    val newArgList = mutableListOf<String>()
-    for (arg in arguments) {
+fun convertLinks(list: MutableList<String>) {
+    val newList = mutableListOf<String>()
+    for (arg in list) {
         var key = arg
         if (key.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))) {
             key = key.drop(31)
         }
-        newArgList.add(newArgList.size, key)
+        newList.add(newList.size, key)
     }
-    return newArgList.toTypedArray()
+    list.clear()
+    list.addAll(newList)
 }
 
 data class LinkType(

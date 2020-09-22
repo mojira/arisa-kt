@@ -143,12 +143,12 @@ fun MutableList<String>.concatLinkName() {
     val linkName = this.takeWhile {
         !it.checkIfLinkNameRegexMatches()
     }.joinToString(separator = " ")
-    this.apply {
-        this.dropWhile {
-            !it.checkIfLinkNameRegexMatches()
-        }
-        this.add(0, linkName)
-    }
+    val newList = this.dropWhile {
+        it.checkIfLinkNameRegexMatches().not()
+    }.toMutableList()
+    newList.add(0, linkName)
+    this.clear()
+    this.addAll(newList)
 }
 
 fun MutableList<String>.convertLinks() {

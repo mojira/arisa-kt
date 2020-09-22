@@ -295,12 +295,38 @@ class HelpersTest : StringSpec({
         "aMC-100".checkIfLinkNameRegexMatches() shouldBe(false)
         "MC1-100".checkIfLinkNameRegexMatches() shouldBe(false)
         "1MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "MC-".checkIfLinkNameRegexMatches() shouldBe(false)
+        "MC100".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://bugs.mojang.com/browse/MC-100a".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://bugs.mojang.com/browse/MC-a100".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://bugs.mojang.com/browse/MCa-100".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://bugs.mojang.com/browse/aMC-100".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://bugs.mojang.com/browse/MC1-100".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://bugs.mojang.com/browse/1MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC100".checkIfLinkNameRegexMatches() shouldBe(false)
         "https://google.com/browse/MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+    }
+
+    "concatLinkName should concatenate the string out of the array until it reaches valid ticket number/link" {
+        val list1 = mutableListOf("1", "2", "3", "MC-100", "4", "5")
+        list1.concatLinkName()
+        list1 shouldBe(mutableListOf("1 2 3", "MC-100", "4", "5"))
+
+        val list2 = mutableListOf("1", "2", "3", "https://bugs.mojang.com/browse/MC-100", "4", "5")
+        list2.concatLinkName()
+        list2 shouldBe(mutableListOf("1 2 3", "https://bugs.mojang.com/browse/MC-100", "4", "5"))
+    }
+
+    "concatLinkName when given ticket number/link should add empty string to the beginning of the list, without changing the rest of the list" {
+        val list1 = mutableListOf("MC-100", "1", "2", "3", "4", "5")
+        list1.concatLinkName()
+        list1 shouldBe(mutableListOf("", "MC-100", "1", "2", "3", "4", "5"))
+
+        val list2 = mutableListOf("https://bugs.mojang.com/browse/MC-100", "1", "2", "3", "4", "5")
+        list2.concatLinkName()
+        list2 shouldBe(mutableListOf("", "https://bugs.mojang.com/browse/MC-100", "1", "2", "3", "4", "5"))
     }
 })

@@ -119,15 +119,15 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
     OperationNotNeededModuleResponse.left()
 }
 
-fun splitElemsByCommas(list: MutableList<String>) {
-    val newList = list.flatMap {
+fun MutableList<String>.splitElemsByCommas() {
+    val newList = this.flatMap {
         s ->
         s.split(',').filter {
             it.isNotEmpty()
         }
     }
-    list.clear()
-    list.addAll(newList)
+    this.clear()
+    this.addAll(newList)
 }
 
 fun String.checkIfLinkNameRegexMatches(): Boolean {
@@ -135,15 +135,15 @@ fun String.checkIfLinkNameRegexMatches(): Boolean {
             !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
 }
 
-fun concatLinkName(list: MutableList<String>) {
-    if (list[0].checkIfLinkNameRegexMatches()) {
-        list.add(0, "")
+fun MutableList<String>.concatLinkName() {
+    if (this[0].checkIfLinkNameRegexMatches()) {
+        this.add(0, "")
         return
     }
-    val linkName = list.takeWhile {
+    val linkName = this.takeWhile {
         !it.checkIfLinkNameRegexMatches()
     }.joinToString(separator = " ")
-    list.apply {
+    this.apply {
         this.dropWhile {
             !it.checkIfLinkNameRegexMatches()
         }
@@ -151,17 +151,17 @@ fun concatLinkName(list: MutableList<String>) {
     }
 }
 
-fun convertLinks(list: MutableList<String>) {
+fun MutableList<String>.convertLinks() {
     val newList = mutableListOf<String>()
-    for (arg in list) {
+    for (arg in this) {
         var key = arg
         if (key.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))) {
             key = key.drop(31)
         }
         newList.add(newList.size, key)
     }
-    list.clear()
-    list.addAll(newList)
+    this.clear()
+    this.addAll(newList)
 }
 
 data class LinkType(

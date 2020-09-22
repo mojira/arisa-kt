@@ -33,6 +33,7 @@ object Arisa : ConfigSpec() {
         val confirmationField by required<String>()
         val mojangPriorityField by required<String>()
         val triagedTimeField by required<String>()
+        val platformField by required<String>()
     }
 
     object PrivateSecurityLevel : ConfigSpec() {
@@ -164,6 +165,30 @@ object Arisa : ConfigSpec() {
             )
             val linkedThreshold by required<Double>(
                 description = "The threshold of the Linked field for the ticket to be confirmed (inclusive)."
+            )
+        }
+
+        object MultiplePlatforms : ModuleConfigSpec() {
+            val platformWhitelist by required<List<String>>(
+                description = "List of platforms that can be replaced by the target platform if they are" +
+                        " different than the replacement."
+            )
+            val targetPlatform by required<String>(
+                description = "The target platform for tickets with more than one platform"
+            )
+            val transferredPlatformBlacklist by required<List<String>>(
+                description = "List of platforms that do not contribute to having multiple platforms"
+            )
+            val keepPlatformTag by required<String>(
+                    description = "The meqs tag that when placed in the comments will prevent the" +
+                            " plaform from being changed. Must be the same as KeepPlatform"
+            )
+        }
+
+        object KeepPlatform : ModuleConfigSpec() {
+            val keepPlatformTag by required<String>(
+                description = "The meqs tag that when placed in the comments will prevent the" +
+                        " plaform from being changed. Must be the same as MultiplePlatforms"
             )
         }
 

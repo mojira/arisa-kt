@@ -21,7 +21,8 @@
       "chkField": "customfield_10701",
       "confirmationField": "customfield_10500",
       "mojangPriorityField": "customfield_12200",
-      "triagedTimeField": "customfield_12201"
+      "triagedTimeField": "customfield_12201",
+      "platformField": "customfield_10402"
     },
     "privateSecurityLevel": {
       "default": "10318",
@@ -167,13 +168,34 @@
       },
       "confirmParent": {
         "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
-        "targetConfirmationStatus": ["Community Consensus"],
+        "targetConfirmationStatus": "Community Consensus",
         "linkedThreshold": 3.0,
         "whitelist": [
           "MC",
           "MCL",
           "MCPE"
         ]
+      },
+      "multiplePlatforms": {
+        "platformWhitelist": [
+          "Amazon",
+          "Android",
+          "Gear VR",
+          "iOS",
+          "Nintendo Switch",
+          "PlayStation 4",
+          "Windows 10 - PC",
+          "Windows 10 Mobile",
+          "Xbox One"
+        ],
+        "targetPlatform": "Multiple",
+        "transferredPlatformBlacklist": ["None"],
+        "keepPlatformTag": "MEQS_KEEP_PLATFORM",
+        "whitelist": ["MCPE"]
+      },
+      "keepPlatform": {
+        "keepPlatformTag": "MEQS_KEEP_PLATFORM",
+        "whitelist": ["MCPE"]
       },
       "reopenAwaiting": {
         "resolutions": [

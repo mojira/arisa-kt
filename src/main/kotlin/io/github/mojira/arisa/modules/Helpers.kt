@@ -68,7 +68,7 @@ fun assertEither(vararg list: Either<OperationNotNeededModuleResponse, ModuleRes
 
 /**
  * The functions will stop executing when any of them fails. Therefore, we can avoid the bot from spamming comments
- * when the resolve fails in case it needs to resolve and comment.
+ * when the resolve fails in case it needs to resolve and comment
  */
 fun tryRunAll(
     functions: Collection<() -> Either<Throwable, Unit>>

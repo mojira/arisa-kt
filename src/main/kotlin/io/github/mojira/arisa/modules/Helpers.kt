@@ -131,8 +131,8 @@ fun MutableList<String>.splitElemsByCommas() {
 }
 
 fun String.checkIfLinkNameRegexMatches(): Boolean {
-    return !this.matches(Regex("[A-Z]+-[0-9]+")) &&
-            !this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
+    return this.matches(Regex("[A-Z]+-[0-9]+")) ||
+            this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
 }
 
 fun MutableList<String>.concatLinkName() {

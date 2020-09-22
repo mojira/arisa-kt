@@ -87,13 +87,13 @@ class HelpersTest : StringSpec({
     }
 
     "assertEmpty when given nonempty list should return OperationNotNeededModuleResponse in Either" {
-        val moduleEither = assertEmpty(listOf<Int>(1337))
+        val moduleEither = assertEmpty(listOf(1337))
 
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "assertNotEmpty when given nonempty list should return ModuleResponse in Either" {
-        val moduleEither = assertNotEmpty(listOf<Int>(1337))
+        val moduleEither = assertNotEmpty(listOf(1337))
 
         moduleEither shouldBeRight ModuleResponse
     }
@@ -263,5 +263,44 @@ class HelpersTest : StringSpec({
         val moduleEither = assertAfter(A_SECOND_AGO, A_SECOND_AGO)
 
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "splitArgsByCommas should split arguments by commas" {
+        val list = mutableListOf("1", "2,", ",3", "4,5")
+        list.splitElemsByCommas()
+
+        list shouldBe(listOf("1", "2", "3", "4", "5"))
+    }
+
+    "splitArgsByCommas should not include empty strings in the result" {
+        val list = mutableListOf("1", "2,,,", ",,,,,", ",,,,3", "4,,,,,5")
+        list.splitElemsByCommas()
+
+        list shouldBe(listOf("1", "2", "3", "4", "5"))
+    }
+
+    "checkIfLinkNameRegexMatches should match valid ticket key" {
+        "MC-100".checkIfLinkNameRegexMatches() shouldBe(true)
+    }
+
+    "checkIfLinkNameRegexMatches should match valid ticket link" {
+        "https://bugs.mojang.com/browse/MC-100".checkIfLinkNameRegexMatches() shouldBe(true)
+    }
+
+    "checkIfLinkNameRegexMatches should not match invalid values" {
+        "".checkIfLinkNameRegexMatches() shouldBe(false)
+        "MC-100a".checkIfLinkNameRegexMatches() shouldBe(false)
+        "MC-a100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "MCa-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "aMC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "MC1-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "1MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-100a".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-a100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/MCa-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/aMC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC1-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://bugs.mojang.com/browse/1MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+        "https://google.com/browse/MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
     }
 })

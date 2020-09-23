@@ -207,9 +207,8 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
     assertNotNull(tmp).bind()
     assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
-    assertTrue(linkType.outwards).bind()
     for (key in arguments) {
-        issue.createLink(linkType.id, key, true)
+        issue.createLink(linkType.id, key, linkType.outwards)
     }
 }
 

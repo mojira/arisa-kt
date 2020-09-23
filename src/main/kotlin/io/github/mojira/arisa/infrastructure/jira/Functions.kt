@@ -202,11 +202,17 @@ fun addRestrictedComment(
 }
 
 fun createLink(context: Lazy<IssueUpdateContext>, getContext: (key: String) -> Lazy<IssueUpdateContext>, linkType: String, linkKey: String, outwards: Boolean) {
-    context.value.otherOperations.add {
-        runBlocking {
-            Either.catch {
-                context.value.jiraIssue.link(linkKey, linkType)
+    when {
+        outwards -> context.value.otherOperations.add {
+            runBlocking {
+                Either.catch {
+                    context.value.jiraIssue.link(linkKey, linkType)
+                }
             }
+        }
+        else -> {
+            val key = context.value.jiraIssue.key
+            getContext(linkKey).value.jiraIssue.link(key, linkType)
         }
     }
 }

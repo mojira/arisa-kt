@@ -110,7 +110,7 @@ fun mockIssue(
     updateLinked: (Double) -> Unit = { Unit },
     setPrivate: () -> Unit = { Unit },
     addAffectedVersion: (id: String) -> Unit = { Unit },
-    createLink: (key: String, type: String) -> Unit = { _, _ -> Unit },
+    createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> Unit },
     addComment: (options: CommentOptions) -> Unit = { Unit },
     addRestrictedComment: (options: CommentOptions) -> Unit = { Unit },
     addNotEnglishComment: (language: String) -> Unit = { Unit },
@@ -176,7 +176,7 @@ fun mockLinkedIssue(
     key: String = "MC-1",
     status: String = "Open",
     getFullIssue: () -> Either<Throwable, Issue> = { mockIssue().right() },
-    createLink: (key: String, type: String) -> Unit = { _, _ -> Unit }
+    createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> Unit }
 ) = LinkedIssue(
     key,
     status,

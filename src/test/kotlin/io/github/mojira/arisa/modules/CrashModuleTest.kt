@@ -47,7 +47,7 @@ Details:
 Is Modded: Probably not. Jar signature remains and client brand is untouched.
 """
 
-const val UNKOWN_MODDED_CRASH = """---- Minecraft Crash Report ----
+const val UNKNOWN_MODDED_CRASH = """---- Minecraft Crash Report ----
 // Oh - I know what I did wrong!
 
 Time: 6/5/18 9:20 PM
@@ -197,7 +197,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -223,7 +223,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -248,7 +248,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -274,7 +274,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -300,7 +300,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -331,7 +331,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -359,7 +359,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -389,7 +389,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -408,7 +408,7 @@ class CrashModuleTest : StringSpec({
         )
 
         val attachment = getAttachment(
-            content = UNKOWN_MODDED_CRASH
+            content = UNKNOWN_MODDED_CRASH
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
@@ -418,7 +418,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -451,7 +451,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -483,7 +483,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -510,7 +510,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -538,7 +538,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -566,7 +566,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -598,7 +598,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -626,7 +626,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -658,7 +658,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -686,7 +686,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -714,7 +714,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -740,7 +740,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { type, key -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            createLink = { type, key, _ -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
             addComment = { Unit.right() }
         )
 
@@ -776,7 +776,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -813,7 +813,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -852,7 +852,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { type, key -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            createLink = { type, key, _ -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
             addComment = { Unit.right() }
         )
 
@@ -890,7 +890,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
-            createLink = { type, key -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            createLink = { type, key, _ -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
             addComment = { Unit.right() }
         )
 
@@ -917,7 +917,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 
@@ -945,7 +945,7 @@ class CrashModuleTest : StringSpec({
             priority = "Medium",
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _ -> Unit.right() },
+            createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
 

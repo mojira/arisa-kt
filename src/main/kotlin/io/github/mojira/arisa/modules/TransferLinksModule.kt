@@ -39,7 +39,7 @@ class TransferLinksModule : AbstractTransferFieldModule() {
         parent: Issue
     ) =
         when {
-            link.outwards -> parent.createLink.partially1(link.type).partially1(link.issue.key)
-            else -> link.issue.createLink.partially1(link.type).partially1(parent.key)
+            link.outwards -> parent.createLink.partially1(link.type).partially1(link.issue.key).partially1(link.outwards)
+            else -> link.issue.createLink.partially1(link.type).partially1(parent.key).partially1(!link.outwards)
         }
 }

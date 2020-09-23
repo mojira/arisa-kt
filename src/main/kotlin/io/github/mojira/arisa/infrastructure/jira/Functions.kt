@@ -201,7 +201,7 @@ fun addRestrictedComment(
     }
 }
 
-fun createLink(context: Lazy<IssueUpdateContext>, linkType: String, linkKey: String) {
+fun createLink(context: Lazy<IssueUpdateContext>, getContext: (key: String) -> Lazy<IssueUpdateContext>, linkType: String, linkKey: String, outwards: Boolean) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {

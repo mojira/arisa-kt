@@ -366,9 +366,6 @@ class HelpersTest : StringSpec({
         mutableListOf("1", "2", "MC-3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1 2", "MC-3", "MC-4"))
         mutableListOf("1", "MC-2", "MC-3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("1", "MC-2", "MC-3"))
 
-        mutableListOf("1", "MC-2", "MC-3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("1", "MC-2", "MC-3", "MC-4"))
-        mutableListOf("MC-1", "MC-2", "MC-3").apply{ this.concatLinkName() }         shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3"))
-
         mutableListOf("1", "2", "MC-3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1 2", "MC-3", "4"))
         mutableListOf("1", "MC-2", "3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("1", "MC-2", "3"))
         mutableListOf("MC-1", "2").apply{ this.concatLinkName() }                    shouldBe(mutableListOf("", "MC-1", "2"))
@@ -380,6 +377,9 @@ class HelpersTest : StringSpec({
         mutableListOf("MC-1", "2", "MC-3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("", "MC-1", "2", "MC-3"))
 
         mutableListOf("1", "MC-2", "3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1", "MC-2", "3", "4"))
+        mutableListOf("MC-1", "2", "3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("", "MC-1", "2", "3"))
+
+        mutableListOf("1", "MC-2", "MC-3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("1", "MC-2", "MC-3", "MC-4"))
 
         mutableListOf("MC-1", "MC-2", "MC-3", "4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "4"))
         mutableListOf("MC-1", "MC-2", "3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "MC-4"))

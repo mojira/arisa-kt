@@ -337,9 +337,13 @@ class HelpersTest : StringSpec({
     }
 
     "concatLinkName when not given ticket number/link within first 4 elements should add empty string to the beginning of the list, without changing the rest of the list" {
-        val list = mutableListOf("1", "2", "3", "4", "MC-5")
-        list.concatLinkName()
-        list shouldBe(mutableListOf("", "1", "2", "3", "4", "MC-5"))
+        val list1 = mutableListOf("1", "2", "3", "4", "MC-5")
+        list1.concatLinkName()
+        list1 shouldBe(mutableListOf("", "1", "2", "3", "4", "MC-5"))
+
+        val list2 = mutableListOf("1", "2", "3", "4", "https://bugs.mojang.com/browse/MC-5")
+        list2.concatLinkName()
+        list2 shouldBe(mutableListOf("", "1", "2", "3", "4", "https://bugs.mojang.com/browse/MC-5"))
     }
 
     "concatLinkName should not fail when there's 4 or less elements" {

@@ -136,16 +136,17 @@ fun String.checkIfLinkNameRegexMatches(): Boolean {
 }
 
 fun MutableList<String>.concatLinkName() {
-    if (this[0].checkIfLinkNameRegexMatches()) {
+    val tmpList = this.take(4)
+    val linkNameList = tmpList.takeWhile {
+        !it.checkIfLinkNameRegexMatches()
+    }
+    if (linkNameList.size == tmpList.size) {
         this.add(0, "")
         return
     }
-    val linkName = this.takeWhile {
-        !it.checkIfLinkNameRegexMatches()
-    }.joinToString(separator = " ")
-    val newList = this.dropWhile {
-        it.checkIfLinkNameRegexMatches().not()
-    }.toMutableList()
+    val linkName = linkNameList.joinToString(separator = " ")
+    val newList = if (linkName.isEmpty()) this.toMutableList()
+        else this.drop(linkName.count{ it == ' ' } + 1).toMutableList()
     newList.add(0, linkName)
     this.clear()
     this.addAll(newList)

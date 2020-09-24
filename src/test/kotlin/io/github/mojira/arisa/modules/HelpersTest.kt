@@ -311,22 +311,78 @@ class HelpersTest : StringSpec({
     }
 
     "concatLinkName should concatenate the string out of the array until it reaches valid ticket number/link" {
-        val list1 = mutableListOf("1", "2", "3", "MC-100", "4", "5")
+        val list1 = mutableListOf("1", "2", "3", "MC-4", "MC-5", "MC-6")
         list1.concatLinkName()
-        list1 shouldBe(mutableListOf("1 2 3", "MC-100", "4", "5"))
+        list1 shouldBe(mutableListOf("1 2 3", "MC-4", "MC-5", "MC-6"))
 
-        val list2 = mutableListOf("1", "2", "3", "https://bugs.mojang.com/browse/MC-100", "4", "5")
+        val list2 = mutableListOf("1", "2", "3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6")
         list2.concatLinkName()
-        list2 shouldBe(mutableListOf("1 2 3", "https://bugs.mojang.com/browse/MC-100", "4", "5"))
+        list2 shouldBe(mutableListOf("1 2 3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6"))
     }
 
     "concatLinkName when given ticket number/link should add empty string to the beginning of the list, without changing the rest of the list" {
-        val list1 = mutableListOf("MC-100", "1", "2", "3", "4", "5")
+        val list1 = mutableListOf("MC-1", "MC-2", "MC-3", "MC-4", "MC-5")
         list1.concatLinkName()
-        list1 shouldBe(mutableListOf("", "MC-100", "1", "2", "3", "4", "5"))
+        list1 shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4", "MC-5"))
 
-        val list2 = mutableListOf("https://bugs.mojang.com/browse/MC-100", "1", "2", "3", "4", "5")
+        val list2 = mutableListOf("https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-2",
+                "https://bugs.mojang.com/browse/MC-3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5")
         list2.concatLinkName()
-        list2 shouldBe(mutableListOf("", "https://bugs.mojang.com/browse/MC-100", "1", "2", "3", "4", "5"))
+        list2 shouldBe(mutableListOf("", "https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-2",
+                "https://bugs.mojang.com/browse/MC-3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5"))
+    }
+
+    "concatLinkName when not given ticket number/link within first 4 elements should add empty string to the beginning of the list, without changing the rest of the list" {
+        val list = mutableListOf("1", "2", "3", "4", "MC-5")
+        list.concatLinkName()
+        list shouldBe(mutableListOf("", "1", "2", "3", "4", "MC-5"))
+    }
+
+    "concatLinkName should not fail when there's 4 or less elements" {
+        mutableListOf<String>().apply{ this.concatLinkName() }                       shouldBe(mutableListOf(""))
+
+        mutableListOf("1", "2", "3", "4").apply{ this.concatLinkName() }             shouldBe(mutableListOf("", "1", "2", "3", "4"))
+        mutableListOf("1", "2", "3").apply{ this.concatLinkName() }                  shouldBe(mutableListOf("", "1", "2", "3"))
+        mutableListOf("1", "2").apply{ this.concatLinkName() }                       shouldBe(mutableListOf("", "1", "2"))
+        mutableListOf("1").apply{ this.concatLinkName() }                            shouldBe(mutableListOf("", "1"))
+
+        mutableListOf("MC-1", "MC-2", "MC-3", "MC-4").apply{ this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "MC-2", "MC-3").apply{ this.concatLinkName() }         shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3"))
+        mutableListOf("MC-1", "MC-2").apply{ this.concatLinkName() }                 shouldBe(mutableListOf("", "MC-1", "MC-2"))
+        mutableListOf("MC-1").apply{ this.concatLinkName() }                         shouldBe(mutableListOf("", "MC-1"))
+
+        mutableListOf("1", "2", "3", "MC-4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1 2 3", "MC-4"))
+        mutableListOf("1", "2", "MC-3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("1 2", "MC-3"))
+        mutableListOf("1", "MC-2").apply{ this.concatLinkName() }                    shouldBe(mutableListOf("1", "MC-2"))
+
+        mutableListOf("1", "2", "MC-3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1 2", "MC-3", "MC-4"))
+        mutableListOf("1", "MC-2", "MC-3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("1", "MC-2", "MC-3"))
+
+        mutableListOf("1", "MC-2", "MC-3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("1", "MC-2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "MC-2", "MC-3").apply{ this.concatLinkName() }         shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3"))
+
+        mutableListOf("1", "2", "MC-3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1 2", "MC-3", "4"))
+        mutableListOf("1", "MC-2", "3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("1", "MC-2", "3"))
+        mutableListOf("MC-1", "2").apply{ this.concatLinkName() }                    shouldBe(mutableListOf("", "MC-1", "2"))
+
+        mutableListOf("1", "MC-2", "MC-3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1", "MC-2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("", "MC-1", "MC-2", "3"))
+
+        mutableListOf("1", "MC-2", "3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1", "MC-2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("", "MC-1", "2", "MC-3"))
+
+        mutableListOf("1", "MC-2", "3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1", "MC-2", "3", "4"))
+
+        mutableListOf("MC-1", "MC-2", "MC-3", "4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "2", "3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "4"))
+        mutableListOf("MC-1", "2", "3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("", "MC-1", "2", "3", "4"))
     }
 })

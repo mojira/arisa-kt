@@ -49,7 +49,7 @@ class KeepPlatformModule(
         comment.visibilityValue == "staff"
 
     private fun isKeepPlatformTag(comment: Comment) =
-            comment.body?.contains(keepPlatformTag) ?: true
+            comment.body?.contains(keepPlatformTag) ?: false
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())

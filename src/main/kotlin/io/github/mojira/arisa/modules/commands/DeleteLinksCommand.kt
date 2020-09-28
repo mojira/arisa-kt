@@ -19,6 +19,7 @@ class DeleteLinksCommand : Command {
             this.removeAt(0)
             this.convertLinks()
         }
+        assertTrue(list.all{ it.matches(Regex("[A-Z]+-[0-9]+")) })
         val args = list.toTypedArray()
         deleteLinks(issue, type, *args).bind()
     }

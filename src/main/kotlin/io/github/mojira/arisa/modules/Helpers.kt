@@ -202,7 +202,7 @@ private fun concatenateCombinations(list : List<String>): Set<String> {
 
 fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
     val tmp = linkTypes.filter {
-        type in it.nameVariants
+        type.toLowerCase() in it.nameVariants
     }
     assertNotNull(tmp).bind()
     assertTrue(tmp.size == 1).bind()
@@ -214,7 +214,7 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
 
 fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
     val tmp = linkTypes.filter {
-        type in it.nameVariants
+        type.toLowerCase() in it.nameVariants
     }
     assertNotNull(tmp).bind()
     assertTrue(tmp.size == 1).bind()

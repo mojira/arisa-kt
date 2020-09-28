@@ -220,9 +220,6 @@ fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<Mo
     assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
     for (key in arguments) {
-        assertTrue(key.matches(Regex("[A-Z]+-[0-9]+"))).bind()
-    }
-    for (key in arguments) {
         val link = issue.links.find {
             it.type == linkType.id && it.issue.key == key && (linkType.id == "Relates" || it.outwards == linkType.outwards)
         }

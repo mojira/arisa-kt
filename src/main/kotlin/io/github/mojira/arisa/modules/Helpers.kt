@@ -170,10 +170,7 @@ data class LinkType(
     val id: String,
     val outwards: Boolean
 ) {
-    lateinit var nameVariants: Set<String>
-    operator fun invoke() {
-        nameVariants = concatenateCombinations(name)
-    }
+    val nameVariants = concatenateCombinations(name)
 }
 
 val linkTypes = listOf(
@@ -189,16 +186,18 @@ val linkTypes = listOf(
 )
 
 private fun concatenateCombinations(list : List<String>): Set<String> {
-    val newList = mutableListOf<String>()
-    for (word in list) {
-        val tmp = mutableListOf<String>()
-        for (item in newList) {
-            tmp.add("$item $word")
+    val newSet = mutableSetOf<String>()
+    list.forEachIndexed { index, word ->
+        newSet.add(word)
+        if (index < list.size - 1) {
+            var combination = word
+            for (item in list.subList(index + 1, list.size)) {
+                combination = "$combination $item"
+                newSet.add(combination)
+            }
         }
-        newList.addAll(tmp)
-        newList.add(word)
     }
-    return newList.toSet()
+    return newSet.toSortedSet()
 }
 
 fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {

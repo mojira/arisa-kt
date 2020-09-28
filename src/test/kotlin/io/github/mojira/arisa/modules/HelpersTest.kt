@@ -389,4 +389,26 @@ class HelpersTest : StringSpec({
         mutableListOf("MC-1", "MC-2", "3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "4"))
         mutableListOf("MC-1", "2", "3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("", "MC-1", "2", "3", "4"))
     }
+
+    "convertLinks should convert ticket links to numbers" {
+        val list = mutableListOf("https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-20",
+                "https://bugs.mojang.com/browse/MC-312", "https://bugs.mojang.com/browse/MC-400")
+        list.convertLinks()
+        list shouldBe(mutableListOf("MC-1", "MC-20", "MC-312", "MC-400"))
+    }
+
+    "convertLinks should not touch ticket numbers" {
+        val list1 = mutableListOf("MC-1", "MC-20", "MC-312", "MC-400")
+        list1.convertLinks()
+        list1 shouldBe(mutableListOf("MC-1", "MC-20", "MC-312", "MC-400"))
+
+        val list2 = mutableListOf("https://bugs.mojang.com/browse/MC-1", "MC-20",
+                "https://bugs.mojang.com/browse/MC-312", "MC-400")
+        list2.convertLinks()
+        list2 shouldBe(mutableListOf("MC-1", "MC-20", "MC-312", "MC-400"))
+    }
+
+    "in created LinkType nameVariants should contain a sorted set of all possible combinations (without skipping middle item and without changing order) of concatenated elements of name list" {
+        LinkType(listOf("1", "2", "3"), "123", true).nameVariants shouldBe(sortedSetOf("1", "1 2", "1 2 3", "2", "2 3", "3"))
+    }
 })

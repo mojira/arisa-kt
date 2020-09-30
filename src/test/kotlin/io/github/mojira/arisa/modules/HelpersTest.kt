@@ -4,6 +4,9 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockLink
+import io.github.mojira.arisa.utils.mockLinkedIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -410,5 +413,155 @@ class HelpersTest : StringSpec({
 
     "in created LinkType nameVariants should contain a sorted set of all possible combinations (without skipping middle item and without changing order) of concatenated elements of name list" {
         LinkType(listOf("1", "2", "3"), "123", true).nameVariants shouldBe(sortedSetOf("1", "1 2", "1 2 3", "2", "2 3", "3"))
+    }
+
+    "addLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        addLinks(mockIssue(), "wrong", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "addLinks when given type that appears multiple times in LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        addLinks(mockIssue(), "is", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "addLinks should create links" {
+        val list = mutableListOf<List<String>>()
+        val issue = mockIssue(
+                createLink = {key, type, outwards -> list.add(listOf(key, type, outwards.toString()))}
+        )
+
+        addLinks(issue, "relates", "MC-100", "MC-200")
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true"), listOf("Relates", "MC-200", "true")))
+        list.clear()
+
+        addLinks(issue, "duplicated", "MC-100", "MC-200")
+        list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false"), listOf("Duplicate", "MC-200", "false")))
+    }
+
+    "addLinks type should should accept 2 and 3 word types" {
+        val list = mutableListOf<List<String>>()
+        val issue = mockIssue(
+            createLink = {key, type, outwards -> list.add(listOf(key, type, outwards.toString()))}
+        )
+
+        addLinks(issue, "relates to", "MC-100")
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+        list.clear()
+
+        addLinks(issue,"is duplicated by", "MC-100")
+        list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
+    }
+
+    "addLinks type should be case insensitive" {
+        val list = mutableListOf<List<String>>()
+
+        addLinks(mockIssue(
+                createLink = {key, type, outwards -> list.add(listOf(key, type, outwards.toString()))}
+        ), "relAtes To", "MC-100")
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+    }
+
+    "deleteLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        deleteLinks(mockIssue(), "wrong", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "deleteLinks when given type that appears multiple times in LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        deleteLinks(mockIssue(), "is", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "deleteLinks when given link type that can't be found in the issue should return OperationNotNeededModuleResponse in Either" {
+        deleteLinks(mockIssue(
+            links = listOf(mockLink(
+                type = "Duplicate"
+            ))
+        ), "relates", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+
+        deleteLinks(mockIssue(
+            links = emptyList()
+        ), "relates", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "deleteLinks should create links" {
+        val list = mutableListOf<String>()
+        val issue = mockIssue(
+            links = listOf(mockLink(
+                    type = "Duplicate",
+                    outwards = false,
+                    remove = { list.add("duplicated1") },
+                    issue = mockLinkedIssue(
+                        key = "MC-100"
+                    )
+            ), mockLink(
+                    type = "Duplicate",
+                    outwards = false,
+                    remove = { list.add("duplicated2") },
+                    issue = mockLinkedIssue(
+                            key = "MC-200"
+                    )
+            ), mockLink(
+                    type = "Relates",
+                    outwards = true,
+                    remove = { list.add("relates1") },
+                    issue = mockLinkedIssue(
+                            key = "MC-100"
+                    )
+            ), mockLink(
+                    type = "Relates",
+                    outwards = false,
+                    remove = { list.add("relates2") },
+                    issue = mockLinkedIssue(
+                            key = "MC-200"
+                    )
+            ))
+        )
+
+        deleteLinks(issue, "duplicated", "MC-100", "MC-200")
+        list shouldBe(mutableListOf("duplicated1", "duplicated2"))
+        list.clear()
+
+        deleteLinks(issue, "relates", "MC-100", "MC-200")
+        list shouldBe(mutableListOf("relates1", "relates2"))
+    }
+
+    "deleteLinks type should should accept 2 and 3 word types" {
+        var linkVar = ""
+        val issue = mockIssue(
+            links = listOf(mockLink(
+                    type = "Duplicate",
+                    outwards = false,
+                    remove = { linkVar = "duplicated" },
+                    issue = mockLinkedIssue(
+                        key = "MC-100"
+                    )
+            ), mockLink(
+                    type = "Relates",
+                    outwards = true,
+                    remove = { linkVar = "relates" },
+                    issue = mockLinkedIssue(
+                            key = "MC-100"
+                    )
+            ))
+        )
+
+        deleteLinks(issue,"is duplicated by", "MC-100")
+        linkVar shouldBe("duplicated")
+
+        deleteLinks(issue, "relates to", "MC-100")
+        linkVar shouldBe("relates")
+    }
+
+    "deleteLinks type should be case insensitive" {
+        var linkVar = ""
+        val issue = mockIssue(
+                links = listOf(mockLink(
+                        type = "Relates",
+                        outwards = true,
+                        remove = { linkVar = "relates" },
+                        issue = mockLinkedIssue(
+                                key = "MC-100"
+                        )
+                ))
+        )
+        deleteLinks(issue, "relAtes To", "MC-100")
+        linkVar shouldBe("relates")
     }
 })

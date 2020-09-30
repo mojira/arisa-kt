@@ -122,7 +122,7 @@ class AddLinksCommandTest : StringSpec ({
                         outwards.toString())) }
         )
 
-        command(issue, "ARISA_ADD_LINKS", "relAtes To", "MC-100") shouldBeRight ModuleResponse
+        command(issue, "ARISA_ADD_LINKS", "relAtes", "To", "MC-100") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 })

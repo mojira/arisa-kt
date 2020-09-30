@@ -268,14 +268,14 @@ class HelpersTest : StringSpec({
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
     }
 
-    "splitArgsByCommas should split arguments by commas" {
+    "splitElemsByCommas should split arguments by commas" {
         val list = mutableListOf("1", "2,", ",3", "4,5")
         list.splitElemsByCommas()
 
         list shouldBe(listOf("1", "2", "3", "4", "5"))
     }
 
-    "splitArgsByCommas should not include empty strings in the result" {
+    "splitElemsByCommas should not include empty strings in the result" {
         val list = mutableListOf("1", "2,,,", ",,,,,", ",,,,3", "4,,,,,5")
         list.splitElemsByCommas()
 
@@ -325,7 +325,7 @@ class HelpersTest : StringSpec({
                 "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6"))
     }
 
-    "concatLinkName when given ticket number/link should add empty string to the beginning of the list, without changing the rest of the list" {
+    "concatLinkName when given ticket number/link as first element should add empty string to the beginning of the list, without changing the rest of the list" {
         val list1 = mutableListOf("MC-1", "MC-2", "MC-3", "MC-4", "MC-5")
         list1.concatLinkName()
         list1 shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4", "MC-5"))
@@ -426,28 +426,38 @@ class HelpersTest : StringSpec({
     "addLinks should create links" {
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-                createLink = {key, type, outwards -> list.add(listOf(key, type, outwards.toString()))}
+                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                        outwards.toString())) }
         )
 
-        addLinks(issue, "relates", "MC-100", "MC-200")
+        addLinks(issue, "relates", "MC-100", "MC-200") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true"), listOf("Relates", "MC-200", "true")))
         list.clear()
 
-        addLinks(issue, "duplicated", "MC-100", "MC-200")
+        addLinks(issue, "relates", "MC-100") shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+        list.clear()
+
+        addLinks(issue, "duplicated", "MC-100", "MC-200") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false"), listOf("Duplicate", "MC-200", "false")))
+        list.clear()
+
+        addLinks(issue, "duplicated", "MC-100") shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
     }
 
     "addLinks type should should accept 2 and 3 word types" {
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-            createLink = {key, type, outwards -> list.add(listOf(key, type, outwards.toString()))}
+            createLink = { key, type, outwards -> list.add(listOf(key, type,
+                    outwards.toString())) }
         )
 
-        addLinks(issue, "relates to", "MC-100")
+        addLinks(issue, "relates to", "MC-100") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
         list.clear()
 
-        addLinks(issue,"is duplicated by", "MC-100")
+        addLinks(issue,"is duplicated by", "MC-100") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
     }
 
@@ -455,8 +465,9 @@ class HelpersTest : StringSpec({
         val list = mutableListOf<List<String>>()
 
         addLinks(mockIssue(
-                createLink = {key, type, outwards -> list.add(listOf(key, type, outwards.toString()))}
-        ), "relAtes To", "MC-100")
+                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                        outwards.toString())) }
+        ), "relAtes To", "MC-100") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 
@@ -514,11 +525,11 @@ class HelpersTest : StringSpec({
             ))
         )
 
-        deleteLinks(issue, "duplicated", "MC-100", "MC-200")
+        deleteLinks(issue, "duplicated", "MC-100", "MC-200") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("duplicated1", "duplicated2"))
         list.clear()
 
-        deleteLinks(issue, "relates", "MC-100", "MC-200")
+        deleteLinks(issue, "relates", "MC-100", "MC-200") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("relates1", "relates2"))
     }
 
@@ -542,10 +553,10 @@ class HelpersTest : StringSpec({
             ))
         )
 
-        deleteLinks(issue,"is duplicated by", "MC-100")
+        deleteLinks(issue,"is duplicated by", "MC-100") shouldBeRight ModuleResponse
         linkVar shouldBe("duplicated")
 
-        deleteLinks(issue, "relates to", "MC-100")
+        deleteLinks(issue, "relates to", "MC-100") shouldBeRight ModuleResponse
         linkVar shouldBe("relates")
     }
 
@@ -561,7 +572,7 @@ class HelpersTest : StringSpec({
                         )
                 ))
         )
-        deleteLinks(issue, "relAtes To", "MC-100")
+        deleteLinks(issue, "relAtes To", "MC-100") shouldBeRight ModuleResponse
         linkVar shouldBe("relates")
     }
 })

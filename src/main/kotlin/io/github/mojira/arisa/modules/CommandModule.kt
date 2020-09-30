@@ -57,10 +57,10 @@ class CommandModule(
         return when (split[0]) {
             // TODO this should be configurable if we switch to a registry
             // TODO do we want to add the response of a module via editing the comment?
-            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
             "ARISA_ADD_LINKS" -> if (userIsMod) {
                 addLinksCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
+            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
             "ARISA_FIXED" -> if (userIsMod) {
                 fixedCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()

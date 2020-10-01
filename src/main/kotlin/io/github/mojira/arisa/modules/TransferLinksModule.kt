@@ -37,9 +37,9 @@ class TransferLinksModule : AbstractTransferFieldModule() {
     private fun toLinkAdder(
         link: Link,
         parent: Issue
-    ) =
-        when {
-            link.outwards -> parent.createLink.partially1(link.type).partially1(link.issue.key).partially1(link.outwards)
-            else -> link.issue.createLink.partially1(link.type).partially1(parent.key).partially1(!link.outwards)
-        }
+    ) = if (link.outwards) {
+        parent.createLink.partially1(link.type).partially1(link.issue.key).partially1(link.outwards)
+    } else {
+        link.issue.createLink.partially1(link.type).partially1(parent.key).partially1(!link.outwards)
+    }
 }

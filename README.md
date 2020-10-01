@@ -59,6 +59,7 @@ This project depends on the following projects, thanks to every developer who ma
 - [Arrow](https://arrow-kt.io/)
 - [jira-client](https://github.com/rcarz/jira-client) by [rcarz](https://github.com/rcarz)
 - [logback-discord-appender](https://github.com/napstr/logback-discord-appender) by [napstr](https://github.com/napstr)
+- [mc-crash-lib](https://github.com/urielsalis/mc-crash-lib)
 
 ## Contributing
 

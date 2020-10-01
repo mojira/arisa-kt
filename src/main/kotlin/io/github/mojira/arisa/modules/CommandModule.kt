@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
+import arrow.core.right
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
@@ -34,19 +35,20 @@ class CommandModule(
             assertNotEmpty(staffComments).bind()
 
             val results = staffComments
-                .map { executeCommand(it.body!!, this, userIsMod(it)) }
+                .map { it.author.name to executeCommand(it.body!!, this, userIsMod(it)) }
 
-            when {
-                results.any { it.isLeft() && (it as Either.Left).a is FailedModuleResponse } -> {
-                    addRawRestrictedComment("Command execution failed", "helper")
-                    results.first { (it as Either.Left).a is FailedModuleResponse }.bind()
-                }
-                results.any { it.isRight() } -> {
-                    addRawRestrictedComment("Command execution was successful", "helper")
-                    results.first { it.isRight() }.bind()
-                }
-                else -> OperationNotNeededModuleResponse.left().bind()
+            if (results.isEmpty()) {
+                OperationNotNeededModuleResponse.left().bind()
             }
+            results.forEach { (username, result) ->
+                if (result.isLeft()) {
+                    addRawRestrictedComment("Command execution failed.\n~Author: $username~", "helper")
+                    result.bind()
+                } else {
+                    addRawRestrictedComment("Command execution was successful\n~Author: $username~", "helper")
+                }
+            }
+            ModuleResponse.right().bind()
         }
     }
 

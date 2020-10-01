@@ -202,11 +202,11 @@ fun addRestrictedComment(
 }
 
 fun createLink(
-        context: Lazy<IssueUpdateContext>,
-        getContext: (key: String) -> Lazy<IssueUpdateContext>,
-        linkType: String,
-        linkKey: String,
-        outwards: Boolean
+    context: Lazy<IssueUpdateContext>,
+    getContext: (key: String) -> Lazy<IssueUpdateContext>,
+    linkType: String,
+    linkKey: String,
+    outwards: Boolean
 ) {
     if (outwards) {
         context.value.otherOperations.add {

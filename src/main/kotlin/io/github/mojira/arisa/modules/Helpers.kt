@@ -190,7 +190,7 @@ val linkTypes = listOf(
         LinkType(listOf("discovered", "while", "testing"), "Bonfire Testing", false)
 )
 
-private fun concatenateCombinations(list : List<String>) : Set<String> {
+private fun concatenateCombinations(list: List<String>): Set<String> {
     val newSet = mutableSetOf<String>()
     list.forEachIndexed { index, word ->
         newSet.add(word)

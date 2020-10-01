@@ -303,8 +303,8 @@ class HelpersTest : StringSpec({
 
     "isTicketLink should match valid ticket link" {
         "https://bugs.mojang.com/browse/MC-100".isTicketLink() shouldBe(true)
-        "https://bugs.mojang.com/browse/MC-1".isTicketKey()    shouldBe(true)
-        "https://bugs.mojang.com/browse/M-100".isTicketKey()   shouldBe(true)
+        "https://bugs.mojang.com/browse/MC-1".isTicketLink()   shouldBe(true)
+        "https://bugs.mojang.com/browse/M-100".isTicketLink()  shouldBe(true)
     }
 
     "isTicketLink should not match invalid values" {

@@ -91,9 +91,19 @@ class AddLinksCommandTest : StringSpec ({
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true"), listOf("Relates", "MC-200", "true")))
         list.clear()
 
+        command(issue, "ARISA_ADD_LINKS", "relates", "https://bugs.mojang.com/browse/MC-100")
+                .shouldBeRight(ModuleResponse)
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+        list.clear()
+
         command(issue, "ARISA_ADD_LINKS", "duplicated", "https://bugs.mojang.com/browse/MC-100",
                 "https://bugs.mojang.com/browse/MC-200") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false"), listOf("Duplicate", "MC-200", "false")))
+        list.clear()
+
+        command(issue, "ARISA_ADD_LINKS", "relates", "https://bugs.mojang.com/browse/MC-100")
+                .shouldBeRight(ModuleResponse)
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 
     "should support types with spaces" {

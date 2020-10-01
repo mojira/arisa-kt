@@ -19,7 +19,6 @@ class DeleteLinksCommand : Command {
             this.convertLinks()
         }
         assertTrue(list.all{ it.isTicketKey() }).bind()
-        val args = list.toTypedArray()
-        deleteLinks(issue, type, *args).bind()
+        deleteLinks(issue, type, list).bind()
     }
 }

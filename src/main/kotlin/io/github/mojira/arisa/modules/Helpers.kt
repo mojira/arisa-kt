@@ -203,26 +203,26 @@ private fun concatenateCombinations(list : List<String>): Set<String> {
     return newSet.toSortedSet()
 }
 
-fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
+fun addLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
     val tmp = linkTypes.filter {
         type.toLowerCase() in it.nameVariants
     }
     assertNotNull(tmp).bind()
     assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
-    for (key in arguments) {
+    for (key in keys) {
         issue.createLink(linkType.id, key.toUpperCase(), linkType.outwards)
     }
 }
 
-fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
+fun deleteLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
     val tmp = linkTypes.filter {
         type.toLowerCase() in it.nameVariants
     }
     assertNotNull(tmp).bind()
     assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
-    for (key in arguments) {
+    for (key in keys) {
         val link = issue.links.find {
             it.type == linkType.id && it.issue.key == key.toUpperCase()
         }

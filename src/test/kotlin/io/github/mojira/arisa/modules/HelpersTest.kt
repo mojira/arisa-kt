@@ -425,11 +425,11 @@ class HelpersTest : StringSpec({
     }
 
     "addLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
-        addLinks(mockIssue(), "wrong", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+        addLinks(mockIssue(), "wrong", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "addLinks when given type that appears multiple times in LinkTypes should return OperationNotNeededModuleResponse in Either" {
-        addLinks(mockIssue(), "is", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+        addLinks(mockIssue(), "is", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "addLinks should create links" {
@@ -439,19 +439,19 @@ class HelpersTest : StringSpec({
                         outwards.toString())) }
         )
 
-        addLinks(issue, "relates", "MC-100", "MC-200") shouldBeRight ModuleResponse
+        addLinks(issue, "relates", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true"), listOf("Relates", "MC-200", "true")))
         list.clear()
 
-        addLinks(issue, "relates", "MC-100") shouldBeRight ModuleResponse
+        addLinks(issue, "relates", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
         list.clear()
 
-        addLinks(issue, "duplicated", "MC-100", "MC-200") shouldBeRight ModuleResponse
+        addLinks(issue, "duplicated", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false"), listOf("Duplicate", "MC-200", "false")))
         list.clear()
 
-        addLinks(issue, "duplicated", "MC-100") shouldBeRight ModuleResponse
+        addLinks(issue, "duplicated", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
     }
 
@@ -462,11 +462,11 @@ class HelpersTest : StringSpec({
                     outwards.toString())) }
         )
 
-        addLinks(issue, "relates to", "MC-100") shouldBeRight ModuleResponse
+        addLinks(issue, "relates to", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
         list.clear()
 
-        addLinks(issue,"is duplicated by", "MC-100") shouldBeRight ModuleResponse
+        addLinks(issue,"is duplicated by", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
     }
 
@@ -476,7 +476,7 @@ class HelpersTest : StringSpec({
         addLinks(mockIssue(
                 createLink = { key, type, outwards -> list.add(listOf(key, type,
                         outwards.toString())) }
-        ), "relAtes To", "MC-100") shouldBeRight ModuleResponse
+        ), "relAtes To", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 
@@ -486,16 +486,16 @@ class HelpersTest : StringSpec({
         addLinks(mockIssue(
                 createLink = { key, type, outwards -> list.add(listOf(key, type,
                         outwards.toString())) }
-        ), "relates", "mc-100") shouldBeRight ModuleResponse
+        ), "relates", listOf("mc-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 
     "deleteLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
-        deleteLinks(mockIssue(), "wrong", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+        deleteLinks(mockIssue(), "wrong", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "deleteLinks when given type that appears multiple times in LinkTypes should return OperationNotNeededModuleResponse in Either" {
-        deleteLinks(mockIssue(), "is", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+        deleteLinks(mockIssue(), "is", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "deleteLinks when given link type that can't be found in the issue should return OperationNotNeededModuleResponse in Either" {
@@ -503,11 +503,11 @@ class HelpersTest : StringSpec({
             links = listOf(mockLink(
                 type = "Duplicate"
             ))
-        ), "relates", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+        ), "relates", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
 
         deleteLinks(mockIssue(
             links = emptyList()
-        ), "relates", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
+        ), "relates", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "deleteLinks should create links" {
@@ -544,19 +544,19 @@ class HelpersTest : StringSpec({
             ))
         )
 
-        deleteLinks(issue, "duplicated", "MC-100", "MC-200") shouldBeRight ModuleResponse
+        deleteLinks(issue, "duplicated", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("duplicated1", "duplicated2"))
         list.clear()
 
-        deleteLinks(issue, "duplicated", "MC-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "duplicated", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("duplicated1"))
         list.clear()
 
-        deleteLinks(issue, "relates", "MC-100", "MC-200") shouldBeRight ModuleResponse
+        deleteLinks(issue, "relates", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("relates1", "relates2"))
         list.clear()
 
-        deleteLinks(issue, "relates", "MC-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "relates", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("relates1"))
     }
 
@@ -580,11 +580,11 @@ class HelpersTest : StringSpec({
             ))
         )
 
-        deleteLinks(issue, "is duplicated by", "MC-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "is duplicated by", listOf("MC-100")) shouldBeRight ModuleResponse
         linkVar shouldBe("duplicated")
         linkVar = ""
 
-        deleteLinks(issue, "relates to", "MC-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "relates to", listOf("MC-100")) shouldBeRight ModuleResponse
         linkVar shouldBe("relates")
     }
 
@@ -600,7 +600,7 @@ class HelpersTest : StringSpec({
                         )
                 ))
         )
-        deleteLinks(issue, "relAtes To", "MC-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "relAtes To", listOf("MC-100")) shouldBeRight ModuleResponse
         linkVar shouldBe("relates")
     }
 
@@ -616,7 +616,7 @@ class HelpersTest : StringSpec({
                         )
                 ))
         )
-        deleteLinks(issue, "relates", "mc-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "relates", listOf("mc-100")) shouldBeRight ModuleResponse
         linkVar shouldBe("relates")
     }
 })

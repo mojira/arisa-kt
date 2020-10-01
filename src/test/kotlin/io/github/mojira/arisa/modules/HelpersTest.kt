@@ -467,7 +467,7 @@ class HelpersTest : StringSpec({
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
         list.clear()
 
-        addLinks(issue,"is duplicated by", listOf("MC-100")) shouldBeRight ModuleResponse
+        addLinks(issue, "is duplicated by", listOf("MC-100")) shouldBeRight ModuleResponse
         list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
     }
 

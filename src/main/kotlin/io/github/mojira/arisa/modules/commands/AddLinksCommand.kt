@@ -26,7 +26,7 @@ class AddLinksCommand : Command {
             this.removeAt(0)
             this.convertLinks()
         }
-        assertTrue(list.all{ it.isTicketKey() }).bind()
+        assertTrue(list.all { it.isTicketKey() }).bind()
         addLinks(issue, type, list).bind()
     }
 }

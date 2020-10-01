@@ -151,7 +151,7 @@ fun MutableList<String>.concatLinkName() {
     }
     val linkName = linkNameList.joinToString(separator = " ")
     val newList = if (linkName.isEmpty()) this.toMutableList()
-        else this.drop(linkName.count{ it == ' ' } + 1).toMutableList()
+        else this.drop(linkName.count { it == ' ' } + 1).toMutableList()
     newList.add(0, linkName)
     this.clear()
     this.addAll(newList)
@@ -181,7 +181,7 @@ data class LinkType(
 val linkTypes = listOf(
         LinkType(listOf("relates", "to"), "Relates", true),
         LinkType(listOf("duplicates"), "Duplicate", true),
-        LinkType(listOf("is","duplicated", "by"), "Duplicate", false),
+        LinkType(listOf("is", "duplicated", "by"), "Duplicate", false),
         LinkType(listOf("clones"), "Cloners", true),
         LinkType(listOf("is", "cloned", "by"), "Cloners", false),
         LinkType(listOf("blocks"), "Blocks", true),
@@ -190,7 +190,7 @@ val linkTypes = listOf(
         LinkType(listOf("discovered", "while", "testing"), "Bonfire Testing", false)
 )
 
-private fun concatenateCombinations(list : List<String>): Set<String> {
+private fun concatenateCombinations(list : List<String>) : Set<String> {
     val newSet = mutableSetOf<String>()
     list.forEachIndexed { index, word ->
         newSet.add(word)

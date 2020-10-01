@@ -26,7 +26,7 @@ class DeleteLinksCommand : Command {
             this.removeAt(0)
             this.convertLinks()
         }
-        assertTrue(list.all{ it.isTicketKey() }).bind()
+        assertTrue(list.all { it.isTicketKey() }).bind()
         deleteLinks(issue, type, list).bind()
     }
 }

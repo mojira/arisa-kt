@@ -8,7 +8,7 @@ import io.github.mojira.arisa.modules.*
 class DeleteLinksCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 2).bind()
-        val list = mutableListOf(*arguments).subList(1, arguments.size).apply {
+        val list = arguments.toMutableList().subList(1, arguments.size).apply {
             this.splitElemsByCommas()
             this.concatLinkName()
         }

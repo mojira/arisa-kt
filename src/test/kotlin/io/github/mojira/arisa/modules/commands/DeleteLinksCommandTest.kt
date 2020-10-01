@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules.commands
 
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
-import io.github.mojira.arisa.modules.deleteLinks
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue

@@ -284,42 +284,42 @@ class HelpersTest : StringSpec({
 
     "isTicketKey should match valid ticket key" {
         "MC-100".isTicketKey() shouldBe(true)
-        "MC-1".isTicketKey()   shouldBe(true)
-        "M-100".isTicketKey()  shouldBe(true)
+        "MC-1".isTicketKey() shouldBe(true)
+        "M-100".isTicketKey() shouldBe(true)
         "mc-100".isTicketKey() shouldBe(true)
     }
 
     "isTicketKey should not match invalid values" {
-        "".isTicketKey()        shouldBe(false)
+        "".isTicketKey() shouldBe(false)
         "MC-100a".isTicketKey() shouldBe(false)
         "MC-a100".isTicketKey() shouldBe(false)
         "MC1-100".isTicketKey() shouldBe(false)
         "1MC-100".isTicketKey() shouldBe(false)
-        "-100".isTicketKey()    shouldBe(false)
-        "MC-".isTicketKey()     shouldBe(false)
-        "MC100".isTicketKey()   shouldBe(false)
+        "-100".isTicketKey() shouldBe(false)
+        "MC-".isTicketKey() shouldBe(false)
+        "MC100".isTicketKey() shouldBe(false)
         "https://bugs.mojang.com/browse/MC-100".isTicketKey() shouldBe(false)
     }
 
     "isTicketLink should match valid ticket link" {
         "https://bugs.mojang.com/browse/MC-100".isTicketLink() shouldBe(true)
-        "https://bugs.mojang.com/browse/MC-1".isTicketLink()   shouldBe(true)
-        "https://bugs.mojang.com/browse/M-100".isTicketLink()  shouldBe(true)
+        "https://bugs.mojang.com/browse/MC-1".isTicketLink() shouldBe(true)
+        "https://bugs.mojang.com/browse/M-100".isTicketLink() shouldBe(true)
     }
 
     "isTicketLink should not match invalid values" {
-        "".isTicketLink()                                       shouldBe(false)
-        "MC-100".isTicketLink()                                 shouldBe(false)
+        "".isTicketLink() shouldBe(false)
+        "MC-100".isTicketLink() shouldBe(false)
         "https://bugs.mojang.com/browse/MC-100a".isTicketLink() shouldBe(false)
         "https://bugs.mojang.com/browse/MC-a100".isTicketLink() shouldBe(false)
         "https://bugs.mojang.com/browse/MCa-100".isTicketLink() shouldBe(false)
         "https://bugs.mojang.com/browse/aMC-100".isTicketLink() shouldBe(false)
         "https://bugs.mojang.com/browse/MC1-100".isTicketLink() shouldBe(false)
         "https://bugs.mojang.com/browse/1MC-100".isTicketLink() shouldBe(false)
-        "https://bugs.mojang.com/browse/-100".isTicketLink()    shouldBe(false)
-        "https://bugs.mojang.com/browse/MC-".isTicketLink()     shouldBe(false)
-        "https://bugs.mojang.com/browse/MC100".isTicketLink()   shouldBe(false)
-        "https://test.google.com/browse/MC-100".isTicketLink()  shouldBe(false)
+        "https://bugs.mojang.com/browse/-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC100".isTicketLink() shouldBe(false)
+        "https://test.google.com/browse/MC-100".isTicketLink() shouldBe(false)
     }
 
     "concatLinkName should concatenate the string out of the array until it reaches valid ticket number/link" {
@@ -359,47 +359,48 @@ class HelpersTest : StringSpec({
     }
 
     "concatLinkName should not fail when there's 4 or less elements" {
-        mutableListOf<String>().apply{ this.concatLinkName() }                       shouldBe(mutableListOf(""))
+        mutableListOf<String>().apply { this.concatLinkName() } shouldBe(mutableListOf(""))
 
-        mutableListOf("1", "2", "3", "4").apply{ this.concatLinkName() }             shouldBe(mutableListOf("", "1", "2", "3", "4"))
-        mutableListOf("1", "2", "3").apply{ this.concatLinkName() }                  shouldBe(mutableListOf("", "1", "2", "3"))
-        mutableListOf("1", "2").apply{ this.concatLinkName() }                       shouldBe(mutableListOf("", "1", "2"))
-        mutableListOf("1").apply{ this.concatLinkName() }                            shouldBe(mutableListOf("", "1"))
+        mutableListOf("1", "2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1", "2", "3", "4"))
+        mutableListOf("1", "2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1", "2", "3"))
+        mutableListOf("1", "2").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1", "2"))
+        mutableListOf("1").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1"))
 
-        mutableListOf("MC-1", "MC-2", "MC-3", "MC-4").apply{ this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4"))
-        mutableListOf("MC-1", "MC-2", "MC-3").apply{ this.concatLinkName() }         shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3"))
-        mutableListOf("MC-1", "MC-2").apply{ this.concatLinkName() }                 shouldBe(mutableListOf("", "MC-1", "MC-2"))
-        mutableListOf("MC-1").apply{ this.concatLinkName() }                         shouldBe(mutableListOf("", "MC-1"))
+        mutableListOf("MC-1", "MC-2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "MC-2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3"))
+        mutableListOf("MC-1", "MC-2").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2"))
+        mutableListOf("MC-1").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1"))
 
-        mutableListOf("1", "2", "3", "MC-4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1 2 3", "MC-4"))
-        mutableListOf("1", "2", "MC-3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("1 2", "MC-3"))
-        mutableListOf("1", "MC-2").apply{ this.concatLinkName() }                    shouldBe(mutableListOf("1", "MC-2"))
+        mutableListOf("1", "2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2 3", "MC-4"))
+        mutableListOf("1", "2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2", "MC-3"))
+        mutableListOf("1", "MC-2").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2"))
 
-        mutableListOf("1", "2", "MC-3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1 2", "MC-3", "MC-4"))
-        mutableListOf("1", "MC-2", "MC-3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("1", "MC-2", "MC-3"))
+        mutableListOf("1", "2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2", "MC-3",
+                "MC-4"))
+        mutableListOf("1", "MC-2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "MC-3"))
 
-        mutableListOf("1", "2", "MC-3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1 2", "MC-3", "4"))
-        mutableListOf("1", "MC-2", "3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("1", "MC-2", "3"))
-        mutableListOf("MC-1", "2").apply{ this.concatLinkName() }                    shouldBe(mutableListOf("", "MC-1", "2"))
+        mutableListOf("1", "2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2", "MC-3", "4"))
+        mutableListOf("1", "MC-2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "3"))
+        mutableListOf("MC-1", "2").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2"))
 
-        mutableListOf("1", "MC-2", "MC-3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1", "MC-2", "MC-3", "4"))
-        mutableListOf("MC-1", "MC-2", "3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("", "MC-1", "MC-2", "3"))
+        mutableListOf("1", "MC-2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "3"))
 
-        mutableListOf("1", "MC-2", "3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("1", "MC-2", "3", "MC-4"))
-        mutableListOf("MC-1", "2", "MC-3").apply{ this.concatLinkName() }            shouldBe(mutableListOf("", "MC-1", "2", "MC-3"))
+        mutableListOf("1", "MC-2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "MC-3"))
 
-        mutableListOf("1", "MC-2", "3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("1", "MC-2", "3", "4"))
-        mutableListOf("MC-1", "2", "3").apply{ this.concatLinkName() }               shouldBe(mutableListOf("", "MC-1", "2", "3"))
+        mutableListOf("1", "MC-2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "3", "4"))
+        mutableListOf("MC-1", "2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "3"))
 
-        mutableListOf("1", "MC-2", "MC-3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("1", "MC-2", "MC-3", "MC-4"))
+        mutableListOf("1", "MC-2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "MC-3", "MC-4"))
 
-        mutableListOf("MC-1", "MC-2", "MC-3", "4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "4"))
-        mutableListOf("MC-1", "MC-2", "3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "MC-4"))
-        mutableListOf("MC-1", "2", "MC-3", "MC-4").apply{ this.concatLinkName() }    shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "MC-4"))
-        mutableListOf("MC-1", "2", "3", "MC-4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "2", "3", "MC-4"))
-        mutableListOf("MC-1", "2", "MC-3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "4"))
-        mutableListOf("MC-1", "MC-2", "3", "4").apply{ this.concatLinkName() }       shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "4"))
-        mutableListOf("MC-1", "2", "3", "4").apply{ this.concatLinkName() }          shouldBe(mutableListOf("", "MC-1", "2", "3", "4"))
+        mutableListOf("MC-1", "MC-2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "4"))
+        mutableListOf("MC-1", "2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "3", "4"))
     }
 
     "convertLinks should convert ticket links to numbers" {

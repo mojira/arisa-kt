@@ -8,7 +8,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-class AddLinksCommandTest : StringSpec ({
+class AddLinksCommandTest : StringSpec({
     "should return OperationNotNeededModuleResponse in Either when given wrong number of arguments is passed" {
         val command = AddLinksCommand()
 

@@ -130,15 +130,18 @@ fun MutableList<String>.splitElemsByCommas() {
     this.addAll(newList)
 }
 
-fun String.checkIfLinkNameRegexMatches(): Boolean {
-    return this.matches(Regex("[A-Z]+-[0-9]+")) ||
-            this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
+fun String.isTicketKey(): Boolean {
+    return this.matches(Regex("[A-Za-z]+-[0-9]+"))
+}
+
+fun String.isTicketLink(): Boolean {
+    return this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
 }
 
 fun MutableList<String>.concatLinkName() {
     val tmpList = this.take(4)
     val linkNameList = tmpList.takeWhile {
-        !it.checkIfLinkNameRegexMatches()
+        !(it.isTicketKey() || it.isTicketLink())
     }
     if (linkNameList.size == tmpList.size) {
         this.add(0, "")
@@ -156,7 +159,7 @@ fun MutableList<String>.convertLinks() {
     val newList = mutableListOf<String>()
     for (arg in this) {
         var key = arg
-        if (key.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))) {
+        if (key.isTicketLink()) {
             key = key.drop(31)
         }
         newList.add(newList.size, key)
@@ -208,7 +211,7 @@ fun addLinks(issue: Issue, type: String, vararg arguments: String): Either<Modul
     assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
     for (key in arguments) {
-        issue.createLink(linkType.id, key, linkType.outwards)
+        issue.createLink(linkType.id, key.toUpperCase(), linkType.outwards)
     }
 }
 
@@ -221,7 +224,7 @@ fun deleteLinks(issue: Issue, type: String, vararg arguments: String): Either<Mo
     val linkType = tmp[0]
     for (key in arguments) {
         val link = issue.links.find {
-            it.type == linkType.id && it.issue.key == key && (linkType.id == "Relates" || it.outwards == linkType.outwards)
+            it.type == linkType.id && it.issue.key == key.toUpperCase()
         }
         assertNotNull(link).bind()
         link?.remove?.invoke()

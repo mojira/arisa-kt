@@ -282,35 +282,44 @@ class HelpersTest : StringSpec({
         list shouldBe(listOf("1", "2", "3", "4", "5"))
     }
 
-    "checkIfLinkNameRegexMatches should match valid ticket key" {
-        "MC-100".checkIfLinkNameRegexMatches() shouldBe(true)
+    "isTicketKey should match valid ticket key" {
+        "MC-100".isTicketKey() shouldBe(true)
+        "MC-1".isTicketKey()   shouldBe(true)
+        "M-100".isTicketKey()  shouldBe(true)
+        "mc-100".isTicketKey() shouldBe(true)
     }
 
-    "checkIfLinkNameRegexMatches should match valid ticket link" {
-        "https://bugs.mojang.com/browse/MC-100".checkIfLinkNameRegexMatches() shouldBe(true)
+    "isTicketKey should not match invalid values" {
+        "".isTicketKey()        shouldBe(false)
+        "MC-100a".isTicketKey() shouldBe(false)
+        "MC-a100".isTicketKey() shouldBe(false)
+        "MC1-100".isTicketKey() shouldBe(false)
+        "1MC-100".isTicketKey() shouldBe(false)
+        "-100".isTicketKey()    shouldBe(false)
+        "MC-".isTicketKey()     shouldBe(false)
+        "MC100".isTicketKey()   shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-100".isTicketKey() shouldBe(false)
     }
 
-    "checkIfLinkNameRegexMatches should not match invalid values" {
-        "".checkIfLinkNameRegexMatches() shouldBe(false)
-        "MC-100a".checkIfLinkNameRegexMatches() shouldBe(false)
-        "MC-a100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "MCa-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "aMC-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "MC1-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "1MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "MC-".checkIfLinkNameRegexMatches() shouldBe(false)
-        "MC100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/MC-100a".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/MC-a100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/MCa-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/aMC-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/MC1-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/1MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/-100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/MC-".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://bugs.mojang.com/browse/MC100".checkIfLinkNameRegexMatches() shouldBe(false)
-        "https://google.com/browse/MC-100".checkIfLinkNameRegexMatches() shouldBe(false)
+    "isTicketLink should match valid ticket link" {
+        "https://bugs.mojang.com/browse/MC-100".isTicketLink() shouldBe(true)
+        "https://bugs.mojang.com/browse/MC-1".isTicketKey()    shouldBe(true)
+        "https://bugs.mojang.com/browse/M-100".isTicketKey()   shouldBe(true)
+    }
+
+    "isTicketLink should not match invalid values" {
+        "".isTicketLink()                                       shouldBe(false)
+        "MC-100".isTicketLink()                                 shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-100a".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-a100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MCa-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/aMC-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC1-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/1MC-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/-100".isTicketLink()    shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-".isTicketLink()     shouldBe(false)
+        "https://bugs.mojang.com/browse/MC100".isTicketLink()   shouldBe(false)
+        "https://test.google.com/browse/MC-100".isTicketLink()  shouldBe(false)
     }
 
     "concatLinkName should concatenate the string out of the array until it reaches valid ticket number/link" {
@@ -471,6 +480,16 @@ class HelpersTest : StringSpec({
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 
+    "addLinks keys should be case insensitive" {
+        val list = mutableListOf<List<String>>()
+
+        addLinks(mockIssue(
+                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                        outwards.toString())) }
+        ), "relates", "mc-100") shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+    }
+
     "deleteLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
         deleteLinks(mockIssue(), "wrong", "MC-100") shouldBeLeft OperationNotNeededModuleResponse
     }
@@ -573,6 +592,22 @@ class HelpersTest : StringSpec({
                 ))
         )
         deleteLinks(issue, "relAtes To", "MC-100") shouldBeRight ModuleResponse
+        linkVar shouldBe("relates")
+    }
+
+    "deleteLinks keys should be case insensitive" {
+        var linkVar = ""
+        val issue = mockIssue(
+                links = listOf(mockLink(
+                        type = "Relates",
+                        outwards = true,
+                        remove = { linkVar = "relates" },
+                        issue = mockLinkedIssue(
+                                key = "MC-100"
+                        )
+                ))
+        )
+        deleteLinks(issue, "relates", "mc-100") shouldBeRight ModuleResponse
         linkVar shouldBe("relates")
     }
 })

@@ -548,8 +548,16 @@ class HelpersTest : StringSpec({
         list shouldBe(mutableListOf("duplicated1", "duplicated2"))
         list.clear()
 
+        deleteLinks(issue, "duplicated", "MC-100") shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("duplicated1"))
+        list.clear()
+
         deleteLinks(issue, "relates", "MC-100", "MC-200") shouldBeRight ModuleResponse
         list shouldBe(mutableListOf("relates1", "relates2"))
+        list.clear()
+
+        deleteLinks(issue, "relates", "MC-100") shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("relates1"))
     }
 
     "deleteLinks type should should accept 2 and 3 word types" {

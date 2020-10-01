@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules.commands
 
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
-import io.github.mojira.arisa.modules.addLinks
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight

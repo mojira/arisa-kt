@@ -203,7 +203,8 @@ fun JiraIssue.toLinkedIssue(
     key,
     status.name,
     { getFullIssue(jiraClient, messages, config, cache, oldPostedCommentCache, newPostedCommentCache) },
-    ::createLink.partially1(getUpdateContext(jiraClient, cache)).partially1(::getOtherUpdateContext.partially1(jiraClient).partially1(cache))
+    ::createLink.partially1(getUpdateContext(jiraClient, cache)).partially1(::getOtherUpdateContext
+            .partially1(jiraClient).partially1(cache))
 )
 
 @Suppress("LongParameterList")

@@ -138,8 +138,10 @@ fun String.isTicketLink(): Boolean {
     return this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
 }
 
+const val MAX_LINK_TYPE_LENGTH = 3
+
 fun MutableList<String>.concatLinkName() {
-    val tmpList = this.take(4)
+    val tmpList = this.take(MAX_LINK_TYPE_LENGTH + 1)
     val linkNameList = tmpList.takeWhile {
         !(it.isTicketKey() || it.isTicketLink())
     }
@@ -160,7 +162,7 @@ fun MutableList<String>.convertLinks() {
     for (arg in this) {
         var key = arg
         if (key.isTicketLink()) {
-            key = key.drop(31)
+            key = key.drop("https://bugs.mojang.com/browse/".length)
         }
         newList.add(newList.size, key)
     }

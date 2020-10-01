@@ -58,7 +58,7 @@ class AddLinksCommandTest : StringSpec ({
         val command = AddLinksCommand()
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-            createLink = { key, type, outwards -> list.add(listOf(key, type,
+            createLink = { type, key, outwards -> list.add(listOf(type, key,
                     outwards.toString())) }
         )
 
@@ -82,7 +82,7 @@ class AddLinksCommandTest : StringSpec ({
         val command = AddLinksCommand()
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-            createLink = { key, type, outwards -> list.add(listOf(key, type,
+            createLink = { type, key, outwards -> list.add(listOf(type, key,
                     outwards.toString())) }
         )
 
@@ -110,7 +110,7 @@ class AddLinksCommandTest : StringSpec ({
         val command = AddLinksCommand()
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-            createLink = { key, type, outwards -> list.add(listOf(key, type,
+            createLink = { type, key, outwards -> list.add(listOf(type, key,
                     outwards.toString())) }
         )
 
@@ -127,7 +127,7 @@ class AddLinksCommandTest : StringSpec ({
         val command = AddLinksCommand()
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                createLink = { type, key, outwards -> list.add(listOf(type, key,
                         outwards.toString())) }
         )
 
@@ -135,11 +135,22 @@ class AddLinksCommandTest : StringSpec ({
         list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
     }
 
+    "should support commas" {
+        val command = AddLinksCommand()
+        val list = mutableListOf<String>()
+        val issue = mockIssue(
+                createLink = { _, key, _ -> list.add(key) }
+        )
+
+        command(issue, "ARISA_ADD_LINKS", "relates", "MC-100,", "MC-200,MC-300", ",MC-400") shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("MC-100", "MC-200", "MC-300", "MC-400"))
+    }
+
     "keys should be case insensitive" {
         val command = AddLinksCommand()
         val list = mutableListOf<List<String>>()
         val issue = mockIssue(
-                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                createLink = { type, key, outwards -> list.add(listOf(type, key,
                         outwards.toString())) }
         )
 

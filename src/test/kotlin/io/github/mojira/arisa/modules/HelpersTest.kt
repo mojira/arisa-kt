@@ -580,7 +580,7 @@ class HelpersTest : StringSpec({
             ))
         )
 
-        deleteLinks(issue,"is duplicated by", "MC-100") shouldBeRight ModuleResponse
+        deleteLinks(issue, "is duplicated by", "MC-100") shouldBeRight ModuleResponse
         linkVar shouldBe("duplicated")
         linkVar = ""
 

@@ -608,12 +608,12 @@ private fun linkIssues(
                     outwards = !outwards,
                     issue = mockLinkedIssue(
                         key = key1,
-                        createLink = { linkType, key -> createLink(key1, linkType, key) }
+                        createLink = { linkType, key, _ -> createLink(key1, linkType, key) }
                     ),
                     remove = { removeLink(key2, type, key1) }
                 )
             ).also { it.addAll(additionalLinksOnParent) },
-            createLink = { linkType, key -> createLink(key2, linkType, key) }
+            createLink = { linkType, key, _ -> createLink(key2, linkType, key) }
         ).right()
     }
 ) = mockLink(
@@ -622,7 +622,7 @@ private fun linkIssues(
     issue = mockLinkedIssue(
         key = key2,
         getFullIssue = getFullIssue,
-        createLink = { linkType, key -> createLink(key2, linkType, key) }
+        createLink = { linkType, key, _ -> createLink(key2, linkType, key) }
     ),
     remove = { removeLink(key1, type, key2) }
 )

@@ -38,7 +38,7 @@ data class Issue(
     val updateLinked: (Double) -> Unit,
     val setPrivate: () -> Unit,
     val addAffectedVersion: (id: String) -> Unit,
-    val createLink: (type: String, key: String) -> Unit,
+    val createLink: (type: String, key: String, outwards: Boolean) -> Unit,
     val addComment: (options: CommentOptions) -> Unit,
     val addRestrictedComment: (options: CommentOptions) -> Unit,
     val addNotEnglishComment: (language: String) -> Unit,

@@ -115,7 +115,7 @@ fun JiraIssue.toDomain(
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
-        ::createLink.partially1(context),
+        ::createLink.partially1(context).partially1(::getOtherUpdateContext.partially1(jiraClient).partially1(cache)),
         { (messageKey, variable, language) ->
             createComment(
                 context,
@@ -203,7 +203,8 @@ fun JiraIssue.toLinkedIssue(
     key,
     status.name,
     { getFullIssue(jiraClient, messages, config, cache, oldPostedCommentCache, newPostedCommentCache) },
-    ::createLink.partially1(getUpdateContext(jiraClient, cache))
+    ::createLink.partially1(getUpdateContext(jiraClient, cache)).partially1(::getOtherUpdateContext
+            .partially1(jiraClient).partially1(cache))
 )
 
 @Suppress("LongParameterList")
@@ -307,3 +308,18 @@ private fun JiraIssue.getFullIssue(
             ).right()
         }
     )
+
+private fun JiraIssue.getOtherUpdateContext(
+    jiraClient: JiraClient,
+    cache: IssueUpdateContextCache,
+    key: String
+): Lazy<IssueUpdateContext> =
+    lazy {
+        cache.get(key) ?: IssueUpdateContext(
+                jiraClient,
+                jiraClient.getIssue(key),
+                update(),
+                transition(),
+                transition()
+        ).also { cache.add(key, it) }
+    }

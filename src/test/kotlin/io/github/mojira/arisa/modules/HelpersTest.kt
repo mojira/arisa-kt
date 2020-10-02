@@ -4,6 +4,9 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockLink
+import io.github.mojira.arisa.utils.mockLinkedIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -87,13 +90,13 @@ class HelpersTest : StringSpec({
     }
 
     "assertEmpty when given nonempty list should return OperationNotNeededModuleResponse in Either" {
-        val moduleEither = assertEmpty(listOf<Int>(1337))
+        val moduleEither = assertEmpty(listOf(1337))
 
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
     }
 
     "assertNotEmpty when given nonempty list should return ModuleResponse in Either" {
-        val moduleEither = assertNotEmpty(listOf<Int>(1337))
+        val moduleEither = assertNotEmpty(listOf(1337))
 
         moduleEither shouldBeRight ModuleResponse
     }
@@ -263,5 +266,358 @@ class HelpersTest : StringSpec({
         val moduleEither = assertAfter(A_SECOND_AGO, A_SECOND_AGO)
 
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "splitElemsByCommas should split arguments by commas" {
+        val list = mutableListOf("1", "2,", ",3", "4,5")
+        list.splitElemsByCommas()
+
+        list shouldBe(listOf("1", "2", "3", "4", "5"))
+    }
+
+    "splitElemsByCommas should not include empty strings in the result" {
+        val list = mutableListOf("1", "2,,,", ",,,,,", ",,,,3", "4,,,,,5")
+        list.splitElemsByCommas()
+
+        list shouldBe(listOf("1", "2", "3", "4", "5"))
+    }
+
+    "isTicketKey should match valid ticket key" {
+        "MC-100".isTicketKey() shouldBe(true)
+        "MC-1".isTicketKey() shouldBe(true)
+        "M-100".isTicketKey() shouldBe(true)
+        "mc-100".isTicketKey() shouldBe(true)
+    }
+
+    "isTicketKey should not match invalid values" {
+        "".isTicketKey() shouldBe(false)
+        "MC-100a".isTicketKey() shouldBe(false)
+        "MC-a100".isTicketKey() shouldBe(false)
+        "MC1-100".isTicketKey() shouldBe(false)
+        "1MC-100".isTicketKey() shouldBe(false)
+        "-100".isTicketKey() shouldBe(false)
+        "MC-".isTicketKey() shouldBe(false)
+        "MC100".isTicketKey() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-100".isTicketKey() shouldBe(false)
+    }
+
+    "isTicketLink should match valid ticket link" {
+        "https://bugs.mojang.com/browse/MC-100".isTicketLink() shouldBe(true)
+        "https://bugs.mojang.com/browse/MC-1".isTicketLink() shouldBe(true)
+        "https://bugs.mojang.com/browse/M-100".isTicketLink() shouldBe(true)
+    }
+
+    "isTicketLink should not match invalid values" {
+        "".isTicketLink() shouldBe(false)
+        "MC-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-100a".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-a100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MCa-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/aMC-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC1-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/1MC-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/-100".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC-".isTicketLink() shouldBe(false)
+        "https://bugs.mojang.com/browse/MC100".isTicketLink() shouldBe(false)
+        "https://test.google.com/browse/MC-100".isTicketLink() shouldBe(false)
+    }
+
+    "concatLinkName should concatenate the string out of the array until it reaches valid ticket number/link" {
+        val list1 = mutableListOf("1", "2", "3", "MC-4", "MC-5", "MC-6")
+        list1.concatLinkName()
+        list1 shouldBe(mutableListOf("1 2 3", "MC-4", "MC-5", "MC-6"))
+
+        val list2 = mutableListOf("1", "2", "3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6")
+        list2.concatLinkName()
+        list2 shouldBe(mutableListOf("1 2 3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6"))
+    }
+
+    "concatLinkName when given ticket number/link as first element should add empty string to the beginning of the list, without changing the rest of the list" {
+        val list1 = mutableListOf("MC-1", "MC-2", "MC-3", "MC-4", "MC-5")
+        list1.concatLinkName()
+        list1 shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4", "MC-5"))
+
+        val list2 = mutableListOf("https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-2",
+                "https://bugs.mojang.com/browse/MC-3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5")
+        list2.concatLinkName()
+        list2 shouldBe(mutableListOf("", "https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-2",
+                "https://bugs.mojang.com/browse/MC-3", "https://bugs.mojang.com/browse/MC-4",
+                "https://bugs.mojang.com/browse/MC-5"))
+    }
+
+    "concatLinkName when not given ticket number/link within first 4 elements should add empty string to the beginning of the list, without changing the rest of the list" {
+        val list1 = mutableListOf("1", "2", "3", "4", "MC-5")
+        list1.concatLinkName()
+        list1 shouldBe(mutableListOf("", "1", "2", "3", "4", "MC-5"))
+
+        val list2 = mutableListOf("1", "2", "3", "4", "https://bugs.mojang.com/browse/MC-5")
+        list2.concatLinkName()
+        list2 shouldBe(mutableListOf("", "1", "2", "3", "4", "https://bugs.mojang.com/browse/MC-5"))
+    }
+
+    "concatLinkName should not fail when there's 4 or less elements" {
+        mutableListOf<String>().apply { this.concatLinkName() } shouldBe(mutableListOf(""))
+
+        mutableListOf("1", "2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1", "2", "3", "4"))
+        mutableListOf("1", "2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1", "2", "3"))
+        mutableListOf("1", "2").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1", "2"))
+        mutableListOf("1").apply { this.concatLinkName() } shouldBe(mutableListOf("", "1"))
+
+        mutableListOf("MC-1", "MC-2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "MC-2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3"))
+        mutableListOf("MC-1", "MC-2").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2"))
+        mutableListOf("MC-1").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1"))
+
+        mutableListOf("1", "2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2 3", "MC-4"))
+        mutableListOf("1", "2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2", "MC-3"))
+        mutableListOf("1", "MC-2").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2"))
+
+        mutableListOf("1", "2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2", "MC-3",
+                "MC-4"))
+        mutableListOf("1", "MC-2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "MC-3"))
+
+        mutableListOf("1", "2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("1 2", "MC-3", "4"))
+        mutableListOf("1", "MC-2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "3"))
+        mutableListOf("MC-1", "2").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2"))
+
+        mutableListOf("1", "MC-2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "3"))
+
+        mutableListOf("1", "MC-2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "MC-3"))
+
+        mutableListOf("1", "MC-2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "3", "4"))
+        mutableListOf("MC-1", "2", "3").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "3"))
+
+        mutableListOf("1", "MC-2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("1", "MC-2", "MC-3", "MC-4"))
+
+        mutableListOf("MC-1", "MC-2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "MC-4"))
+        mutableListOf("MC-1", "2", "3", "MC-4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "3", "MC-4"))
+        mutableListOf("MC-1", "2", "MC-3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "MC-3", "4"))
+        mutableListOf("MC-1", "MC-2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "MC-2", "3", "4"))
+        mutableListOf("MC-1", "2", "3", "4").apply { this.concatLinkName() } shouldBe(mutableListOf("", "MC-1", "2", "3", "4"))
+    }
+
+    "convertLinks should convert ticket links to numbers" {
+        val list = mutableListOf("https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-20",
+                "https://bugs.mojang.com/browse/MC-312", "https://bugs.mojang.com/browse/MC-400")
+        list.convertLinks()
+        list shouldBe(mutableListOf("MC-1", "MC-20", "MC-312", "MC-400"))
+    }
+
+    "convertLinks should not touch ticket numbers" {
+        val list1 = mutableListOf("MC-1", "MC-20", "MC-312", "MC-400")
+        list1.convertLinks()
+        list1 shouldBe(mutableListOf("MC-1", "MC-20", "MC-312", "MC-400"))
+
+        val list2 = mutableListOf("https://bugs.mojang.com/browse/MC-1", "MC-20",
+                "https://bugs.mojang.com/browse/MC-312", "MC-400")
+        list2.convertLinks()
+        list2 shouldBe(mutableListOf("MC-1", "MC-20", "MC-312", "MC-400"))
+    }
+
+    "in created LinkType nameVariants should contain a sorted set of all possible combinations (without skipping middle item and without changing order) of concatenated elements of name list" {
+        LinkType(listOf("1", "2", "3"), "123", true).nameVariants shouldBe(sortedSetOf("1", "1 2", "1 2 3", "2", "2 3", "3"))
+    }
+
+    "addLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        addLinks(mockIssue(), "wrong", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "addLinks when given type that appears multiple times in LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        addLinks(mockIssue(), "is", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "addLinks should create links" {
+        val list = mutableListOf<List<String>>()
+        val issue = mockIssue(
+                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                        outwards.toString())) }
+        )
+
+        addLinks(issue, "relates", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true"), listOf("Relates", "MC-200", "true")))
+        list.clear()
+
+        addLinks(issue, "relates", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+        list.clear()
+
+        addLinks(issue, "duplicated", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false"), listOf("Duplicate", "MC-200", "false")))
+        list.clear()
+
+        addLinks(issue, "duplicated", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
+    }
+
+    "addLinks type should should accept 2 and 3 word types" {
+        val list = mutableListOf<List<String>>()
+        val issue = mockIssue(
+            createLink = { key, type, outwards -> list.add(listOf(key, type,
+                    outwards.toString())) }
+        )
+
+        addLinks(issue, "relates to", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+        list.clear()
+
+        addLinks(issue, "is duplicated by", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Duplicate", "MC-100", "false")))
+    }
+
+    "addLinks type should be case insensitive" {
+        val list = mutableListOf<List<String>>()
+
+        addLinks(mockIssue(
+                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                        outwards.toString())) }
+        ), "relAtes To", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+    }
+
+    "addLinks keys should be case insensitive" {
+        val list = mutableListOf<List<String>>()
+
+        addLinks(mockIssue(
+                createLink = { key, type, outwards -> list.add(listOf(key, type,
+                        outwards.toString())) }
+        ), "relates", listOf("mc-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf(listOf("Relates", "MC-100", "true")))
+    }
+
+    "deleteLinks when given type that does not exist in the list of LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        deleteLinks(mockIssue(), "wrong", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "deleteLinks when given type that appears multiple times in LinkTypes should return OperationNotNeededModuleResponse in Either" {
+        deleteLinks(mockIssue(), "is", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "deleteLinks when given link type that can't be found in the issue should return OperationNotNeededModuleResponse in Either" {
+        deleteLinks(mockIssue(
+            links = listOf(mockLink(
+                type = "Duplicate"
+            ))
+        ), "relates", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
+
+        deleteLinks(mockIssue(
+            links = emptyList()
+        ), "relates", listOf("MC-100")) shouldBeLeft OperationNotNeededModuleResponse
+    }
+
+    "deleteLinks should create links" {
+        val list = mutableListOf<String>()
+        val issue = mockIssue(
+            links = listOf(mockLink(
+                    type = "Duplicate",
+                    outwards = false,
+                    remove = { list.add("duplicated1") },
+                    issue = mockLinkedIssue(
+                        key = "MC-100"
+                    )
+            ), mockLink(
+                    type = "Duplicate",
+                    outwards = false,
+                    remove = { list.add("duplicated2") },
+                    issue = mockLinkedIssue(
+                            key = "MC-200"
+                    )
+            ), mockLink(
+                    type = "Relates",
+                    outwards = true,
+                    remove = { list.add("relates1") },
+                    issue = mockLinkedIssue(
+                            key = "MC-100"
+                    )
+            ), mockLink(
+                    type = "Relates",
+                    outwards = false,
+                    remove = { list.add("relates2") },
+                    issue = mockLinkedIssue(
+                            key = "MC-200"
+                    )
+            ))
+        )
+
+        deleteLinks(issue, "duplicated", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("duplicated1", "duplicated2"))
+        list.clear()
+
+        deleteLinks(issue, "duplicated", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("duplicated1"))
+        list.clear()
+
+        deleteLinks(issue, "relates", listOf("MC-100", "MC-200")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("relates1", "relates2"))
+        list.clear()
+
+        deleteLinks(issue, "relates", listOf("MC-100")) shouldBeRight ModuleResponse
+        list shouldBe(mutableListOf("relates1"))
+    }
+
+    "deleteLinks type should should accept 2 and 3 word types" {
+        var linkVar = ""
+        val issue = mockIssue(
+            links = listOf(mockLink(
+                    type = "Duplicate",
+                    outwards = false,
+                    remove = { linkVar = "duplicated" },
+                    issue = mockLinkedIssue(
+                        key = "MC-100"
+                    )
+            ), mockLink(
+                    type = "Relates",
+                    outwards = true,
+                    remove = { linkVar = "relates" },
+                    issue = mockLinkedIssue(
+                            key = "MC-100"
+                    )
+            ))
+        )
+
+        deleteLinks(issue, "is duplicated by", listOf("MC-100")) shouldBeRight ModuleResponse
+        linkVar shouldBe("duplicated")
+        linkVar = ""
+
+        deleteLinks(issue, "relates to", listOf("MC-100")) shouldBeRight ModuleResponse
+        linkVar shouldBe("relates")
+    }
+
+    "deleteLinks type should be case insensitive" {
+        var linkVar = ""
+        val issue = mockIssue(
+                links = listOf(mockLink(
+                        type = "Relates",
+                        outwards = true,
+                        remove = { linkVar = "relates" },
+                        issue = mockLinkedIssue(
+                                key = "MC-100"
+                        )
+                ))
+        )
+        deleteLinks(issue, "relAtes To", listOf("MC-100")) shouldBeRight ModuleResponse
+        linkVar shouldBe("relates")
+    }
+
+    "deleteLinks keys should be case insensitive" {
+        var linkVar = ""
+        val issue = mockIssue(
+                links = listOf(mockLink(
+                        type = "Relates",
+                        outwards = true,
+                        remove = { linkVar = "relates" },
+                        issue = mockLinkedIssue(
+                                key = "MC-100"
+                        )
+                ))
+        )
+        deleteLinks(issue, "relates", listOf("mc-100")) shouldBeRight ModuleResponse
+        linkVar shouldBe("relates")
     }
 })

@@ -218,7 +218,7 @@ fun createLink(
         }
     } else {
         val key = context.value.jiraIssue.key
-        getContext(linkKey).value.jiraIssue.link(key, linkType)
+        createLink(getContext(linkKey), getContext, linkType, key, true)
     }
 }
 

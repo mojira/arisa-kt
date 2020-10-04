@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.domain
 
+import arrow.core.Either
 import java.time.Instant
 
 data class Issue(
@@ -43,5 +44,6 @@ data class Issue(
     val addRestrictedComment: (options: CommentOptions) -> Unit,
     val addNotEnglishComment: (language: String) -> Unit,
     val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
-    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit
+    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit,
+    val getOtherIssue: (key: String) -> Either<Throwable, Issue>
 )

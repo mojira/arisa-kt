@@ -147,7 +147,9 @@ fun JiraIssue.toDomain(
             )
         },
         ::addRestrictedComment.partially1(context).partially3(oldPostedCommentCache).partially3(newPostedCommentCache),
-        ::markAsFixedWithSpecificVersion.partially1(context)
+        ::markAsFixedWithSpecificVersion.partially1(context),
+        ::getOtherIssue.partially1(jiraClient).partially1(messages).partially1(config).partially1(cache)
+            .partially1(oldPostedCommentCache).partially1(newPostedCommentCache)
     )
 }
 
@@ -323,3 +325,29 @@ private fun JiraIssue.getOtherUpdateContext(
                 transition()
         ).also { cache.add(key, it) }
     }
+
+private fun JiraIssue.getOtherIssue(
+    jiraClient: JiraClient,
+    messages: HelperMessages,
+    config: Config,
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>,
+    key: String
+) : Either<Throwable, Issue> {
+    val newJiraIssue = getIssue(jiraClient, key)
+    return newJiraIssue.fold(
+        { it.left() },
+        {
+            it.toDomain(
+                jiraClient,
+                jiraClient.getProject(it.project.key),
+                messages,
+                config,
+                cache,
+                oldPostedCommentCache,
+                newPostedCommentCache
+            ).right()
+        }
+    )
+}

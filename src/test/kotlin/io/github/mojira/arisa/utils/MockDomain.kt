@@ -115,7 +115,8 @@ fun mockIssue(
     addRestrictedComment: (options: CommentOptions) -> Unit = { Unit },
     addNotEnglishComment: (language: String) -> Unit = { Unit },
     addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> Unit },
-    markAsFixedInASpecificVersion: (version: String) -> Unit = { Unit }
+    markAsFixedInASpecificVersion: (version: String) -> Unit = { Unit },
+    getOtherIssue: (version: String) -> Either<Throwable, Issue> = { mockIssue().right() }
 ) = Issue(
     key,
     summary,
@@ -157,7 +158,8 @@ fun mockIssue(
     addRestrictedComment,
     addNotEnglishComment,
     addRawRestrictedComment,
-    markAsFixedInASpecificVersion
+    markAsFixedInASpecificVersion,
+    getOtherIssue
 )
 
 fun mockLink(

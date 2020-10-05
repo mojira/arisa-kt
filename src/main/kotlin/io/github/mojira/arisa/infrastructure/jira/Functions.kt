@@ -3,9 +3,14 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import arrow.syntax.function.partially1
+import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -276,4 +281,30 @@ fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
 fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion: String) {
     context.value.resolve.field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersion)))
     context.value.transitionName = "Resolve Issue"
+}
+
+fun getOtherIssue(
+    jiraClient: JiraClient,
+    messages: HelperMessages,
+    config: Config,
+    cache: IssueUpdateContextCache,
+    oldPostedCommentCache: Cache<MutableSet<String>>,
+    newPostedCommentCache: Cache<MutableSet<String>>,
+    key: String
+) : Either<Throwable, io.github.mojira.arisa.domain.Issue> {
+    val newJiraIssue = getIssue(jiraClient, key)
+    return newJiraIssue.fold(
+        { it.left() },
+        {
+            it.toDomain(
+                jiraClient,
+                jiraClient.getProject(it.project.key),
+                messages,
+                config,
+                cache,
+                oldPostedCommentCache,
+                newPostedCommentCache
+            ).right()
+        }
+    )
 }

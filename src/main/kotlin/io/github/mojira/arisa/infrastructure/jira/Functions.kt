@@ -292,7 +292,7 @@ fun getOtherIssue(
     oldPostedCommentCache: Cache<MutableSet<String>>,
     newPostedCommentCache: Cache<MutableSet<String>>,
     key: String
-) : Either<Throwable, io.github.mojira.arisa.domain.Issue> {
+): Either<Throwable, io.github.mojira.arisa.domain.Issue> {
     val newJiraIssue = getIssue(jiraClient, key)
     return newJiraIssue.fold(
         { it.left() },

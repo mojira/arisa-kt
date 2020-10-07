@@ -18,6 +18,7 @@ import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry
+@Suppress("LongParameterList")
 class CommandModule(
     val addLinksCommand: Command = AddLinksCommand(),
     val addVersionCommand: Command = AddVersionCommand(),
@@ -54,7 +55,7 @@ class CommandModule(
         }
     }
 
-    @Suppress("SpreadOperator")
+    @Suppress("SpreadOperator", "ComplexMethod")
     private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean): Either<ModuleError, ModuleResponse> {
         val split = comment.split("\\s+".toRegex())
         val arguments = split.toTypedArray()

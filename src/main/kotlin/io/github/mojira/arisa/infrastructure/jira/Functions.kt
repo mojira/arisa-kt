@@ -283,6 +283,7 @@ fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion
     context.value.transitionName = "Resolve Issue"
 }
 
+@Suppress("LongParameterList")
 fun getOtherIssue(
     jiraClient: JiraClient,
     messages: HelperMessages,

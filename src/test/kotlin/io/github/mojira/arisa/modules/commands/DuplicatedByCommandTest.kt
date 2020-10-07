@@ -1,9 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.mockIssue

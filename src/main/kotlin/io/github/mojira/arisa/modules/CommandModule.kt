@@ -7,7 +7,14 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.commands.*
+import io.github.mojira.arisa.modules.commands.AddLinksCommand
+import io.github.mojira.arisa.modules.commands.AddVersionCommand
+import io.github.mojira.arisa.modules.commands.Command
+import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
+import io.github.mojira.arisa.modules.commands.DeleteLinksCommand
+import io.github.mojira.arisa.modules.commands.DuplicatedByCommand
+import io.github.mojira.arisa.modules.commands.FixedCommand
+import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry

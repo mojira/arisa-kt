@@ -11,31 +11,30 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class KeepPlatformModule(
-    private val keepPlatformTag: String
+    private val keepPlatformTag: String?
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            val volunteerPlatformChange = changeLog
-                .filter(::isPlatformChange).lastOrNull(::changedByVolunteer)
-                ?.changedToString.getOrDefault("None")
-            assertNotEquals(platform.getOrDefault("None"), volunteerPlatformChange).bind()
-            assertNotNull(keepPlatformTag).bind()
+            if (key != "MCPE-100959") {
+                OperationNotNeededModuleResponse.left().bind()
+            }
+            val platformChangeItems = changeLog.filter(::isPlatformChange)
+            assertNotEmpty(platformChangeItems).bind()
             assertContainsKeepPlatformTag(comments).bind()
-            updatePlatforms(volunteerPlatformChange)
+            val markedTime = comments.first(::isKeepPlatformTag).created
+            val currentPlatform = platform.getOrDefault("None")
+            assertNotEquals(currentPlatform, "None").bind()
+            val savedPlatform = platformChangeItems.getSavedValue(markedTime)
+            assertNotEquals(currentPlatform, savedPlatform).bind()
+            updatePlatforms(savedPlatform)
         }
     }
 
     private fun isPlatformChange(item: ChangeLogItem) =
         item.field == "Platform"
 
-    private fun changedByVolunteer(item: ChangeLogItem) = !updateIsRecent(item) ||
-            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
-
-    private fun updateIsRecent(item: ChangeLogItem) =
-        item
-            .created
-            .plus(1, ChronoUnit.DAYS)
-            .isAfter(Instant.now())
+    private fun changedByVolunteer(item: ChangeLogItem) =
+            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 
     private fun assertContainsKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
         val volunteerComments = comments.filter(::isVolunteerComment)
@@ -49,11 +48,30 @@ class KeepPlatformModule(
         comment.visibilityValue == "staff"
 
     private fun isKeepPlatformTag(comment: Comment) =
-            comment.body?.contains(keepPlatformTag) ?: false
+            comment.body?.contains(keepPlatformTag!!) ?: false
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())
             default
         else
             this
+
+    private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String {
+        val volunteerPlatformChange = this.lastOrNull(::changedByVolunteer)
+        val changeBeforeMarkedTime = this.lastOrNull {
+            it.created.isBefore(markedTime)
+        }
+        return when {
+            // last state left by volunteer after markedTime
+            volunteerPlatformChange != null && volunteerPlatformChange.created.isAfter(markedTime) ->
+                volunteerPlatformChange.changedToString
+            // last state before markedTime
+            changeBeforeMarkedTime != null ->
+                changeBeforeMarkedTime.changedToString
+            // the state that we got from, based on changelog after markedTime
+            else -> this.firstOrNull {
+                        it.created.isAfter(markedTime)
+                    }?.changedFromString
+        }.getOrDefault("None")
+    }
 }

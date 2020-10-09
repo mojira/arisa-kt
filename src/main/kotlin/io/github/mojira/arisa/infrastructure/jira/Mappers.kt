@@ -281,7 +281,7 @@ private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Ar
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
-private fun JiraIssue.getPlatform(config: Config) = getFieldAsString(config[Arisa.CustomFields.platformField])
+private fun JiraIssue.getPlatform(config: Config) = getCustomField(config[Arisa.CustomFields.platformField])
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 

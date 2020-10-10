@@ -57,21 +57,16 @@ class KeepPlatformModule(
             this
 
     private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String {
-        val volunteerPlatformChange = this.lastOrNull(::changedByVolunteer)
-        val changeBeforeMarkedTime = this.lastOrNull {
-            it.created.isBefore(markedTime)
+        val volunteerChange = this.lastOrNull(::changedByVolunteer)
+        //           last change by volunteer after markedTime
+        val result = if (volunteerChange != null && volunteerChange.created.isAfter(markedTime)) {
+            volunteerChange.changedToString
+        } else {
+            // what was first changed from after marked time
+            this.firstOrNull {
+                it.created.isAfter(markedTime)
+            }?.changedFromString
         }
-        return when {
-            // last state left by volunteer after markedTime
-            volunteerPlatformChange != null && volunteerPlatformChange.created.isAfter(markedTime) ->
-                volunteerPlatformChange.changedToString
-            // last state before markedTime
-            changeBeforeMarkedTime != null ->
-                changeBeforeMarkedTime.changedToString
-            // the state that we got from, based on changelog after markedTime
-            else -> this.firstOrNull {
-                        it.created.isAfter(markedTime)
-                    }?.changedFromString
-        }.getOrDefault("None")
+        return result.getOrDefault("None")
     }
 }

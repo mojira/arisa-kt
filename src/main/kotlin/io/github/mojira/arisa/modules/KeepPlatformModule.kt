@@ -8,7 +8,6 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 class KeepPlatformModule(
     private val keepPlatformTag: String?

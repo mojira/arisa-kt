@@ -62,6 +62,9 @@
           "doc",
           "docx",
           "odt",
+          "sh",
+          "command",
+          "cmd",
           "rtf"
         ],
         "comment": "attach-new-attachment"

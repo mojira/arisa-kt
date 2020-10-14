@@ -90,15 +90,18 @@ class UpdateLinkedModuleTest : StringSpec({
     }
 
     "should set linked when there are duplicates and linked is empty" {
+        var linked = 0.0
         val module = UpdateLinkedModule(0)
         val issue = mockIssue(
             created = A_SECOND_AGO,
-            changeLog = listOf(DUPLICATE_LINK)
+            changeLog = listOf(DUPLICATE_LINK),
+            updateLinked = { linked = it }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        linked shouldBe 1.0
     }
 
     "should set linked when there are duplicates and linked is too low" {
@@ -108,7 +111,7 @@ class UpdateLinkedModuleTest : StringSpec({
             created = A_SECOND_AGO,
             changeLog = listOf(DUPLICATE_LINK),
             linked = 0.0,
-            updateLinked = { linked = it; Unit.right() }
+            updateLinked = { linked = it }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -129,7 +132,7 @@ class UpdateLinkedModuleTest : StringSpec({
             created = A_SECOND_AGO,
             changeLog = listOf(DUPLICATE_LINK, removedLink),
             linked = 1.0,
-            updateLinked = { linked = it; Unit.right() }
+            updateLinked = { linked = it }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -148,9 +151,7 @@ class UpdateLinkedModuleTest : StringSpec({
         val issue = mockIssue(
             created = A_SECOND_AGO,
             changeLog = listOf(DUPLICATE_LINK, relatesLink, DUPLICATE_LINK),
-            updateLinked = {
-                linked = it; Unit.right()
-            }
+            updateLinked = { linked = it }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -160,6 +161,7 @@ class UpdateLinkedModuleTest : StringSpec({
     }
 
     "should update if there is an old and a recent link" {
+        var linked = 0.0
         val module = UpdateLinkedModule(1)
         val oldAddedLink = mockChangeLogItem(
             created = RIGHT_NOW.minus(2, ChronoUnit.HOURS),
@@ -168,12 +170,14 @@ class UpdateLinkedModuleTest : StringSpec({
         )
         val issue = mockIssue(
             created = A_SECOND_AGO.minus(2, ChronoUnit.HOURS),
-            changeLog = listOf(oldAddedLink, DUPLICATE_LINK)
+            changeLog = listOf(oldAddedLink, DUPLICATE_LINK),
+            updateLinked = { linked = it }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        linked shouldBe 2.0
     }
 
     "should update if a link was removed" {
@@ -198,7 +202,7 @@ class UpdateLinkedModuleTest : StringSpec({
             created = A_SECOND_AGO.minus(4, ChronoUnit.HOURS),
             changeLog = listOf(addedLink, linkedChange, removedLink),
             linked = 1.0,
-            updateLinked = { linked = it; Unit.right() }
+            updateLinked = { linked = it }
         )
 
         val result = module(issue, RIGHT_NOW)

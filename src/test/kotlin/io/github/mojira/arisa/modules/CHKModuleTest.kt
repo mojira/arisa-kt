@@ -4,6 +4,7 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 import java.time.Instant
 
 private val NOW = Instant.now()
@@ -53,13 +54,16 @@ class CHKModuleTest : StringSpec({
     }
 
     "should process confirmed tickets" {
+        var updatedCHK = false
         val module = CHKModule()
         val issue = mockIssue(
-            confirmationStatus = "Confirmed"
+            confirmationStatus = "Confirmed",
+            updateCHK = { updatedCHK = true }
         )
 
         val result = module(issue, NOW)
 
         result.shouldBeRight(ModuleResponse)
+        updatedCHK.shouldBeTrue()
     }
 })

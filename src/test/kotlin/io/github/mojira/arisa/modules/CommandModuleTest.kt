@@ -4,10 +4,12 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.modules.commands.Command
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -127,15 +129,22 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return successfully when comment matches a command and it returns successfully" {
+        var addedRawComment = ""
         val module = CommandModule(mockOperationNotNeededCommand, mockUnitCommand)
-        val comment = getComment()
+        val comment = getComment(
+            author = mockUser(
+                name = "SPTesting"
+            )
+        )
         val issue = mockIssue(
-            comments = listOf(comment)
+            comments = listOf(comment),
+            addRawRestrictedComment = { comment, _ -> addedRawComment = comment }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight()
+        addedRawComment shouldBe "Command execution was successful.\n~Author: SPTesting~"
     }
 
     "should return OperationNotNeededModuleResponse when comment matches a command and it returns OperationNotNeededModuleResponse" {
@@ -151,10 +160,16 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return failed when comment matches a command and it returns failed" {
+        var addedRawComment = ""
         val module = CommandModule(mockOperationNotNeededCommand, mockFailingCommand)
-        val comment = getComment()
+        val comment = getComment(
+            author = mockUser(
+                name = "SPTesting"
+            )
+        )
         val issue = mockIssue(
-            comments = listOf(comment)
+            comments = listOf(comment),
+            addRawRestrictedComment = { comment, _ -> addedRawComment = comment }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -162,6 +177,7 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
         (result.a as FailedModuleResponse).exceptions.size shouldBe 1
+        addedRawComment shouldBe "Command execution failed.\n~Author: SPTesting~"
     }
 })
 
@@ -169,14 +185,16 @@ private fun getComment(
     getAuthorGroups: () -> List<String> = { listOf("staff") },
     visibilityType: String? = "group",
     visibilityValue: String? = "staff",
-    body: String = "ARISA_ADD_VERSION something"
+    body: String = "ARISA_ADD_VERSION something",
+    author: User = mockUser()
 ) = mockComment(
     created = TWO_SECONDS_LATER,
     updated = TWO_SECONDS_LATER,
     getAuthorGroups = getAuthorGroups,
     visibilityType = visibilityType,
     visibilityValue = visibilityValue,
-    body = body
+    body = body,
+    author = author
 )
 
 val mockUnitCommand = object : Command {

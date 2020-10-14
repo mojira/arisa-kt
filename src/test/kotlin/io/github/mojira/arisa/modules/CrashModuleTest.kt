@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
@@ -493,7 +494,9 @@ class CrashModuleTest : StringSpec({
     }
 
     "should resolve as invalid when reported server crash is modded" {
+        var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -508,20 +511,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
+        addedComment shouldBe CommentOptions("modified-game")
     }
 
     "should resolve as invalid when reported server crash is very likely modded" {
+        var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -536,20 +543,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
+        addedComment shouldBe CommentOptions("modified-game")
     }
 
     "should resolve as invalid when reported crash is modded" {
+        var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -564,20 +575,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
+        addedComment shouldBe CommentOptions("modified-game")
     }
 
     "should resolve as invalid when attached crash is modded" {
+        var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -596,20 +611,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { resolvedAsInvalid = true; Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
+        addedComment shouldBe CommentOptions("modified-game")
     }
 
     "should resolve as dupe when reported crash is in configured list" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -624,20 +643,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
 
     "should resolve as dupe when attached crash is in configured list" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -656,20 +679,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
 
     "should resolve as dupe when the configured crash is a java crash" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -684,20 +711,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
 
     "should resolve as dupe when the configured crash uses regex" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -712,19 +743,25 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
 
     "should link to configured ticket when resolving as dupe" {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var isLinked = false
+
         val module = CrashModule(
             listOf("txt"),
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
@@ -738,19 +775,28 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { type, key, _ -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { type, key, _ ->
+                type.shouldBe("Duplicate")
+                key.shouldBe("MC-297")
+                isLinked = true
+            },
+            addComment = { Unit }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        isLinked.shouldBeTrue()
     }
 
     "should prefer crash that is not modded, if modded crash appears first" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -774,20 +820,24 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        resolvedAsDupe.shouldBeTrue()
+        resolvedAsDupe.shouldBeFalse()
+        resolvedAsInvalid.shouldBeTrue()
+        addedComment shouldBe CommentOptions("modified-game")
     }
 
     "should prefer crash that is not modded, if duped crash appears first" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedComment = CommentOptions("")
 
         val module = CrashModule(
             listOf("txt"),
@@ -811,19 +861,25 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
 
     "should prefer more recent crash, if less recent crash appears first " {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var isLinked = false
+
         val module = CrashModule(
             listOf("txt"),
             listOf(
@@ -850,18 +906,29 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { type, key, _ -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { type, key, _ ->
+                type.shouldBe("Duplicate")
+                key.shouldBe("MC-297")
+                isLinked = true
+            },
             addComment = { Unit.right() }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        isLinked.shouldBeTrue()
     }
 
     "should prefer more recent crash, if more recent crash appears first " {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var isLinked = false
+
         val module = CrashModule(
             listOf("txt"),
             listOf(
@@ -888,19 +955,27 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { type, key, _ -> type.shouldBe("Duplicate"); key.shouldBe("MC-297").right() },
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { type, key, _ ->
+                type.shouldBe("Duplicate")
+                key.shouldBe("MC-297")
+                isLinked = true
+            },
             addComment = { Unit.right() }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        isLinked.shouldBeTrue()
     }
 
     "should return operation not needed when the ticket is confirmed" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
 
         val module = CrashModule(
             listOf("txt"),
@@ -915,8 +990,8 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = "Confirmed",
             priority = NoPriority,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
             createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
@@ -925,10 +1000,12 @@ class CrashModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         resolvedAsDupe.shouldBeFalse()
+        resolvedAsInvalid.shouldBeFalse()
     }
 
     "should return operation not needed when the ticket has priority" {
         var resolvedAsDupe = false
+        var resolvedAsInvalid = false
 
         val module = CrashModule(
             listOf("txt"),
@@ -943,8 +1020,8 @@ class CrashModuleTest : StringSpec({
             created = NOW,
             confirmationStatus = Unconfirmed,
             priority = "Medium",
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { resolvedAsDupe = true; Unit.right() },
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
             createLink = { _, _, _ -> Unit.right() },
             addComment = { Unit.right() }
         )
@@ -953,6 +1030,7 @@ class CrashModuleTest : StringSpec({
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
         resolvedAsDupe.shouldBeFalse()
+        resolvedAsInvalid.shouldBeFalse()
     }
 })
 

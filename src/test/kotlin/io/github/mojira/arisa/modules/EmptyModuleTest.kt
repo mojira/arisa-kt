@@ -87,79 +87,79 @@ class EmptyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should resolve as invalid when there is no attachment and no desc or env" {
+    "should resolve as incomplete when there is no attachment and no desc or env" {
         var observedCommentOptions = CommentOptions("")
-        var resolvedAsInvalid = false
-        
+        var resolvedAsIncomplete = false
+
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
-            resolveAsInvalid = { resolvedAsInvalid = true },
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
             addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        resolvedAsInvalid.shouldBeTrue()
+        resolvedAsIncomplete.shouldBeTrue()
         observedCommentOptions shouldBe CommentOptions("message")
     }
 
-    "should resolve as invalid when there is no attachment and desc is default and env is empty" {
+    "should resolve as incomplete when there is no attachment and desc is default and env is empty" {
         var observedCommentOptions = CommentOptions("")
-        var resolvedAsInvalid = false
-        
+        var resolvedAsIncomplete = false
+
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
             description = DESC_DEFAULT,
-            resolveAsInvalid = { resolvedAsInvalid = true },
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
             addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        resolvedAsInvalid.shouldBeTrue()
+        resolvedAsIncomplete.shouldBeTrue()
         observedCommentOptions shouldBe CommentOptions("message")
     }
 
-    "should resolve as invalid when there is no attachment and desc is empty and env is default" {
+    "should resolve as incomplete when there is no attachment and desc is empty and env is default" {
         var observedCommentOptions = CommentOptions("")
-        var resolvedAsInvalid = false
-        
+        var resolvedAsIncomplete = false
+
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
             environment = ENV_DEFAULT,
-            resolveAsInvalid = { resolvedAsInvalid = true },
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
             addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        resolvedAsInvalid.shouldBeTrue()
+        resolvedAsIncomplete.shouldBeTrue()
         observedCommentOptions shouldBe CommentOptions("message")
     }
 
-    "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
+    "should resolve as incomplete when there is no attachment and desc is too short and env is too short" {
         var observedCommentOptions = CommentOptions("")
-        var resolvedAsInvalid = false
-        
+        var resolvedAsIncomplete = false
+
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
             description = "asd",
             environment = "asd",
-            resolveAsInvalid = { resolvedAsInvalid = true },
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
             addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        resolvedAsInvalid.shouldBeTrue()
+        resolvedAsIncomplete.shouldBeTrue()
         observedCommentOptions shouldBe CommentOptions("message")
     }
 })

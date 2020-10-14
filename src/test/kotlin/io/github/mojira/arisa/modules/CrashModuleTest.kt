@@ -722,7 +722,7 @@ class CrashModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
         resolvedAsInvalid.shouldBeFalse()
-        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-32606")
     }
 
     "should resolve as dupe when the configured crash uses regex" {
@@ -754,7 +754,7 @@ class CrashModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
         resolvedAsInvalid.shouldBeFalse()
-        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-32606")
     }
 
     "should link to configured ticket when resolving as dupe" {
@@ -829,9 +829,9 @@ class CrashModuleTest : StringSpec({
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        resolvedAsDupe.shouldBeFalse()
-        resolvedAsInvalid.shouldBeTrue()
-        addedComment shouldBe CommentOptions("modified-game")
+        resolvedAsDupe.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
 
     "should prefer crash that is not modded, if duped crash appears first" {

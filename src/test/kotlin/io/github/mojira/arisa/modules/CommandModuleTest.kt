@@ -138,7 +138,7 @@ class CommandModuleTest : StringSpec({
         )
         val issue = mockIssue(
             comments = listOf(comment),
-            addRawRestrictedComment = { comment, _ -> addedRawComment = comment }
+            addRawRestrictedComment = { addedComment, _ -> addedRawComment = addedComment }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -169,7 +169,7 @@ class CommandModuleTest : StringSpec({
         )
         val issue = mockIssue(
             comments = listOf(comment),
-            addRawRestrictedComment = { comment, _ -> addedRawComment = comment }
+            addRawRestrictedComment = { addedComment, _ -> addedRawComment = addedComment }
         )
 
         val result = module(issue, RIGHT_NOW)

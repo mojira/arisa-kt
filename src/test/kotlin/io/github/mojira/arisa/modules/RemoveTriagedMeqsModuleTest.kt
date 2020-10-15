@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
@@ -48,9 +47,11 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
     }
 
     "should process tickets with Mojang Priority" {
-        val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
+        var editedComment = ""
+        val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Lorem Ipsum.")
         val comment = mockComment(
-            body = "MEQS_WAI I like QC."
+            body = "MEQS_WAI I like QC.",
+            update = { editedComment = it }
         )
         val issue = mockIssue(
             priority = "Important",
@@ -60,12 +61,15 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
     }
 
     "should process tickets with triaged time" {
-        val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "")
+        var editedComment = ""
+        val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Lorem Ipsum.")
         val comment = mockComment(
-            body = "MEQS_WAI I like QC."
+            body = "MEQS_WAI I like QC.",
+            update = { editedComment = it }
         )
         val issue = mockIssue(
             triagedTime = "triaged",
@@ -75,13 +79,15 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
     }
 
     "should replace only MEQS of a tag" {
+        var editedComment = ""
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Test.")
         val comment = mockComment(
             body = "MEQS_WAI\nI like QC.",
-            update = { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC.").right() }
+            update = { editedComment = it }
         )
         val issue = mockIssue(
             triagedTime = "triaged",
@@ -91,13 +97,15 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."
     }
 
     "should not replace MEQS of tags that aren't configured" {
+        var editedComment = ""
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI"), "Test.")
         val comment = mockComment(
             body = "MEQS_WAI\nMEQS_TRIVIAL\nI like QC.",
-            update = { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC.").right() }
+            update = { editedComment = it }
         )
         val issue = mockIssue(
             triagedTime = "triaged",
@@ -107,16 +115,15 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC."
     }
 
     "should replace MEQS of all configured tags" {
+        var editedComment = ""
         val module = RemoveTriagedMeqsModule(listOf("MEQS_WAI", "MEQS_WONTFIX"), "Test.")
         val comment = mockComment(
             body = "MEQS_WAI\nMEQS_WONTFIX\nI like QC.",
-            update = {
-                it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_ARISA_REMOVED_WONTFIX Removal Reason: Test.\nI like QC.")
-                    .right()
-            }
+            update = { editedComment = it }
         )
         val issue = mockIssue(
             triagedTime = "triaged",
@@ -126,5 +133,6 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_ARISA_REMOVED_WONTFIX Removal Reason: Test.\nI like QC."
     }
 })

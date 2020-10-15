@@ -6,6 +6,7 @@ import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
@@ -102,18 +103,24 @@ class LanguageModuleTest : StringSpec({
     }
 
     "should resolve as invalid if ticket is not in English" {
+        var commentLanguage = ""
+        var resolved = false
         val module = LanguageModule(
             getLanguage = { mapOf("de" to 1.0).right() }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
             summary = "Ich habe einen seltsamen Fehler gefunden",
-            description = "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!"
+            description = "Es gibt einen Fehler im Minecraft. Bitte schnell beheben!",
+            resolveAsInvalid = { resolved = true },
+            addNotEnglishComment = { commentLanguage = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolved.shouldBeTrue()
+        commentLanguage shouldBe "de"
     }
 
     "should return OperationNotNeededModuleResponse if ticket is in English" {
@@ -147,18 +154,24 @@ class LanguageModuleTest : StringSpec({
     }
 
     "should resolve as invalid if ticket is mostly not in English" {
+        var commentLanguage = ""
+        var resolved = false
         val module = LanguageModule(
             getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
             summary = "Wenn ich ein Minecart auf eine Activator Rail setze, wird der Player aus dem Minecart geworfen",
-            description = "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet."
+            description = "Im Creative Mode wirft eine Activator Rail den Player aus dem Minecart, ich dachte, dass die Rail das Minecart boostet.",
+            resolveAsInvalid = { resolved = true },
+            addNotEnglishComment = { commentLanguage = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolved.shouldBeTrue()
+        commentLanguage shouldBe "de"
     }
 
     "should pass the combined text to the API" {

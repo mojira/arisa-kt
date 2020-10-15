@@ -8,6 +8,7 @@ import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
@@ -135,27 +136,32 @@ class RemoveVersionModuleTest : StringSpec({
     }
 
     "should remove extra versions added via editing" {
+        var removed = false
+        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
         val module = RemoveVersionModule()
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(version),
             changeLog = listOf(ADD_VERSION),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(version)
             )
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        removed.shouldBeTrue()
     }
 
     "should remove extra versions added by users via editing" {
+        var removed = false
+        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
         val module = RemoveVersionModule()
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(version),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -165,20 +171,23 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(version)
             )
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        removed.shouldBeTrue()
     }
 
     "should remove extra versions added by users without a group via editing" {
+        var removed = false
+        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
         val module = RemoveVersionModule()
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(version),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -188,12 +197,13 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(version)
             )
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        removed.shouldBeTrue()
     }
 })

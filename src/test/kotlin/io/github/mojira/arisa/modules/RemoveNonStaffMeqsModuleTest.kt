@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
@@ -80,9 +79,11 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
     }
 
     "should update comment when there is an unrestricted MEQS comment" {
-        val module = RemoveNonStaffMeqsModule("")
+        var editedComment = ""
+        val module = RemoveNonStaffMeqsModule("Lorem Ipsum.")
         val comment = mockComment(
-            body = "MEQS_WAI I like QC."
+            body = "MEQS_WAI I like QC.",
+            restrict = { editedComment = it }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -91,14 +92,17 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
     }
 
     "should update comment when there is a MEQS comment restricted to a group other than staff" {
-        val module = RemoveNonStaffMeqsModule("")
+        var editedComment = ""
+        val module = RemoveNonStaffMeqsModule("Lorem Ipsum.")
         val comment = mockComment(
             body = "MEQS_WAI I like QC.",
             visibilityType = "group",
-            visibilityValue = "users"
+            visibilityValue = "users",
+            restrict = { editedComment = it }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -107,14 +111,17 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
     }
 
     "should update comment when there is a MEQS comment restricted to something that is not a group" {
-        val module = RemoveNonStaffMeqsModule("")
+        var editedComment = ""
+        val module = RemoveNonStaffMeqsModule("Lorem Ipsum.")
         val comment = mockComment(
             body = "MEQS_WAI I like QC.",
             visibilityType = "user",
-            visibilityValue = "staff"
+            visibilityValue = "staff",
+            restrict = { editedComment = it }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -123,13 +130,15 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
     }
 
     "should only remove MEQS of the comment" {
+        var editedComment = ""
         val module = RemoveNonStaffMeqsModule("Test.")
         val comment = mockComment(
             body = "MEQS_WAI\nI like QC.",
-            restrict = { it.shouldBe("MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."); Unit.right() }
+            restrict = { editedComment = it }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -138,5 +147,6 @@ class RemoveNonStaffMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."
     }
 })

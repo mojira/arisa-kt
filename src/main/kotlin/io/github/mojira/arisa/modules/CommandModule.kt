@@ -45,7 +45,7 @@ class CommandModule(
                     addRawRestrictedComment("Command execution failed.\n~Author: $username~", "helper")
                     result.bind()
                 } else {
-                    addRawRestrictedComment("Command execution was successful\n~Author: $username~", "helper")
+                    addRawRestrictedComment("Command execution was successful.\n~Author: $username~", "helper")
                 }
             }
             ModuleResponse.right().bind()

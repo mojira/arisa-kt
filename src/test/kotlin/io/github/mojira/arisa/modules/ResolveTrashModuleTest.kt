@@ -6,6 +6,7 @@ import io.github.mojira.arisa.utils.mockProject
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 
 class ResolveTrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when project is not TRASH" {
@@ -22,15 +23,18 @@ class ResolveTrashModuleTest : StringSpec({
     }
 
     "should resolve as invalid when ticket when ticket was open" {
+        var isResolved = false
         val module = ResolveTrashModule()
         val issue = mockIssue(
             project = mockProject(
                 key = "TRASH"
-            )
+            ),
+            resolveAsInvalid = { isResolved = true }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isResolved.shouldBeTrue()
     }
 })

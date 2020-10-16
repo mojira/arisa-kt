@@ -69,6 +69,7 @@
           "app",
           "ipa",
           "apk",
+          "pkg",
           "rtf"
         ],
         "comment": "attach-new-attachment"

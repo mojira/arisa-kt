@@ -66,6 +66,8 @@
           "command",
           "cmd",
           "workflow",
+          "app",
+          "ipa",
           "rtf"
         ],
         "comment": "attach-new-attachment"

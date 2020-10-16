@@ -65,6 +65,10 @@
           "sh",
           "command",
           "cmd",
+          "workflow",
+          "app",
+          "ipa",
+          "apk",
           "rtf"
         ],
         "comment": "attach-new-attachment"

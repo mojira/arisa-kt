@@ -65,6 +65,7 @@
           "sh",
           "command",
           "cmd",
+          "workflow",
           "rtf"
         ],
         "comment": "attach-new-attachment"

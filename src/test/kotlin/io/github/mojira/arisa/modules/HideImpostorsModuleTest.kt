@@ -7,6 +7,7 @@ import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -168,9 +169,11 @@ class HideImpostorsModuleTest : StringSpec({
     }
 
     "should hide comment when user starts with a valid tag but is not of a permission group" {
+        var isRestricted = false
         val module = HideImpostorsModule()
         val comment = getComment(
-            author = "[test] test"
+            author = "[test] test",
+            restrict = { isRestricted = true }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -179,12 +182,15 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isRestricted.shouldBeTrue()
     }
 
     "should hide comment when tag contains numbers" {
+        var isRestricted = false
         val module = HideImpostorsModule()
         val comment = getComment(
-            author = "[t3st] test"
+            author = "[t3st] test",
+            restrict = { isRestricted = true }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -193,12 +199,15 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isRestricted.shouldBeTrue()
     }
 
     "should hide comment when tag contains accented letter" {
+        var isRestricted = false
         val module = HideImpostorsModule()
         val comment = getComment(
-            author = "[tést] test"
+            author = "[tést] test",
+            restrict = { isRestricted = true }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -207,12 +216,15 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isRestricted.shouldBeTrue()
     }
 
     "should hide comment when tag contains spaces" {
+        var isRestricted = false
         val module = HideImpostorsModule()
         val comment = getComment(
-            author = "[Mojang Overlord] test"
+            author = "[Mojang Overlord] test",
+            restrict = { isRestricted = true }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -221,14 +233,17 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isRestricted.shouldBeTrue()
     }
 
     "should hide comment when user contains [] but is not of a permission group and comment is not restricted to a group" {
+        var isRestricted = false
         val module = HideImpostorsModule()
         val comment = getComment(
             author = "[test] test",
             visibilityType = "not a group",
-            visibilityValue = "staff"
+            visibilityValue = "staff",
+            restrict = { isRestricted = true }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -237,14 +252,17 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isRestricted.shouldBeTrue()
     }
 
     "should hide comment when user contains [] but is not of a permission group and comment is not restricted to the correct group" {
+        var isRestricted = false
         val module = HideImpostorsModule()
         val comment = getComment(
             author = "[test] test",
             visibilityType = "group",
-            visibilityValue = "users"
+            visibilityValue = "users",
+            restrict = { isRestricted = true }
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -253,6 +271,7 @@ class HideImpostorsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
+        isRestricted.shouldBeTrue()
     }
 })
 

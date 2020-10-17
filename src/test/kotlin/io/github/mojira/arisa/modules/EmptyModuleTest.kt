@@ -1,11 +1,14 @@
 package io.github.mojira.arisa.modules
 
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 
@@ -84,51 +87,79 @@ class EmptyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should resolve as invalid when there is no attachment and no desc or env" {
-        val module = EmptyModule("message")
-        val issue = mockIssue(
-            created = RIGHT_NOW
-        )
+    "should resolve as incomplete when there is no attachment and no desc or env" {
+        var observedCommentOptions = CommentOptions("")
+        var resolvedAsIncomplete = false
 
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeRight(ModuleResponse)
-    }
-
-    "should resolve as invalid when there is no attachment and desc is default and env is empty" {
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
-            description = DESC_DEFAULT
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
+            addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsIncomplete.shouldBeTrue()
+        observedCommentOptions shouldBe CommentOptions("message")
     }
 
-    "should resolve as invalid when there is no attachment and desc is empty and env is default" {
+    "should resolve as incomplete when there is no attachment and desc is default and env is empty" {
+        var observedCommentOptions = CommentOptions("")
+        var resolvedAsIncomplete = false
+
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
-            environment = ENV_DEFAULT
+            description = DESC_DEFAULT,
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
+            addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsIncomplete.shouldBeTrue()
+        observedCommentOptions shouldBe CommentOptions("message")
     }
 
-    "should resolve as invalid when there is no attachment and desc is too short and env is too short" {
+    "should resolve as incomplete when there is no attachment and desc is empty and env is default" {
+        var observedCommentOptions = CommentOptions("")
+        var resolvedAsIncomplete = false
+
+        val module = EmptyModule("message")
+        val issue = mockIssue(
+            created = RIGHT_NOW,
+            environment = ENV_DEFAULT,
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
+            addComment = { observedCommentOptions = it }
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsIncomplete.shouldBeTrue()
+        observedCommentOptions shouldBe CommentOptions("message")
+    }
+
+    "should resolve as incomplete when there is no attachment and desc is too short and env is too short" {
+        var observedCommentOptions = CommentOptions("")
+        var resolvedAsIncomplete = false
+
         val module = EmptyModule("message")
         val issue = mockIssue(
             created = RIGHT_NOW,
             description = "asd",
-            environment = "asd"
+            environment = "asd",
+            resolveAsIncomplete = { resolvedAsIncomplete = true },
+            addComment = { observedCommentOptions = it }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        resolvedAsIncomplete.shouldBeTrue()
+        observedCommentOptions shouldBe CommentOptions("message")
     }
 })

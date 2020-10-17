@@ -11,7 +11,7 @@ import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class KeepPrivateModule(
-    private val keepPrivateTag: String?,
+    private val keepPrivateTag: String,
     private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -32,7 +32,7 @@ class KeepPrivateModule(
 
     private fun isKeepPrivateTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepPrivateTag!!) ?: false)
+            (comment.body?.contains(keepPrivateTag) ?: false)
 
     private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
 

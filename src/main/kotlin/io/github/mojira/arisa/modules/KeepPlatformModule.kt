@@ -14,17 +14,15 @@ class KeepPlatformModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            if (key != "MCPE-100959") {
-                OperationNotNeededModuleResponse.left().bind()
-            }
             val platformChangeItems = changeLog.filter(::isPlatformChange)
             assertNotEmpty(platformChangeItems).bind()
             assertContainsKeepPlatformTag(comments).bind()
             val markedTime = comments.first(::isKeepPlatformTag).created
             val currentPlatform = platform.getOrDefault("None")
             val savedPlatform = platformChangeItems.getSavedValue(markedTime)
+            assertNotNull(savedPlatform).bind()
             assertNotEquals(currentPlatform, savedPlatform).bind()
-            updatePlatforms(savedPlatform)
+            if (savedPlatform != null) updatePlatforms(savedPlatform)
         }
     }
 
@@ -54,17 +52,22 @@ class KeepPlatformModule(
         else
             this
 
-    private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String {
+    private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String? {
         val volunteerChange = this.lastOrNull(::changedByVolunteer)
         //           last change by volunteer after markedTime
         val result = if (volunteerChange != null && volunteerChange.created.isAfter(markedTime)) {
-            volunteerChange.changedToString
+            volunteerChange.changedToString.getOrDefault("None")
         } else {
             // what was first changed from after marked time
-            this.firstOrNull {
+            val userChange = this.firstOrNull {
                 it.created.isAfter(markedTime)
-            }?.changedFromString
+            }
+            if (userChange != null) {
+                userChange.changedFromString.getOrDefault("None")
+            } else {
+                null
+            }
         }
-        return result.getOrDefault("None")
+        return result
     }
 }

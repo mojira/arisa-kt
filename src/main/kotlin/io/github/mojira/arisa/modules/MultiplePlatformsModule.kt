@@ -31,7 +31,7 @@ class MultiplePlatformsModule(
             .forEach {
                 val child = it.issue.getFullIssue().toFailedModuleEither().bind()
                 if (child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
-                    return@fx true
+                    return@fx false
                 }
             }
         false

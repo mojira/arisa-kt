@@ -62,6 +62,14 @@
           "doc",
           "docx",
           "odt",
+          "sh",
+          "command",
+          "cmd",
+          "workflow",
+          "app",
+          "ipa",
+          "apk",
+          "pkg",
           "rtf"
         ],
         "comment": "attach-new-attachment"

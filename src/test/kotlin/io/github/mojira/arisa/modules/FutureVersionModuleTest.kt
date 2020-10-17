@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.left
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
@@ -12,6 +13,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
@@ -232,102 +234,181 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should remove future versions added upon ticket creation" {
+        var isRemoved = false
         var isResolved = false
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
+        )
 
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
-            affectedVersions = listOf(FUTURE_VERSION),
+            affectedVersions = listOf(futureVersion),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
             ),
-            resolveAsAwaitingResponse = { isResolved = true }
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
         isResolved.shouldBeTrue()
+        addedComment shouldBe CommentOptions("message")
     }
 
     "should remove future versions added upon ticket creation by users" {
+        var isRemoved = false
+        var isResolved = false
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
+        )
+
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("user") }
             ),
-            affectedVersions = listOf(FUTURE_VERSION),
+            affectedVersions = listOf(futureVersion),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
-            )
+            ),
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolved.shouldBeTrue()
+        addedComment shouldBe CommentOptions("message")
     }
 
     "should not resolve if already resolved" {
+        var isRemoved = false
         var preResolved = true
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
+        )
 
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
-            affectedVersions = listOf(FUTURE_VERSION),
+            affectedVersions = listOf(futureVersion),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
             ),
-            resolveAsAwaitingResponse = { preResolved = false }
+            resolveAsAwaitingResponse = { preResolved = false },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
         preResolved.shouldBeTrue()
+        addedComment shouldBe CommentOptions("panel")
     }
 
     "should remove future versions added via editing" {
-        val module = FutureVersionModule("message", "panel")
-        val issue = mockIssue(
-            created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(FUTURE_VERSION),
-            changeLog = listOf(ADD_FUTURE_VERSION),
-            project = mockProject(
-                versions = listOf(RELEASED_VERSION)
-            )
+        var isRemoved = false
+        var isResolved = false
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
         )
 
-        val result = module(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeRight(ModuleResponse)
-    }
-
-    "should not resolve if there is another version" {
-        var isResolved = false
-
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(FUTURE_VERSION, RELEASED_VERSION),
+            affectedVersions = listOf(futureVersion),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
             ),
-            resolveAsAwaitingResponse = { isResolved = true }
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
-        isResolved.shouldBeFalse()
+        isRemoved.shouldBeTrue()
+        isResolved.shouldBeTrue()
+        addedComment shouldBe CommentOptions("message")
     }
 
-    "should remove future versions added by users via editing" {
+    "should not resolve if there is another version" {
+        var isRemoved = false
+        var isResolved = false
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
+        )
+
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(FUTURE_VERSION),
+            affectedVersions = listOf(futureVersion, RELEASED_VERSION),
+            changeLog = listOf(ADD_FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION)
+            ),
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolved.shouldBeFalse()
+        addedComment shouldBe CommentOptions("panel")
+    }
+
+    "should remove future versions added by users via editing" {
+        var isRemoved = false
+        var isResolved = false
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
+        )
+
+        val module = FutureVersionModule("message", "panel")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
+            affectedVersions = listOf(futureVersion),
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Version",
@@ -337,19 +418,35 @@ class FutureVersionModuleTest : StringSpec({
             ),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
-            )
+            ),
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolved.shouldBeTrue()
+        addedComment shouldBe CommentOptions("message")
     }
 
     "should remove future versions added by users without a group via editing" {
+        var isRemoved = false
+        var isResolved = false
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true }
+        )
+
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(FUTURE_VERSION),
+            affectedVersions = listOf(futureVersion),
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Version",
@@ -359,11 +456,16 @@ class FutureVersionModuleTest : StringSpec({
             ),
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
-            )
+            ),
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolved.shouldBeTrue()
+        addedComment shouldBe CommentOptions("message")
     }
 })

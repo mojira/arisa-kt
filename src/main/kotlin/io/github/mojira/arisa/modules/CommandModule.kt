@@ -38,7 +38,7 @@ class CommandModule(
                 .map { it.author.name to executeCommand(it.body!!, this, userIsMod(it)) }
 
             if (results.isEmpty()) {
-                OperationNotNeededModuleResponse.left().bind()
+                (OperationNotNeededModuleResponse.left() as Either<ModuleError, ModuleResponse>).bind()
             }
             results.forEach { (username, result) ->
                 if (result.isLeft()) {

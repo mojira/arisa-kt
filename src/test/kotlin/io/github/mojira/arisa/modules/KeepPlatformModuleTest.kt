@@ -74,7 +74,7 @@ class KeepPlatformModuleTest : StringSpec({
         )
         val userChange = mockPlatformChangeLogItem(
             oldValue = "None",
-            newValue = "Google",
+            newValue = "Android",
             created = A_SECOND_AGO
         ) { listOf("users") }
         val volunteerChange = mockPlatformChangeLogItem(created = RIGHT_NOW) { listOf("staff") }
@@ -121,7 +121,7 @@ class KeepPlatformModuleTest : StringSpec({
         val userChange1 = mockPlatformChangeLogItem(
                 created = A_SECOND_AGO,
                 oldValue = "Amazon",
-                newValue = "Google"
+                newValue = "Android"
         ) { listOf("users") }
         val userChange2 = mockPlatformChangeLogItem(created = RIGHT_NOW) { listOf("users") }
         val issue = mockIssue(
@@ -146,7 +146,7 @@ class KeepPlatformModuleTest : StringSpec({
         val userChange1 = mockPlatformChangeLogItem(
                 created = A_SECOND_AGO,
                 oldValue = "Amazon",
-                newValue = "Google"
+                newValue = "Android"
         ) { listOf("users") }
         val userChange2 = mockPlatformChangeLogItem(created = RIGHT_NOW) { listOf("users") }
         val issue = mockIssue(
@@ -206,7 +206,7 @@ class KeepPlatformModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        changedPlatform.shouldBe("Google")
+        changedPlatform.shouldBe("Android")
     }
 
     "should set back to platform that was set last before the comment, when regular user changes platform and the last change by volunteer was before the comment" {
@@ -223,7 +223,7 @@ class KeepPlatformModuleTest : StringSpec({
         val userChange1 = mockPlatformChangeLogItem(
                 created = TWO_SECONDS_AGO,
                 oldValue = "Amazon",
-                newValue = "Google"
+                newValue = "Android"
         ) { listOf("users") }
         val userChange2 = mockPlatformChangeLogItem(created = RIGHT_NOW, newValue = "None") { listOf("users") }
         val issue = mockIssue(
@@ -236,14 +236,14 @@ class KeepPlatformModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        changedPlatform.shouldBe("Google")
+        changedPlatform.shouldBe("Android")
     }
 })
 
 private fun mockPlatformChangeLogItem(
     created: Instant = RIGHT_NOW,
     field: String = "Platform",
-    oldValue: String = "Google",
+    oldValue: String = "Android",
     newValue: String = "Amazon",
     getAuthorGroups: () -> List<String>? = { emptyList() }
 ) = mockChangeLogItem(

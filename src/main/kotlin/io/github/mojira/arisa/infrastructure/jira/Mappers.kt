@@ -309,6 +309,7 @@ private fun JiraIssue.getFullIssue(
         }
     )
 
+// run with Either.catch {}!
 private fun JiraIssue.getOtherUpdateContext(
     jiraClient: JiraClient,
     cache: IssueUpdateContextCache,

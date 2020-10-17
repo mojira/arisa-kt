@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
@@ -22,6 +23,13 @@ private val duplicatedLink2 = mockLink(
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(platform = "Amazon").right() }
     )
+)
+private val throwable = Throwable(message = "example")
+private val faultyDuplicatedLink = mockLink(
+        outwards = false,
+        issue = mockLinkedIssue(
+                getFullIssue = { throwable.left() }
+        )
 )
 private val relatesLink = mockLink(
     type = "Relates"
@@ -117,6 +125,18 @@ class MultiplePlatformsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return FailedModuleResponse when can't get full issue from the link" {
+        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
+        val issue = mockIssue(
+                platform = "Xbox One",
+                links = listOf(faultyDuplicatedLink)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(FailedModuleResponse(exceptions = listOf(throwable)))
     }
 
     "should return OperationNotNeededModuleResponse when Platform is null and there is a duplicate" {

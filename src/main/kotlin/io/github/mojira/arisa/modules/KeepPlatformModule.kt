@@ -22,7 +22,6 @@ class KeepPlatformModule(
             assertContainsKeepPlatformTag(comments).bind()
             val markedTime = comments.first(::isKeepPlatformTag).created
             val currentPlatform = platform.getOrDefault("None")
-            assertNotEquals(currentPlatform, "None").bind()
             val savedPlatform = platformChangeItems.getSavedValue(markedTime)
             assertNotEquals(currentPlatform, savedPlatform).bind()
             updatePlatforms(savedPlatform)

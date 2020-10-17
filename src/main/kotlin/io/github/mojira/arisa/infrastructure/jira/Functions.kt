@@ -218,9 +218,12 @@ fun createLink(
         }
     } else {
         runBlocking {
-            Either.catch {
+            val either = Either.catch {
                 val key = context.value.jiraIssue.key
                 createLink(getContext(linkKey), getContext, linkType, key, true)
+            }
+            if (either.isLeft()) {
+                context.value.otherOperations.add { either }
             }
         }
     }

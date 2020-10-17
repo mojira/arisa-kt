@@ -176,7 +176,7 @@ class KeepPlatformModuleTest : StringSpec({
             comments = listOf(comment),
             platform = "None",
             changeLog = listOf(volunteerChange, userChange),
-            updatePlatforms = { changedPlatform = it; Unit.right() },
+            updatePlatforms = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

@@ -217,8 +217,15 @@ fun createLink(
             }
         }
     } else {
-        val key = context.value.jiraIssue.key
-        createLink(getContext(linkKey), getContext, linkType, key, true)
+        runBlocking {
+            val either = Either.catch {
+                val key = context.value.jiraIssue.key
+                createLink(getContext(linkKey), getContext, linkType, key, true)
+            }
+            if (either.isLeft()) {
+                context.value.otherOperations.add { either }
+            }
+        }
     }
 }
 

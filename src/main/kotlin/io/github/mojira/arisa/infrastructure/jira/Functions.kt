@@ -10,7 +10,9 @@ import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.tryRunAll
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Field
@@ -140,8 +142,9 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-
-                context.value.jiraClient.restClient.delete(URI(attachment.self))
+                withContext(Dispatchers.IO) {
+                    context.value.jiraClient.restClient.delete(URI(attachment.self))
+                }
                 Unit
             }
         }
@@ -262,14 +265,16 @@ fun restrictCommentToGroup(
 // not included in used library
 fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
     Either.catch {
-        // Mojira does not seem to provide any accountIds, hence the endpoint GET /user/groups cannot be used.
-        (jiraClient.restClient.get(
-            User.getBaseUri() + "user/",
-            mapOf(Pair("username", username), Pair("expand", "groups"))
-        ) as JSONObject)
-            .getJSONObject("groups")
-            .getJSONArray("items")
-            .map { (it as JSONObject)["name"] as String }
+        withContext(Dispatchers.IO) {
+            // Mojira does not seem to provide any accountIds, hence the endpoint GET /user/groups cannot be used.
+            (jiraClient.restClient.get(
+                User.getBaseUri() + "user/",
+                mapOf(Pair("username", username), Pair("expand", "groups"))
+            ) as JSONObject)
+                .getJSONObject("groups")
+                .getJSONArray("items")
+                .map { (it as JSONObject)["name"] as String }
+        }
     }
 }
 

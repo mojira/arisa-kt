@@ -10,7 +10,7 @@ import io.github.mojira.arisa.domain.Comment
 import java.time.Instant
 
 class KeepPlatformModule(
-    private val keepPlatformTag: String?
+    private val keepPlatformTag: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -44,7 +44,7 @@ class KeepPlatformModule(
         comment.visibilityValue == "staff"
 
     private fun isKeepPlatformTag(comment: Comment) =
-            comment.body?.contains(keepPlatformTag!!) ?: false
+            comment.body?.contains(keepPlatformTag) ?: false
 
     private fun String?.getOrDefault(default: String) =
         if (isNullOrBlank())

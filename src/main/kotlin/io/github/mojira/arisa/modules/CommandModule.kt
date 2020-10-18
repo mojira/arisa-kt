@@ -34,12 +34,12 @@ class CommandModule(
                 .map { it to executeCommand(it, this) }
 
             if (results.isEmpty()) {
-                OperationNotNeededModuleResponse.left().bind()
+                (OperationNotNeededModuleResponse.left() as Either<ModuleError, ModuleResponse>).bind()
             }
             results.forEach { (comment, result) ->
                 if (result.isLeft()) {
                     comment.update("[~arisabot] (x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
-                    result.toFailedModuleEither().bind()
+                    (result.toFailedModuleEither() as Either<FailedModuleResponse, Int>).bind()
                 } else {
                     comment.update("[~arisabot] (/) ${(result as Either.Right).b}.\n----\n${comment.body}")
                 }

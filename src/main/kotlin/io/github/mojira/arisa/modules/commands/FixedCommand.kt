@@ -1,16 +1,19 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertTrue
 
-class FixedCommand : Command {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size > 1).bind()
-        val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
+class FixedCommand {
+    fun invoke(issue: Issue, version: String): Int {
+        if (issue.fixVersions.any { it.name == version }) {
+            throw CommandExceptions.ALREADY_FIXED_IN.create(version)
+        }
+        if (issue.project.versions.none { it.name == version }) {
+            throw CommandExceptions.NO_SUCH_VERSION.create(version)
+        }
+        if (issue.resolution !in listOf(null, "", "Unresolved")) {
+            throw CommandExceptions.ALREADY_RESOLVED.create(issue.resolution)
+        }
         issue.markAsFixedWithSpecificVersion(version)
+        return 1
     }
 }

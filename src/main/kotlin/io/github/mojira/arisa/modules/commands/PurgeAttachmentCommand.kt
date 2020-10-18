@@ -5,27 +5,18 @@ import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertTrue
-import io.github.mojira.arisa.modules.toFailedModuleEither
-import kotlinx.coroutines.runBlocking
 
-class PurgeAttachmentCommand : Command {
+class PurgeAttachmentCommand {
     @Suppress("MagicNumber")
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size <= 3).bind()
-        val startID = arguments.getOrNull(1)?.toIntEither()?.bind() ?: 0
-        val endID = arguments.getOrNull(2)?.toIntEither()?.bind() ?: Int.MAX_VALUE
+    fun invoke(issue: Issue, start: Int, end: Int = Int.MAX_VALUE): Int {
+        var result = 0
         for (attachment in issue.attachments) {
-            val attachmentID = attachment.id.toIntEither().bind()
-            if (attachmentID in startID..endID) {
+            val attachmentID = attachment.id.toInt()
+            if (attachmentID in start..end) {
                 attachment.remove()
+                result++
             }
         }
+        return result
     }
-
-    private fun String.toIntEither() = runBlocking {
-        Either.catch {
-            toInt()
-        }
-    }.toFailedModuleEither()
 }

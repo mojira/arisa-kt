@@ -13,6 +13,7 @@ repositories {
     mavenCentral()
     maven("https://jitpack.io")
     maven("https://dl.bintray.com/cbeust/maven")
+    maven("https://libraries.minecraft.net")
     jcenter()
 }
 
@@ -60,6 +61,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
     implementation("com.beust", "klaxon", "5.2")
+    implementation("com.mojang", "brigadier", "1.0.17")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)

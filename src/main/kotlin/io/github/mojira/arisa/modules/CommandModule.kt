@@ -62,16 +62,16 @@ class CommandModule(
             "ARISA_ADD_LINKS" -> if (userIsMod) {
                 addLinksCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
-            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments)
+            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments) // FUCKED
             "ARISA_FIXED" -> if (userIsMod) {
                 fixedCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left()
+            } else OperationNotNeededModuleResponse.left() // FUCKED
             "ARISA_PURGE_ATTACHMENT" -> if (userIsMod) {
                 purgeAttachmentCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left()
+            } else OperationNotNeededModuleResponse.left() // FUCKED
             "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
                 deleteCommentsCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left()
+            } else OperationNotNeededModuleResponse.left() // FUCKED
             "ARISA_REMOVE_LINKS" -> if (userIsMod) {
                 deleteLinksCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()

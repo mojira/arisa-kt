@@ -28,6 +28,51 @@ class DuplicatedByCommandTest : StringSpec({
         result shouldBeLeft OperationNotNeededModuleResponse
     }
 
+    "should return OperationNotNeededModuleResponse in Either when there's nothing to resolve" {
+        val command = DuplicatedByCommand()
+        val resolvedList = mutableListOf<String>()
+        val linkMap = mutableMapOf<String, List<String>>()
+        val list = listOf(
+                mockIssue(
+                        key = "MC-100",
+                        resolution = "Duplicate",
+                        resolveAsDuplicate = {
+                            resolvedList.add("MC-100")
+                        },
+                        createLink = {
+                            type, key, outwards ->
+                            linkMap["MC-100"] = listOf(type, key, outwards.toString())
+                        }
+                ),
+                mockIssue(
+                        key = "MC-200",
+                        resolution = "Duplicate",
+                        resolveAsDuplicate = {
+                            resolvedList.add("MC-200")
+                        },
+                        createLink = {
+                            type, key, outwards ->
+                            linkMap["MC-200"] = listOf(type, key, outwards.toString())
+                        }
+                )
+        )
+        val issue = mockIssue(
+                project = mockProject(
+                        key = "MC"
+                ),
+                key = "MC-1",
+                getOtherIssue = {
+                    ticket -> list.first {
+                    it.key == ticket
+                }.right()
+                }
+        )
+
+        command(issue, "ARISA_DUPLICATED_BY", "MC-100", "MC-200") shouldBeRight ModuleResponse
+        resolvedList shouldBe(mutableListOf())
+        linkMap shouldBe(mutableMapOf())
+    }
+
     "should resolve as duplicate and link to parent ticket" {
         val command = DuplicatedByCommand()
         val resolvedList = mutableListOf<String>()

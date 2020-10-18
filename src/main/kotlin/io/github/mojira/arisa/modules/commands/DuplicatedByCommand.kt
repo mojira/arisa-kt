@@ -27,11 +27,13 @@ class DuplicatedByCommand : Command {
             }
         }
         assertNotEmpty(acceptedTicketKeys)
-        acceptedTicketKeys.mapNotNull {
+        val acceptedTickets = acceptedTicketKeys.mapNotNull {
             val childIssueEither = issue.getOtherIssue(it)
             val childIssue = if (childIssueEither.isRight()) (childIssueEither as Either.Right).b else null
             if (childIssue?.resolution.getOrDefault("Unresolved") == "Unresolved") childIssue else null
-        }.forEach {
+        }
+        assertNotEmpty(acceptedTickets)
+        acceptedTickets.forEach {
             it.resolveAsDuplicate()
             it.createLink("Duplicate", issue.key, true)
         }

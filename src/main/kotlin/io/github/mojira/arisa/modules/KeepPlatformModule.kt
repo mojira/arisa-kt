@@ -50,10 +50,4 @@ class KeepPlatformModule(
 
     private fun isKeepPlatformTag(comment: Comment) =
             comment.body?.contains(keepPlatformTag) ?: false
-
-    private fun String?.getOrDefault(default: String) =
-        if (isNullOrBlank())
-            default
-        else
-            this
 }

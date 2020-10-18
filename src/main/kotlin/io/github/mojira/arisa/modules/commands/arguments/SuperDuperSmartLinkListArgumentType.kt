@@ -10,7 +10,7 @@ import io.github.mojira.arisa.modules.splitElemsByCommas
 
 data class LinkList(
     val type: String,
-    val list: List<String>
+    val keys: List<String>
 )
 
 class SuperDuperSmartLinkListArgumentType : ArgumentType<LinkList> {

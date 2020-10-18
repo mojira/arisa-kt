@@ -5,26 +5,21 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
+import com.mojang.brigadier.CommandDispatcher
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.commands.AddLinksCommand
-import io.github.mojira.arisa.modules.commands.AddVersionCommand
-import io.github.mojira.arisa.modules.commands.Command
-import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
-import io.github.mojira.arisa.modules.commands.DeleteLinksCommand
-import io.github.mojira.arisa.modules.commands.FixedCommand
-import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
+import io.github.mojira.arisa.modules.commands.CommandSource
+import io.github.mojira.arisa.modules.commands.getCommandDispatcher
+import kotlinx.coroutines.runBlocking
 import java.time.Instant
+import kotlin.reflect.KFunction1
 
-// TODO if we get a lot of commands it might make sense to create a command registry
 class CommandModule(
-    val addLinksCommand: Command = AddLinksCommand(),
-    val addVersionCommand: Command = AddVersionCommand(),
-    val fixedCommand: Command = FixedCommand(),
-    val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
-    val deleteCommentsCommand: Command = DeleteCommentsCommand(),
-    val deleteLinksCommand: Command = DeleteLinksCommand()
+    private val prefix: String,
+    getDispatcher: KFunction1<String, CommandDispatcher<CommandSource>> = ::getCommandDispatcher
 ) : Module {
+    private val commandDispatcher = getDispatcher(prefix)
+
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
             val staffComments = comments
@@ -35,17 +30,17 @@ class CommandModule(
             assertNotEmpty(staffComments).bind()
 
             val results = staffComments
-                .map { it.author.name to executeCommand(it.body!!, this, userIsMod(it)) }
+                .map { it to executeCommand(it, this) }
 
             if (results.isEmpty()) {
                 OperationNotNeededModuleResponse.left().bind()
             }
-            results.forEach { (username, result) ->
+            results.forEach { (comment, result) ->
                 if (result.isLeft()) {
-                    addRawRestrictedComment("Command execution failed.\n~Author: $username~", "helper")
-                    result.bind()
+                    comment.update("${comment.body}\n----\n(x) ${(result as Either.Left).a.message}.")
+                    result.toFailedModuleEither().bind()
                 } else {
-                    addRawRestrictedComment("Command execution was successful.\n~Author: $username~", "helper")
+                    comment.update("${comment.body}\n----\n(/) ${(result as Either.Right).b}.")
                 }
             }
             ModuleResponse.right().bind()
@@ -53,29 +48,12 @@ class CommandModule(
     }
 
     @Suppress("SpreadOperator")
-    private fun executeCommand(comment: String, issue: Issue, userIsMod: Boolean): Either<ModuleError, ModuleResponse> {
-        val split = comment.split("\\s+".toRegex())
-        val arguments = split.toTypedArray()
-        return when (split[0]) {
-            // TODO this should be configurable if we switch to a registry
-            // TODO do we want to add the response of a module via editing the comment?
-            "ARISA_ADD_LINKS" -> if (userIsMod) {
-                addLinksCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left()
-            "ARISA_ADD_VERSION" -> addVersionCommand(issue, *arguments) // FUCKED
-            "ARISA_FIXED" -> if (userIsMod) {
-                fixedCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left() // FUCKED
-            "ARISA_PURGE_ATTACHMENT" -> if (userIsMod) {
-                purgeAttachmentCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left() // FUCKED
-            "ARISA_REMOVE_COMMENTS" -> if (userIsMod) {
-                deleteCommentsCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left() // FUCKED
-            "ARISA_REMOVE_LINKS" -> if (userIsMod) {
-                deleteLinksCommand(issue, *arguments)
-            } else OperationNotNeededModuleResponse.left()
-            else -> OperationNotNeededModuleResponse.left()
+    private fun executeCommand(comment: Comment, issue: Issue): Either<Throwable, Int> {
+        val source = CommandSource(issue, comment)
+        return runBlocking {
+            Either.catch {
+                commandDispatcher.execute(comment.body, source)
+            }
         }
     }
 
@@ -83,14 +61,11 @@ class CommandModule(
 
     private fun isProbablyACommand(comment: Comment) =
         !comment.body.isNullOrBlank() &&
-                comment.body.startsWith("ARISA_") &&
+                comment.body.startsWith("${prefix}_") &&
                 (comment.body.count { it.isWhitespace() } > 0)
 
     private fun userIsVolunteer(comment: Comment) =
         comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
-
-    private fun userIsMod(comment: Comment) =
-        comment.getAuthorGroups()?.any { it == "global-moderators" || it == "staff" } ?: false
 
     private fun isStaffRestricted(comment: Comment) =
         comment.visibilityType == "group" && (comment.visibilityValue == "staff" || comment.visibilityValue == "helper")

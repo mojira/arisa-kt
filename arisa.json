@@ -257,7 +257,8 @@
           "Unresolved",
           "Won't Fix",
           "Works As Intended"
-        ]
+        ],
+        "commandPrefix": "ARISA"
       },
       "removeVersion": {
         "resolutions": [

@@ -3,7 +3,7 @@ package io.github.mojira.arisa.modules.commands
 import io.github.mojira.arisa.domain.Issue
 
 class AddVersionCommand {
-    fun invoke(issue: Issue, version: String): Int {
+    operator fun invoke(issue: Issue, version: String): Int {
         if (issue.affectedVersions.any { it.name == version }) {
             throw CommandExceptions.VERSION_ALREADY_AFFECTED.create(version)
         }

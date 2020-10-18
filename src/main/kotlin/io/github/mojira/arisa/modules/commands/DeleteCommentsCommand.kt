@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 class DeleteCommentsCommand {
     @Suppress("MagicNumber")
-    fun invoke(issue: Issue, name: String): Int {
+    operator fun invoke(issue: Issue, name: String): Int {
         val comments = issue.comments
             .filter { it.visibilityValue != "staff" }
             .filter { it.author.name == name }

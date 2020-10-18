@@ -37,10 +37,10 @@ class CommandModule(
             }
             results.forEach { (comment, result) ->
                 if (result.isLeft()) {
-                    comment.update("${comment.body}\n----\n(x) ${(result as Either.Left).a.message}.")
+                    comment.update("(x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
                     result.toFailedModuleEither().bind()
                 } else {
-                    comment.update("${comment.body}\n----\n(/) ${(result as Either.Right).b}.")
+                    comment.update("(/) ${(result as Either.Right).b}.\n----\n${comment.body}")
                 }
             }
             ModuleResponse.right().bind()

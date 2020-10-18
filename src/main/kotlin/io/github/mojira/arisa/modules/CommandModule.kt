@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.CommandSource
@@ -37,10 +38,10 @@ class CommandModule(
             }
             results.forEach { (comment, result) ->
                 if (result.isLeft()) {
-                    comment.update("(x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
+                    comment.update("[~arisabot] (x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
                     result.toFailedModuleEither().bind()
                 } else {
-                    comment.update("(/) ${(result as Either.Right).b}.\n----\n${comment.body}")
+                    comment.update("[~arisabot] (/) ${(result as Either.Right).b}.\n----\n${comment.body}")
                 }
             }
             ModuleResponse.right().bind()

@@ -70,6 +70,10 @@
           "ipa",
           "apk",
           "pkg",
+          "php",
+          "scpt",
+          "cpgz",
+          "iso",
           "rtf"
         ],
         "comment": "attach-new-attachment"

@@ -103,7 +103,6 @@
           "msh1xml",
           "msh2xml",
           "scf",
-          "pot",
           "rtf"
         ],
         "comment": "attach-new-attachment"

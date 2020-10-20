@@ -22,7 +22,7 @@ class AttachmentModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when there is no blacklisted attachments" {
+    "should return OperationNotNeededModuleResponse when there is no excluded attachments" {
         val module = AttachmentModule(listOf(".test"), "attach-new-attachment")
         val attachment = getAttachment(
             name = "testfile"

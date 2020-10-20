@@ -530,7 +530,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasCommented shouldBe false
     }
 
-    "should reopen when comment is restricted, but not to a blacklisted group" {
+    "should reopen when comment is restricted, but not to an excluded group" {
         var hasReopened = false
         var hasCommented = false
 
@@ -576,7 +576,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasCommented shouldBe false
     }
 
-    "should reopen when comment author has no blacklisted groups" {
+    "should reopen when comment author has no excluded groups" {
         var hasReopened = false
         var hasCommented = false
 

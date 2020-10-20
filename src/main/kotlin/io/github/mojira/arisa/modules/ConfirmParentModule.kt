@@ -9,13 +9,13 @@ import io.github.mojira.arisa.domain.Link
 import java.time.Instant
 
 class ConfirmParentModule(
-    private val confirmationStatusWhitelist: List<String>,
+    private val allowedConfirmationStatuses: List<String>,
     private val targetConfirmationStatus: String,
     private val linkedThreshold: Double
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertConfirmationStatusWhitelisted(confirmationStatus, confirmationStatusWhitelist).bind()
+            assertConfirmationStatusAllowed(confirmationStatus, allowedConfirmationStatuses).bind()
             assertTrue(isDuplicatedEnough(issue).bind()).bind()
             updateConfirmationStatus(targetConfirmationStatus)
         }
@@ -40,8 +40,8 @@ class ConfirmParentModule(
 
     private fun isDuplicatedLink(link: Link): Boolean = link.type == "Duplicate" && !link.outwards
 
-    private fun assertConfirmationStatusWhitelisted(status: String?, whitelist: List<String>) =
-        if ((status.getOrDefault("Unconfirmed")) in whitelist) {
+    private fun assertConfirmationStatusAllowed(status: String?, allowedStatuses: List<String>) =
+        if ((status.getOrDefault("Unconfirmed")) in allowedStatuses) {
             Unit.right()
         } else {
             OperationNotNeededModuleResponse.left()

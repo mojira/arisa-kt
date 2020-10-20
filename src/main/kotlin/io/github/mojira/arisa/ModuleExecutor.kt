@@ -131,7 +131,7 @@ class ModuleExecutor(
         onQueryNotAtResultEnd: () -> Unit,
         newPostedCommentCache: Cache<MutableSet<String>>
     ): List<Issue> {
-        val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
+        val projects = (config[moduleConfig.projects] ?: config[Arisa.Issues.projects])
         val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
         val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
         val failedTicketsJQL = with(rerunTickets) {

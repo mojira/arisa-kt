@@ -15,8 +15,8 @@ import java.time.temporal.ChronoUnit
 const val TWO_SECONDS_IN_MILLIS = 2000
 
 class ReopenAwaitingModule(
-    private val blacklistedRoles: List<String>,
-    private val blacklistedVisibilities: List<String>,
+    private val excludedRoles: List<String>,
+    private val excludedVisibilities: List<String>,
     private val softArPeriod: Long,
     private val keepARTag: String,
     private val message: String
@@ -70,9 +70,9 @@ class ReopenAwaitingModule(
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
         .filter {
             val roles = it.getAuthorGroups()
-            roles == null || roles.intersect(blacklistedRoles).isEmpty()
+            roles == null || roles.intersect(excludedRoles).isEmpty()
         }
-        .filterNot { it.visibilityType == "group" && blacklistedVisibilities.contains(it.visibilityValue) }
+        .filterNot { it.visibilityType == "group" && excludedVisibilities.contains(it.visibilityValue) }
 
     private fun getValidChangeLog(
         changeLog: List<ChangeLogItem>,

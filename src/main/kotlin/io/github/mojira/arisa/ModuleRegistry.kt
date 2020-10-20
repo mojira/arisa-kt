@@ -89,7 +89,7 @@ class ModuleRegistry(private val config: Config) {
     init {
         register(
             Modules.Attachment,
-            AttachmentModule(config[Modules.Attachment.extensionBlacklist], config[Modules.Attachment.comment])
+            AttachmentModule(config[Modules.Attachment.excludedExtensions], config[Modules.Attachment.comment])
         )
 
         register(Modules.CHK, CHKModule())
@@ -97,7 +97,7 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.ConfirmParent,
             ConfirmParentModule(
-                config[Modules.ConfirmParent.confirmationStatusWhitelist],
+                config[Modules.ConfirmParent.allowedConfirmationStatuses],
                 config[Modules.ConfirmParent.targetConfirmationStatus],
                 config[Modules.ConfirmParent.linkedThreshold]
             )
@@ -106,9 +106,9 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.MultiplePlatforms,
             MultiplePlatformsModule(
-                config[Modules.MultiplePlatforms.platformWhitelist],
+                config[Modules.MultiplePlatforms.allowedPlatforms],
                 config[Modules.MultiplePlatforms.targetPlatform],
-                config[Modules.MultiplePlatforms.transferredPlatformBlacklist],
+                config[Modules.MultiplePlatforms.excludedTransferredPlatforms],
                 config[Modules.MultiplePlatforms.keepPlatformTag]
             )
         )
@@ -217,8 +217,8 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.ReopenAwaiting,
             ReopenAwaitingModule(
-                config[Modules.ReopenAwaiting.blacklistedRoles],
-                config[Modules.ReopenAwaiting.blacklistedVisibilities],
+                config[Modules.ReopenAwaiting.excludedRoles],
+                config[Modules.ReopenAwaiting.excludedVisibilities],
                 config[Modules.ReopenAwaiting.softARDays],
                 config[Modules.ReopenAwaiting.keepARTag],
                 config[Modules.ReopenAwaiting.message]

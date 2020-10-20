@@ -89,7 +89,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when child report Platform is blacklisted" {
+    "should return OperationNotNeededModuleResponse when child report Platform is excluded" {
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
         val issue = mockIssue(
             platform = "Xbox One",

@@ -10,27 +10,27 @@ import io.github.mojira.arisa.domain.Link
 import java.time.Instant
 
 class MultiplePlatformsModule(
-    private val platformWhitelist: List<String>,
+    private val allowedPlatforms: List<String>,
     private val targetPlatform: String,
-    private val transferredPlatformBlacklist: List<String>,
+    private val excludedTransferredPlatforms: List<String>,
     private val keepPlatformTag: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertPlatformWhitelisted(platform, platformWhitelist).bind()
-            assertTrue(isDuplicatedWithDifferentPlatforms(platform, transferredPlatformBlacklist, issue).bind()).bind()
+            assertPlatformAllowed(platform, allowedPlatforms).bind()
+            assertTrue(isDuplicatedWithDifferentPlatforms(platform, excludedTransferredPlatforms, issue).bind()).bind()
             assertNotKeepPlatformTag(comments).bind()
             updatePlatforms(targetPlatform)
         }
     }
 
-    private fun isDuplicatedWithDifferentPlatforms(platform: String?, blacklist: List<String>, issue: Issue):
+    private fun isDuplicatedWithDifferentPlatforms(platform: String?, excludedPlatforms: List<String>, issue: Issue):
             Either<ModuleError, Boolean> = Either.fx {
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
                 val child = it.issue.getFullIssue().toFailedModuleEither().bind()
-                if (child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
+                if (child.platform !in excludedPlatforms && child.platform != platform.getOrDefault("None")) {
                     return@fx true
                 }
             }
@@ -53,8 +53,8 @@ class MultiplePlatformsModule(
     private fun isKeepPlatformTag(comment: Comment) =
             comment.body?.contains(keepPlatformTag) ?: false
 
-    private fun assertPlatformWhitelisted(status: String?, whitelist: List<String>) =
-        if ((status.getOrDefault("None")) in whitelist) {
+    private fun assertPlatformAllowed(status: String?, allowedPlatforms: List<String>) =
+        if ((status.getOrDefault("None")) in allowedPlatforms) {
             Unit.right()
         } else {
             OperationNotNeededModuleResponse.left()

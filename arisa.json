@@ -48,7 +48,7 @@
           "Won't Fix",
           "Works As Intended"
         ],
-        "extensionBlacklist": [
+        "excludedExtensions": [
           "jar",
           "exe",
           "0xe",
@@ -200,24 +200,24 @@
       },
       "chk": {
         "excludedStatuses": ["Postponed"],
-        "whitelist": [
+        "projects": [
           "MC",
           "MCPE",
           "MCL"
         ]
       },
       "confirmParent": {
-        "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
+        "allowedConfirmationStatuses": ["Unconfirmed", "Plausible"],
         "targetConfirmationStatus": "Community Consensus",
         "linkedThreshold": 3.0,
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCPE"
         ]
       },
       "multiplePlatforms": {
-        "platformWhitelist": [
+        "allowedPlatforms": [
           "Amazon",
           "Android",
           "Gear VR",
@@ -229,23 +229,23 @@
           "Xbox One"
         ],
         "targetPlatform": "Multiple",
-        "transferredPlatformBlacklist": ["None"],
+        "excludedTransferredPlatforms": ["None"],
         "keepPlatformTag": "MEQS_KEEP_PLATFORM",
-        "whitelist": ["MCPE"]
+        "projects": ["MCPE"]
       },
       "keepPlatform": {
         "keepPlatformTag": "MEQS_KEEP_PLATFORM",
-        "whitelist": ["MCPE"]
+        "projects": ["MCPE"]
       },
       "reopenAwaiting": {
         "resolutions": [
           "Awaiting Response"
         ],
-        "blacklistedRoles": [
+        "excludedRoles": [
           "staff",
           "global-moderators"
         ],
-        "blacklistedVisibilities": [
+        "excludedVisibilities": [
           "helper",
           "staff",
           "global-moderators"
@@ -272,7 +272,7 @@
       "empty": {
         "excludedStatuses": ["Postponed"],
         "message": "incomplete",
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCTEST"
@@ -309,7 +309,7 @@
           "txt",
           "log"
         ],
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCTEST"
@@ -374,13 +374,13 @@
           "txt",
           "log"
         ],
-        "whitelist": [
+        "projects": [
         ],
         "message": "attach-crash-report"
       },
       "revokeConfirmation": {
         "excludedStatuses": ["Postponed"],
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCPE",
@@ -422,14 +422,14 @@
         "resolutions": [
           "Unresolved"
         ],
-        "whitelist": [
+        "projects": [
           "TRASH"
         ]
       },
       "updateLinked": {
         "excludedStatuses": ["Postponed"],
         "updateIntervalHours": 24,
-        "whitelist": [
+        "projects": [
           "MC",
           "MCPE",
           "MCL",

@@ -21,7 +21,7 @@ object Arisa : ConfigSpec() {
 
     object Issues : ConfigSpec() {
         val projects by required<List<String>>(
-            description = "The projects to operate on. Used for default whitelist of modules"
+            description = "The projects to operate on. Used for default project allow list of modules"
         )
         val url by required<String>(description = "The base url for the jira instance")
         val checkIntervalSeconds by required<Long>(description = "The interval in which all issues are checked")
@@ -58,7 +58,7 @@ object Arisa : ConfigSpec() {
                 false,
                 description = "Optional. If set to true, only this module will be executed."
             )
-            val whitelist by optional<List<String>?>(
+            val projects by optional<List<String>?>(
                 null,
                 description = "Optional. The projects this module should operate on. Default is arisa.issues.projects"
             )
@@ -75,7 +75,7 @@ object Arisa : ConfigSpec() {
         }
 
         object Attachment : ModuleConfigSpec() {
-            val extensionBlacklist by required<List<String>>(
+            val excludedExtensions by required<List<String>>(
                 description = "The extensions that should be removed on issues. Default is no extensions."
             )
             val comment by required<String>(
@@ -155,7 +155,7 @@ object Arisa : ConfigSpec() {
         object CHK : ModuleConfigSpec()
 
         object ConfirmParent : ModuleConfigSpec() {
-            val confirmationStatusWhitelist by required<List<String>>(
+            val allowedConfirmationStatuses by required<List<String>>(
                 description = "List of confirmation status that can be replaced by the target status if Linked is" +
                         " greater than or equal to the threshold."
             )
@@ -169,14 +169,14 @@ object Arisa : ConfigSpec() {
         }
 
         object MultiplePlatforms : ModuleConfigSpec() {
-            val platformWhitelist by required<List<String>>(
+            val allowedPlatforms by required<List<String>>(
                 description = "List of platforms that can be replaced by the target platform if they are" +
                         " different than the replacement."
             )
             val targetPlatform by required<String>(
                 description = "The target platform for tickets with more than one platform"
             )
-            val transferredPlatformBlacklist by required<List<String>>(
+            val excludedTransferredPlatforms by required<List<String>>(
                 description = "List of platforms that do not contribute to having multiple platforms"
             )
             val keepPlatformTag by required<String>(
@@ -193,10 +193,10 @@ object Arisa : ConfigSpec() {
         }
 
         object ReopenAwaiting : ModuleConfigSpec() {
-            val blacklistedRoles by required<List<String>>(
+            val excludedRoles by required<List<String>>(
                 description = "Comments that were posted by someone who is member of this role should be ignored."
             )
-            val blacklistedVisibilities by required<List<String>>(
+            val excludedVisibilities by required<List<String>>(
                 description = "Comments that are restricted to one of these roles should be ignored"
             )
             val keepARTag by required<String>(

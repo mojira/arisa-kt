@@ -109,7 +109,7 @@ class ModuleExecutorTest : StringSpec({
         result.size shouldBe 1
     }
 
-    "should filter issues where project is not in global whitelist" {
+    "should filter issues whose project is not permitted global project list" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
             searchIssues = { _, _, _, _, _ -> listOf(mockIssue(project = mockProject(key = "TEST"))) }
@@ -128,7 +128,7 @@ class ModuleExecutorTest : StringSpec({
         result.shouldBeEmpty()
     }
 
-    "should filter issues where project is not in module whitelist" {
+    "should filter issues whose project is not permitted in module project list" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
             searchIssues = { _, _, _, _, _ -> listOf(mockIssue(project = mockProject(key = "MCD"))) }

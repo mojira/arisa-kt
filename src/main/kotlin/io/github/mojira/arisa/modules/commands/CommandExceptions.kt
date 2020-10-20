@@ -13,9 +13,13 @@ object CommandExceptions {
         LiteralMessage("The ticket was already resolved as $it")
     }
 
-    val INVALID_TICKET_KEY = DynamicCommandExceptionType {
-        LiteralMessage("Found invalid ticket key in ${(it as List<*>).joinToString()}")
-    }
+    val INVALID_LINK_TYPE = SimpleCommandExceptionType(
+        LiteralMessage("Cannot parse a valid link type")
+    )
+
+    val INVALID_TICKET_KEY = SimpleCommandExceptionType(
+        LiteralMessage("Found invalid ticket key")
+    )
 
     val LEFT_EITHER = DynamicCommandExceptionType {
         LiteralMessage("Something went wrong, but I'm too lazy to interpret the detail (>ω<): $it")
@@ -23,10 +27,6 @@ object CommandExceptions {
 
     val NO_SUCH_VERSION = DynamicCommandExceptionType {
         LiteralMessage("The version $it doesn't exist in this project")
-    }
-
-    val UNKNOWN_LINK_TYPE = DynamicCommandExceptionType {
-        LiteralMessage("Cannot parse a valid link type from $it")
     }
 
     val VERSION_ALREADY_AFFECTED = DynamicCommandExceptionType {

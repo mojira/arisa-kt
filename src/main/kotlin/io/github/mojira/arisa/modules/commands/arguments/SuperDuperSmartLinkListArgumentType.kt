@@ -26,7 +26,7 @@ class SuperDuperSmartLinkListArgumentType : ArgumentType<LinkList> {
 
         val type = list[0]
         if (type == "") {
-            throw CommandExceptions.UNKNOWN_LINK_TYPE.create(remaining)
+            throw CommandExceptions.INVALID_LINK_TYPE.createWithContext(reader)
         }
 
         list.apply {
@@ -34,7 +34,7 @@ class SuperDuperSmartLinkListArgumentType : ArgumentType<LinkList> {
             convertLinks()
         }
         if (list.any { !it.isTicketKey() }) {
-            throw CommandExceptions.INVALID_TICKET_KEY.create(list)
+            throw CommandExceptions.INVALID_TICKET_KEY.createWithContext(reader)
         }
 
         reader.cursor = reader.totalLength

@@ -103,6 +103,8 @@
           ".msh1xml",
           ".msh2xml",
           ".scf",
+          ".bundle",
+          ".dylib",
           ".rtf"
         ],
         "comment": "attach-new-attachment"

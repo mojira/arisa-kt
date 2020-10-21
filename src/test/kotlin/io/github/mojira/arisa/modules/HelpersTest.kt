@@ -269,15 +269,15 @@ class HelpersTest : StringSpec({
     }
 
     "getOrDefault when given null should return default value" {
-        (null as String?).getOrDefault("test") shouldBe("test")
+        (null as String?).getOrDefault("test") shouldBe "test"
     }
 
     "getOrDefault when given empty string should return default value" {
-        "".getOrDefault("test") shouldBe("test")
+        "".getOrDefault("test") shouldBe "test"
     }
 
     "getOrDefault when given non-empty string should return that string" {
-        "value".getOrDefault("test") shouldBe("value")
+        "value".getOrDefault("test") shouldBe "value"
     }
 
     "splitElemsByCommas should split arguments by commas" {

@@ -49,11 +49,11 @@ class KeepPlatformModule(
     private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String? {
         val volunteerChange = this.lastOrNull(::changedByVolunteer)
         //           last change by volunteer after markedTime
-        val result = if (volunteerChange != null && volunteerChange.created.isAfter(markedTime)) {
+        return if (volunteerChange != null && volunteerChange.created.isAfter(markedTime)) {
             volunteerChange.changedToString.getOrDefault("None")
         } else {
             // what was first changed from after marked time
-            val userChange = this.firstOrNull {
+            val userChange = firstOrNull {
                 it.created.isAfter(markedTime)
             }
             if (userChange != null) {
@@ -62,6 +62,5 @@ class KeepPlatformModule(
                 null
             }
         }
-        return result
     }
 }

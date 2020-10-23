@@ -194,7 +194,7 @@ class FutureVersionModuleTest : StringSpec({
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
-                versions = listOf(FUTURE_VERSION)
+                versions = listOf(ARCHIVED_VERSION, FUTURE_VERSION)
             )
         )
 
@@ -236,20 +236,29 @@ class FutureVersionModuleTest : StringSpec({
     "should remove future versions added upon ticket creation" {
         var isRemoved = false
         var isResolved = false
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             affectedVersions = listOf(futureVersion),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it }
@@ -260,19 +269,29 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         isResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("message")
     }
 
     "should remove future versions added upon ticket creation by users" {
         var isRemoved = false
         var isResolved = false
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -282,7 +301,7 @@ class FutureVersionModuleTest : StringSpec({
             ),
             affectedVersions = listOf(futureVersion),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it }
@@ -293,19 +312,29 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         isResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("message")
     }
 
     "should not resolve if already resolved" {
         var isRemoved = false
         var preResolved = true
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -315,7 +344,7 @@ class FutureVersionModuleTest : StringSpec({
             affectedVersions = listOf(futureVersion),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { preResolved = false },
             addComment = { addedComment = it }
@@ -326,19 +355,29 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         preResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("panel")
     }
 
     "should remove future versions added via editing" {
         var isRemoved = false
         var isResolved = false
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -347,7 +386,7 @@ class FutureVersionModuleTest : StringSpec({
             affectedVersions = listOf(futureVersion),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it }
@@ -358,28 +397,38 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         isResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("message")
     }
 
     "should not resolve if there is another version" {
         var isRemoved = false
         var isResolved = false
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(futureVersion, RELEASED_VERSION),
+            affectedVersions = listOf(futureVersion, releasedVersion),
             changeLog = listOf(ADD_FUTURE_VERSION),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it }
@@ -390,19 +439,79 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         isResolved.shouldBeFalse()
+        versionsAdded.shouldBe(mutableListOf())
         addedComment shouldBe CommentOptions("panel")
     }
 
-    "should remove future versions added by users via editing" {
+    "should not add archived version if it's later than released version" {
         var isRemoved = false
         var isResolved = false
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
+        )
+
+        val archivedVersion = mockVersion(
+            id = "1",
+            released = false,
+            archived = true,
+            add = { versionsAdded.add("archived") }
+        )
+
+        val module = FutureVersionModule("message", "panel")
+        val issue = mockIssue(
+            reporter = mockUser(
+                getGroups = { listOf("user") }
+            ),
+            affectedVersions = listOf(futureVersion),
+            project = mockProject(
+                versions = listOf(releasedVersion, archivedVersion, futureVersion)
+            ),
+            resolveAsAwaitingResponse = { isResolved = true },
+            addComment = { addedComment = it }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
+        addedComment shouldBe CommentOptions("message")
+    }
+
+    "should remove future versions added by users via editing" {
+        var isRemoved = false
+        var isResolved = false
+        val versionsAdded = mutableListOf<String>()
+        var addedComment = CommentOptions("")
+
+        val futureVersion = mockVersion(
+            id = "3",
+            released = false,
+            archived = false,
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -417,7 +526,7 @@ class FutureVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it }
@@ -428,19 +537,29 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         isResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("message")
     }
 
     "should remove future versions added by users without a group via editing" {
         var isRemoved = false
         var isResolved = false
+        val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
         val futureVersion = mockVersion(
             id = "3",
             released = false,
             archived = false,
-            remove = { isRemoved = true }
+            remove = { isRemoved = true },
+            add = { versionsAdded.add("future") }
+        )
+
+        val releasedVersion = mockVersion(
+            id = "2",
+            released = true,
+            archived = false,
+            add = { versionsAdded.add("released") }
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -455,7 +574,7 @@ class FutureVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(RELEASED_VERSION)
+                versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it }
@@ -466,6 +585,7 @@ class FutureVersionModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         isRemoved.shouldBeTrue()
         isResolved.shouldBeTrue()
+        versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("message")
     }
 })

@@ -21,7 +21,7 @@ class FutureVersionModule(
                 .map { it.remove }
             assertNotEmpty(removeFutureVersions).bind()
 
-            val latestVersion = project.versions.lastOrNull(::isFutureVersion.complement())
+            val latestVersion = project.versions.lastOrNull(::isReleasedVersion)
             assertNotNull(latestVersion).bind()
 
             if (affectedVersions.size > removeFutureVersions.size) {
@@ -60,4 +60,7 @@ class FutureVersionModule(
 
     private fun isFutureVersion(version: Version) =
         !version.released && !version.archived
+
+    private fun isReleasedVersion(version: Version) =
+        version.released && !version.archived
 }

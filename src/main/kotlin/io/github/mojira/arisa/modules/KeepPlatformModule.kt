@@ -22,7 +22,7 @@ class KeepPlatformModule(
             val savedPlatform = platformChangeItems.getSavedValue(markedTime)
             assertNotNull(savedPlatform).bind()
             assertNotEquals(currentPlatform, savedPlatform).bind()
-            if (savedPlatform != null) updatePlatforms(savedPlatform)
+            updatePlatforms(savedPlatform!!)
         }
     }
 

@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import arrow.syntax.function.complement
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Version
@@ -21,7 +20,7 @@ class FutureVersionModule(
                 .map { it.remove }
             assertNotEmpty(removeFutureVersions).bind()
 
-            val latestVersion = project.versions.lastOrNull(::isFutureVersion.complement())
+            val latestVersion = project.versions.lastOrNull(::isReleasedVersion)
             assertNotNull(latestVersion).bind()
 
             if (affectedVersions.size > removeFutureVersions.size) {
@@ -60,4 +59,7 @@ class FutureVersionModule(
 
     private fun isFutureVersion(version: Version) =
         !version.released && !version.archived
+
+    private fun isReleasedVersion(version: Version) =
+        version.released && !version.archived
 }

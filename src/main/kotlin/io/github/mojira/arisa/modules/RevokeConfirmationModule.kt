@@ -32,10 +32,4 @@ class RevokeConfirmationModule : Module {
             .created
             .plus(1, ChronoUnit.DAYS)
             .isAfter(Instant.now())
-
-    private fun String?.getOrDefault(default: String) =
-        if (isNullOrBlank())
-            default
-        else
-            this
 }

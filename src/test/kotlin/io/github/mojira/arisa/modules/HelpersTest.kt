@@ -268,6 +268,18 @@ class HelpersTest : StringSpec({
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
     }
 
+    "getOrDefault when given null should return default value" {
+        (null as String?).getOrDefault("test") shouldBe "test"
+    }
+
+    "getOrDefault when given empty string should return default value" {
+        "".getOrDefault("test") shouldBe "test"
+    }
+
+    "getOrDefault when given non-empty string should return that string" {
+        "value".getOrDefault("test") shouldBe "value"
+    }
+
     "splitElemsByCommas should split arguments by commas" {
         val list = mutableListOf("1", "2,", ",3", "4,5")
         list.splitElemsByCommas()

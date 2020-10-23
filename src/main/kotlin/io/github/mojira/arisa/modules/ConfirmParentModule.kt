@@ -46,10 +46,4 @@ class ConfirmParentModule(
         } else {
             OperationNotNeededModuleResponse.left()
         }
-
-    private fun String?.getOrDefault(default: String) =
-        if (isNullOrBlank())
-            default
-        else
-            this
 }

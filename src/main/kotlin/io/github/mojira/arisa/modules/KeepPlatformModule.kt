@@ -46,12 +46,6 @@ class KeepPlatformModule(
     private fun isKeepPlatformTag(comment: Comment) =
             comment.body?.contains(keepPlatformTag) ?: false
 
-    private fun String?.getOrDefault(default: String) =
-        if (isNullOrBlank())
-            default
-        else
-            this
-
     private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String? {
         val volunteerChange = this.lastOrNull(::changedByVolunteer)
         //           last change by volunteer after markedTime

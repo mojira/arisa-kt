@@ -15,13 +15,19 @@ import io.kotest.matchers.shouldBe
 private val duplicatedLink = mockLink(
     outwards = false,
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(platform = "None").right() }
+        getFullIssue = { mockIssue(platform = "None", resolution = "Duplicate").right() }
     )
 )
 private val duplicatedLink2 = mockLink(
     outwards = false,
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(platform = "Amazon").right() }
+        getFullIssue = { mockIssue(platform = "Amazon", resolution = "Duplicate").right() }
+    )
+)
+private val duplicatedLinkNotResolved = mockLink(
+    outwards = false,
+    issue = mockLinkedIssue(
+        getFullIssue = { mockIssue(platform = "None", resolution = null).right() }
     )
 )
 private val throwable = Throwable(message = "example")
@@ -78,6 +84,18 @@ class MultiplePlatformsModuleTest : StringSpec({
         val issue = mockIssue(
             platform = "Multiple",
             links = listOf(duplicatedLink2)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the child is not resolved as Duplicate" {
+        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
+        val issue = mockIssue(
+            platform = "Amazon",
+            links = listOf(duplicatedLinkNotResolved)
         )
 
         val result = module(issue, RIGHT_NOW)

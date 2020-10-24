@@ -76,7 +76,8 @@ object Arisa : ConfigSpec() {
 
         object Attachment : ModuleConfigSpec() {
             val extensionBlacklist by required<List<String>>(
-                description = "The extensions that should be removed on issues. Default is no extensions."
+                description = "The extensions (including leading dots) that should be removed from issues. " +
+                        "Default is no extensions."
             )
             val comment by required<String>(
                 description = "The key of the message that is posted when this module succeeds."

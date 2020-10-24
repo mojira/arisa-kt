@@ -119,6 +119,12 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
     OperationNotNeededModuleResponse.left()
 }
 
+fun String?.getOrDefault(default: String) =
+    if (isNullOrBlank())
+        default
+    else
+        this
+
 fun MutableList<String>.splitElemsByCommas() {
     val newList = this.flatMap { s ->
         s.split(',').filter {

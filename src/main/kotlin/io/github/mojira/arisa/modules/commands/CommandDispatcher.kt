@@ -1,7 +1,6 @@
 package io.github.mojira.arisa.modules.commands
 
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.arguments.IntegerArgumentType.getInteger
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
@@ -10,21 +9,28 @@ import com.mojang.brigadier.context.CommandContext
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
-import io.github.mojira.arisa.modules.commands.arguments.SuperDuperSmartLinkListArgumentType
+import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 
 data class CommandSource(
     val issue: Issue,
     val comment: Comment
 )
 
-fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
+fun getCommandDispatcher(
+    prefix: String,
+    addLinksCommand: Command<LinkList> = AddLinksCommand(),
+    addVersionCommand: Command<String> = AddVersionCommand(),
+    deleteCommentsCommand: Command<String> = DeleteCommentsCommand(),
+    deleteLinksCommand: Command<LinkList> = DeleteLinksCommand(),
+    fixedCommand: Command<String> = FixedCommand(),
+    purgeAttachmentCommand: Command2<Int, Int> = PurgeAttachmentCommand()
+): CommandDispatcher<CommandSource> {
     return CommandDispatcher<CommandSource>().apply {
-        val addLinksCommand = AddLinksCommand()
         val addLinksCommandNode =
             literal<CommandSource>("${prefix}_ADD_LINKS")
                 .requires(::sentByModerator)
                 .then(
-                    argument<CommandSource, LinkList>("linkList", SuperDuperSmartLinkListArgumentType())
+                    argument<CommandSource, LinkList>("linkList", LinkListArgumentType())
                         .executes {
                             addLinksCommand(
                                 it.source.issue,
@@ -33,7 +39,6 @@ fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
                         }
                 )
 
-        val addVersionCommand = AddVersionCommand()
         val addVersionCommandNode =
             literal<CommandSource>("${prefix}_ADD_VERSION")
                 .then(
@@ -46,7 +51,6 @@ fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
                         }
                 )
 
-        val deleteCommentsCommand = DeleteCommentsCommand()
         val deleteCommentsCommandNodeChild =
             argument<CommandSource, String>("name", greedyString())
                 .executes {
@@ -64,9 +68,8 @@ fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
                 .requires(::sentByModerator)
                 .then(deleteCommentsCommandNodeChild)
 
-        val deleteLinksCommand = DeleteLinksCommand()
         val deleteLinksCommandNodeChild =
-            argument<CommandSource, LinkList>("linkList", SuperDuperSmartLinkListArgumentType())
+            argument<CommandSource, LinkList>("linkList", LinkListArgumentType())
                 .executes {
                     deleteLinksCommand(
                         it.source.issue,
@@ -82,7 +85,6 @@ fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
                 .requires(::sentByModerator)
                 .then(deleteLinksCommandNodeChild)
 
-        val fixedCommand = FixedCommand()
         val fixedCommandNode =
             literal<CommandSource>("${prefix}_FIXED")
                 .requires(::sentByModerator)
@@ -96,7 +98,6 @@ fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
                         }
                 )
 
-        val purgeAttachmentCommand = PurgeAttachmentCommand()
         val purgeAttachmentCommandNode =
             literal<CommandSource>("${prefix}_PURGE_ATTACHMENT")
                 .requires(::sentByModerator)
@@ -105,7 +106,8 @@ fun getCommandDispatcher(prefix: String): CommandDispatcher<CommandSource> {
                         .executes {
                             purgeAttachmentCommand(
                                 it.source.issue,
-                                getInteger(it, "start")
+                                it.getInt("start"),
+                                Int.MAX_VALUE
                             )
                         }
                         .then(

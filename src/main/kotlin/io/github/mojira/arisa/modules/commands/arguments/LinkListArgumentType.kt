@@ -13,7 +13,7 @@ data class LinkList(
     val keys: List<String>
 )
 
-class SuperDuperSmartLinkListArgumentType : ArgumentType<LinkList> {
+class LinkListArgumentType : ArgumentType<LinkList> {
     override fun parse(reader: StringReader): LinkList {
         val remaining = reader.remaining
         val list = remaining

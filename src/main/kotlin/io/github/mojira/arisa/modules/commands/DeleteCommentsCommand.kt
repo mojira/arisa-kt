@@ -3,12 +3,12 @@ package io.github.mojira.arisa.modules.commands
 import io.github.mojira.arisa.domain.Issue
 import java.util.concurrent.TimeUnit
 
-class DeleteCommentsCommand {
+class DeleteCommentsCommand : Command<String> {
     @Suppress("MagicNumber")
-    operator fun invoke(issue: Issue, name: String): Int {
+    override operator fun invoke(issue: Issue, arg: String): Int {
         val comments = issue.comments
             .filter { it.visibilityValue != "staff" }
-            .filter { it.author.name == name }
+            .filter { it.author.name == arg }
 
         Thread {
             comments

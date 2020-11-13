@@ -56,6 +56,8 @@
           ".bat",
           ".msi",
           ".dmg",
+          ".img",
+          ".smi",
           ".run",
           ".lnk",
           ".inf",

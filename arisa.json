@@ -80,6 +80,8 @@
           ".cpgz",
           ".iso",
           ".action",
+          ".saver",
+          ".definition",
           ".esh",
           ".isu",
           ".prg",

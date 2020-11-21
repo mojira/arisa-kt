@@ -737,6 +737,37 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasReopened shouldBe false
         hasCommented shouldBe false
     }
+
+    "should comment the message when there is a keep AR tag and another user has already commented the message" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val tagComment = getComment(
+            body = "MEQS_KEEP_AR",
+            visibilityType = "group",
+            visibilityValue = "staff"
+        )
+        val fakeComment = getComment(
+            body = "not-reopen-ar",
+            author = RANDOM_USER
+        )
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(tagComment, fakeComment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe false
+        hasCommented shouldBe true
+    }
 })
 
 private fun getComment(

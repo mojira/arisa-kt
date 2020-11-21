@@ -40,7 +40,9 @@ class ReopenAwaitingModule(
                 reopen()
             } else {
                 assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
-                addComment(CommentOptions(message))
+                if (comments.none(::isKeepARMessage)) {
+                    addComment(CommentOptions(message))
+                }
             }
         }
     }
@@ -61,6 +63,9 @@ class ReopenAwaitingModule(
     private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
             (comment.body?.contains(keepARTag) ?: false)
+
+    private fun isKeepARMessage(comment: Comment) = comment.author?.name == "arisabot" &&
+            (comment.body?.contains(message) ?: false)
 
     private fun getValidComments(
         comments: List<Comment>,

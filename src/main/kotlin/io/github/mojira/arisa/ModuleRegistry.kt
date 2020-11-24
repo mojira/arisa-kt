@@ -240,7 +240,7 @@ class ModuleRegistry(private val config: Config) {
         )
 
         register(
-            Modules.RemoveVersion, 
+            Modules.RemoveVersion,
             RemoveVersionModule(
                 config[Modules.RemoveVersion.message]
             )

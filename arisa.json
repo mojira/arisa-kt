@@ -308,7 +308,7 @@
           "Works as Intended",
           "Won't Fix"
         ],
-        "message": "removed-version"
+        "message": "panel-removed-version"
       },
       "crash": {
         "excludedStatuses": ["Postponed"],

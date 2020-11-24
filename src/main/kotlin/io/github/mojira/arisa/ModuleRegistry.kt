@@ -239,7 +239,12 @@ class ModuleRegistry(private val config: Config) {
             )
         )
 
-        register(Modules.RemoveVersion, RemoveVersionModule())
+        register(
+            Modules.RemoveVersion, 
+            RemoveVersionModule(
+                config[Modules.RemoveVersion.message]
+            )
+        )
 
         register(Modules.Command, CommandModule())
 

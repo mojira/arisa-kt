@@ -206,7 +206,7 @@
       },
       "chk": {
         "excludedStatuses": ["Postponed"],
-        "whitelist": [
+        "projects": [
           "MC",
           "MCPE",
           "MCL"
@@ -216,7 +216,7 @@
         "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
         "targetConfirmationStatus": "Community Consensus",
         "linkedThreshold": 3.0,
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCPE"
@@ -237,11 +237,11 @@
         "targetPlatform": "Multiple",
         "transferredPlatformBlacklist": ["None"],
         "keepPlatformTag": "MEQS_KEEP_PLATFORM",
-        "whitelist": ["MCPE"]
+        "projects": ["MCPE"]
       },
       "keepPlatform": {
         "keepPlatformTag": "MEQS_KEEP_PLATFORM",
-        "whitelist": ["MCPE"]
+        "projects": ["MCPE"]
       },
       "reopenAwaiting": {
         "resolutions": [
@@ -278,7 +278,7 @@
       "empty": {
         "excludedStatuses": ["Postponed"],
         "message": "incomplete",
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCTEST"
@@ -315,7 +315,7 @@
           "txt",
           "log"
         ],
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCTEST"
@@ -380,13 +380,13 @@
           "txt",
           "log"
         ],
-        "whitelist": [
+        "projects": [
         ],
         "message": "attach-crash-report"
       },
       "revokeConfirmation": {
         "excludedStatuses": ["Postponed"],
-        "whitelist": [
+        "projects": [
           "MC",
           "MCL",
           "MCPE",
@@ -441,14 +441,14 @@
         "resolutions": [
           "Unresolved"
         ],
-        "whitelist": [
+        "projects": [
           "TRASH"
         ]
       },
       "updateLinked": {
         "excludedStatuses": ["Postponed"],
         "updateIntervalHours": 24,
-        "whitelist": [
+        "projects": [
           "MC",
           "MCPE",
           "MCL",

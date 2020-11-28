@@ -280,7 +280,11 @@ object Arisa : ConfigSpec() {
 
         object RemoveIdenticalLink : ModuleConfigSpec()
 
-        object RemoveVersion : ModuleConfigSpec()
+        object RemoveVersion : ModuleConfigSpec() {
+            val message by required<String>(
+                description = "The key of the message that is posted when this module succeeds."
+            )
+        }
 
         object Command : ModuleConfigSpec()
     }

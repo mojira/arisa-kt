@@ -19,7 +19,7 @@ private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1")
 
 class RemoveVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(VERSION),
@@ -34,7 +34,7 @@ class RemoveVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there are no version changes" {
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(VERSION),
@@ -55,7 +55,7 @@ class RemoveVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the version change is before last run" {
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(VERSION),
@@ -78,7 +78,7 @@ class RemoveVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the version change is an removal" {
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(VERSION),
@@ -100,7 +100,7 @@ class RemoveVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the future version is added by a volunteer" {
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(VERSION),
@@ -123,7 +123,7 @@ class RemoveVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when affected versions are empty" {
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(VERSION)
@@ -138,7 +138,7 @@ class RemoveVersionModuleTest : StringSpec({
     "should remove extra versions added via editing" {
         var removed = false
         val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
@@ -158,7 +158,7 @@ class RemoveVersionModuleTest : StringSpec({
     "should remove extra versions added by users via editing" {
         var removed = false
         val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(version),
@@ -184,7 +184,7 @@ class RemoveVersionModuleTest : StringSpec({
     "should remove extra versions added by users without a group via editing" {
         var removed = false
         val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
-        val module = RemoveVersionModule()
+        val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(version),

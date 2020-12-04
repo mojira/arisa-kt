@@ -109,7 +109,7 @@
           ".scf",
           ".bundle",
           ".dylib",
-          ".rtf"
+          ".rtf",
           ".rar"
         ],
         "comment": "attach-new-attachment"

@@ -110,6 +110,7 @@
           ".bundle",
           ".dylib",
           ".rtf"
+          ".rar"
         ],
         "comment": "attach-new-attachment"
       },

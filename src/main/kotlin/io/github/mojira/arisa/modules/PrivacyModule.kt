@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
@@ -43,6 +44,7 @@ class PrivacyModule(
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
                 .filter { it.body?.matches(patterns) ?: false }
+                .filterNot { it.getAuthorGroups()?.any { it == "staff" } ?: false }
                 .map { { it.restrict("${it.body}$commentNote") } }
                 .toList()
 

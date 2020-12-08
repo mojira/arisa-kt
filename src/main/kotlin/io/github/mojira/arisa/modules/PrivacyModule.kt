@@ -43,7 +43,8 @@ class PrivacyModule(
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
                 .filter { it.body?.matches(patterns) ?: false }
-                .filterNot { it.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false }
+                .filterNot { it.getAuthorGroups()?.any { it == "helper" || 
+                    it == "global-moderators" || it == "staff" } ?: false }
                 .map { { it.restrict("${it.body}$commentNote") } }
                 .toList()
 

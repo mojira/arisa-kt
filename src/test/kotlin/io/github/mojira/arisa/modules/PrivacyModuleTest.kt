@@ -259,7 +259,7 @@ class PrivacyModuleTest : StringSpec({
         val issue = mockIssue(
             attachments = listOf(
                 mockAttachment(
-                    getContent = { "--uuid 1312dkkdk2kdart342 -accessToken eyJimfake.12345.fakestuff --userType mojang".toByteArray() }
+                    getContent = { "--uuid 1312dkkdk2kdart342 --accessToken eyJimfake.12345.fakestuff --userType mojang".toByteArray() }
                 )
             ),
             setPrivate = { hasSetPrivate = true }

@@ -252,7 +252,7 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         hasSetPrivate shouldBe true
     }
-    
+
     "should mark as private when the attachment contains access token" {
         var hasSetPrivate = false
 

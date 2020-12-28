@@ -253,7 +253,7 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
     
-     "should mark as private when the attachment contains access token" {
+    "should mark as private when the attachment contains access token" {
         var hasSetPrivate = false
 
         val issue = mockIssue(

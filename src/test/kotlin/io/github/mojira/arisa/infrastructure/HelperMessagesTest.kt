@@ -69,7 +69,7 @@ class HelperMessagesTest : StringSpec({
                 ],
                 "normal-list-filter": [
                     {
-                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "project": ["mc", "mcd", "mcpe", "mcl"],
                         "name": "Normal message with a list filter",
                         "message": "Normal message with a list filter",
                         "fillname": []
@@ -77,7 +77,7 @@ class HelperMessagesTest : StringSpec({
                 ],
                 "with-variable": [
                     {
-                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "project": ["mc", "mcd", "mcpe", "mcl"],
                         "name": "With variable",
                         "message": "With %variable%",
                         "localizedMessages": {
@@ -88,7 +88,7 @@ class HelperMessagesTest : StringSpec({
                 ],
                 "with-placeholder": [
                     {
-                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "project": ["mc", "mcd", "mcpe", "mcl"],
                         "name": "With placeholder",
                         "message": "With %s%",
                         "fillname": ["Placeholder"]
@@ -96,7 +96,7 @@ class HelperMessagesTest : StringSpec({
                 ],
                 "i-am-a-bot": [
                     {
-                        "project": ["mc", "mcd", "mcpe", "mcl", "mce"],
+                        "project": ["mc", "mcd", "mcpe", "mcl"],
                         "name": "I am a Bot",
                         "message": "~{color:#888}-- I am a bot.{color}~",
                         "localizedMessages": {

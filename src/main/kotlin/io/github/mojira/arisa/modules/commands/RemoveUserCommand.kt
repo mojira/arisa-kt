@@ -32,10 +32,10 @@ class RemoveUserCommand : Command {
             tickets.add(entries.item(i).childNodes.item(1).textContent.parseTitle())
         }
 
-
         Thread {
             tickets
-                .filter { it.startsWith("TRASH-") }
+                .toSet()
+                .filterNot { it.startsWith("TRASH-") }
                 .map {
                     val either = getIssue(jiraClient, it)
                     if (either.isLeft()) {
@@ -47,7 +47,7 @@ class RemoveUserCommand : Command {
                 .filterNotNull()
                 .forEach {
                     it.comments
-                        .filter { it.visibility.type != "staff" }
+                        .filter { it.visibility?.type != "staff" }
                         .filter { it.author.name == name }
                         .forEachIndexed { index, it ->
                             it.update("Removed by Arisa - Delete user $name", "group", "staff")

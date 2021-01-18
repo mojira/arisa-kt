@@ -27,8 +27,10 @@ import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
-fun connectToJira(username: String, password: String, url: String) =
-    JiraClient(url, TokenCredentials(username, password))
+fun connectToJira(username: String, password: String, url: String): Pair<JiraClient, TokenCredentials> {
+    val credentials = TokenCredentials(username, password)
+    return JiraClient(url, credentials) to credentials
+}
 
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {

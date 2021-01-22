@@ -14,6 +14,7 @@ import io.github.mojira.arisa.modules.commands.DeleteCommentsCommand
 import io.github.mojira.arisa.modules.commands.DeleteLinksCommand
 import io.github.mojira.arisa.modules.commands.FixedCommand
 import io.github.mojira.arisa.modules.commands.PurgeAttachmentCommand
+import io.github.mojira.arisa.modules.commands.RemoveUserCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry
@@ -23,7 +24,8 @@ class CommandModule(
     val fixedCommand: Command = FixedCommand(),
     val purgeAttachmentCommand: Command = PurgeAttachmentCommand(),
     val deleteCommentsCommand: Command = DeleteCommentsCommand(),
-    val deleteLinksCommand: Command = DeleteLinksCommand()
+    val deleteLinksCommand: Command = DeleteLinksCommand(),
+    val removeUserCommand: Command = RemoveUserCommand()
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
         with(issue) {
@@ -74,6 +76,9 @@ class CommandModule(
             } else OperationNotNeededModuleResponse.left()
             "ARISA_REMOVE_LINKS" -> if (userIsMod) {
                 deleteLinksCommand(issue, *arguments)
+            } else OperationNotNeededModuleResponse.left()
+            "ARISA_REMOVE_USER" -> if (userIsMod) {
+                removeUserCommand(issue, *arguments)
             } else OperationNotNeededModuleResponse.left()
             else -> OperationNotNeededModuleResponse.left()
         }

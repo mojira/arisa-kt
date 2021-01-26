@@ -22,7 +22,7 @@ class RemoveUserCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
         val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
-        val streamName = name.replace("+","_")
+        val streamName = name.replace("+", "_")
         val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
         credentials.authenticate(request)
         val inputStream = DefaultHttpClient().execute(HttpHost("bugs.mojang.com"), request).entity.content
@@ -58,7 +58,6 @@ class RemoveUserCommand : Command {
                             }
                         }
                 }
-
         }.start()
         ModuleResponse.right()
     }

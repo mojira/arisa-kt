@@ -52,7 +52,8 @@ class RemoveUserCommand : Command {
                         .filter { it.author.name == name }
                         .forEachIndexed { index, it ->
                             it.update("Removed by Arisa - Delete user $name", "group", "staff")
-                            if (index % 10 == 0) {
+                            const divisor = 10
+                            if (index % divisor == 0) {
                                 TimeUnit.SECONDS.sleep(1)
                             }
                         }

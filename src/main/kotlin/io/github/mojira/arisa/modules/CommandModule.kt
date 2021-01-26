@@ -18,6 +18,7 @@ import io.github.mojira.arisa.modules.commands.RemoveUserCommand
 import java.time.Instant
 
 // TODO if we get a lot of commands it might make sense to create a command registry
+@Supress("LongParameterList","ComplexMethod")
 class CommandModule(
     val addLinksCommand: Command = AddLinksCommand(),
     val addVersionCommand: Command = AddVersionCommand(),

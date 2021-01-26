@@ -30,6 +30,7 @@ const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
 lateinit var jiraClient: JiraClient
 lateinit var credentials: TokenCredentials
+@Suppress("LongMethod")
 fun main() {
     val config = readConfig()
     setWebhookOfLogger(config)

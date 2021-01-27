@@ -23,7 +23,7 @@ class PrivateDuplicateModule(
                     val parent = it.issue.getFullIssue().toFailedModuleEither().bind()
                     assertParentPrivate(parent.securityLevel, parent.project.privateSecurity).bind()
                     setPrivate()
-                    if(parentHasKeepPrivateTag(parent)){
+                    if (parentHasKeepPrivateTag(parent)) {
                         addRawRestrictedComment(keepPrivateTag!!, "staff")
                     }
                 }

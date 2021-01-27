@@ -104,9 +104,9 @@ object Arisa : ConfigSpec() {
         }
 
         object Eliminator : ModuleConfigSpec() {
-            val usernames by optional<List<String>>(
-                emptyList<String>(),
-                description = "An array of usernames whose activity should be eliminated from the bug tracker."
+            val usernames by optional(
+                emptyList<Int>(),
+                description = "An array of username hashcodes whose activity should be eliminated from the bug tracker."
             )
         }
 

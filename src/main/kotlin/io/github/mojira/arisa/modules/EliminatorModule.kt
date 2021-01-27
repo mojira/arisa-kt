@@ -8,16 +8,16 @@ import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class EliminatorModule(
-    private val eliminatedUsernames: List<String>
+    private val eliminatedUsernames: List<Int>
 ) : Module {
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val attachmentFunctions = attachments
-                .filter { it.uploader?.name in eliminatedUsernames }
+                .filter { it.uploader?.name?.hashCode() in eliminatedUsernames }
                 .map { it.remove }
             val commentFunctions = comments
-                .filter { it.author.name in eliminatedUsernames }
+                .filter { it.author.name.hashCode() in eliminatedUsernames }
                 .filter(::isNotStaffRestricted)
                 .map { it.restrict.partially1((it.body ?: "") + "\n----\nUser is being eliminated by [~arisabot].") }
 
@@ -37,7 +37,7 @@ class EliminatorModule(
     }
 
     private fun isBadTicket(issue: Issue) =
-        issue.reporter?.name in eliminatedUsernames && issue.securityLevel != issue.project.privateSecurity
+        issue.reporter?.name.hashCode() in eliminatedUsernames && issue.securityLevel != issue.project.privateSecurity
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

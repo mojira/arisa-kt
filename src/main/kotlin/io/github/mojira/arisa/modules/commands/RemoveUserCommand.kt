@@ -52,7 +52,7 @@ class RemoveUserCommand : Command {
                         .filter { it.visibility?.type != "staff" }
                         .filter { it.author.name == name }
                         .forEachIndexed { index, it ->
-                            it.update("$(it.body?)\n\n~Removed by Arisa - Delete user $name~", "group", "staff")
+                            it.update(it.body?.plus("\n\n~Removed by Arisa - Delete user $name~"), "group", "staff")
                             if (index % DIVISOR == 0) {
                                 TimeUnit.SECONDS.sleep(1)
                             }

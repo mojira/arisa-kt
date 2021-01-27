@@ -103,13 +103,6 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object Eliminator : ModuleConfigSpec() {
-            val usernames by optional(
-                emptyList<Int>(),
-                description = "An array of username hashcodes whose activity should be eliminated from the bug tracker."
-            )
-        }
-
         object Piracy : ModuleConfigSpec() {
             val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."

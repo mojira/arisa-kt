@@ -16,17 +16,17 @@ class PrivateDuplicateModule(
         Either.fx {
             assertNotNull(keepPrivateTag).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
-            issue.links
+            val duplicatedReports = links
                 .filter(::isDuplicatesLink)
-                .forEach {
-                    assertIsPublic(securityLevel, project.privateSecurity).bind()
-                    val parent = it.issue.getFullIssue().toFailedModuleEither().bind()
-                    assertParentPrivate(parent.securityLevel, parent.project.privateSecurity).bind()
-                    setPrivate()
-                    if (parentHasKeepPrivateTag(parent)) {
-                        addRawRestrictedComment(keepPrivateTag!!, "staff")
-                    }
+                .map { it.issue.getFullIssue().toFailedModuleEither().bind() }
+            assertGreaterThan(duplicatedReports.size, 0).bind()
+            duplicatedReports.forEach {
+                assertParentPrivate(it.securityLevel, it.project.privateSecurity).bind()
+                setPrivate()
+                if (parentHasKeepPrivateTag(it)) {
+                    addRawRestrictedComment(keepPrivateTag!!, "staff")
                 }
+            }
         }
     }
 
@@ -36,14 +36,14 @@ class PrivateDuplicateModule(
 
     private fun parentHasKeepPrivateTag(parent: Issue): Boolean = parent.comments.any(::isKeepPrivateTag)
 
-    private fun isDuplicatesLink(link: Link): Boolean = link.type == "Duplicates" && link.outwards
+    private fun isDuplicatesLink(link: Link): Boolean = link.type == "Duplicate" && link.outwards
 
     private fun assertIsPublic(securityLevel: String?, privateLevel: String) = when {
         securityLevel == privateLevel -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
     private fun assertParentPrivate(securityLevel: String?, privateLevel: String) = when {
-        securityLevel == privateLevel -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
+        securityLevel == privateLevel -> Unit.right()
+        else -> OperationNotNeededModuleResponse.left()
     }
 }

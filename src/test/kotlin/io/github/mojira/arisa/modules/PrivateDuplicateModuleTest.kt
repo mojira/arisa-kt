@@ -12,13 +12,13 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 private val duplicatesLink1 = mockLink(
-    type = "Duplicates",
+    type = "Duplicate",
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(securityLevel = "private").right() }
     )
 )
 private val duplicatesLinkComment = mockLink(
-    type = "Duplicates",
+    type = "Duplicate",
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(
             securityLevel = "private",
@@ -27,13 +27,16 @@ private val duplicatesLinkComment = mockLink(
     )
 )
 private val duplicatesLink2 = mockLink(
-    type = "Duplicates",
+    type = "Duplicate",
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(securityLevel = "public").right() }
     )
 )
 private val relatesLink = mockLink(
-    type = "Relates"
+    type = "Relates",
+    issue = mockLinkedIssue(
+        getFullIssue = { mockIssue(securityLevel = "private").right() }
+    )
 )
 
 class PrivateDuplicateModuleTest : StringSpec({

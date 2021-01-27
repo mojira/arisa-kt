@@ -21,7 +21,7 @@ class EliminatorModule(
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.author.name in eliminatedUsernames }
                 .filter(::isNotStaffRestricted)
-                .map { it.restrict.partially1((it.body ?: "") + "\nUser is being eliminated by Arisa.") }
+                .map { it.restrict.partially1((it.body ?: "") + "\n----\nUser is being eliminated by [~arisabot].") }
 
             assertEither(
                 assertNotEmpty(attachmentFunctions),

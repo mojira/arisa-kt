@@ -23,6 +23,7 @@ import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.DuplicateMessageModule
+import io.github.mojira.arisa.modules.EliminatorModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
@@ -141,6 +142,13 @@ class ModuleRegistry(private val config: Config) {
         )
 
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
+
+        register(
+            Modules.Eliminator,
+            EliminatorModule(
+                config[Modules.Eliminator.usernames]
+            )
+        )
 
         register(
             Modules.DuplicateMessage,

@@ -22,7 +22,7 @@ class RemoveUserCommand : Command {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
         val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
-        val streamName = name.replace("+", "_")
+        val streamName = name.replace("+", "_").replace("_", "%5C_")
         val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
         credentials.authenticate(request)
         val inputStream = DefaultHttpClient().execute(HttpHost("bugs.mojang.com"), request).entity.content
@@ -52,7 +52,7 @@ class RemoveUserCommand : Command {
                         .filter { it.visibility?.type != "staff" }
                         .filter { it.author.name == name }
                         .forEachIndexed { index, it ->
-                            it.update("Removed by Arisa - Delete user $name", "group", "staff")
+                            it.update(it.body?.plus("\n\n~Removed by Arisa - Delete user $name~"), "group", "staff")
                             if (index % DIVISOR == 0) {
                                 TimeUnit.SECONDS.sleep(1)
                             }

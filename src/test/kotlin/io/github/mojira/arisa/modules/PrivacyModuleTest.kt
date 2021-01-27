@@ -225,14 +225,14 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
-    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {	
-        val issue = mockIssue(	
-            summary = "[~foo@example.com]"	
-        )	
+    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {
+        val issue = mockIssue(
+            summary = "[~foo@example.com]"
+        )
 
-        val result = MODULE(issue, TWO_SECONDS_AGO)	
+        val result = MODULE(issue, TWO_SECONDS_AGO)
 
-        result.shouldBeLeft(OperationNotNeededModuleResponse)	
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should mark as private when the attachment contains session ID" {

@@ -129,25 +129,6 @@
           "Won't Fix": "duplicate-wf"
         }
       },
-      "eliminator": {
-        "resolutions": [
-          "Awaiting Response",
-          "Cannot Reproduce",
-          "Done",
-          "Duplicate",
-          "Fixed",
-          "Incomplete",
-          "Invalid",
-          "Unresolved",
-          "Won't Fix",
-          "Works As Intended"
-        ],
-        "usernames": [
-          610583843,
-          66812442,
-          -645235254
-        ]
-      },
       "piracy": {
         "excludedStatuses": ["Postponed", "Resolved"],
         "message": "pirated-minecraft",

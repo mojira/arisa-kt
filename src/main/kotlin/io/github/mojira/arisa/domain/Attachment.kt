@@ -9,5 +9,5 @@ data class Attachment(
     val mimeType: String,
     val remove: () -> Unit,
     val getContent: () -> ByteArray,
-    val uploader: User
+    val uploader: User?
 )

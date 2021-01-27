@@ -15,7 +15,7 @@ class EliminatorModule(
         Either.fx {
             val attachmentFunctions = attachments
                 .filter { it.created.isAfter(lastRun) }
-                .filter { it.uploader.name in eliminatedUsernames }
+                .filter { it.uploader?.name in eliminatedUsernames }
                 .map { it::remove }
             val commentFunctions = comments
                 .filter { it.created.isAfter(lastRun) }

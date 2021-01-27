@@ -71,7 +71,7 @@ class PrivateDuplicateModuleTest : StringSpec({
         val issue = mockIssue(
             links = listOf(duplicatesLinkComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -90,7 +90,7 @@ class PrivateDuplicateModuleTest : StringSpec({
             securityLevel = "not private",
             links = listOf(duplicatesLinkComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -108,7 +108,7 @@ class PrivateDuplicateModuleTest : StringSpec({
         val issue = mockIssue(
             links = listOf(duplicatesLink1),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

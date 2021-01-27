@@ -235,6 +235,20 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should mark as private when the Email is contained in a link" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            description = "[foo@example.com|mailto:foo@example.com]",
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
     "should mark as private when the attachment contains session ID" {
         var hasSetPrivate = false
 

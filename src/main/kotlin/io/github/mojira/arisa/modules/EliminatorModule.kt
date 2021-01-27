@@ -14,11 +14,9 @@ class EliminatorModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val attachmentFunctions = attachments
-                .filter { it.created.isAfter(lastRun) }
                 .filter { it.uploader?.name in eliminatedUsernames }
                 .map { it::remove }
             val commentFunctions = comments
-                .filter { it.created.isAfter(lastRun) }
                 .filter { it.author.name in eliminatedUsernames }
                 .filter(::isNotStaffRestricted)
                 .map { it.restrict.partially1((it.body ?: "") + "\n----\nUser is being eliminated by [~arisabot].") }

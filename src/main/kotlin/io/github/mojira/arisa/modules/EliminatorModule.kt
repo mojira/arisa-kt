@@ -15,7 +15,7 @@ class EliminatorModule(
         Either.fx {
             val attachmentFunctions = attachments
                 .filter { it.uploader?.name in eliminatedUsernames }
-                .map { it::remove }
+                .map { it.remove }
             val commentFunctions = comments
                 .filter { it.author.name in eliminatedUsernames }
                 .filter(::isNotStaffRestricted)
@@ -24,21 +24,20 @@ class EliminatorModule(
             assertEither(
                 assertNotEmpty(attachmentFunctions),
                 assertNotEmpty(commentFunctions),
-                assertAfter(created, lastRun)
+                assertTrue(isBadTicket(issue))
             ).bind()
 
             attachmentFunctions.forEach { it.invoke() }
             commentFunctions.forEach { it.invoke() }
-            if (
-                created.isAfter(lastRun) &&
-                reporter?.name in eliminatedUsernames &&
-                securityLevel != project.privateSecurity
-            ) {
+            if (isBadTicket(issue)) {
                 setPrivate()
                 addRawRestrictedComment("MEQS_KEEP_PRIVATE\nARISA_PLEASE_TRASH_THIS", "staff")
             }
         }
     }
+
+    private fun isBadTicket(issue: Issue) =
+        issue.reporter?.name in eliminatedUsernames && issue.securityLevel != issue.project.privateSecurity
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

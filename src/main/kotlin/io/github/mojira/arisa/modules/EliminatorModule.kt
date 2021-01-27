@@ -31,7 +31,11 @@ class EliminatorModule(
 
             attachmentFunctions.forEach { it.invoke() }
             commentFunctions.forEach { it.invoke() }
-            if (created.isAfter(lastRun) && securityLevel != project.privateSecurity) {
+            if (
+                created.isAfter(lastRun) &&
+                reporter?.name in eliminatedUsernames &&
+                securityLevel != project.privateSecurity
+            ) {
                 setPrivate()
                 addRawRestrictedComment("MEQS_KEEP_PRIVATE\nARISA_PLEASE_TRASH_THIS", "staff")
             }

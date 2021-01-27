@@ -143,6 +143,13 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
         register(
+            Modules.Eliminator,
+            EliminatorModule(
+                config[Modules.Eliminator.usernames]
+            )
+        )
+
+        register(
             Modules.DuplicateMessage,
             DuplicateMessageModule(
                 config[Modules.DuplicateMessage.commentDelayMinutes],

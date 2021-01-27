@@ -41,7 +41,8 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, cache: Iss
     createdDate.toInstant(),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient, cache)).partially1(this),
-    this::download
+    this::download,
+    author.toDomain(jiraClient)
 )
 
 fun JiraProject.getSecurityLevelId(config: Config) =

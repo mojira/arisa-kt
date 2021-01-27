@@ -129,6 +129,11 @@
           "Won't Fix": "duplicate-wf"
         }
       },
+      "eliminator": {
+        "usernames": [
+          "Edou_"
+        ]
+      },
       "piracy": {
         "excludedStatuses": ["Postponed", "Resolved"],
         "message": "pirated-minecraft",

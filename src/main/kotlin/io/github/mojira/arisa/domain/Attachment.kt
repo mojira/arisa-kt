@@ -8,5 +8,6 @@ data class Attachment(
     val created: Instant,
     val mimeType: String,
     val remove: () -> Unit,
-    val getContent: () -> ByteArray
+    val getContent: () -> ByteArray,
+    val uploader: User
 )

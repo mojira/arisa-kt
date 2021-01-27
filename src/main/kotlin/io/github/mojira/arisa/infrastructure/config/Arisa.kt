@@ -269,6 +269,10 @@ object Arisa : ConfigSpec() {
             val tag by optional<String?>(null)
         }
 
+        object PrivateDuplicate : ModuleConfigSpec() {
+            val tag by optional<String?>(null)
+        }
+
         object HideImpostors : ModuleConfigSpec()
 
         object ResolveTrash : ModuleConfigSpec()

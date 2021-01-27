@@ -34,6 +34,7 @@ import io.github.mojira.arisa.modules.MissingCrashModule
 import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PrivacyModule
+import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
@@ -173,6 +174,12 @@ class ModuleRegistry(private val config: Config) {
             Modules.KeepPrivate, KeepPrivateModule(
                 config[Modules.KeepPrivate.tag],
                 config[Modules.KeepPrivate.message]
+            )
+        )
+
+        register(
+            Modules.PrivateDuplicate, PrivateDuplicateModule(
+                config[Modules.PrivateDuplicate.tag]
             )
         )
 

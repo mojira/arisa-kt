@@ -429,6 +429,12 @@
         "tag": "MEQS_KEEP_PRIVATE",
         "message": "panel-unmark-private-issue"
       },
+      "privateDuplicate": {
+        "resolutions": [
+          "Duplicate"
+        ],
+        "tag": "MEQS_KEEP_PRIVATE"
+      },
       "language": {
         "excludedStatuses": [
           "Postponed"

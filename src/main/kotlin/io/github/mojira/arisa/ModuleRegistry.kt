@@ -13,27 +13,27 @@ import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.getLanguage
-import io.github.mojira.arisa.modules.FailedModuleResponse
-import io.github.mojira.arisa.modules.Module
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.DuplicateMessageModule
-import io.github.mojira.arisa.modules.EliminatorModule
 import io.github.mojira.arisa.modules.EmptyModule
+import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MissingCrashModule
+import io.github.mojira.arisa.modules.Module
+import io.github.mojira.arisa.modules.ModuleError
+import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PrivacyModule
+import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
@@ -144,13 +144,6 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
         register(
-            Modules.Eliminator,
-            EliminatorModule(
-                config[Modules.Eliminator.usernames]
-            )
-        )
-
-        register(
             Modules.DuplicateMessage,
             DuplicateMessageModule(
                 config[Modules.DuplicateMessage.commentDelayMinutes],
@@ -173,6 +166,12 @@ class ModuleRegistry(private val config: Config) {
             Modules.KeepPrivate, KeepPrivateModule(
                 config[Modules.KeepPrivate.tag],
                 config[Modules.KeepPrivate.message]
+            )
+        )
+
+        register(
+            Modules.PrivateDuplicate, PrivateDuplicateModule(
+                config[Modules.PrivateDuplicate.tag]
             )
         )
 

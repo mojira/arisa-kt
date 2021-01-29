@@ -23,7 +23,7 @@ class RemoveUserCommand : Command {
     val regex = "\"https:\\/\\/bugs\\.mojang\\.com\\/browse\\/(.*)\">".toRegex()
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
-        val name = URLEncoder.encode(arguments.asList().subList(1, arguments.size).joinToString(" "), StandardCharsets.UTF_8)
+        val name = URLEncoder.encode(arguments.asList().subList(1, arguments.size).joinToString(" "), StandardCharsets.UTF_8.toString())
         val streamName = name.replace("+", "_").replace("_", "%5C_")
         val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
         credentials.authenticate(request)

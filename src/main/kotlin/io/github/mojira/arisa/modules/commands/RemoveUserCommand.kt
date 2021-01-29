@@ -13,6 +13,8 @@ import io.github.mojira.arisa.modules.assertTrue
 import org.apache.http.HttpHost
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.message.BasicHttpRequest
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -21,7 +23,10 @@ class RemoveUserCommand : Command {
     val regex = "\"https:\\/\\/bugs\\.mojang\\.com\\/browse\\/(.*)\">".toRegex()
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
         assertTrue(arguments.size > 1).bind()
-        val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
+        val name = URLEncoder.encode(
+            arguments.asList().subList(1, arguments.size).joinToString(" "),
+            StandardCharsets.UTF_8.toString()
+        )
         val streamName = name.replace("+", "_").replace("_", "%5C_")
         val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
         credentials.authenticate(request)

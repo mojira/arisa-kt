@@ -27,7 +27,7 @@ class RemoveUserCommand : Command {
             arguments.asList().subList(1, arguments.size).joinToString(" "),
             StandardCharsets.UTF_8.toString()
         )
-        val streamName = name.replace("+", "_").replace("_", "%5C_")
+        val streamName = name.replace("_", "%5C_").replace("+", "_")
         val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
         credentials.authenticate(request)
         val inputStream = DefaultHttpClient().execute(HttpHost("bugs.mojang.com"), request).entity.content

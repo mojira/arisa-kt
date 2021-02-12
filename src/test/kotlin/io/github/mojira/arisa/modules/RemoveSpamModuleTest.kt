@@ -81,7 +81,7 @@ class RemoveSpamModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should hide comment when patter is triggered very often" {
+    "should hide comment when pattern is triggered very often" {
         var isRestricted = false
         val comment = mockComment(
             body = """EGG AND BACON

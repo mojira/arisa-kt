@@ -268,6 +268,12 @@ object Arisa : ConfigSpec() {
 
         object HideImpostors : ModuleConfigSpec()
 
+        object RemoveSpam : ModuleConfigSpec() {
+            val patterns by required<List<SpamPatternConfig>>(
+                description = "Patterns that indicate that a comment is spam"
+            )
+        }
+
         object ResolveTrash : ModuleConfigSpec()
 
         object UpdateLinked : ModuleConfigSpec() {
@@ -299,3 +305,10 @@ data class CrashDupeConfig(
     val exceptionRegex: String,
     val duplicates: String
 )
+
+data class SpamPatternConfig(
+    val pattern: String,
+    val threshold: Int
+) {
+    val regex = pattern.toRegex()
+}

@@ -6,16 +6,10 @@ import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
-import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 
-data class CommandSource(
-    val issue: Issue,
-    val comment: Comment
-)
-
+@Suppress("LongMethod")
 fun getCommandDispatcher(
     prefix: String
 ): CommandDispatcher<CommandSource> {

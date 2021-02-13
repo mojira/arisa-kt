@@ -9,7 +9,7 @@ class AddLinksCommand : Command1<LinkList> {
         val either = addLinks(issue, arg.type, arg.keys)
         return either.fold(
             { throw CommandExceptions.LEFT_EITHER.create(it) },
-            { arg.keys.size } // TODO: Returns the actual amount of links added? Or maybe not, as it's too trivial.
+            { arg.keys.size }
         )
     }
 }

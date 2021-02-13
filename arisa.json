@@ -441,6 +441,26 @@
           "Works As Intended"
         ]
       },
+      "removeSpam": {
+        "resolutions": [
+          "Awaiting Response",
+          "Cannot Reproduce",
+          "Done",
+          "Duplicate",
+          "Fixed",
+          "Incomplete",
+          "Invalid",
+          "Unresolved",
+          "Won't Fix",
+          "Works As Intended"
+        ],
+        "patterns": [
+          {
+            "pattern": "\\[~",
+            "threshold": 5
+          }
+        ]
+      },
       "resolveTrash": {
         "excludedStatuses": ["Postponed"],
         "resolutions": [

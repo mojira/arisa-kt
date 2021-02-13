@@ -296,8 +296,7 @@
           "Won't Fix",
           "Works As Intended"
         ],
-        "only": true,
-        "commandPrefix": "THE_ORDER_FROM_SPG"
+        "commandPrefix": "ARISA"
       },
       "removeVersion": {
         "resolutions": [

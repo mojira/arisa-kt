@@ -13,7 +13,7 @@ class DeleteCommentsCommand : Command1<String> {
         Thread {
             comments
                 .forEachIndexed { index, it ->
-                    it.restrict("Removed by [~arisabot].")
+                    it.restrict("Removed by arisa")
                     if (index % 10 == 0) {
                         TimeUnit.SECONDS.sleep(1)
                     }

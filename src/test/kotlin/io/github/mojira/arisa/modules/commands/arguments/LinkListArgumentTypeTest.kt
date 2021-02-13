@@ -13,7 +13,7 @@ class LinkListArgumentTypeTest : StringSpec({
         val reader = StringReader("relates MC-100 MC-200")
         val result = argumentType.parse(reader)
         result shouldBe LinkList(
-            "relates to",
+            "relates",
             listOf("MC-100", "MC-200")
         )
     }
@@ -25,7 +25,7 @@ class LinkListArgumentTypeTest : StringSpec({
         )
         val result = argumentType.parse(reader)
         result shouldBe LinkList(
-            "relates to",
+            "relates",
             listOf("MC-100", "MC-200")
         )
     }
@@ -43,7 +43,7 @@ class LinkListArgumentTypeTest : StringSpec({
         val reader = StringReader("relAtes To MC-100 MC-200")
         val result = argumentType.parse(reader)
         result shouldBe LinkList(
-            "relates to",
+            "relAtes To",
             listOf("MC-100", "MC-200")
         )
     }
@@ -52,7 +52,7 @@ class LinkListArgumentTypeTest : StringSpec({
         val reader = StringReader("relates MC-100, MC-200,MC-300 ,MC-400")
         val result = argumentType.parse(reader)
         result shouldBe LinkList(
-            "relates to",
+            "relates",
             listOf("MC-100", "MC-200", "MC-300", "MC-400")
         )
     }
@@ -61,8 +61,8 @@ class LinkListArgumentTypeTest : StringSpec({
         val reader = StringReader("relates mc-100")
         val result = argumentType.parse(reader)
         result shouldBe LinkList(
-            "relates to",
-            listOf("MC-100")
+            "relates",
+            listOf("mc-100")
         )
     }
 
@@ -89,20 +89,6 @@ class LinkListArgumentTypeTest : StringSpec({
 
     "should throw exception when given invalid ticket IDs" {
         val reader = StringReader("relates MC-1 https://bugs.mojang.com/browse/MC-2 lalala MC-3")
-        shouldThrow<CommandSyntaxException> {
-            argumentType.parse(reader)
-        }
-    }
-
-    "should throw exception when given non-existent type" {
-        val reader = StringReader("wrong MC-100")
-        shouldThrow<CommandSyntaxException> {
-            argumentType.parse(reader)
-        }
-    }
-
-    "should throw exception when given inconclusive type (that can match multiple link types)" {
-        val reader = StringReader("is MC-100")
         shouldThrow<CommandSyntaxException> {
             argumentType.parse(reader)
         }

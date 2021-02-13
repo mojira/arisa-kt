@@ -253,6 +253,24 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
+    "should mark as private when the attachment contains access token" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            attachments = listOf(
+                mockAttachment(
+                    getContent = { "--uuid 1312dkkdk2kdart342 --accessToken eyJimfake.12345.fakestuff --userType mojang".toByteArray() }
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
     "should mark as private when the change log item contains email" {
         var hasSetPrivate = false
 

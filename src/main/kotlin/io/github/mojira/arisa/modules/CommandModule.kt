@@ -6,7 +6,6 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.exceptions.CommandSyntaxException
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.CommandSource

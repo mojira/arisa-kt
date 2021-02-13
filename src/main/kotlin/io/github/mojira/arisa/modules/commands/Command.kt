@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules.commands
 
 import io.github.mojira.arisa.domain.Issue
 
-interface Command<A> {
+interface Command1<A> {
     operator fun invoke(issue: Issue, arg: A): Int
 }
 

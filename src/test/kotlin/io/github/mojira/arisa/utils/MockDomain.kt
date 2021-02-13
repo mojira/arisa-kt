@@ -22,14 +22,16 @@ fun mockAttachment(
     created: Instant = RIGHT_NOW,
     mimeType: String = "text/plain",
     remove: () -> Unit = { Unit },
-    getContent: () -> ByteArray = { ByteArray(0) }
+    getContent: () -> ByteArray = { ByteArray(0) },
+    uploader: User = mockUser()
 ) = Attachment(
     id,
     name,
     created,
     mimeType,
     remove,
-    getContent
+    getContent,
+    uploader
 )
 
 fun mockChangeLogItem(

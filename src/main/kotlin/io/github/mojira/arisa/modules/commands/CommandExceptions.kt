@@ -22,7 +22,7 @@ object CommandExceptions {
     )
 
     val LEFT_EITHER = DynamicCommandExceptionType {
-        LiteralMessage("Something went wrong, but I'm too lazy to interpret the detail (>ω<): $it")
+        LiteralMessage("Something went wrong, but I'm too lazy to interpret the details for you (>ω<): $it")
     }
 
     val NO_SUCH_VERSION = DynamicCommandExceptionType {

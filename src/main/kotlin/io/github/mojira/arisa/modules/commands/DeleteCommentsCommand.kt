@@ -3,7 +3,7 @@ package io.github.mojira.arisa.modules.commands
 import io.github.mojira.arisa.domain.Issue
 import java.util.concurrent.TimeUnit
 
-class DeleteCommentsCommand : Command<String> {
+class DeleteCommentsCommand : Command1<String> {
     @Suppress("MagicNumber")
     override operator fun invoke(issue: Issue, arg: String): Int {
         val comments = issue.comments

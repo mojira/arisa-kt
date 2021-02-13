@@ -58,7 +58,7 @@ object Arisa : ConfigSpec() {
                 false,
                 description = "Optional. If set to true, only this module will be executed."
             )
-            val whitelist by optional<List<String>?>(
+            val projects by optional<List<String>?>(
                 null,
                 description = "Optional. The projects this module should operate on. Default is arisa.issues.projects"
             )
@@ -262,6 +262,10 @@ object Arisa : ConfigSpec() {
             val tag by optional<String?>(null)
         }
 
+        object PrivateDuplicate : ModuleConfigSpec() {
+            val tag by optional<String?>(null)
+        }
+
         object HideImpostors : ModuleConfigSpec()
 
         object ResolveTrash : ModuleConfigSpec()
@@ -280,7 +284,11 @@ object Arisa : ConfigSpec() {
 
         object RemoveIdenticalLink : ModuleConfigSpec()
 
-        object RemoveVersion : ModuleConfigSpec()
+        object RemoveVersion : ModuleConfigSpec() {
+            val message by required<String>(
+                description = "The key of the message that is posted when this module succeeds."
+            )
+        }
 
         object Command : ModuleConfigSpec() {
             val commandPrefix by required<String>(

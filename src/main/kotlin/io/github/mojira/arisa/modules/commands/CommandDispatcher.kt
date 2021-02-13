@@ -17,14 +17,16 @@ data class CommandSource(
 )
 
 fun getCommandDispatcher(
-    prefix: String,
-    addLinksCommand: Command<LinkList> = AddLinksCommand(),
-    addVersionCommand: Command<String> = AddVersionCommand(),
-    deleteCommentsCommand: Command<String> = DeleteCommentsCommand(),
-    deleteLinksCommand: Command<LinkList> = DeleteLinksCommand(),
-    fixedCommand: Command<String> = FixedCommand(),
-    purgeAttachmentCommand: Command2<Int, Int> = PurgeAttachmentCommand()
+    prefix: String
 ): CommandDispatcher<CommandSource> {
+    val addLinksCommand: Command1<LinkList> = AddLinksCommand()
+    val addVersionCommand: Command1<String> = AddVersionCommand()
+    val deleteCommentsCommand: Command1<String> = DeleteCommentsCommand()
+    val deleteLinksCommand: Command1<LinkList> = DeleteLinksCommand()
+    val fixedCommand: Command1<String> = FixedCommand()
+    val purgeAttachmentCommand: Command2<Int, Int> = PurgeAttachmentCommand()
+    val removeUserCommand: Command1<String> = RemoveUserCommand()
+
     return CommandDispatcher<CommandSource>().apply {
         val addLinksCommandNode =
             literal<CommandSource>("${prefix}_ADD_LINKS")
@@ -122,6 +124,19 @@ fun getCommandDispatcher(
                         )
                 )
 
+        val removeUserCommandNode =
+            literal<CommandSource>("${prefix}_REMOVE_USER")
+                .requires(::sentByModerator)
+                .then(
+                    argument<CommandSource, String>("username", greedyString())
+                        .executes {
+                            removeUserCommand(
+                                it.source.issue,
+                                it.getString("username")
+                            )
+                        }
+                )
+
         register(addLinksCommandNode)
         register(addVersionCommandNode)
         register(deleteCommentsCommandNode)
@@ -130,6 +145,7 @@ fun getCommandDispatcher(
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
+        register(removeUserCommandNode)
     }
 }
 

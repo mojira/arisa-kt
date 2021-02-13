@@ -5,7 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.modules.commands.Command
+import io.github.mojira.arisa.modules.commands.Command1
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
@@ -197,18 +197,18 @@ private fun getComment(
     author = author
 )
 
-val mockUnitCommand = object : Command {
+val mockUnitCommand = object : Command1 {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Unit.right()
 }
 
-val mockFailingCommand = object : Command {
+val mockFailingCommand = object : Command1 {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> =
         FailedModuleResponse(
             listOf(RuntimeException())
         ).left()
 }
 
-val mockOperationNotNeededCommand = object : Command {
+val mockOperationNotNeededCommand = object : Command1 {
     override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> =
         OperationNotNeededModuleResponse.left()
 }

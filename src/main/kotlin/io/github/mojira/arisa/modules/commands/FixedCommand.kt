@@ -2,7 +2,7 @@ package io.github.mojira.arisa.modules.commands
 
 import io.github.mojira.arisa.domain.Issue
 
-class FixedCommand : Command<String> {
+class FixedCommand : Command1<String> {
     override operator fun invoke(issue: Issue, arg: String): Int {
         if (issue.fixVersions.any { it.name == arg }) {
             throw CommandExceptions.ALREADY_FIXED_IN.create(arg)

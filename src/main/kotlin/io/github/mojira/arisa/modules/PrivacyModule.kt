@@ -12,7 +12,8 @@ class PrivacyModule(
 ) : Module {
     private val patterns: List<Regex> = listOf(
         """\(Session ID is token:""".toRegex(),
-        """(?<!\[~)\b[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-_]+\.[a-zA-Z0-9.-_]{2,}\b(?!])""".toRegex()
+        """(?<!\[~)\b[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-_]+\.[a-zA-Z0-9.-_]{2,}\b(?!])""".toRegex(),
+        """--accessToken ey""".toRegex()
     )
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -43,6 +44,8 @@ class PrivacyModule(
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
                 .filter { it.body?.matches(patterns) ?: false }
+                .filterNot { it.getAuthorGroups()?.any { it == "helper" ||
+                    it == "global-moderators" || it == "staff" } ?: false }
                 .map { { it.restrict("${it.body}$commentNote") } }
                 .toList()
 

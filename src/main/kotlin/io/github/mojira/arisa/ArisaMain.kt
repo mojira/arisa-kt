@@ -16,6 +16,7 @@ import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.TokenCredentials
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -27,17 +28,21 @@ val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
-
+lateinit var jiraClient: JiraClient
+lateinit var credentials: TokenCredentials
+@Suppress("LongMethod")
 fun main() {
     val config = readConfig()
     setWebhookOfLogger(config)
 
-    var jiraClient =
+    val pair =
         connectToJira(
             config[Arisa.Credentials.username],
             config[Arisa.Credentials.password],
             config[Arisa.Issues.url]
         )
+    jiraClient = pair.first
+    credentials = pair.second
     log.info("Connected to jira")
 
     // Get tickets for re-run and last run time
@@ -79,11 +84,14 @@ fun main() {
             lastRunTime = curRunTime
         } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             // If last relog was more than a minute before and execution failed with an exception, relog
-            jiraClient = connectToJira(
-                config[Arisa.Credentials.username],
-                config[Arisa.Credentials.password],
-                config[Arisa.Issues.url]
-            )
+            val pair =
+                connectToJira(
+                    config[Arisa.Credentials.username],
+                    config[Arisa.Credentials.password],
+                    config[Arisa.Issues.url]
+                )
+            jiraClient = pair.first
+            credentials = pair.second
             moduleExecutor = ModuleExecutor(
                 config, moduleRegistry, queryCache, issueUpdateContextCache,
                 getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)

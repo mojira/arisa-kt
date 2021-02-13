@@ -12,11 +12,10 @@ import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.modules.commands.getCommandDispatcher
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
-import kotlin.reflect.KFunction1
 
 class CommandModule(
     private val prefix: String,
-    getDispatcher: KFunction1<String, CommandDispatcher<CommandSource>> = ::getCommandDispatcher
+    getDispatcher: (String) -> CommandDispatcher<CommandSource> = ::getCommandDispatcher
 ) : Module {
     private val commandDispatcher = getDispatcher(prefix)
 
@@ -37,10 +36,9 @@ class CommandModule(
             }
             results.forEach { (comment, result) ->
                 if (result.isLeft()) {
-                    comment.update("[~arisabot] (x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
-                    (result.toFailedModuleEither() as Either<FailedModuleResponse, Int>).bind()
+                    comment.update("[~arisabot]: (x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
                 } else {
-                    comment.update("[~arisabot] (/) ${(result as Either.Right).b}.\n----\n${comment.body}")
+                    comment.update("[~arisabot]: (/) ${(result as Either.Right).b}.\n----\n${comment.body}")
                 }
             }
             ModuleResponse.right().bind()

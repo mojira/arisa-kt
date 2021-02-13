@@ -9,7 +9,7 @@ class DeleteLinksCommand : Command1<LinkList> {
         val either = deleteLinks(issue, arg.type, arg.keys)
         return either.fold(
             { throw CommandExceptions.LEFT_EITHER.create(it) },
-            { arg.keys.size } // TODO: Returns the actual amount of links deleted.
+            { arg.keys.size } // TODO: Returns the actual amount of links deleted? Or maybe not, as it's too trivial.
         )
     }
 }

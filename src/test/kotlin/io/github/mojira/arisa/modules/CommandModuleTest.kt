@@ -1,11 +1,12 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import io.github.mojira.arisa.domain.Issue
+import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.arguments.StringArgumentType.greedyString
+import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
+import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.modules.commands.Command1
+import io.github.mojira.arisa.modules.commands.CommandExceptions
+import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
@@ -13,14 +14,13 @@ import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private val TWO_SECONDS_LATER = RIGHT_NOW.plusSeconds(2)
 
 class CommandModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when no comments" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val issue = mockIssue()
 
         val result = module(issue, RIGHT_NOW)
@@ -29,7 +29,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user doesn't has group staff" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             getAuthorGroups = { emptyList() }
         )
@@ -43,7 +43,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment has group users" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             visibilityType = "group",
             visibilityValue = "users"
@@ -58,7 +58,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesnt have correct group" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             visibilityType = "notagroup"
         )
@@ -72,7 +72,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesnt have correct value" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             visibilityValue = "notagroup"
         )
@@ -86,7 +86,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment is not restricted" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             visibilityType = null,
             visibilityValue = null
@@ -101,7 +101,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesnt start with ARISA_" {
-        val module = CommandModule(mockOperationNotNeededCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             body = "ARISA"
         )
@@ -115,7 +115,7 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesnt have spaces" {
-        val module = CommandModule(mockUnitCommand, mockUnitCommand)
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             body = "ARISA_ADD_VERSION"
         )
@@ -129,55 +129,42 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return successfully when comment matches a command and it returns successfully" {
-        var addedRawComment = ""
-        val module = CommandModule(mockOperationNotNeededCommand, mockUnitCommand)
+        var updatedComment = ""
+        val module = CommandModule("ARISA", ::getSuccessfulDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
-            )
+            ),
+            update = { updatedComment = it }
         )
-        val issue = mockIssue(
-            comments = listOf(comment),
-            addRawRestrictedComment = { addedComment, _ -> addedRawComment = addedComment }
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeRight()
-        addedRawComment shouldBe "Command execution was successful.\n~Author: SPTesting~"
-    }
-
-    "should return OperationNotNeededModuleResponse when comment matches a command and it returns OperationNotNeededModuleResponse" {
-        val module = CommandModule(mockOperationNotNeededCommand, mockOperationNotNeededCommand)
-        val comment = getComment()
         val issue = mockIssue(
             comments = listOf(comment)
         )
 
         val result = module(issue, RIGHT_NOW)
 
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        result.shouldBeRight()
+        updatedComment shouldBe "[~arisabot]: (/) 1.\n----\nARISA_ADD_VERSION something"
     }
 
-    "should return failed when comment matches a command and it returns failed" {
-        var addedRawComment = ""
-        val module = CommandModule(mockOperationNotNeededCommand, mockFailingCommand)
+    "should return successfully but append the exception message when comment matches a command and it returns failed" {
+        var updatedComment = ""
+        val module = CommandModule("ARISA", ::getFailingDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
-            )
+            ),
+            update = { updatedComment = it }
         )
         val issue = mockIssue(
-            comments = listOf(comment),
-            addRawRestrictedComment = { addedComment, _ -> addedRawComment = addedComment }
+            comments = listOf(comment)
         )
 
         val result = module(issue, RIGHT_NOW)
 
-        result.shouldBeLeft()
-        result.a should { it is FailedModuleResponse }
-        (result.a as FailedModuleResponse).exceptions.size shouldBe 1
-        addedRawComment shouldBe "Command execution failed.\n~Author: SPTesting~"
+        result.shouldBeRight()
+        updatedComment shouldBe "[~arisabot]: (x) Something went wrong, but I'm too lazy to interpret the details " +
+                "for you (>ω<): java.lang.RuntimeException.\n----\nARISA_ADD_VERSION something"
     }
 })
 
@@ -186,7 +173,8 @@ private fun getComment(
     visibilityType: String? = "group",
     visibilityValue: String? = "staff",
     body: String = "ARISA_ADD_VERSION something",
-    author: User = mockUser()
+    author: User = mockUser(),
+    update: (String) -> Unit = {}
 ) = mockComment(
     created = TWO_SECONDS_LATER,
     updated = TWO_SECONDS_LATER,
@@ -194,21 +182,26 @@ private fun getComment(
     visibilityType = visibilityType,
     visibilityValue = visibilityValue,
     body = body,
-    author = author
+    author = author,
+    update = update
 )
 
-val mockUnitCommand = object : Command1 {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Unit.right()
+private fun getSuccessfulDispatcher(prefix: String) = CommandDispatcher<CommandSource>().apply {
+    register(
+        literal<CommandSource>("${prefix}_ADD_VERSION")
+            .then(
+                argument<CommandSource, String>("version", greedyString())
+                    .executes { 1 }
+            )
+    )
 }
 
-val mockFailingCommand = object : Command1 {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> =
-        FailedModuleResponse(
-            listOf(RuntimeException())
-        ).left()
-}
-
-val mockOperationNotNeededCommand = object : Command1 {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> =
-        OperationNotNeededModuleResponse.left()
+private fun getFailingDispatcher(prefix: String) = CommandDispatcher<CommandSource>().apply {
+    register(
+        literal<CommandSource>("${prefix}_ADD_VERSION")
+            .then(
+                argument<CommandSource, String>("version", greedyString())
+                    .executes { throw CommandExceptions.LEFT_EITHER.create(RuntimeException()) }
+            )
+    )
 }

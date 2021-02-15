@@ -3,12 +3,13 @@ package io.github.mojira.arisa.infrastructure.config
 import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
-    val logOperationNotNeeded by optional(false)
-
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
-        val dandelionToken by required<String>(description = "Token for dandelion.eu")
+        val dandelionToken by optional(
+            "dummyKey",
+            description = "Token for dandelion.eu"
+        )
         val discordLogWebhook by optional<String?>(
             null,
             description = "Webhook to post log in a Discord channel"
@@ -49,6 +50,30 @@ object Arisa : ConfigSpec() {
     object HelperMessages : ConfigSpec() {
         val updateIntervalSeconds by required<Long>(
             description = "The interval in which the messages.json file is updated"
+        )
+    }
+
+    object Debug : ConfigSpec() {
+        val enabledModules by optional<List<String>?>(
+            null,
+            description = "Disable all modules except for those in the list. " +
+                    "Entries must be module names (e.g. 'ReopenAwaiting'). " +
+                    "All modules are enabled if this is not specified."
+        )
+
+        val logOperationNotNeeded by optional(false)
+
+        val ticketWhitelist by optional<List<String>?>(
+            null,
+            description = "Ignore all tickets except those mentioned here. " +
+                    "Entries must be valid Mojira ticket keys. " +
+                    "The whitelist is disabled if this is not specified."
+        )
+
+        val updateLastRun by optional(
+            true,
+            description = "Whether or not the lastRun file should be saved after each run. " +
+                    "Do not disable this unless you've enabled the ticket whitelist."
         )
     }
 

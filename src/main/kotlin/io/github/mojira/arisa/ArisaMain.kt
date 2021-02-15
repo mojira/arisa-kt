@@ -67,6 +67,9 @@ fun main() {
     val issueUpdateContextCache = Cache<IssueUpdateContext>()
     val moduleRegistry = ModuleRegistry(config)
 
+    val enabledModules = moduleRegistry.getModules().map { it.name }
+    log.debug("Enabled modules: $enabledModules")
+
     // Create module executor
     var moduleExecutor = ModuleExecutor(
         config, moduleRegistry, queryCache, issueUpdateContextCache,
@@ -83,7 +86,9 @@ fun main() {
             failedTickets.addAll(executionResults.failedTickets)
             val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
 
-            lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
+            if (config[Arisa.Debug.updateLastRun]) {
+                lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
+            }
             lastRunTime = curRunTime
         } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             // If last relog was more than a minute before and execution failed with an exception, relog

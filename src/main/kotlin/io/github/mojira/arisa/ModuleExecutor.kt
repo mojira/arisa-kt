@@ -89,8 +89,8 @@ class ModuleExecutor(
             .forEach { (issue, response) ->
                 response.second.fold({
                     when (it) {
-                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) {
-                            log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        is OperationNotNeededModuleResponse -> if (config[Arisa.Debug.logOperationNotNeeded]) {
+                            log.debug("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         }
                         is FailedModuleResponse -> {
                             addFailedTicket(issue)
@@ -150,6 +150,8 @@ class ModuleExecutor(
         )
 
         queryCache.add(jql, issues)
+
+        log.debug("Returned issues for module ${ moduleConfig::class.simpleName }: ${ issues.map { it.key } }")
 
         return issues
             .filter { it.project.key in projects }

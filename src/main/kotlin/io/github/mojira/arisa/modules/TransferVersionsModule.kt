@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.LinkedIssue
-import io.github.mojira.arisa.domain.Version
 
 class TransferVersionsModule : AbstractTransferFieldModule() {
     override fun filterParents(linkedIssue: LinkedIssue, issue: Issue): Boolean {

@@ -123,16 +123,6 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {
-        val issue = mockIssue(
-            summary = "[~foo@example.com]"
-        )
-
-        val result = MODULE(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should mark as private when the summary contains Email" {
         var hasSetPrivate = false
 
@@ -226,6 +216,30 @@ class PrivacyModuleTest : StringSpec({
                     getContent = { "foo@example.com".toByteArray() }
                 )
             ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {
+        val issue = mockIssue(
+            summary = "[~foo@example.com]"
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should mark as private when the Email is contained in a link" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            description = "[foo@example.com|mailto:foo@example.com]",
             setPrivate = { hasSetPrivate = true }
         )
 

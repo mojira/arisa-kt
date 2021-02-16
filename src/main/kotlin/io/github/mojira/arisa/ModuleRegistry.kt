@@ -36,6 +36,7 @@ import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveSpamModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveVersionModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
@@ -161,6 +162,13 @@ class ModuleRegistry(private val config: Config) {
         }
 
         register(Modules.HideImpostors, HideImpostorsModule())
+
+        register(
+            Modules.RemoveSpam,
+            RemoveSpamModule(
+                config[Modules.RemoveSpam.patterns]
+            )
+        )
 
         register(
             Modules.KeepPrivate, KeepPrivateModule(

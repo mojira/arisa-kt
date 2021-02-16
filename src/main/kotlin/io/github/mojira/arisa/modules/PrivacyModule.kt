@@ -12,7 +12,7 @@ class PrivacyModule(
 ) : Module {
     private val patterns: List<Regex> = listOf(
         """\(Session ID is token:""".toRegex(),
-        """(?<!\[~)\b[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-_]+\.[a-zA-Z0-9.-_]{2,}\b(?!])""".toRegex(),
+        """(?<!\[~)\b[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-_]+\.[a-zA-Z0-9.-^]{2,15}\b""".toRegex(),
         """--accessToken ey""".toRegex()
     )
 

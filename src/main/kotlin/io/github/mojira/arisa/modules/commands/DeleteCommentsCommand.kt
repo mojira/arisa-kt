@@ -1,22 +1,17 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.extensions.fx
-import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertTrue
 import java.util.concurrent.TimeUnit
 
-class DeleteCommentsCommand : Command {
+class DeleteCommentsCommand : Command1<String> {
     @Suppress("MagicNumber")
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size > 1).bind()
-        val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
+    override operator fun invoke(issue: Issue, arg: String): Int {
         val comments = issue.comments
+            .filter { it.visibilityValue != "staff" }
+            .filter { it.author.name == arg }
+
         Thread {
-            comments.filter { it.visibilityValue != "staff" }.filter { it.author.name == name }
+            comments
                 .forEachIndexed { index, it ->
                     it.restrict("Removed by arisa")
                     if (index % 10 == 0) {
@@ -24,6 +19,7 @@ class DeleteCommentsCommand : Command {
                     }
                 }
         }.start()
-        ModuleResponse.right()
+
+        return comments.size
     }
 }

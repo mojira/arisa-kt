@@ -22,6 +22,7 @@ data class Issue(
     val project: Project,
     val platform: String?,
     val affectedVersions: List<Version>,
+    val fixVersions: List<Version>,
     val attachments: List<Attachment>,
     val comments: List<Comment>,
     val links: List<Link>,

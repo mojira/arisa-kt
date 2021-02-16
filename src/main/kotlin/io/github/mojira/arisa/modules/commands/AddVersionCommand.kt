@@ -1,20 +1,17 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertFalse
-import io.github.mojira.arisa.modules.assertTrue
 
-class AddVersionCommand : Command {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size > 1).bind()
-        val version = arguments.asList().subList(1, arguments.size).joinToString(" ")
-        assertFalse(issue.affectedVersions.any { it.name == version }).bind()
-        assertTrue(issue.project.versions.any { it.name == version }).bind()
-        val id = issue.project.versions.first { it.name == version }.id
+class AddVersionCommand : Command1<String> {
+    override operator fun invoke(issue: Issue, arg: String): Int {
+        if (issue.affectedVersions.any { it.name == arg }) {
+            throw CommandExceptions.VERSION_ALREADY_AFFECTED.create(arg)
+        }
+        if (issue.project.versions.none { it.name == arg }) {
+            throw CommandExceptions.NO_SUCH_VERSION.create(arg)
+        }
+        val id = issue.project.versions.first { it.name == arg }.id
         issue.addAffectedVersion(id)
+        return 1
     }
 }

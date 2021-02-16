@@ -126,8 +126,7 @@ fun String?.getOrDefault(default: String) =
         this
 
 fun MutableList<String>.splitElemsByCommas() {
-    val newList = this.flatMap {
-        s ->
+    val newList = this.flatMap { s ->
         s.split(',').filter {
             it.isNotEmpty()
         }
@@ -157,7 +156,7 @@ fun MutableList<String>.concatLinkName() {
     }
     val linkName = linkNameList.joinToString(separator = " ")
     val newList = if (linkName.isEmpty()) this.toMutableList()
-        else this.drop(linkName.count { it == ' ' } + 1).toMutableList()
+    else this.drop(linkName.count { it == ' ' } + 1).toMutableList()
     newList.add(0, linkName)
     this.clear()
     this.addAll(newList)
@@ -185,15 +184,15 @@ data class LinkType(
 }
 
 val linkTypes = listOf(
-        LinkType(listOf("relates", "to"), "Relates", true),
-        LinkType(listOf("duplicates"), "Duplicate", true),
-        LinkType(listOf("is", "duplicated", "by"), "Duplicate", false),
-        LinkType(listOf("clones"), "Cloners", true),
-        LinkType(listOf("is", "cloned", "by"), "Cloners", false),
-        LinkType(listOf("blocks"), "Blocks", true),
-        LinkType(listOf("is", "blocked", "by"), "Blocks", false),
-        LinkType(listOf("testing", "discovered"), "Bonfire Testing", true),
-        LinkType(listOf("discovered", "while", "testing"), "Bonfire Testing", false)
+    LinkType(listOf("relates", "to"), "Relates", true),
+    LinkType(listOf("duplicates"), "Duplicate", true),
+    LinkType(listOf("is", "duplicated", "by"), "Duplicate", false),
+    LinkType(listOf("clones"), "Cloners", true),
+    LinkType(listOf("is", "cloned", "by"), "Cloners", false),
+    LinkType(listOf("blocks"), "Blocks", true),
+    LinkType(listOf("is", "blocked", "by"), "Blocks", false),
+    LinkType(listOf("testing", "discovered"), "Bonfire Testing", true),
+    LinkType(listOf("discovered", "while", "testing"), "Bonfire Testing", false)
 )
 
 private fun concatenateCombinations(list: List<String>): Set<String> {

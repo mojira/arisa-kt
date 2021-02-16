@@ -1,15 +1,10 @@
 package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
-import arrow.core.extensions.fx
-import arrow.core.right
 import io.github.mojira.arisa.credentials
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.jira.getIssue
 import io.github.mojira.arisa.jiraClient
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertTrue
 import org.apache.http.HttpHost
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.message.BasicHttpRequest
@@ -19,12 +14,11 @@ import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
 
 const val DIVISOR = 10
-class RemoveUserCommand : Command {
-    val regex = "\"https:\\/\\/bugs\\.mojang\\.com\\/browse\\/(.*)\">".toRegex()
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size > 1).bind()
+class RemoveUserCommand : Command1<String> {
+    private val regex = "\"https:\\/\\/bugs\\.mojang\\.com\\/browse\\/(.*)\">".toRegex()
+    override fun invoke(issue: Issue, arg: String): Int {
         val name = URLEncoder.encode(
-            arguments.asList().subList(1, arguments.size).joinToString(" "),
+            arg,
             StandardCharsets.UTF_8.toString()
         ).replace("%20", "+")
         val streamName = name.replace("_", "%5C_").replace("+", "_")
@@ -64,7 +58,7 @@ class RemoveUserCommand : Command {
                         }
                 }
         }.start()
-        ModuleResponse.right()
+        return 1
     }
 
     private fun String.parseTitle() = regex.find(this)!!.groupValues[1]

@@ -1,10 +1,11 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
 
-interface Command {
-    operator fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse>
+interface Command1<A> {
+    operator fun invoke(issue: Issue, arg: A): Int
+}
+
+interface Command2<A, B> {
+    operator fun invoke(issue: Issue, arg1: A, arg2: B): Int
 }

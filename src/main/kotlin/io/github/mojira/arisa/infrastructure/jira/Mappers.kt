@@ -100,6 +100,7 @@ fun JiraIssue.toDomain(
         project.toDomain(jiraClient, this, config, cache),
         getPlatform(config),
         mapVersions(jiraClient, cache),
+        mapFixVersions(jiraClient, cache),
         mapAttachments(jiraClient, cache),
         mapComments(jiraClient, cache),
         mapLinks(jiraClient, messages, config, cache, oldPostedCommentCache, newPostedCommentCache),
@@ -262,6 +263,9 @@ private fun JiraIssue.mapAttachments(jiraClient: JiraClient, cache: IssueUpdateC
 
 private fun JiraIssue.mapVersions(jiraClient: JiraClient, cache: IssueUpdateContextCache) =
     versions.map { it.toDomain(jiraClient, this, cache) }
+
+private fun JiraIssue.mapFixVersions(jiraClient: JiraClient, cache: IssueUpdateContextCache) =
+    fixVersions.map { it.toDomain(jiraClient, this, cache) }
 
 private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
     changeLog.entries.flatMap { e ->

@@ -5,6 +5,8 @@
 arisa.yml
 helper-messages.json
 /.kotest
+/bin/
+/lib/
 /out/
 /logs/
 last-run

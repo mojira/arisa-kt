@@ -261,7 +261,10 @@ class ModuleRegistry(private val config: Config) {
             )
         )
 
-        register(Modules.Command, CommandModule())
+        register(
+            Modules.Command,
+            CommandModule(config[Modules.Command.commandPrefix])
+        )
 
         register(
             Modules.UpdateLinked,

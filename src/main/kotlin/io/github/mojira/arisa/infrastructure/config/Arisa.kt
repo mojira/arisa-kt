@@ -296,7 +296,11 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object Command : ModuleConfigSpec()
+        object Command : ModuleConfigSpec() {
+            val commandPrefix by required<String>(
+                description = "The prefix for all arisa commands. It should not contain the joining underline."
+            )
+        }
     }
 }
 

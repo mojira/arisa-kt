@@ -166,18 +166,22 @@
         "resolutions": [
           "Awaiting Response",
           "Cannot Reproduce",
-          "Done",
-          "Duplicate",
-          "Fixed",
-          "Incomplete",
-          "Invalid",
-          "Unresolved",
-          "Won't Fix",
-          "Works As Intended"
-        ],
-        "message": "panel-mark-private",
-        "commentNote": "\n----\nRestricted by PrivacyModule ??[~arisabot]??"
-      },
+		  "Done",
+		  "Duplicate",
+		  "Fixed",
+		  "Incomplete",
+		  "Invalid",
+		  "Unresolved",
+		  "Won't Fix",
+		  "Works As Intended"
+		],
+		"message": "panel-mark-private",
+		"commentNote": "\n----\nRestricted by PrivacyModule ??[~arisabot]??",
+		"allowedEmailRegex": [
+		  "^(mailer-daemon|postmaster|nobody|noreply|no-reply|hostmaster|usenet|news|webmaster|www|abuse|noc|security|info|support|uucp|ftp|news|admin|root)\\@.*",
+		  ".*\\@(mojang.com|microsoft.com|minecraft.net|zendesk.com)$"
+		]
+	  },
       "removeTriagedMeqs": {
         "meqsTags": [
           "MEQS_WAI",

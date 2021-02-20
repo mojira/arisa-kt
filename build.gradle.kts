@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.4.30"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     application
     id("io.gitlab.arturbosch.detekt") version "1.9.1"
@@ -35,7 +35,7 @@ buildscript {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val kotestVersion = "4.2.3"
+val kotestVersion = "4.4.1"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {

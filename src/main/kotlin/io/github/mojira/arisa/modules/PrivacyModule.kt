@@ -19,7 +19,6 @@ class PrivacyModule(
         """braintree:[0-9]{6,7}""".toRegex(),
         """([A-Z0-9]{5}-){5}[A-Z0-9]{5}""".toRegex(),
         """([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}""".toRegex(),
-        """[0-9]{3} [0-9]{3} [0-9]{4}""".toRegex(),
         """[a-z0-9]{32}""".toRegex()
     )
 

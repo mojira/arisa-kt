@@ -44,5 +44,6 @@ data class Issue(
     val addRestrictedComment: (options: CommentOptions) -> Unit,
     val addNotEnglishComment: (language: String) -> Unit,
     val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
-    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit
+    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit,
+    val changeReporter: (reporter: String) -> Unit
 )

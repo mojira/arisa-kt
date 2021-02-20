@@ -13,7 +13,14 @@ class PrivacyModule(
 ) : Module {
     private val patterns: List<Regex> = listOf(
         """\(Session ID is token:""".toRegex(),
-        """--accessToken ey""".toRegex()
+        """--accessToken ey""".toRegex(),
+        """[A-Z0-9]{17}""".toRegex(),
+        """([A-Z0-9]{4}-){3}[A-Z0-9]{4}""".toRegex(),
+        """braintree:[0-9]{6,7}""".toRegex(),
+        """([A-Z0-9]{5}-){5}[A-Z0-9]{5}""".toRegex(),
+        """([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}""".toRegex(),
+        """[0-9]{3} [0-9]{3} [0-9]{4}""".toRegex(),
+        """[a-z0-9]{32}""".toRegex()
     )
 
     val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z0-9.\\-]{2,15}\\b".toRegex()

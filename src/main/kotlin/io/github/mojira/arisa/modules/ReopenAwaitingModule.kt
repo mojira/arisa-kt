@@ -57,9 +57,17 @@ class ReopenAwaitingModule(
     ): Boolean {
         val isSoftAR = resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now())
         val onlyOp = comments.any(::isOPTag)
-        return comments.none(::isKeepARTag) && ((!onlyOp && (isSoftAR ||
-                validChangeLog.isNotEmpty())) ||
-                validComments.any { it.author.name == reporter?.name })
+
+        // bug report should stay in AR until a mod reopens it if keep ar flag is present
+        if (comments.any(::isKeepARTag)) return false
+
+        // reopen the bug report if:
+                // the report has been updated (by the reporter) OR
+        return validChangeLog.isNotEmpty() ||
+                // regular users can reopen and have commented OR
+                (!onlyOp && isSoftAR) ||
+                // reporter has commented
+                validComments.any { it.author.name == reporter?.name }
     }
 
     private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
@@ -70,7 +78,7 @@ class ReopenAwaitingModule(
             comment.visibilityValue == "staff" &&
             (comment.body?.contains(keepARTag) ?: false)
 
-    private fun isKeepARMessage(comment: Comment) = comment.author?.name == "arisabot" &&
+    private fun isKeepARMessage(comment: Comment) = comment.author.name == "arisabot" &&
             (comment.body?.contains(message) ?: false)
 
     private fun getValidComments(

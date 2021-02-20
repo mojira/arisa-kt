@@ -147,4 +147,17 @@ class PiracyModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         hasCommented shouldBe true
     }
+
+    "should sanitize null inputs" {
+        val module = PiracyModule(listOf("null null null"), "message")
+        val issue = mockIssue(
+            environment = null,
+            summary = null,
+            description = null
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
 })

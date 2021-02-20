@@ -149,7 +149,8 @@ fun JiraIssue.toDomain(
             )
         },
         ::addRestrictedComment.partially1(context).partially3(oldPostedCommentCache).partially3(newPostedCommentCache),
-        ::markAsFixedWithSpecificVersion.partially1(context)
+        ::markAsFixedWithSpecificVersion.partially1(context),
+        ::changeReporter.partially1(context)
     )
 }
 

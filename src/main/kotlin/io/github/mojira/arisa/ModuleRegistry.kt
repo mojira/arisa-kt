@@ -237,6 +237,7 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.ReopenAwaiting.blacklistedVisibilities],
                 config[Modules.ReopenAwaiting.softARDays],
                 config[Modules.ReopenAwaiting.keepARTag],
+                config[Modules.ReopenAwaiting.onlyOPTag],
                 config[Modules.ReopenAwaiting.message]
             )
         )

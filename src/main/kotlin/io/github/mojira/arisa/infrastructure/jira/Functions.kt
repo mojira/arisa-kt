@@ -13,15 +13,7 @@ import io.github.mojira.arisa.modules.tryRunAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.rcarz.jiraclient.Attachment
-import net.rcarz.jiraclient.Comment
-import net.rcarz.jiraclient.Field
-import net.rcarz.jiraclient.Issue
-import net.rcarz.jiraclient.IssueLink
-import net.rcarz.jiraclient.JiraClient
-import net.rcarz.jiraclient.TokenCredentials
-import net.rcarz.jiraclient.User
-import net.rcarz.jiraclient.Version
+import net.rcarz.jiraclient.*
 import net.sf.json.JSONObject
 import java.net.URI
 import java.time.Instant
@@ -130,7 +122,16 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
 
 private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     Either.catch {
-        edit.execute()
+        try {
+            edit.execute()
+        } catch (e: JiraException) {
+            val cause = e.cause
+            if (cause is RestException && (cause.httpStatusCode == 404 || cause.httpStatusCode >= 500)) {
+                log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
+            } else {
+                throw e
+            }
+        }
     }
 }
 
@@ -145,7 +146,15 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
-                    context.value.jiraClient.restClient.delete(URI(attachment.self))
+                    try {
+                        context.value.jiraClient.restClient.delete(URI(attachment.self))
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == 404 || e.httpStatusCode >= 500) {
+                            log.warn("Tried to delete ${attachment.id} when it was already deleted")
+                        } else {
+                            throw e
+                        }
+                    }
                 }
                 Unit
             }
@@ -248,8 +257,9 @@ fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body:
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                comment.update(body)
-                Unit
+                tryWithWarn(comment) {
+                    comment.update(body)
+                }
             }
         }
     }
@@ -264,9 +274,23 @@ fun restrictCommentToGroup(
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                comment.update(body, "group", group)
-                Unit
+                tryWithWarn(comment) {
+                    comment.update(body, "group", group)
+                }
             }
+        }
+    }
+}
+
+fun tryWithWarn(comment: Comment, func: () -> Unit) {
+    try {
+        func()
+    } catch (e: JiraException) {
+        val cause = e.cause
+        if (cause is RestException && (cause.httpStatusCode == 404 || cause.httpStatusCode >= 500)) {
+            log.warn("Tried to update comment ${comment.url} but it was deleted")
+        } else {
+            throw e
         }
     }
 }

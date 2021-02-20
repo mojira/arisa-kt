@@ -26,6 +26,7 @@ private val MODULE = ReopenAwaitingModule(
     listOf("helper", "staff", "global-moderators"),
     365,
     "MEQS_KEEP_AR",
+    "ARISA_REOPEN_OP",
     "not-reopen-ar"
 )
 private val AWAITING_RESOLVE = mockChangeLogItem(
@@ -411,6 +412,27 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         hasReopened shouldBe true
         hasCommented shouldBe false
+    }
+
+    "should not reopen when someone answered and only op tag is set" {
+        var reopen = false
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment()
+        val keep = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(keep, comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { reopen = true; Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        reopen shouldBe false
     }
 
     "should reopen when someone answered within the soft AR period" {

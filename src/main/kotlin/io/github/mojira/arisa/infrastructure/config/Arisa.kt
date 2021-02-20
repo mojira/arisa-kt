@@ -209,8 +209,11 @@ object Arisa : ConfigSpec() {
             )
             val softARDays by required<Long>(
                 description = "The ticket can also be reopened by comments posted by people other than the reporter " +
-                    "within the specific days after it was resolved. After the time has passed, only the reporter " +
-                    "can reopen the ticket."
+                        "within the specific days after it was resolved. After the time has passed, only the reporter " +
+                        "can reopen the ticket."
+            )
+            val onlyOPTag by required<String>(
+                description = "a tag used to indicate that only the reporter should be allowed to reopen the ticket"
             )
             val message by required<String>(
                 description = "The key of the message that is posted when the ticket is updated but will not be " +

@@ -19,6 +19,7 @@ class ReopenAwaitingModule(
     private val blacklistedVisibilities: List<String>,
     private val softArPeriod: Long,
     private val keepARTag: String,
+    private val onlyOPTag: String,
     private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -55,10 +56,15 @@ class ReopenAwaitingModule(
         resolveTime: Instant
     ): Boolean {
         val isSoftAR = resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now())
-        return comments.none(::isKeepARTag) && (isSoftAR ||
-                validChangeLog.isNotEmpty() ||
+        val onlyOp = comments.any(::isOPTag)
+        return comments.none(::isKeepARTag) && ((!onlyOp && (isSoftAR ||
+                validChangeLog.isNotEmpty())) ||
                 validComments.any { it.author.name == reporter?.name })
     }
+
+    private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
+            comment.visibilityValue == "staff" &&
+            (comment.body?.contains(onlyOPTag) ?: false)
 
     private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&

@@ -251,19 +251,19 @@
           "Awaiting Response"
         ],
         "blacklistedRoles": [
-		  "staff",
-		  "global-moderators"
-		],
-		"blacklistedVisibilities": [
-		  "helper",
-		  "staff",
-		  "global-moderators"
-		],
-		"softARDays": 365,
-		"keepARTag": "MEQS_KEEP_AR",
-		"onlyOPTag": "ARISA_REOPEN_OP",
-		"message": "not-reopen-ar"
-	  },
+	  "staff",
+	  "global-moderators"
+	],
+	"blacklistedVisibilities": [
+	  "helper",
+	  "staff",
+	  "global-moderators"
+	],
+	"softARDays": 365,
+	"keepARTag": "MEQS_KEEP_AR",
+	"onlyOPTag": "ARISA_REOPEN_OP",
+	"message": "not-reopen-ar"
+      },
       "removeNonStaffMeqs": {
         "resolutions": [
           "Awaiting Response",

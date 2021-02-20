@@ -16,6 +16,7 @@ import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.JiraException
 import net.rcarz.jiraclient.TokenCredentials
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,8 +29,10 @@ val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
+const val MINUTES_FOR_THROTTLED_LOG = 30L
 lateinit var jiraClient: JiraClient
 lateinit var credentials: TokenCredentials
+var throttledLog = 0L
 @Suppress("LongMethod")
 fun main() {
     val config = readConfig()
@@ -172,8 +175,16 @@ private fun searchIssues(
     startAt: Int,
     onQueryPaginated: () -> Unit
 ): List<Issue> {
-    val searchResult = jiraClient
-        .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
+    val searchResult = try {
+        jiraClient
+            .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
+    } catch (e: JiraException) {
+        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
+            log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
+            throttledLog = System.currentTimeMillis()
+        }
+        null
+    } ?: return emptyList()
 
     if (startAt + searchResult.max < searchResult.total)
         onQueryPaginated()

@@ -120,6 +120,10 @@ object Arisa : ConfigSpec() {
                 "",
                 description = "The text which will be appended at the comments that are restricted by this module."
             )
+            val allowedEmailRegex by optional<List<String>>(
+                default = emptyList(),
+                description = "List of regex for allowed emails"
+            )
         }
 
         object Language : ModuleConfigSpec() {

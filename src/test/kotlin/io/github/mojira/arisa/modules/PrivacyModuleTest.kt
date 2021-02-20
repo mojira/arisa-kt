@@ -10,7 +10,8 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??")
+private val ALLOWED_REGEX = listOf("allowed@.*".toRegex())
+private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??", ALLOWED_REGEX)
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
@@ -294,6 +295,46 @@ class PrivacyModuleTest : StringSpec({
                     field = "environment",
                     changedFromString = null,
                     changedToString = "My email is foo@example.com."
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should not mark as private when the change log item contains a allowed email" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    field = "environment",
+                    changedFromString = null,
+                    changedToString = "My email is allowed@example.com."
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        hasSetPrivate shouldBe false
+    }
+
+    "should mark as private when the change log item contains a allowed email and a not allowed email" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    field = "environment",
+                    changedFromString = null,
+                    changedToString = "My email is allowed@example.com but I also use foo@example.com."
                 )
             ),
             setPrivate = { hasSetPrivate = true }

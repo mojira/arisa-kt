@@ -19,10 +19,13 @@ import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.IssueLink
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.JiraException
+import net.rcarz.jiraclient.RestException
 import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
+import org.apache.http.HttpStatus
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
@@ -130,7 +133,18 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
 
 private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     Either.catch {
-        edit.execute()
+        try {
+            edit.execute()
+        } catch (e: JiraException) {
+            val cause = e.cause
+            if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                        cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            ) {
+                log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
+            } else {
+                throw e
+            }
+        }
     }
 }
 
@@ -145,7 +159,17 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
-                    context.value.jiraClient.restClient.delete(URI(attachment.self))
+                    try {
+                        context.value.jiraClient.restClient.delete(URI(attachment.self))
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Tried to delete ${attachment.id} when it was already deleted")
+                        } else {
+                            throw e
+                        }
+                    }
                 }
                 Unit
             }
@@ -248,8 +272,9 @@ fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body:
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                comment.update(body)
-                Unit
+                tryWithWarn(comment) {
+                    comment.update(body)
+                }
             }
         }
     }
@@ -264,9 +289,25 @@ fun restrictCommentToGroup(
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                comment.update(body, "group", group)
-                Unit
+                tryWithWarn(comment) {
+                    comment.update(body, "group", group)
+                }
             }
+        }
+    }
+}
+
+fun tryWithWarn(comment: Comment, func: () -> Unit) {
+    try {
+        func()
+    } catch (e: JiraException) {
+        val cause = e.cause
+        if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        ) {
+            log.warn("Tried to update comment ${comment.url} but it was deleted")
+        } else {
+            throw e
         }
     }
 }

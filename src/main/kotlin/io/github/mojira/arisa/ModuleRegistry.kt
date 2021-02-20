@@ -201,7 +201,8 @@ class ModuleRegistry(private val config: Config) {
             Modules.Privacy,
             PrivacyModule(
                 config[Modules.Privacy.message],
-                config[Modules.Privacy.commentNote]
+                config[Modules.Privacy.commentNote],
+                config[Modules.Privacy.allowedEmailRegex].map(String::toRegex)
             )
         )
 

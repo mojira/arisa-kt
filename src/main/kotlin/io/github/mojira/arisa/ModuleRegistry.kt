@@ -3,12 +3,9 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import arrow.core.left
 import arrow.syntax.function.partially1
-import arrow.syntax.function.pipe
-import arrow.syntax.function.pipe2
-import arrow.syntax.function.pipe3
-import arrow.syntax.function.pipe4
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
@@ -73,13 +70,39 @@ class ModuleRegistry(private val config: Config) {
     }
 
     private fun register(
-        config: ModuleConfigSpec,
+        moduleConfig: ModuleConfigSpec,
         module: Module,
         getJql: (lastRun: Instant) -> String = DEFAULT_JQL
-    ) = { issue: Issue, lastRun: Instant ->
-        config::class.simpleName!! to
-                ({ lastRun pipe (issue pipe2 module::invoke) } pipe ::tryExecuteModule)
-    } pipe (getJql pipe2 (config pipe3 (config::class.simpleName!! pipe4 ModuleRegistry::Entry))) pipe modules::add
+    ) {
+        val moduleName = moduleConfig::class.simpleName!!
+
+        if (isModuleEnabled(moduleName)) {
+            modules.add(
+                Entry(
+                    moduleName,
+                    moduleConfig,
+                    addDebugToJql(getJql),
+                    getModuleResult(moduleName, module)
+                )
+            )
+        }
+    }
+
+    private fun isModuleEnabled(moduleName: String): Boolean {
+        val enabledModules: List<String> = config[Arisa.Debug.enabledModules] ?: return true
+        return enabledModules.contains(moduleName)
+    }
+
+    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, lastRun: Instant ->
+        moduleName to tryExecuteModule { module(issue, lastRun) }
+    }
+
+    private fun addDebugToJql(getJql: (Instant) -> String) = { lastRun: Instant ->
+        with(config[Arisa.Debug.ticketWhitelist]) {
+            if (this == null) getJql(lastRun)
+            else "key IN (${ joinToString(",") }) AND (${ getJql(lastRun) })"
+        }
+    }
 
     @Suppress("TooGenericExceptionCaught")
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {

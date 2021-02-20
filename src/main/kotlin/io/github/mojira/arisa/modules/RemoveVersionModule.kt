@@ -20,14 +20,14 @@ class RemoveVersionModule(
                 .map { it.remove }
             assertNotEmpty(removeAddedVersions).bind()
             removeAddedVersions.forEach(::run)
-            if (calledMoreThan5Times(changeLog)) {
+            if (calledMoreThanMaxTimes(changeLog)) {
                 changeReporter("NoUser")
             }
             addComment(CommentOptions(message))
         }
     }
 
-    private fun calledMoreThan5Times(changeLog: List<ChangeLogItem>): Boolean {
+    private fun calledMoreThanMaxTimes(changeLog: List<ChangeLogItem>): Boolean {
         return changeLog
             .asSequence()
             .filter { it.author.name == "arisabot" }

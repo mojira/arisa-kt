@@ -1,6 +1,10 @@
 package io.github.mojira.arisa.modules
 
-import io.github.mojira.arisa.utils.*
+import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockAttachment
+import io.github.mojira.arisa.utils.mockChangeLogItem
+import io.github.mojira.arisa.utils.mockComment
+import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec

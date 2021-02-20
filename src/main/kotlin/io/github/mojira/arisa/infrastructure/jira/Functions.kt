@@ -131,14 +131,15 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
     return tryRunAll(functions)
 }
 
-
 private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     Either.catch {
         try {
             edit.execute()
         } catch (e: JiraException) {
             val cause = e.cause
-            if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND || cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
+            if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                        cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            ) {
                 log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
             } else {
                 throw e
@@ -161,7 +162,9 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
                     try {
                         context.value.jiraClient.restClient.delete(URI(attachment.self))
                     } catch (e: RestException) {
-                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND || e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
                             log.warn("Tried to delete ${attachment.id} when it was already deleted")
                         } else {
                             throw e
@@ -299,7 +302,9 @@ fun tryWithWarn(comment: Comment, func: () -> Unit) {
         func()
     } catch (e: JiraException) {
         val cause = e.cause
-        if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND || cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
+        if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        ) {
             log.warn("Tried to update comment ${comment.url} but it was deleted")
         } else {
             throw e

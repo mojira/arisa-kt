@@ -2,9 +2,12 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
+
+const val MAX_NUMBER_OF_VERSION_CHANGES = 5
 
 class RemoveVersionModule(
     private val message: String
@@ -17,8 +20,21 @@ class RemoveVersionModule(
                 .map { it.remove }
             assertNotEmpty(removeAddedVersions).bind()
             removeAddedVersions.forEach(::run)
+            if (calledMoreThan5Times(changeLog)) {
+                changeReporter("NoUser")
+            }
             addComment(CommentOptions(message))
         }
+    }
+
+    private fun calledMoreThan5Times(changeLog: List<ChangeLogItem>): Boolean {
+        return changeLog
+            .asSequence()
+            .filter { it.author.name == "arisabot" }
+            .filter { it.field == "Version" }
+            .filter { it.changedFrom != null }
+            .filter { it.changedTo == null } // To only get deleted versions
+            .count() >= MAX_NUMBER_OF_VERSION_CHANGES
     }
 
     private fun Issue.getExtraVersionsLatelyAddedByNonVolunteers(lastRun: Instant): List<String> =

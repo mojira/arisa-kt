@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
@@ -8,6 +9,7 @@ import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
@@ -15,7 +17,11 @@ private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
 private val VERSION = mockVersion(id = "1", released = true, archived = false)
 
-private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1")
+private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1", author = User("arisabot", null) { emptyList() })
+private val VERSION_REMOVED =
+    mockChangeLogItem(field = "Version", changedFrom = "1", author = User("arisabot", null) { emptyList() })
+private val VERSION_REMOVED_WITH_TO =
+    mockChangeLogItem(field = "Version", changedFrom = "1", changedTo = "1", author = User("arisabot", null) { emptyList() })
 
 class RemoveVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {
@@ -153,6 +159,82 @@ class RemoveVersionModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         removed.shouldBeTrue()
+    }
+
+    "should set to nouser when user changes version 5 times" {
+        var removed = false
+        var reporterChanged = false
+        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val module = RemoveVersionModule("removed-version")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
+            resolution = "Invalid",
+            affectedVersions = listOf(version),
+            changeLog = listOf(ADD_VERSION, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED),
+            project = mockProject(
+                versions = listOf(version)
+            ),
+            changeReporter = { reporterChanged = true }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        removed.shouldBeTrue()
+        reporterChanged.shouldBeTrue()
+    }
+
+    "should not set to nouser when user changes version 4 times" {
+        var removed = false
+        var reporterChanged = false
+        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val module = RemoveVersionModule("removed-version")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
+            resolution = "Invalid",
+            affectedVersions = listOf(version),
+            changeLog = listOf(ADD_VERSION, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED),
+            project = mockProject(
+                versions = listOf(version)
+            ),
+            changeReporter = { reporterChanged = true }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        removed.shouldBeTrue()
+        reporterChanged.shouldBeFalse()
+    }
+
+    "should not count to version for nouser" {
+        var removed = false
+        var reporterChanged = false
+        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val module = RemoveVersionModule("removed-version")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
+            resolution = "Invalid",
+            affectedVersions = listOf(version),
+            changeLog = listOf(
+                ADD_VERSION,
+                VERSION_REMOVED,
+                VERSION_REMOVED,
+                VERSION_REMOVED,
+                VERSION_REMOVED,
+                VERSION_REMOVED_WITH_TO
+            ),
+            project = mockProject(
+                versions = listOf(version)
+            ),
+            changeReporter = { reporterChanged = true }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        removed.shouldBeTrue()
+        reporterChanged.shouldBeFalse()
     }
 
     "should remove extra versions added by users via editing" {

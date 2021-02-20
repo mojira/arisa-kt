@@ -332,3 +332,7 @@ fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion
     context.value.resolve.field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersion)))
     context.value.transitionName = "Resolve Issue"
 }
+
+fun changeReporter(context: Lazy<IssueUpdateContext>, reporter: String) {
+    context.value.update.field(Field.REPORTER, reporter)
+}

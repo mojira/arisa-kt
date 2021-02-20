@@ -13,8 +13,19 @@ import io.github.mojira.arisa.modules.tryRunAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.rcarz.jiraclient.*
+import net.rcarz.jiraclient.Attachment
+import net.rcarz.jiraclient.Comment
+import net.rcarz.jiraclient.Field
+import net.rcarz.jiraclient.Issue
+import net.rcarz.jiraclient.IssueLink
+import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.JiraException
+import net.rcarz.jiraclient.RestException
+import net.rcarz.jiraclient.TokenCredentials
+import net.rcarz.jiraclient.User
+import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
+import org.apache.http.HttpStatus
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
@@ -120,13 +131,14 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
     return tryRunAll(functions)
 }
 
+
 private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     Either.catch {
         try {
             edit.execute()
         } catch (e: JiraException) {
             val cause = e.cause
-            if (cause is RestException && (cause.httpStatusCode == 404 || cause.httpStatusCode >= 500)) {
+            if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND || cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
                 log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
             } else {
                 throw e
@@ -149,7 +161,7 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
                     try {
                         context.value.jiraClient.restClient.delete(URI(attachment.self))
                     } catch (e: RestException) {
-                        if (e.httpStatusCode == 404 || e.httpStatusCode >= 500) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND || e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
                             log.warn("Tried to delete ${attachment.id} when it was already deleted")
                         } else {
                             throw e
@@ -287,7 +299,7 @@ fun tryWithWarn(comment: Comment, func: () -> Unit) {
         func()
     } catch (e: JiraException) {
         val cause = e.cause
-        if (cause is RestException && (cause.httpStatusCode == 404 || cause.httpStatusCode >= 500)) {
+        if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND || cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
             log.warn("Tried to update comment ${comment.url} but it was deleted")
         } else {
             throw e

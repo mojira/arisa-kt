@@ -29,6 +29,7 @@ val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
+const val MINUTES_FOR_THROTTLED_LOG = 30L
 lateinit var jiraClient: JiraClient
 lateinit var credentials: TokenCredentials
 var throttledLog = 0L
@@ -178,7 +179,7 @@ private fun searchIssues(
         jiraClient
             .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
     } catch (e: JiraException) {
-        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30) > throttledLog) {
+        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
             log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
             throttledLog = System.currentTimeMillis()
         }

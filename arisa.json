@@ -130,10 +130,7 @@
         }
       },
       "piracy": {
-        "excludedStatuses": [
-          "Postponed",
-          "Resolved"
-        ],
+        "excludedStatuses": ["Postponed", "Resolved"],
         "message": "pirated-minecraft",
         "piracySignatures": [
           "Minecraft Launcher null",
@@ -195,24 +192,22 @@
       },
       "futureVersion": {
         "resolutions": [
-          "Awaiting Response",
-          "Cannot Reproduce",
-          "Done",
-          "Duplicate",
-          "Fixed",
-          "Incomplete",
-          "Invalid",
-          "Unresolved",
-          "Won't Fix",
-          "Works As Intended"
+                "Awaiting Response",
+                "Cannot Reproduce",
+                "Done",
+                "Duplicate",
+                "Fixed",
+                "Incomplete",
+                "Invalid",
+                "Unresolved",
+                "Won't Fix",
+                "Works As Intended"
         ],
         "message": "provide-affected-versions",
         "panel": "panel-future-version"
       },
       "chk": {
-        "excludedStatuses": [
-          "Postponed"
-        ],
+        "excludedStatuses": ["Postponed"],
         "projects": [
           "MC",
           "MCPE",
@@ -220,10 +215,7 @@
         ]
       },
       "confirmParent": {
-        "confirmationStatusWhitelist": [
-          "Unconfirmed",
-          "Plausible"
-        ],
+        "confirmationStatusWhitelist": ["Unconfirmed", "Plausible"],
         "targetConfirmationStatus": "Community Consensus",
         "linkedThreshold": 3.0,
         "projects": [
@@ -246,19 +238,13 @@
           "Xbox One"
         ],
         "targetPlatform": "Multiple",
-        "transferredPlatformBlacklist": [
-          "None"
-        ],
+        "transferredPlatformBlacklist": ["None"],
         "keepPlatformTag": "MEQS_KEEP_PLATFORM",
-        "projects": [
-          "MCPE"
-        ]
+        "projects": ["MCPE"]
       },
       "keepPlatform": {
         "keepPlatformTag": "MEQS_KEEP_PLATFORM",
-        "projects": [
-          "MCPE"
-        ]
+        "projects": ["MCPE"]
       },
       "reopenAwaiting": {
         "resolutions": [
@@ -293,9 +279,7 @@
         "removalReason": "Comment was not properly staff-restricted."
       },
       "empty": {
-        "excludedStatuses": [
-          "Postponed"
-        ],
+        "excludedStatuses": ["Postponed"],
         "message": "incomplete",
         "projects": [
           "MC",
@@ -331,9 +315,7 @@
         "message": "panel-removed-version"
       },
       "crash": {
-        "excludedStatuses": [
-          "Postponed"
-        ],
+        "excludedStatuses": ["Postponed"],
         "crashExtensions": [
           "txt",
           "log"
@@ -348,47 +330,47 @@
         "duplicates": [
           {
             "type": "minecraft",
-            "exceptionRegex": "Pixel format not accelerated",
+            "exceptionRegex":  "Pixel format not accelerated",
             "duplicates": "MC-297"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "No OpenGL context found in the current thread",
+            "exceptionRegex":  "No OpenGL context found in the current thread",
             "duplicates": "MC-297"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "Could not create context",
+            "exceptionRegex":  "Could not create context",
             "duplicates": "MC-297"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "WGL: The driver does not appear to support OpenGL",
+            "exceptionRegex":  "WGL: The driver does not appear to support OpenGL",
             "duplicates": "MC-128302"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "failed to create a child event loop",
+            "exceptionRegex":  "failed to create a child event loop",
             "duplicates": "MC-34749"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "Failed to check session lock, aborting",
+            "exceptionRegex":  "Failed to check session lock, aborting",
             "duplicates": "MC-10167"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "Maybe try a lowerresolution texturepack",
+            "exceptionRegex":  "Maybe try a lowerresolution texturepack",
             "duplicates": "MC-29565"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "java\\.lang\\.OutOfMemoryError\\: Java heap space",
+            "exceptionRegex":  "java\\.lang\\.OutOfMemoryError\\: Java heap space",
             "duplicates": "MC-12949"
           },
           {
             "type": "minecraft",
-            "exceptionRegex": "try a lowerresolution",
+            "exceptionRegex":  "try a lowerresolution",
             "duplicates": "MC-29565"
           },
           {
@@ -403,13 +385,12 @@
           "txt",
           "log"
         ],
-        "projects": [],
+        "projects": [
+        ],
         "message": "attach-crash-report"
       },
       "revokeConfirmation": {
-        "excludedStatuses": [
-          "Postponed"
-        ],
+        "excludedStatuses": ["Postponed"],
         "projects": [
           "MC",
           "MCL",
@@ -486,9 +467,7 @@
         ]
       },
       "resolveTrash": {
-        "excludedStatuses": [
-          "Postponed"
-        ],
+        "excludedStatuses": ["Postponed"],
         "resolutions": [
           "Unresolved"
         ],
@@ -497,9 +476,7 @@
         ]
       },
       "updateLinked": {
-        "excludedStatuses": [
-          "Postponed"
-        ],
+        "excludedStatuses": ["Postponed"],
         "updateIntervalHours": 24,
         "projects": [
           "MC",
@@ -513,14 +490,10 @@
         ]
       },
       "transferVersions": {
-        "resolutions": [
-          "Duplicate"
-        ]
+        "resolutions": [ "Duplicate" ]
       },
       "transferLinks": {
-        "resolutions": [
-          "Duplicate"
-        ]
+        "resolutions": [ "Duplicate" ]
       },
       "replaceText": {
         "resolutions": [

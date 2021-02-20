@@ -435,6 +435,56 @@ class ReopenAwaitingModuleTest : StringSpec({
         reopen shouldBe false
     }
 
+    "should reopen when op answered and only op tag is set" {
+        var reopen = false
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment(author = REPORTER)
+        val keep = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(keep, comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { reopen = true; Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        reopen shouldBe true
+    }
+
+    "should reopen when op updated the bug report, even if only op tag is set" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val changeLog = mockChangeLogItem(
+            created = RIGHT_NOW.plusSeconds(3),
+            field = "Versions",
+            changedToString = "1.15.2",
+            author = REPORTER
+        )
+        val reopenOpComment = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(reopenOpComment),
+            changeLog = listOf(AWAITING_RESOLVE, changeLog),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe true
+        hasCommented shouldBe false
+    }
+
     "should reopen when someone answered within the soft AR period" {
         var hasReopened = false
         var hasCommented = false

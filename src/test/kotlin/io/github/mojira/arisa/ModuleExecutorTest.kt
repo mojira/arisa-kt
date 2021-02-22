@@ -27,7 +27,7 @@ val moduleRegistryMock = mockk<ModuleRegistry>()
 val failedModuleRegistryMock = mockk<ModuleRegistry>()
 
 class ModuleExecutorTest : StringSpec({
-    every { moduleRegistryMock.getModules() } returns listOf(
+    every { moduleRegistryMock.getEnabledModules() } returns listOf(
         ModuleRegistry.Entry(
             "mock",
             Arisa.Modules.Attachment,
@@ -35,7 +35,7 @@ class ModuleExecutorTest : StringSpec({
             { _, _ -> "mock" to Either.left(OperationNotNeededModuleResponse) }
         )
     )
-    every { failedModuleRegistryMock.getModules() } returns listOf(
+    every { failedModuleRegistryMock.getEnabledModules() } returns listOf(
         ModuleRegistry.Entry(
             "mock",
             Arisa.Modules.Attachment,
@@ -207,7 +207,7 @@ class ModuleExecutorTest : StringSpec({
         val spy2 = spyk<(Issue, Instant) -> Pair<String, Either<ModuleError, ModuleResponse>>>()
         every { spy1.invoke(any(), any()) } returns ("mock" to Either.left(OperationNotNeededModuleResponse))
         every { spy2.invoke(any(), any()) } returns ("mock2" to Either.left(OperationNotNeededModuleResponse))
-        every { registryMock.getModules() } returns listOf(
+        every { registryMock.getEnabledModules() } returns listOf(
             ModuleRegistry.Entry(
                 "mock",
                 Arisa.Modules.Attachment,

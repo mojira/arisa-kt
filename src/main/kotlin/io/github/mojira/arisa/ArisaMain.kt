@@ -67,7 +67,7 @@ fun main() {
     val issueUpdateContextCache = Cache<IssueUpdateContext>()
     val moduleRegistry = ModuleRegistry(config)
 
-    val enabledModules = moduleRegistry.getModules().map { it.name }
+    val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
     log.debug("Enabled modules: $enabledModules")
 
     // Create module executor

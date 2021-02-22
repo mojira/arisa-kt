@@ -82,9 +82,10 @@ object Arisa : ConfigSpec() {
 
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
-            val only by optional(
-                false,
-                description = "Optional. If set to true, only this module will be executed."
+            val enabled by optional(
+                true,
+                description = "Optional. Whether this module is enabled. " +
+                        "Modules are enabled by default unless debug.enabledModules is defined."
             )
             val projects by optional<List<String>?>(
                 null,

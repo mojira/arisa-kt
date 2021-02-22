@@ -321,7 +321,7 @@ arisa:
           duplicates: MC-32606
 
     missingCrash:
-      projects: [ ]
+      enabled: false
       resolutions:
         - Unresolved
       crashExtensions:

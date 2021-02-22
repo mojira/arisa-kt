@@ -59,15 +59,14 @@ class ModuleRegistry(private val config: Config) {
 
     private val modules = mutableListOf<Entry>()
 
-    fun getModules(): List<Entry> {
-        val onlyModules = modules
-            .filter { config[it.config.only] }
-        return if (onlyModules.isEmpty()) {
-            modules
-        } else {
-            onlyModules
-        }
-    }
+    fun getAllModules(): List<Entry> = modules
+
+    fun getEnabledModules(): List<Entry> = modules.filter(::isModuleEnabled)
+
+    private fun isModuleEnabled(module: Entry) =
+        // If arisa.debug.enabledModules is defined, return whether that module is in that list.
+        // If it's not defined, return whether this module is enabled in the module config.
+        config[Arisa.Debug.enabledModules]?.contains(module.name) ?: config[module.config.enabled]
 
     private fun register(
         moduleConfig: ModuleConfigSpec,
@@ -76,21 +75,14 @@ class ModuleRegistry(private val config: Config) {
     ) {
         val moduleName = moduleConfig::class.simpleName!!
 
-        if (isModuleEnabled(moduleName)) {
-            modules.add(
-                Entry(
-                    moduleName,
-                    moduleConfig,
-                    addDebugToJql(getJql),
-                    getModuleResult(moduleName, module)
-                )
+        modules.add(
+            Entry(
+                moduleName,
+                moduleConfig,
+                addDebugToJql(getJql),
+                getModuleResult(moduleName, module)
             )
-        }
-    }
-
-    private fun isModuleEnabled(moduleName: String): Boolean {
-        val enabledModules: List<String> = config[Arisa.Debug.enabledModules] ?: return true
-        return enabledModules.contains(moduleName)
+        )
     }
 
     private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, lastRun: Instant ->

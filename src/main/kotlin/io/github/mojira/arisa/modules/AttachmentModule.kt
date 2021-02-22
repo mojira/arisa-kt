@@ -17,10 +17,14 @@ class AttachmentModule(
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)
             val functions = attachments
                 .filter { endsWithBlacklistedExtensionAdapter(it.name) }
-                .map { it.remove }
             assertNotEmpty(functions).bind()
-            functions.forEach { it.invoke() }
+            val username = functions.forEach { it.uploader!!.name }
+            val attachmentName = functions.forEach { it.name }
+            functions
+                .map { it.remove }
+                .forEach { it.invoke() }
             addComment(CommentOptions(attachmentRemovedMessage))
+            addRawRestrictedComment("Attachment Details:\nFilename: $attachmentName\nUploader: $username", "helper")
         }
     }
 

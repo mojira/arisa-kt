@@ -1,13 +1,14 @@
 package io.github.mojira.arisa.infrastructure
 
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.maps.shouldContainKey
 import java.io.File
 
 class IntegrationTest : StringSpec({
-    "should be able to read the JSON correctly" {
+    "should be able to read the main config file correctly" {
         val config = Config { addSpec(Arisa) }
             .from.map.flat(
                 mapOf(
@@ -16,7 +17,7 @@ class IntegrationTest : StringSpec({
                     "arisa.credentials.dandelionToken" to "test"
                 )
             )
-            .from.json.watchFile("arisa.json")
+            .from.yaml.watchFile("config/config.yml")
             .from.env()
             .from.systemProperties()
 

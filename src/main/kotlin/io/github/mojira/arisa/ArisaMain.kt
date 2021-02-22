@@ -67,7 +67,7 @@ fun main() {
     val issueUpdateContextCache = Cache<IssueUpdateContext>()
     val moduleRegistry = ModuleRegistry(config)
 
-    val enabledModules = moduleRegistry.getModules().map { it.name }
+    val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
     log.debug("Enabled modules: $enabledModules")
 
     // Create module executor
@@ -147,8 +147,8 @@ private fun readLastRun(lastRunFile: File): List<String> {
 
 private fun readConfig(): Config {
     return Config { addSpec(Arisa) }
-        .from.yaml.watchFile("arisa.yml")
-        .from.json.watchFile("arisa.json")
+        .from.yaml.watchFile("config/config.yml")
+        .from.yaml.watchFile("config/local.yml")
         .from.env()
         .from.systemProperties()
 }

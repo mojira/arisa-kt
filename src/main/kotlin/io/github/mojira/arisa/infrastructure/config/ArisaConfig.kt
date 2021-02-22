@@ -6,8 +6,8 @@ object Arisa : ConfigSpec() {
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
-        val dandelionToken by optional(
-            "dummyKey",
+        val dandelionToken by optional<String?>(
+            null,
             description = "Token for dandelion.eu"
         )
         val discordLogWebhook by optional<String?>(
@@ -23,6 +23,9 @@ object Arisa : ConfigSpec() {
     object Issues : ConfigSpec() {
         val projects by required<List<String>>(
             description = "The projects to operate on. Used for default whitelist of modules"
+        )
+        val resolutions by required<List<String>>(
+            description = "The resolutions to operate on. Used for default whitelist of modules"
         )
         val url by required<String>(description = "The base url for the jira instance")
         val checkIntervalSeconds by required<Long>(description = "The interval in which all issues are checked")
@@ -79,18 +82,19 @@ object Arisa : ConfigSpec() {
 
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
-            val only by optional(
-                false,
-                description = "Optional. If set to true, only this module will be executed."
+            val enabled by optional(
+                true,
+                description = "Optional. Whether this module is enabled. " +
+                        "Modules are enabled by default unless debug.enabledModules is defined."
             )
             val projects by optional<List<String>?>(
                 null,
                 description = "Optional. The projects this module should operate on. Default is arisa.issues.projects"
             )
-            val resolutions by optional(
-                listOf("unresolved"),
+            val resolutions by optional<List<String>?>(
+                null,
                 description = "Optional. The resolutions that should be considered for this module." +
-                        " Default is unresolved."
+                        " Default is arisa.issues.resolutions"
             )
             val excludedStatuses by optional(
                 emptyList<String>(),

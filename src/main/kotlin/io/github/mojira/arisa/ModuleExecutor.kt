@@ -44,7 +44,7 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                registry.getModules().forEach { (_, config, getJql, exec) ->
+                registry.getEnabledModules().forEach { (_, config, getJql, exec) ->
                     executeModule(
                         config,
                         queryCache,
@@ -131,9 +131,13 @@ class ModuleExecutor(
         onQueryNotAtResultEnd: () -> Unit,
         newPostedCommentCache: Cache<MutableSet<String>>
     ): List<Issue> {
-        val projects = (config[moduleConfig.projects] ?: config[Arisa.Issues.projects])
-        val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
+        val projects = config[moduleConfig.projects] ?: config[Arisa.Issues.projects]
+
+        val resolutions = (config[moduleConfig.resolutions] ?: config[Arisa.Issues.resolutions])
+            .map(String::toLowerCase)
+
         val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
+
         val failedTicketsJQL = with(rerunTickets) {
             if (isNotEmpty())
                 "key in (${joinToString(",")}) OR "

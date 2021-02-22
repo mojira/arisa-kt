@@ -2,6 +2,7 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
@@ -26,7 +27,7 @@ val moduleRegistryMock = mockk<ModuleRegistry>()
 val failedModuleRegistryMock = mockk<ModuleRegistry>()
 
 class ModuleExecutorTest : StringSpec({
-    every { moduleRegistryMock.getModules() } returns listOf(
+    every { moduleRegistryMock.getEnabledModules() } returns listOf(
         ModuleRegistry.Entry(
             "mock",
             Arisa.Modules.Attachment,
@@ -34,7 +35,7 @@ class ModuleExecutorTest : StringSpec({
             { _, _ -> "mock" to Either.left(OperationNotNeededModuleResponse) }
         )
     )
-    every { failedModuleRegistryMock.getModules() } returns listOf(
+    every { failedModuleRegistryMock.getEnabledModules() } returns listOf(
         ModuleRegistry.Entry(
             "mock",
             Arisa.Modules.Attachment,
@@ -206,7 +207,7 @@ class ModuleExecutorTest : StringSpec({
         val spy2 = spyk<(Issue, Instant) -> Pair<String, Either<ModuleError, ModuleResponse>>>()
         every { spy1.invoke(any(), any()) } returns ("mock" to Either.left(OperationNotNeededModuleResponse))
         every { spy2.invoke(any(), any()) } returns ("mock2" to Either.left(OperationNotNeededModuleResponse))
-        every { registryMock.getModules() } returns listOf(
+        every { registryMock.getEnabledModules() } returns listOf(
             ModuleRegistry.Entry(
                 "mock",
                 Arisa.Modules.Attachment,
@@ -245,7 +246,7 @@ fun getMockModuleExecutor(
 )
 
 private fun getConfig() = Config { addSpec(Arisa) }
-    .from.json.watchFile("arisa.json")
+    .from.yaml.watchFile("config/config.yml")
     .from.map.flat(
         mapOf(
             "arisa.credentials.username" to "test",

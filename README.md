@@ -45,11 +45,15 @@ git clone https://github.com/mojira/arisa-kt.git
 ./gradlew clean build
 ```
 
-To run the bot, you need to run the following command and it will use the default configuration:
+To run the bot, you need to run the following command, and it will use the default configuration:
 ```
 ./gradlew build installDist
 ./build/install/arisa-kt/bin/arisa-kt
 ```
+
+In order to configure Arisa, create a `local.yml` file inside the `config` folder.
+There you can set all your credentials and overwrite any configs in `config.yml` for debugging purposes.
+There are also some specific debug configs, you can find their documentation in the `ArisaConfig.kt` file.
 
 ## Built with
 

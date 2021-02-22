@@ -54,9 +54,8 @@ class PrivacyModule(
                 .filter { it.visibilityType == null }
                 .filter { it.body?.matches(patterns) ?: false || matchesEmail(it.body ?: "") }
                 .filterNot {
-                    it.getAuthorGroups()?.any {
-                        it == "helper" ||
-                                it == "global-moderators" || it == "staff"
+                    it.getAuthorGroups()?.any { group ->
+                        listOf("helper", "global-moderators", "staff").contains(group)
                     } ?: false
                 }
                 .map { { it.restrict("${it.body}$commentNote") } }

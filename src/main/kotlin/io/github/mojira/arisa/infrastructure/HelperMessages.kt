@@ -68,12 +68,12 @@ data class HelperMessages(
     fun getMessage(
         project: String,
         keys: List<String>,
-        filledTexts: List<String?> = emptyList<String?>(),
+        filledTexts: List<String?> = emptyList(),
         lang: String = "en"
     ): String {
-        val target = keys.mapIndexed { i, key -> getSingleMessage(project, key, filledTexts.getOrNull(i), lang) }
-            .map { either -> either.fold({ "" }, { it }) }
-            .joinToString("\n")
+        val target = keys
+            .mapIndexed { i, key -> getSingleMessage(project, key, filledTexts.getOrNull(i), lang) }
+            .joinToString("\n") { either -> either.fold({ "" }, { it }) }
         return if (lang == "en") {
             target
         } else {
@@ -92,7 +92,7 @@ data class HelperMessages(
     fun serialize() = Klaxon().toJsonString(this)
 
     private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {
-        is String -> project.toLowerCase() == filter.toLowerCase()
+        is String -> project.equals(filter, ignoreCase = true)
         is List<*> -> project.toLowerCase() in filter.map { (it as String).toLowerCase() }
         else -> false
     }

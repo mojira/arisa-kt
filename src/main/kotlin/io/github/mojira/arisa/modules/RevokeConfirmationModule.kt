@@ -12,8 +12,7 @@ class RevokeConfirmationModule : Module {
         Either.fx {
             val volunteerConfirmation = changeLog
                 .filter(::isConfirmationChange)
-                .filter(::changedByVolunteer)
-                .lastOrNull()
+                .lastOrNull(::changedByVolunteer)
                 ?.changedToString.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()

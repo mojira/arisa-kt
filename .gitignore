@@ -2,7 +2,6 @@
 /.gradle/
 /build/
 .idea/
-arisa.yml
 helper-messages.json
 /.kotest
 /bin/
@@ -10,3 +9,7 @@ helper-messages.json
 /out/
 /logs/
 last-run
+
+# Old credentials config file
+arisa.yml
+/config/local.yml

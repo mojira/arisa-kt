@@ -2,6 +2,7 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
@@ -245,7 +246,7 @@ fun getMockModuleExecutor(
 )
 
 private fun getConfig() = Config { addSpec(Arisa) }
-    .from.json.watchFile("arisa.json")
+    .from.yaml.watchFile("config/config.yml")
     .from.map.flat(
         mapOf(
             "arisa.credentials.username" to "test",

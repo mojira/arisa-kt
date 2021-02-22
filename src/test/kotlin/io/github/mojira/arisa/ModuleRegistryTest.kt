@@ -1,6 +1,7 @@
 package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.Module
 import io.kotest.core.spec.style.StringSpec
@@ -45,7 +46,7 @@ class ModuleRegistryTest : StringSpec({
 })
 
 private fun getConfig(only: Boolean = false) = Config { addSpec(Arisa) }
-    .from.json.watchFile("arisa.json")
+    .from.yaml.watchFile("config/config.yml")
     .from.map.flat(
         mapOf(
             "arisa.modules.attachment.only" to only.toString(),

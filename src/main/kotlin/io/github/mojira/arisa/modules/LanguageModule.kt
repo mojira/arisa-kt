@@ -78,10 +78,11 @@ class LanguageModule(
         else -> Unit.right()
     }
 
-    private fun assertIsPublic(securityLevel: String?, privateLevel: String) = when {
-        securityLevel == privateLevel -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
-    }
+    private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
+        if (securityLevel == privateLevel)
+            OperationNotNeededModuleResponse.left()
+        else
+            Unit.right()
 
     private fun assertLanguageIsNotAllowed(allowedLanguages: List<String>, language: String) = when {
         allowedLanguages.any { language == it } -> OperationNotNeededModuleResponse.left()

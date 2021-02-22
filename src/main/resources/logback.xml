@@ -1,7 +1,7 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -19,7 +19,7 @@
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <charset>UTF-8</charset>
             <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
             </layout>
         </encoder>
     </appender>
@@ -30,7 +30,7 @@
             <level>INFO</level>
         </filter>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>`%d{HH:mm:ss.SSS} %-5level - %msg`%n%replace(```%ex{full}```){'``````',''}%nopex</pattern>
+            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg`%n%replace(```%ex{full}```){'``````',''}%nopex</pattern>
         </layout>
         <username>Arisa</username>
         <avatarUrl>https://raw.githubusercontent.com/mojira/arisa-kt/master/arisa.png</avatarUrl>
@@ -47,7 +47,7 @@
             <level>ERROR</level>
         </filter>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>`%d{HH:mm:ss.SSS} %-5level - %msg`%n```%ex{full}```</pattern>
+            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg`%n```%ex{full}```</pattern>
         </layout>
         <username>Arisa</username>
         <avatarUrl>https://raw.githubusercontent.com/mojira/arisa-kt/master/arisa.png</avatarUrl>

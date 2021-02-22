@@ -48,7 +48,7 @@ jobs:
       env:
         DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_PORT: 22
-        FOLDER: "config/config.yml"
+        FOLDER: "config"
         ARGS: "-avh --delete"
         SERVER_IP: ssh.urielsalis.com
         USERNAME: arisakt

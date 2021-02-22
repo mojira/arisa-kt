@@ -15,7 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 const val DIVISOR = 10
 class RemoveUserCommand : Command1<String> {
-    private val regex = "\"https:\\/\\/bugs\\.mojang\\.com\\/browse\\/(.*)\">".toRegex()
+    private val regex = "\"https://bugs\\.mojang\\.com/browse/(.*)\">".toRegex()
     override fun invoke(issue: Issue, arg: String): Int {
         val name = URLEncoder.encode(
             arg,
@@ -37,7 +37,7 @@ class RemoveUserCommand : Command1<String> {
             tickets
                 .toSet()
                 .filterNot { it.startsWith("TRASH-") }
-                .map {
+                .mapNotNull {
                     val either = getIssue(jiraClient, it)
                     if (either.isLeft()) {
                         null
@@ -45,9 +45,8 @@ class RemoveUserCommand : Command1<String> {
                         (either as Either.Right).b
                     }
                 }
-                .filterNotNull()
-                .forEach {
-                    it.comments
+                .forEach { issue ->
+                    issue.comments
                         .filter { it.visibility?.type != "staff" }
                         .filter { it.author.name == name }
                         .forEachIndexed { index, it ->

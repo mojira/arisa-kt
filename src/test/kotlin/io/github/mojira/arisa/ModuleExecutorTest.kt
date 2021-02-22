@@ -84,7 +84,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 
@@ -103,7 +103,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 
@@ -122,7 +122,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 
@@ -141,7 +141,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 
@@ -160,7 +160,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 
@@ -176,7 +176,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 
@@ -194,7 +194,7 @@ class ModuleExecutorTest : StringSpec({
             "",
             Cache(),
             0,
-            { Unit },
+            { },
             Cache()
         )
 

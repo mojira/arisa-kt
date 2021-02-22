@@ -14,9 +14,9 @@ class AddVersionCommandTest : StringSpec({
 
         val issue = mockIssue(
             project = mockProject(
-                versions = listOf(getVersion(true, false))
+                versions = listOf(getVersion(released = true, archived = false))
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -30,9 +30,9 @@ class AddVersionCommandTest : StringSpec({
 
         val issue = mockIssue(
             project = mockProject(
-                versions = listOf(getVersion(true, false))
+                versions = listOf(getVersion(released = true, archived = false))
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -47,11 +47,11 @@ class AddVersionCommandTest : StringSpec({
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
         val result = command(issue, "12w34b")
@@ -64,8 +64,8 @@ private fun getVersion(
     released: Boolean,
     archived: Boolean,
     name: String = "12w34a",
-    add: () -> Unit = { Unit },
-    remove: () -> Unit = { Unit }
+    add: () -> Unit = { },
+    remove: () -> Unit = { }
 ) = mockVersion(
     name = name,
     released = released,

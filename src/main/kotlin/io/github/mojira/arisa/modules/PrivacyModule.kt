@@ -22,7 +22,7 @@ class PrivacyModule(
         """.*\b[a-z0-9]{32}\b.*""".toRegex()
     )
 
-    val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z0-9.\\-]{2,15}\\b".toRegex()
+    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z0-9.\\-]{2,15}\\b".toRegex()
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -54,9 +54,8 @@ class PrivacyModule(
                 .filter { it.visibilityType == null }
                 .filter { it.body?.matches(patterns) ?: false || matchesEmail(it.body ?: "") }
                 .filterNot {
-                    it.getAuthorGroups()?.any {
-                        it == "helper" ||
-                                it == "global-moderators" || it == "staff"
+                    it.getAuthorGroups()?.any { group ->
+                        listOf("helper", "global-moderators", "staff").contains(group)
                     } ?: false
                 }
                 .map { { it.restrict("${it.body}$commentNote") } }

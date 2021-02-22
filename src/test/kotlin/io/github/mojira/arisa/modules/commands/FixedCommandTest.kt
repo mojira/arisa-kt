@@ -15,11 +15,11 @@ class FixedCommandTest : StringSpec({
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
         val result = command(issue, "12w34b")
@@ -33,12 +33,12 @@ class FixedCommandTest : StringSpec({
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false)),
-            fixVersions = listOf(getVersion(true, false, "12w34b"))
+            affectedVersions = listOf(getVersion(released = true, archived = false)),
+            fixVersions = listOf(getVersion(released = true, archived = false, "12w34b"))
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -53,10 +53,10 @@ class FixedCommandTest : StringSpec({
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false)
+                    getVersion(released = true, archived = false)
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -71,11 +71,11 @@ class FixedCommandTest : StringSpec({
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false)),
+            affectedVersions = listOf(getVersion(released = true, archived = false)),
             resolution = "Cannot Reproduce"
         )
 

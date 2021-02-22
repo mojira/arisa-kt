@@ -283,7 +283,7 @@ private fun getComment(
     created: Instant = RIGHT_NOW,
     visibilityType: String? = null,
     visibilityValue: String? = null,
-    restrict: (String) -> Unit = { Unit }
+    restrict: (String) -> Unit = { }
 ) = mockComment(
     author = getUser(displayName = author),
     getAuthorGroups = getAuthorGroups,

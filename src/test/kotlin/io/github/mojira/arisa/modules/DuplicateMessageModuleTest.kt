@@ -882,7 +882,7 @@ private fun getIssue(
         )
     ),
     comments: List<Comment> = emptyList(),
-    addComment: (options: CommentOptions) -> Unit = { Unit }
+    addComment: (options: CommentOptions) -> Unit = { }
 ) = mockIssue(
     links = links,
     changeLog = changeLog,

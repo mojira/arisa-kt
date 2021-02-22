@@ -59,7 +59,7 @@ class AttachmentModuleTest : StringSpec({
 private fun getAttachment(
     name: String = "testfile.test",
     created: Instant = NOW,
-    remove: () -> Unit = { Unit }
+    remove: () -> Unit = { }
 ) = mockAttachment(
     name = name,
     created = created,

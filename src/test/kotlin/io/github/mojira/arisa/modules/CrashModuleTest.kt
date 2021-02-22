@@ -513,7 +513,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -545,7 +544,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -577,7 +575,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -613,7 +610,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -645,7 +641,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -681,7 +676,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -713,7 +707,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -745,7 +738,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -781,8 +773,7 @@ class CrashModuleTest : StringSpec({
                 type.shouldBe("Duplicate")
                 key.shouldBe("MC-297")
                 isLinked = true
-            },
-            addComment = { Unit }
+            }
         )
 
         val result = module(issue, A_SECOND_AGO)
@@ -822,7 +813,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -863,7 +853,6 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
             addComment = { addedComment = it }
         )
 
@@ -1038,7 +1027,7 @@ private fun getAttachment(
     content: String,
     name: String = "crash.txt",
     created: Instant = NOW,
-    remove: () -> Unit = { Unit }
+    remove: () -> Unit = { }
 ) = mockAttachment(
     name = name,
     created = created,

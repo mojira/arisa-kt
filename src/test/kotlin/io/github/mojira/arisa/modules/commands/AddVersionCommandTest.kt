@@ -64,8 +64,8 @@ private fun getVersion(
     released: Boolean,
     archived: Boolean,
     name: String = "12w34a",
-    add: () -> Unit = { Unit },
-    remove: () -> Unit = { Unit }
+    add: () -> Unit = { },
+    remove: () -> Unit = { }
 ) = mockVersion(
     name = name,
     released = released,

@@ -176,7 +176,7 @@ private fun getAttachment(
     content: String,
     name: String = "crash.txt",
     created: Instant = NOW,
-    remove: () -> Unit = { Unit }
+    remove: () -> Unit = { }
 ) = mockAttachment(
     name = name,
     created = created,

@@ -7,14 +7,14 @@
 
 <!-- PROJECT LOGO -->
 <br/>
-<p align="center">
+<div style="text-align: center">
   <a href="https://bugs.mojang.com/">
     <img src="arisa.png" alt="Arisa" width="80" height="80">
   </a>
 
-  <h3 align="center">Arisa</h3>
+  <h3>Arisa</h3>
 
-  <p align="center">
+  <p>
     A JIRA bot for doing various moderation tasks on Mojang's bug tracker <a href="https://bugs.mojang.com/">Mojira</a>.
     <br/>
     <a href="https://bugs.mojang.com/secure/ViewProfile.jspa?name=arisabot">Arisa's bug tracker profile</a>
@@ -23,10 +23,10 @@
     ·
     <a href="https://github.com/mojira/arisa-kt/issues">Request Feature</a>
   </p>
-</p>
+</div>
 
 ## About the project
-Arisa is a Bot account on Mojira, Mojang's bug tracker. Its purpose is to run various checks on tickets and do automated tasks.
+Arisa is a Bot account on Mojira, Mojang's bug tracker. Its purpose is to run various checks on tickets and execute automated tasks.
 For instance, it automatically analyzes newly posted tickets and automatically resolves them in case the game is modified.
 
 Arisa was [originally written in Ruby](https://github.com/mojira/arisa) by Synchunk, a now retired Mojira moderator.
@@ -45,7 +45,7 @@ git clone https://github.com/mojira/arisa-kt.git
 ./gradlew clean build
 ```
 
-To run the bot, you need to run the following command, and it will use the default configuration:
+To run the bot with the default configuration, you need to run the following command:
 ```
 ./gradlew build installDist
 ./build/install/arisa-kt/bin/arisa-kt

@@ -6,8 +6,8 @@ object Arisa : ConfigSpec() {
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
-        val dandelionToken by optional(
-            "dummyKey",
+        val dandelionToken by optional<String?>(
+            null,
             description = "Token for dandelion.eu"
         )
         val discordLogWebhook by optional<String?>(

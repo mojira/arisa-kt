@@ -3,6 +3,10 @@ arisa:
   credentials:
     username: <JIRA user name>
     password: <plain text password>
+
+    # These configs are optional and can be omitted
     dandelionToken: <Dandelion token>
+    discordLogWebhook: <Discord log webhook>
+    discordErrorWebhook: <Discord error webhook>
   debug:
-    # You can add some debug options here, see `ArisaConfig.kt`
+    # You can add some debug options here, see `ArisaConfig.kt` for details

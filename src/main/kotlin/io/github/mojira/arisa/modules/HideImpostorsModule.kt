@@ -31,7 +31,7 @@ class HideImpostorsModule : Module {
         .isAfter(Instant.now())
 
     private fun userContainsBrackets(comment: Comment) = with(comment.author.displayName) {
-        this != null && matches("""\[(?:\p{L}|\p{N}|\s)+\]\s.+""".toRegex())
+        this != null && matches("""\[(?:\p{L}|\p{N}|\s)+]\s.+""".toRegex())
     }
 
     private fun userIsNotVolunteer(comment: Comment) =

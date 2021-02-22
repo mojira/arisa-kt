@@ -15,7 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 const val DIVISOR = 10
 class RemoveUserCommand : Command1<String> {
-    private val regex = "\"https:\\/\\/bugs\\.mojang\\.com\\/browse\\/(.*)\">".toRegex()
+    private val regex = "\"https://bugs\\.mojang\\.com/browse/(.*)\">".toRegex()
     override fun invoke(issue: Issue, arg: String): Int {
         val name = URLEncoder.encode(
             arg,

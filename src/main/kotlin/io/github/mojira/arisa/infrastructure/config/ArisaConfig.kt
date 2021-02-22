@@ -24,6 +24,9 @@ object Arisa : ConfigSpec() {
         val projects by required<List<String>>(
             description = "The projects to operate on. Used for default whitelist of modules"
         )
+        val resolutions by required<List<String>>(
+            description = "The resolutions to operate on. Used for default whitelist of modules"
+        )
         val url by required<String>(description = "The base url for the jira instance")
         val checkIntervalSeconds by required<Long>(description = "The interval in which all issues are checked")
     }
@@ -87,10 +90,10 @@ object Arisa : ConfigSpec() {
                 null,
                 description = "Optional. The projects this module should operate on. Default is arisa.issues.projects"
             )
-            val resolutions by optional(
-                listOf("unresolved"),
+            val resolutions by optional<List<String>?>(
+                null,
                 description = "Optional. The resolutions that should be considered for this module." +
-                        " Default is unresolved."
+                        " Default is arisa.issues.resolutions"
             )
             val excludedStatuses by optional(
                 emptyList<String>(),

@@ -9,6 +9,17 @@ arisa:
       - BDS
       - REALMS
       - WEB
+    resolutions:
+      - Awaiting Response
+      - Cannot Reproduce
+      - Done
+      - Duplicate
+      - Fixed
+      - Incomplete
+      - Invalid
+      - Unresolved
+      - Won't Fix
+      - Works As Intended
     url: https://bugs.mojang.com/
     checkIntervalSeconds: 10
 
@@ -30,17 +41,6 @@ arisa:
 
   modules:
     attachment:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       extensionBlacklist:
         - '.jar'
         - '.exe'
@@ -122,6 +122,8 @@ arisa:
         Won't Fix: duplicate-wf
 
     piracy:
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
         - Resolved
@@ -156,17 +158,6 @@ arisa:
         - TLauncher
 
     privacy:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       message: panel-mark-private
       commentNote: |-
 
@@ -177,6 +168,8 @@ arisa:
         - '.*@(mojang.com|microsoft.com|minecraft.net|zendesk.com)$'
 
     removeTriagedMeqs:
+      resolutions:
+        - Unresolved
       meqsTags:
         - MEQS_WAI
         - MEQS_WONTFIX
@@ -184,17 +177,6 @@ arisa:
       removalReason: Ticket has been triaged.
 
     futureVersion:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       message: provide-affected-versions
       panel: panel-future-version
 
@@ -203,6 +185,8 @@ arisa:
         - MC
         - MCPE
         - MCL
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
 
@@ -212,6 +196,8 @@ arisa:
         - MCL
         - MCPE
         - REALMS
+      resolutions:
+        - Unresolved
       confirmationStatusWhitelist:
         - Unconfirmed
         - Plausible
@@ -221,6 +207,8 @@ arisa:
     multiplePlatforms:
       projects:
         - MCPE
+      resolutions:
+        - Unresolved
       platformWhitelist:
         - Amazon
         - Android
@@ -239,6 +227,8 @@ arisa:
     keepPlatform:
       projects:
         - MCPE
+      resolutions:
+        - Unresolved
       keepPlatformTag: MEQS_KEEP_PLATFORM
 
     reopenAwaiting:
@@ -257,17 +247,6 @@ arisa:
       message: not-reopen-ar
 
     removeNonStaffMeqs:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       removalReason: Comment was not properly staff-restricted.
 
     empty:
@@ -275,22 +254,13 @@ arisa:
         - MC
         - MCL
         - MCTEST
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
       message: incomplete
 
     command:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       commandPrefix: ARISA
 
     removeVersion:
@@ -309,6 +279,8 @@ arisa:
         - MC
         - MCL
         - MCTEST
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
       crashExtensions:
@@ -350,6 +322,8 @@ arisa:
 
     missingCrash:
       projects: [ ]
+      resolutions:
+        - Unresolved
       crashExtensions:
         - txt
         - log
@@ -362,21 +336,12 @@ arisa:
         - MCPE
         - BDS
         - MCD
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
 
     keepPrivate:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       tag: MEQS_KEEP_PRIVATE
       message: panel-unmark-private-issue
 
@@ -386,6 +351,8 @@ arisa:
       tag: MEQS_KEEP_PRIVATE
 
     language:
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
       allowedLanguages:
@@ -395,30 +362,8 @@ arisa:
       lengthThreshold: 80
 
     hideImpostors:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
 
     removeSpam:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended
       patterns:
         - pattern: '\[~'
           threshold: 5
@@ -426,6 +371,8 @@ arisa:
     resolveTrash:
       projects:
         - TRASH
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
 
@@ -438,6 +385,8 @@ arisa:
         - BDS
         - REALMS
         - WEB
+      resolutions:
+        - Unresolved
       excludedStatuses:
         - Postponed
       updateIntervalHours: 24
@@ -451,14 +400,3 @@ arisa:
         - Duplicate
 
     replaceText:
-      resolutions:
-        - Awaiting Response
-        - Cannot Reproduce
-        - Done
-        - Duplicate
-        - Fixed
-        - Incomplete
-        - Invalid
-        - Unresolved
-        - Won't Fix
-        - Works As Intended

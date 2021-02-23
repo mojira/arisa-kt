@@ -17,12 +17,12 @@ class FixCapitalizationModule : Module {
 
             var newDescription = description!!
             val matchesDescription = capitalizationRegex.findAll(newDescription)
-            assertNotNull(matchesDescription).bind()
             matchesDescription
                     .map { it.groupValues[0] }
                     .forEach {
                         newDescription = newDescription.replace(it, it.toLowerCase().capitalize())
                     }
+            assertNotEquals(newDescription, description).bind()
             updateDescription(newDescription)
         }
     }

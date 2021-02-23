@@ -8,7 +8,8 @@ import java.time.Instant
 class FixCapitalizationModule : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            val capitalizationRegex = """(?<=\.\s|^|!\s|\?\s)[A-Z][A-Za-z]*((\s|,\s)[A-Z][A-Za-z-']*)*(?=\.|${'$'}|!|\?)""".toRegex()
+            val capitalizationRegex =
+                    """(?<=\.\s|^|!\s|\?\s)[A-Z][A-Za-z]*((\s|,\s)[A-Z][A-Za-z-']*)*(?=\.|${'$'}|!|\?)""".toRegex()
 
             assertAfter(issue.created, lastRun).bind()
 

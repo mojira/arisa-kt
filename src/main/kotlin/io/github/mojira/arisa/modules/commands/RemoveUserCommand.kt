@@ -47,7 +47,7 @@ class RemoveUserCommand : Command1<String> {
                 }
                 .forEach { issue ->
                     issue.comments
-                        .filter { it.visibility?.type != "staff" }
+                        .filter { it.visibility?.value != "staff" }
                         .filter { it.author.name == name }
                         .forEachIndexed { index, it ->
                             it.update(it.body?.plus("\n\n~Removed by Arisa - Delete user $name~"), "group", "staff")

@@ -112,6 +112,7 @@ arisa:
       commentDelayMinutes: 5
       message: duplicate
       ticketMessages:
+        MC-108: duplicate-of-mc-108
         MC-297: duplicate-of-mc-297
         MC-128302: duplicate-of-mc-128302
         MCL-5638: duplicate-of-mcl-5638

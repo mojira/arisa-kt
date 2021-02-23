@@ -400,3 +400,5 @@ arisa:
         - Duplicate
 
     replaceText:
+
+    fixCapitalization:

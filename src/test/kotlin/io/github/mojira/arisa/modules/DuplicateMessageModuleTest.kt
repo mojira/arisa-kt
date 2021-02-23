@@ -19,6 +19,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
+private val TEN_SECONDS_LATER = RIGHT_NOW.plusSeconds(10)
 private val TEN_THOUSAND_YEARS_LATER = RIGHT_NOW.plusSeconds(315360000000)
 
 class DuplicateMessageModuleTest : StringSpec({
@@ -876,7 +877,7 @@ class DuplicateMessageModuleTest : StringSpec({
         val issue = getIssue(
                 changeLog = listOf(
                         mockChangeLogItem(
-                                created = TWO_SECONDS_AGO,
+                                created = TEN_SECONDS_LATER,
                                 field = "Link",
                                 changedTo = "MC-1",
                                 changedToString = "This issue duplicates MC-1"

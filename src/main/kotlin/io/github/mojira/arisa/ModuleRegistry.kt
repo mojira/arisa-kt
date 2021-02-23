@@ -260,7 +260,7 @@ class ModuleRegistry(private val config: Config) {
 
         register(Modules.ReplaceText, ReplaceTextModule())
 
-        register(Modules.FixCapitalization, ReplaceTextModule())
+        register(Modules.FixCapitalization, FixCapitalizationModule())
 
         register(Modules.RevokeConfirmation, RevokeConfirmationModule())
 

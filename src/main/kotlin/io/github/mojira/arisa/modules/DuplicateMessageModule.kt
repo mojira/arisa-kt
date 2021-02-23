@@ -47,7 +47,8 @@ class DuplicateMessageModule(
                 val fullParents = fullParentEitherList
                     .map { (it as Either.Right).b }
 
-                messageKey = getPrivateMessageOrNull(fullParents) ?: getResolutionMessageOrNull(fullParents) ?: getForwardResolvedOrNot(issue, fullParents)!!
+                messageKey = getPrivateMessageOrNull(fullParents) ?: getResolutionMessageOrNull(fullParents) ?:
+                        getForwardResolvedOrNot(issue, fullParents)!!
             }
 
             val filledText = parents.getFilledText()

@@ -164,6 +164,7 @@ class ModuleRegistry(private val config: Config) {
             DuplicateMessageModule(
                 config[Modules.DuplicateMessage.commentDelayMinutes],
                 config[Modules.DuplicateMessage.message],
+                config[Modules.DuplicateMessage.forwardMessage],
                 config[Modules.DuplicateMessage.ticketMessages],
                 config[Modules.DuplicateMessage.privateMessage],
                 config[Modules.DuplicateMessage.resolutionMessages]

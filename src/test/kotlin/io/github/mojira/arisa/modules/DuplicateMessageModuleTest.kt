@@ -25,6 +25,7 @@ class DuplicateMessageModuleTest : StringSpec({
     val module = DuplicateMessageModule(
         0L,
         "duplicate",
+        "duplicate-forward",
         mapOf("MC-297" to "duplicate-of-mc-297"),
         "duplicate-private",
         mapOf("Fixed" to "duplicate-fixed")
@@ -868,6 +869,39 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft()
         result.a should { it is FailedModuleResponse }
         (result.a as FailedModuleResponse).exceptions.size shouldBe 2
+    }
+
+    "should add the forward comment if the ticket was created before the parent" {
+        var commentOptions: CommentOptions? = null
+        val issue = getIssue(
+                changeLog = listOf(
+                        mockChangeLogItem(
+                                created = TWO_SECONDS_AGO,
+                                field = "Link",
+                                changedTo = "MC-1",
+                                changedToString = "This issue duplicates MC-1"
+                        )
+                ),
+                links = listOf(
+                        mockLink(
+                                issue = mockLinkedIssue(
+                                        key = "MC-1",
+                                        getFullIssue = {
+                                            mockIssue(
+                                                    created = TEN_THOUSAND_YEARS_LATER,
+                                                    resolution = "Invalid"
+                                            ).right()
+                                        }
+                                )
+                        )
+                ),
+                addComment = { commentOptions = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        commentOptions shouldBe CommentOptions("duplicate-forward", "MC-1")
     }
 })
 

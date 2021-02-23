@@ -16,6 +16,7 @@ import java.time.temporal.ChronoUnit
 class DuplicateMessageModule(
     private val commentDelayMinutes: Long,
     private val message: String,
+    private val forwardMessage: String,
     private val ticketMessages: Map<String, String>,
     private val privateMessage: String,
     private val resolutionMessages: Map<String, String>
@@ -46,7 +47,7 @@ class DuplicateMessageModule(
                 val fullParents = fullParentEitherList
                     .map { (it as Either.Right).b }
 
-                messageKey = getPrivateMessageOrNull(fullParents) ?: getResolutionMessageOrNull(fullParents) ?: message
+                messageKey = getPrivateMessageOrNull(fullParents) ?: getResolutionMessageOrNull(fullParents) ?: getForwardResolvedOrNot(issue, fullParents)!!
             }
 
             val filledText = parents.getFilledText()
@@ -93,6 +94,16 @@ class DuplicateMessageModule(
     private fun getResolutionMessageOrNull(issues: List<Issue>): String? {
         val parentResolution = issues.getCommonFieldOrNull { it.resolution }
         return resolutionMessages[parentResolution]
+    }
+
+    private fun getForwardResolvedOrNot(child: Issue, issues: List<Issue>): String? {
+        val childCreationTime = child.created
+        val parentCreationTime = issues.getCommonFieldOrNull { it.created }
+        return if (childCreationTime.isBefore(parentCreationTime)) {
+            forwardMessage
+        } else {
+            message
+        }
     }
 
     private fun assertNoneIsMentioned(comments: List<Comment>, parents: List<String>) =

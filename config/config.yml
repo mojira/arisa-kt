@@ -111,6 +111,7 @@ arisa:
         - Duplicate
       commentDelayMinutes: 5
       message: duplicate
+      forwardMessage: duplicate-forward
       ticketMessages:
         MC-108: duplicate-of-mc-108
         MC-297: duplicate-of-mc-297

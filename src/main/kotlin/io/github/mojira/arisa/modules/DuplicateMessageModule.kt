@@ -100,7 +100,8 @@ class DuplicateMessageModule(
     private fun getForwardResolvedOrNot(child: Issue, issues: List<Issue>): String? {
         val childCreationTime = child.created
         val parentCreationTime = issues.getCommonFieldOrNull { it.created }
-        return if (childCreationTime.isBefore(parentCreationTime)) {
+        return if (childCreationTime != null && parentCreationTime != null &&
+            childCreationTime.isBefore(parentCreationTime)) {
             forwardMessage
         } else {
             message

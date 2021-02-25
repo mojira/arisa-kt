@@ -117,6 +117,10 @@ object Arisa : ConfigSpec() {
             val message by required<String>(
                 description = "The key of the message that is posted under duplicate tickets."
             )
+            val forwardMessage by required<String>(
+                description = "The key of the message that is posted under duplicate tickets that are " +
+                        "newer than the current one."
+            )
             val ticketMessages by required<Map<String, String>>(
                 description = "A map from ticket keys to keys of messages that are posted for specific parents"
             )

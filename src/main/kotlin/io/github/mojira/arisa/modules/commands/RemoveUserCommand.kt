@@ -20,8 +20,8 @@ class RemoveUserCommand : Command1<String> {
         val name = URLEncoder.encode(
             arg,
             StandardCharsets.UTF_8.toString()
-        ).replace("%20", "+")
-        val streamName = name.replace("_", "%5C_").replace("+", "_")
+        ).replace("%20", "+").replace("%21", "!")
+        val streamName = name.replace("_", "%5C_").replace("+", "_").replace("!", "%21")
         val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
         credentials.authenticate(request)
         val inputStream = DefaultHttpClient().execute(HttpHost("bugs.mojang.com"), request).entity.content

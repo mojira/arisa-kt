@@ -17,6 +17,7 @@ fun getCommandDispatcher(
     val addVersionCommand: Command1<String> = AddVersionCommand()
     val deleteCommentsCommand: Command1<String> = DeleteCommentsCommand()
     val deleteLinksCommand: Command1<LinkList> = DeleteLinksCommand()
+    val fixCapitalizationCommand: Command1<String> = FixCapitalizationCommand()
     val fixedCommand: Command1<String> = FixedCommand()
     val purgeAttachmentCommand: Command2<Int, Int> = PurgeAttachmentCommand()
     val removeUserCommand: Command1<String> = RemoveUserCommand()
@@ -81,6 +82,18 @@ fun getCommandDispatcher(
                 .requires(::sentByModerator)
                 .then(deleteLinksCommandNodeChild)
 
+        val fixCapitalizationCommandNode =
+            literal<CommandSource>("${prefix}_FIX_CAPITALIZATION")
+                .then(
+                    argument<CommandSource, String>("empty", greedyString())
+                        .executes {
+                            fixCapitalizationCommand(
+                                it.source.issue,
+                                it.getString("empty")
+                            )
+                        }
+                )
+
         val fixedCommandNode =
             literal<CommandSource>("${prefix}_FIXED")
                 .requires(::sentByModerator)
@@ -135,6 +148,7 @@ fun getCommandDispatcher(
         register(addVersionCommandNode)
         register(deleteCommentsCommandNode)
         register(deleteLinksCommandNode)
+        register(fixCapitalizationCommandNode)
         register(fixedCommandNode)
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)

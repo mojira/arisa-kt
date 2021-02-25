@@ -324,8 +324,6 @@ object Arisa : ConfigSpec() {
 
         object ReplaceText : ModuleConfigSpec()
 
-        object FixCapitalization : ModuleConfigSpec()
-
         object RemoveIdenticalLink : ModuleConfigSpec()
 
         object RemoveVersion : ModuleConfigSpec() {

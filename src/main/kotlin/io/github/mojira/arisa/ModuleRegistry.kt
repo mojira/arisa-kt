@@ -18,7 +18,6 @@ import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
-import io.github.mojira.arisa.modules.FixCapitalizationModule
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
@@ -259,8 +258,6 @@ class ModuleRegistry(private val config: Config) {
         )
 
         register(Modules.ReplaceText, ReplaceTextModule())
-
-        register(Modules.FixCapitalization, FixCapitalizationModule())
 
         register(Modules.RevokeConfirmation, RevokeConfirmationModule())
 

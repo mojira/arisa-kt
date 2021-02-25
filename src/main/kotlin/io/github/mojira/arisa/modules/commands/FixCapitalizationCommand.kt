@@ -5,7 +5,7 @@ import io.github.mojira.arisa.domain.Issue
 class FixCapitalizationCommand : Command1<String> {
     override operator fun invoke(issue: Issue, arg: String): Int {
         val capitalizationRegex =
-                """(?<=\.\s|^|!\s|\?\s)[A-Z][A-Za-z]*((\s|,\s)[A-Z][A-Za-z-']*)*(?=\.|${'$'}|!|\?)""".toRegex()
+                """(?<=\.\s|^|!\s|\?\s)[A-Z][A-Za-z0-9]*((\s|,\s|;\s|:\s)[A-Z][A-Za-z-'0-9]*)*(?=\.|${'$'}|!|\?)""".toRegex()
 
         var newDescription = issue.description!!
         val matchesDescription = capitalizationRegex.findAll(newDescription)

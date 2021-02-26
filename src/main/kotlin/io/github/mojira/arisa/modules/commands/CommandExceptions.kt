@@ -32,4 +32,8 @@ object CommandExceptions {
     val VERSION_ALREADY_AFFECTED = DynamicCommandExceptionType {
         LiteralMessage("The version $it was already marked as affected")
     }
+
+    val NO_CAPITALIZATION_MATCHES = DynamicCommandExceptionType {
+        LiteralMessage("No incorrect capitalization matches were found")
+    }
 }

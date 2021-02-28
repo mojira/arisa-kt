@@ -28,7 +28,6 @@ class FixCapitalizationCommandTest : StringSpec({
                 description = "Testing With Capitalization.",
                 updateDescription = {
                     hasUpdatedDescription = it
-                    Unit.right()
                 }
         )
 
@@ -45,7 +44,6 @@ class FixCapitalizationCommandTest : StringSpec({
                 description = "this is not properly capitalized and i will fix it",
                 updateDescription = {
                     hasUpdatedDescription = it
-                    Unit.right()
                 }
         )
 

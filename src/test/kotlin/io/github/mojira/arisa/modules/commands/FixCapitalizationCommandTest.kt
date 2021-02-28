@@ -25,7 +25,7 @@ class FixCapitalizationCommandTest : StringSpec({
         var hasUpdatedDescription: String? = null
 
         val issue = mockIssue(
-                description = "Testing With Capitalization."
+                description = "Testing With Capitalization.",
                 updateDescription = {
                     hasUpdatedDescription = it
                     Unit.right()
@@ -42,7 +42,7 @@ class FixCapitalizationCommandTest : StringSpec({
         var hasUpdatedDescription: String? = null
 
         val issue = mockIssue(
-                description = "this is not properly capitalized and i will fix it"
+                description = "this is not properly capitalized and i will fix it",
                 updateDescription = {
                     hasUpdatedDescription = it
                     Unit.right()

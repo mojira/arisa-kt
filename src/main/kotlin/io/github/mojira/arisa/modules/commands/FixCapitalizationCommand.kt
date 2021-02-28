@@ -24,7 +24,7 @@ class FixCapitalizationCommand : Command1<String> {
                 }
         exceptions
                 .forEach {
-                    newDescription = newDescription.replace(" $it ".toRegex(), " ${it.capitalize()} ")
+                    newDescription = newDescription.replace("\\b$it\\b".toRegex(), it.capitalize())
                 }
         if (newDescription == issue.description) {
             throw CommandExceptions.NO_CAPITALIZATION_MATCHES.create(arg)

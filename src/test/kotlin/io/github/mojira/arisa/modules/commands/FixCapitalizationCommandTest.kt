@@ -30,4 +30,14 @@ class FixCapitalizationCommandTest : StringSpec({
 
         result shouldBe 1
     }
+
+    "should capitalize exceptions" {
+        val issue = mockIssue(
+                description = "this is not properly capitalized and i will fix it"
+        )
+
+        val result = command(issue, "")
+
+        result shouldBe 1
+    }
 })

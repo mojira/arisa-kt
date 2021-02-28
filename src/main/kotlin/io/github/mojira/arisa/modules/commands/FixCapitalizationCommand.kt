@@ -12,7 +12,7 @@ class FixCapitalizationCommand : Command1<String> {
         val exceptions = listOf(
             ' i ',
             ' minecraft ',
-            ' mojang 
+            ' mojang '
         )
 
         var newDescription = issue.description!!

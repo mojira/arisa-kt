@@ -22,22 +22,36 @@ class FixCapitalizationCommandTest : StringSpec({
     }
 
     "should replace capitalized sentences in description" {
+        var hasUpdatedDescription: String? = null
+
         val issue = mockIssue(
                 description = "Testing With Capitalization."
+                updateDescription = {
+                    hasUpdatedDescription = it
+                    Unit.right()
+                }
         )
 
         val result = command(issue, "")
 
         result shouldBe 1
+        hasUpdatedDescription shouldBe "Testing with capitalization."
     }
 
     "should capitalize exceptions" {
+        var hasUpdatedDescription: String? = null
+
         val issue = mockIssue(
                 description = "this is not properly capitalized and i will fix it"
+                updateDescription = {
+                    hasUpdatedDescription = it
+                    Unit.right()
+                }
         )
 
         val result = command(issue, "")
 
         result shouldBe 1
+        hasUpdatedDescription shouldBe "this is not properly capitalized and I will fix it"
     }
 })

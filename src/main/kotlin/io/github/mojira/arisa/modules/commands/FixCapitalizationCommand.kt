@@ -6,13 +6,13 @@ class FixCapitalizationCommand : Command1<String> {
     @Suppress("MaxLineLength")
     override operator fun invoke(issue: Issue, arg: String): Int {
         val capitalizationRegex =
-                """(?<=\.\s|^|!\s|\?\s|\n)[A-Z][A-Za-z-'0-9]*((\s|,\s|;\s|:\s)[A-Z][A-Za-z-'0-9]*)*(?=\.|${'$'}|!|\?|\n)"""
+                """(?<=\.\s|^|!\s|\?\s|\n)[A-Z][A-Za-z\-'0-9]*((\s|,\s|;\s|:\s)[A-Z][A-Za-z\-'0-9]*)*(?=\.|$|!|\?|\n)"""
                     .toRegex()
 
         val exceptions = listOf(
-            "i",
-            "minecraft",
-            "mojang"
+            "I",
+            "Minecraft",
+            "Mojang"
         )
 
         var newDescription = issue.description!!
@@ -24,7 +24,7 @@ class FixCapitalizationCommand : Command1<String> {
                 }
         exceptions
                 .forEach {
-                    newDescription = newDescription.replace("\\b$it\\b".toRegex(), it.capitalize())
+                    newDescription = newDescription.replace("\\b${it.toLowerCase()}\\b".toRegex(), it)
                 }
         if (newDescription == issue.description) {
             throw CommandExceptions.NO_CAPITALIZATION_MATCHES.create(arg)

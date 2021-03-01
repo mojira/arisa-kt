@@ -24,7 +24,7 @@ class FixCapitalizationCommand : Command1<String> {
                 }
         exceptions
                 .forEach {
-                    newDescription = newDescription.replace("\\b${it.toLowercase()}\\b".toRegex(), it)
+                    newDescription = newDescription.replace("\\b${it.toLowerCase()}\\b".toRegex(), it)
                 }
         if (newDescription == issue.description) {
             throw CommandExceptions.NO_CAPITALIZATION_MATCHES.create(arg)

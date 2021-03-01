@@ -10,9 +10,9 @@ class FixCapitalizationCommand : Command1<String> {
                     .toRegex()
 
         val exceptions = listOf(
-            "i",
-            "minecraft",
-            "mojang"
+            "I",
+            "Minecraft",
+            "Mojang"
         )
 
         var newDescription = issue.description!!
@@ -24,7 +24,7 @@ class FixCapitalizationCommand : Command1<String> {
                 }
         exceptions
                 .forEach {
-                    newDescription = newDescription.replace("\\b$it\\b".toRegex(), it.capitalize())
+                    newDescription = newDescription.replace("\\b${it.toLowercase()}\\b".toRegex(), it)
                 }
         if (newDescription == issue.description) {
             throw CommandExceptions.NO_CAPITALIZATION_MATCHES.create(arg)

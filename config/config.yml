@@ -124,6 +124,9 @@ arisa:
         Won't Fix: duplicate-wf
 
     piracy:
+      projects:
+        - MC
+        - MCL
       resolutions:
         - Unresolved
       excludedStatuses:

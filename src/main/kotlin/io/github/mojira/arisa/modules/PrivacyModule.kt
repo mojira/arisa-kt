@@ -42,6 +42,7 @@ class PrivacyModule(
 
             changeLog
                 .filter { it.created.isAfter(lastRun) }
+                .filter { it.field != "Attachment" }
                 .filter { it.changedFromString == null }
                 .forEach { string += "${it.changedToString} " }
 

@@ -124,7 +124,7 @@ private fun getSearchIssues(
     helperMessages: HelperMessages,
     config: Config,
     issueUpdateContextCache: Cache<IssueUpdateContext>
-): (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue> {
+): (String, Int, () -> Unit) -> List<Issue> {
     return ::searchIssues
         .partially1(jiraClient)
         .partially1(helperMessages)
@@ -174,8 +174,6 @@ private fun searchIssues(
     helperMessages: HelperMessages,
     config: Config,
     issueUpdateContextCache: IssueUpdateContextCache,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>,
     jql: String,
     startAt: Int,
     onQueryPaginated: () -> Unit
@@ -202,9 +200,7 @@ private fun searchIssues(
                 jiraClient.getProject(it.project.key),
                 helperMessages,
                 config,
-                issueUpdateContextCache,
-                oldPostedCommentCache,
-                newPostedCommentCache
+                issueUpdateContextCache
             )
         }
 }

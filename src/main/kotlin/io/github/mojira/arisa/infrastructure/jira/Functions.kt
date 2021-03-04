@@ -6,7 +6,7 @@ import arrow.core.Either
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -220,24 +220,18 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
 
 fun createComment(
     context: Lazy<IssueUpdateContext>,
-    comment: String,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>
+    comment: String
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 val key = context.value.jiraIssue.key
-                val oldPostedComments = oldPostedCommentCache.get(key)
-                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
-                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.error("The comment has already been posted under $key in last run: $comment")
-                } else {
-                    context.value.jiraIssue.addComment(comment)
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment)
                 }
 
-                newPostedComments.add(comment)
                 Unit
             }
         }
@@ -247,24 +241,18 @@ fun createComment(
 fun addRestrictedComment(
     context: Lazy<IssueUpdateContext>,
     comment: String,
-    restrictionLevel: String,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>
+    restrictionLevel: String
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 val key = context.value.jiraIssue.key
-                val oldPostedComments = oldPostedCommentCache.get(key)
-                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
-                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.warn("The comment has already been posted under $key in last run: $comment")
-                } else {
-                    context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
                 }
 
-                newPostedComments.add(comment)
                 Unit
             }
         }

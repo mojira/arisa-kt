@@ -4,6 +4,7 @@ package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.log
@@ -35,6 +36,46 @@ fun connectToJira(username: String, password: String, url: String): Pair<JiraCli
     return JiraClient(url, credentials) to credentials
 }
 
+/**
+ * Returns a list of strings indicating ticket IDs that are contained in the given jql filter.
+ * TODO: Actually return the tickets themselves instead of only ticket IDs.
+ *
+ * @param cap - How many tickets should be queried at most. No cap by default.
+ */
+fun searchIssues(jiraClient: JiraClient, jql: String, cap: Int = Int.MAX_VALUE) = runBlocking {
+    Either.catch {
+        var missingResultsPage: Boolean
+        var startAt = 0
+        val tickets = mutableListOf<String>()
+
+        do {
+            missingResultsPage = false
+            val searchResult = try {
+                jiraClient.searchIssues(
+                    jql,
+                    "[]",
+                    null,
+                    MAX_RESULTS,
+                    startAt
+                )
+            } catch (e: JiraException) {
+                log.error("Error while retreiving filter results", e)
+                throw e
+            }
+
+            tickets += searchResult.issues.mapNotNull { it.key }
+
+            if (tickets.size < searchResult.total && tickets.size < cap)
+                missingResultsPage = true
+
+            startAt += MAX_RESULTS
+        } while (missingResultsPage)
+
+        tickets.toList()
+    }
+}
+
+// TODO: change this to io.github.mojira.arisa.domain.Issue
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {
         jiraClient.getIssue(key, "*all", "changelog")

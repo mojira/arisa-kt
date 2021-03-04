@@ -1,44 +1,56 @@
 package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
-import io.github.mojira.arisa.credentials
-import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.jira.getIssue
-import io.github.mojira.arisa.jiraClient
-import org.apache.http.HttpHost
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.message.BasicHttpRequest
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import io.github.mojira.arisa.log
+import net.rcarz.jiraclient.Issue
 import java.util.concurrent.TimeUnit
-import javax.xml.parsers.DocumentBuilderFactory
 
-const val DIVISOR = 10
-class RemoveUserCommand : Command1<String> {
-    private val regex = "\"https://bugs\\.mojang\\.com/browse/(.*)\">".toRegex()
-    override fun invoke(issue: Issue, arg: String): Int {
-        val name = URLEncoder.encode(
-            arg,
-            StandardCharsets.UTF_8.toString()
-        ).replace("%20", "+").replace("%21", "!")
-        val streamName = name.replace("_", "%5C_").replace("+", "_").replace("!", "%21")
-        val request = BasicHttpRequest("GET", "/activity?maxResults=200&streams=user+IS+$streamName")
-        credentials.authenticate(request)
-        val inputStream = DefaultHttpClient().execute(HttpHost("bugs.mojang.com"), request).entity.content
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream)
-        val entries = doc.getElementsByTagName("entry")
+/**
+ * How many tickets can have the user activity removed. This is a safety guard in case the command gets invoked on a very active user.
+ */
+const val REMOVABLE_ACTIVITY_CAP = 200
 
-        val tickets = mutableListOf<String>()
-        for (i in 0 until entries.length) {
-            tickets.add(entries.item(i).childNodes.item(1).textContent.parseTitle())
+/**
+ * After how many actions the bot should pause for a second (in order to not send too many requests too quickly)
+ */
+const val SLEEP_INTERVAL = 10
+
+// TODO: We use two different "Issue" classes here, which is very ugly
+class RemoveUserCommand(
+    val searchIssues: (String, Int) -> Either<Throwable, List<String>>,
+    val getIssue: (String) -> Either<Throwable, Issue>,
+    val execute: (Runnable) -> Unit
+) : Command1<String> {
+    override fun invoke(
+        issue: io.github.mojira.arisa.domain.Issue,
+        userName: String
+    ): Int {
+        val escapedUserName = userName.replace("'", "\\'")
+
+        val jql = """project != TRASH
+            | AND issueFunction IN commented("by '$escapedUserName'")
+            | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
+            .trimMargin().replace("[\n\r]", "")
+
+        val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
+            is Either.Left -> {
+                log.error("RemoveUserCommand: Error trying to query user activity", either.a)
+                issue.addRawRestrictedComment(
+                    "Could not query activity of user \"$userName\":\n* {{${either.a.message}}}",
+                    "staff"
+                )
+                return 1
+            }
+            is Either.Right -> either.b
         }
 
-        Thread {
-            tickets
-                .toSet()
-                .filterNot { it.startsWith("TRASH-") }
+        execute {
+            var removedComments = 0
+            var removedAttachments = 0
+
+            ticketIds
                 .mapNotNull {
-                    val either = getIssue(jiraClient, it)
+                    val either = getIssue(it)
                     if (either.isLeft()) {
                         null
                     } else {
@@ -46,19 +58,35 @@ class RemoveUserCommand : Command1<String> {
                     }
                 }
                 .forEach { issue ->
-                    issue.comments
+                    log.debug("Removing comments and attachments from ticket ${issue.key}")
+
+                    removedComments += issue.comments
                         .filter { it.visibility?.value != "staff" }
-                        .filter { it.author.name == name }
-                        .forEachIndexed { index, it ->
-                            it.update(it.body?.plus("\n\n~Removed by Arisa - Delete user $name~"), "group", "staff")
-                            if (index % DIVISOR == 0) {
+                        .filter { it.author.name == userName }
+                        .onEachIndexed { index, it ->
+                            it.update(it.body?.plus("\n\n~Removed by Arisa - Delete user \"$userName\"~"), "group", "staff")
+                            if (index % SLEEP_INTERVAL == 0) {
                                 TimeUnit.SECONDS.sleep(1)
                             }
                         }
+                        .count()
+
+                    removedAttachments += issue.attachments
+                        .filter { it.author?.name == userName }
+                        .onEachIndexed { index, it ->
+                            issue.removeAttachment(it.id)
+                            if (index % SLEEP_INTERVAL == 0) {
+                                TimeUnit.SECONDS.sleep(1)
+                            }
+                        }
+                        .count()
                 }
-        }.start()
+
+            issue.addRawRestrictedComment(
+                "Removed $removedComments comments and $removedAttachments attachments from user \"$userName\".",
+                "staff"
+            )
+        }
         return 1
     }
-
-    private fun String.parseTitle() = regex.find(this)!!.groupValues[1]
 }

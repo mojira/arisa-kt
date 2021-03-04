@@ -15,15 +15,15 @@ const val REMOVABLE_ACTIVITY_CAP = 200
  * After how many actions the bot should pause for a second
  * (in order to not send too many requests too quickly)
  */
-const val SLEEP_INTERVAL = 10
+const val REMOVE_USER_SLEEP_INTERVAL = 10
 
 // TODO: We use two different "Issue" classes here, which is very ugly
 class RemoveUserCommand(
     val searchIssues: (String, Int) -> Either<Throwable, List<String>>,
     val getIssue: (String) -> Either<Throwable, Issue>,
     val execute: (Runnable) -> Unit
-) : Command1<String> {
-    override fun invoke(
+) {
+    operator fun invoke(
         issue: io.github.mojira.arisa.domain.Issue,
         userName: String
     ): Int {
@@ -80,7 +80,7 @@ class RemoveUserCommand(
                             "group",
                             "staff"
                         )
-                        if (index % SLEEP_INTERVAL == 0) {
+                        if (index % REMOVE_USER_SLEEP_INTERVAL == 0) {
                             TimeUnit.SECONDS.sleep(1)
                         }
                     }
@@ -90,7 +90,7 @@ class RemoveUserCommand(
                     .filter { it.author?.name == userName }
                     .onEachIndexed { index, it ->
                         issue.removeAttachment(it.id)
-                        if (index % SLEEP_INTERVAL == 0) {
+                        if (index % REMOVE_USER_SLEEP_INTERVAL == 0) {
                             TimeUnit.SECONDS.sleep(1)
                         }
                     }

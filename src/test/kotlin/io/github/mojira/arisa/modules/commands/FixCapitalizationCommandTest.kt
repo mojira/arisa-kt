@@ -15,7 +15,7 @@ class FixCapitalizationCommandTest : StringSpec({
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
-            command(issue, "")
+            command(issue)
         }
 
         exception.message shouldBe "No incorrect capitalization matches were found"
@@ -31,7 +31,7 @@ class FixCapitalizationCommandTest : StringSpec({
                 }
         )
 
-        val result = command(issue, "")
+        val result = command(issue)
 
         result shouldBe 1
         hasUpdatedDescription shouldBe "Testing with capitalization."
@@ -47,7 +47,7 @@ class FixCapitalizationCommandTest : StringSpec({
                 }
         )
 
-        val result = command(issue, "")
+        val result = command(issue)
 
         result shouldBe 1
         hasUpdatedDescription shouldBe "this is not properly capitalized and I will fix it"

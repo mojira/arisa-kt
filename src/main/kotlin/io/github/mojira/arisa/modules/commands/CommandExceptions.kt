@@ -29,15 +29,15 @@ object CommandExceptions {
         LiteralMessage("Something went wrong, but I'm too lazy to interpret the details for you (>ω<): $it")
     }
 
+    val NO_CAPITALIZATION_MATCHES = SimpleCommandExceptionType(
+        LiteralMessage("No incorrect capitalization matches were found")
+    )
+
     val NO_SUCH_VERSION = DynamicCommandExceptionType {
         LiteralMessage("The version $it doesn't exist in this project")
     }
 
     val VERSION_ALREADY_AFFECTED = DynamicCommandExceptionType {
         LiteralMessage("The version $it was already marked as affected")
-    }
-
-    val NO_CAPITALIZATION_MATCHES = DynamicCommandExceptionType {
-        LiteralMessage("No incorrect capitalization matches were found")
     }
 }

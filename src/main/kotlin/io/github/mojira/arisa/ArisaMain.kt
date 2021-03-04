@@ -17,7 +17,6 @@ import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
-import net.rcarz.jiraclient.TokenCredentials
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File

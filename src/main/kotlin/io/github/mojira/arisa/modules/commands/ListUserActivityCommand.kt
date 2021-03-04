@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.log
 
 /**
  * How many tickets should be listed at max.
@@ -13,8 +12,8 @@ const val ACTIVITY_LIST_CAP = 50
 
 class ListUserActivityCommand(
     val searchIssues: (String, Int) -> Either<Throwable, List<String>>
-) : Command1<String> {
-    override fun invoke(issue: Issue, userName: String): Int {
+) {
+    operator fun invoke(issue: Issue, userName: String): Int {
         val escapedUserName = userName.replace("'", "\\'")
 
         val jql = """issueFunction IN commented("by '$escapedUserName'")

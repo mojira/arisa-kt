@@ -99,8 +99,7 @@ fun getCommandDispatcher(
                     argument<CommandSource, String>("empty", greedyString())
                         .executes {
                             fixCapitalizationCommand(
-                                it.source.issue,
-                                it.getString("empty")
+                                it.source.issue
                             )
                         }
                 )

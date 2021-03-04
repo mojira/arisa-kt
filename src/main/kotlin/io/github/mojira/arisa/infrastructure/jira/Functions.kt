@@ -31,18 +31,49 @@ import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
+/**
+ * How many issues can be queried at once by [getAllIssuesFromJql].
+ */
+const val ISSUE_QUERY_BATCH_SIZE: Int = 1000
+
 fun connectToJira(username: String, password: String, url: String): Pair<JiraClient, TokenCredentials> {
     val credentials = TokenCredentials(username, password)
     return JiraClient(url, credentials) to credentials
 }
 
 /**
- * Returns a list of strings indicating ticket IDs that are contained in the given jql filter.
+ * Get a list of tickets matching a JQL query.
  * TODO: Actually return the tickets themselves instead of only ticket IDs.
  *
- * @param cap - How many tickets should be queried at most. No cap by default.
+ * @param amount How many tickets should be returned at most.
+ *
+ * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
  */
-fun searchIssues(jiraClient: JiraClient, jql: String, cap: Int = Int.MAX_VALUE) = runBlocking {
+fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBlocking {
+    Either.catch {
+        val searchResult = try {
+            jiraClient.searchIssues(
+                jql,
+                "[]",
+                amount
+            )
+        } catch (e: JiraException) {
+            log.error("Error while retreiving filter results", e)
+            throw e
+        }
+
+        searchResult.issues.mapNotNull { it.key }
+    }
+}
+
+/**
+ * Get the list of all tickets matching a JQL query.
+ * TODO: Actually return the tickets themselves instead of only ticket IDs.
+ *
+ * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
+ * The list contains the IDs of ALL tickets matched by that filter.
+ */
+fun getAllIssuesFromJql(jiraClient: JiraClient, jql: String) = runBlocking {
     Either.catch {
         var missingResultsPage: Boolean
         var startAt = 0
@@ -55,7 +86,7 @@ fun searchIssues(jiraClient: JiraClient, jql: String, cap: Int = Int.MAX_VALUE) 
                     jql,
                     "[]",
                     null,
-                    MAX_RESULTS,
+                    ISSUE_QUERY_BATCH_SIZE,
                     startAt
                 )
             } catch (e: JiraException) {
@@ -65,7 +96,7 @@ fun searchIssues(jiraClient: JiraClient, jql: String, cap: Int = Int.MAX_VALUE) 
 
             tickets += searchResult.issues.mapNotNull { it.key }
 
-            if (tickets.size < searchResult.total && tickets.size < cap)
+            if (tickets.size < searchResult.total)
                 missingResultsPage = true
 
             startAt += MAX_RESULTS

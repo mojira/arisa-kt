@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
 import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
@@ -9,7 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
 import io.github.mojira.arisa.infrastructure.jira.getIssue
-import io.github.mojira.arisa.infrastructure.jira.searchIssues
+import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
 import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
@@ -25,11 +24,11 @@ fun getCommandDispatcher(
     val fixCapitalizationCommand = FixCapitalizationCommand()
     val fixedCommand = FixedCommand()
     val listUserActivityCommand = ListUserActivityCommand(
-        ::searchIssues.partially1(jiraClient)
+        ::getIssuesFromJql.partially1(jiraClient)
     )
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val removeUserCommand = RemoveUserCommand(
-        ::searchIssues.partially1(jiraClient),
+        ::getIssuesFromJql.partially1(jiraClient),
         ::getIssue.partially1(jiraClient),
         { Thread(it).start() }
     )

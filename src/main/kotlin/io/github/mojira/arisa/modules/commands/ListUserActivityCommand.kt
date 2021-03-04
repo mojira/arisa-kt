@@ -5,7 +5,8 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.log
 
 /**
- * How many tickets should be listed at max. This is a safety guard in case the command gets invoked on a very active user.
+ * How many tickets should be listed at max.
+ * This is a safety guard in case the command gets invoked on a very active user.
  * We don't want the comment to become too long.
  */
 const val ACTIVITY_LIST_CAP = 50

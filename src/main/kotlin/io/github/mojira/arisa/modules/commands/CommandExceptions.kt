@@ -13,6 +13,10 @@ object CommandExceptions {
         LiteralMessage("The ticket was already resolved as $it")
     }
 
+    val CANNOT_QUERY_USER_ACTIVITY = DynamicCommandExceptionType {
+        LiteralMessage("Could not query activity of user \"$it\"")
+    }
+
     val INVALID_LINK_TYPE = SimpleCommandExceptionType(
         LiteralMessage("Cannot parse a valid link type")
     )

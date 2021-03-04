@@ -35,14 +35,7 @@ class RemoveUserCommand(
             .trimMargin().replace("[\n\r]", "")
 
         val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
-            is Either.Left -> {
-                log.error("RemoveUserCommand: Error trying to query user activity", either.a)
-                issue.addRawRestrictedComment(
-                    "Could not query activity of user \"$userName\":\n* {{${either.a.message}}}",
-                    "staff"
-                )
-                return 1
-            }
+            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
             is Either.Right -> either.b
         }
 

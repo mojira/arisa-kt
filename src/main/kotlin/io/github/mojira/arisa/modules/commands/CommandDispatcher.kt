@@ -140,18 +140,31 @@ fun getCommandDispatcher(
                             purgeAttachmentCommand(
                                 it.source.issue,
                                 it.getString("username"),
-                                0
+                                0,
+                                Int.MAX_VALUE
                             )
                         }
                         .then(
-                            argument<CommandSource, Int>("end", integer(0))
+                            argument<CommandSource, Int>("minId", integer(0))
                                 .executes {
                                     purgeAttachmentCommand(
                                         it.source.issue,
                                         it.getString("username"),
-                                        it.getInt("minId")
+                                        it.getInt("minId"),
+                                        Int.MAX_VALUE
                                     )
                                 }
+                                .then(
+                                    argument<CommandSource, Int>("maxId", integer(0))
+                                        .executes {
+                                            purgeAttachmentCommand(
+                                                it.source.issue,
+                                                it.getString("username"),
+                                                it.getInt("minId"),
+                                                it.getInt("maxId")
+                                            )
+                                        }
+                                )
                         )
                 )
 

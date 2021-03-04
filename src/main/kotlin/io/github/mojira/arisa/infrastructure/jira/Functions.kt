@@ -36,9 +36,9 @@ import java.time.temporal.ChronoField
  */
 const val ISSUE_QUERY_BATCH_SIZE: Int = 1000
 
-fun connectToJira(username: String, password: String, url: String): Pair<JiraClient, TokenCredentials> {
+fun connectToJira(username: String, password: String, url: String): JiraClient {
     val credentials = TokenCredentials(username, password)
-    return JiraClient(url, credentials) to credentials
+    return JiraClient(url, credentials)
 }
 
 /**

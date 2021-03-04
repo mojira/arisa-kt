@@ -31,21 +31,19 @@ const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
 const val MINUTES_FOR_THROTTLED_LOG = 30L
 lateinit var jiraClient: JiraClient
-lateinit var credentials: TokenCredentials
 var throttledLog = 0L
+
 @Suppress("LongMethod")
 fun main() {
     val config = readConfig()
     setWebhookOfLogger(config)
 
-    val pair =
+    jiraClient =
         connectToJira(
             config[Arisa.Credentials.username],
             config[Arisa.Credentials.password],
             config[Arisa.Issues.url]
         )
-    jiraClient = pair.first
-    credentials = pair.second
     log.info("Connected to jira")
 
     // Get tickets for re-run and last run time
@@ -92,14 +90,13 @@ fun main() {
             lastRunTime = curRunTime
         } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             // If last relog was more than a minute before and execution failed with an exception, relog
-            val pair =
+            jiraClient =
                 connectToJira(
                     config[Arisa.Credentials.username],
                     config[Arisa.Credentials.password],
                     config[Arisa.Issues.url]
                 )
-            jiraClient = pair.first
-            credentials = pair.second
+
             moduleExecutor = ModuleExecutor(
                 config, moduleRegistry, queryCache, issueUpdateContextCache,
                 getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)

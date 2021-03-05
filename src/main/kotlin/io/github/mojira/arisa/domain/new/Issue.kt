@@ -3,7 +3,7 @@ package io.github.mojira.arisa.domain.new
 import java.time.Instant
 
 data class Issue(
-    var key: String,
+    val key: String,
     var summary: String?,
     var status: String,
     var description: String?,
@@ -21,11 +21,22 @@ data class Issue(
     var triagedTime: String?,
     var project: Project,
     var platform: String?,
-    var affectedVersions: List<Version>,
-    var fixVersions: List<Version>,
-    var attachments: List<Attachment>,
-    var comments: List<Comment>,
-    var links: List<Link>,
-    var changeLog: List<ChangeLogItem>,
-    val originalIssue: Issue?
-)
+    val affectedVersions: List<Version>,
+    val fixVersions: List<Version>,
+    val attachments: List<Attachment>,
+    val originalComments: List<Comment>,
+    val links: List<Link>,
+    val changeLog: List<ChangeLogItem>,
+    val originalIssue: Issue?,
+) {
+    var addedComments = mutableListOf<Comment>()
+    var removedComments = mutableListOf<String>()
+    var editedComments = mutableListOf<Comment>()
+
+    val comments: List<Comment>
+        get() = originalComments
+            .filter { comment -> removedComments.contains(comment.id) || editedComments.any { it.id == comment.id } }
+            .plus(editedComments)
+            .plus(addedComments)
+            .sortedBy { it.created }
+}

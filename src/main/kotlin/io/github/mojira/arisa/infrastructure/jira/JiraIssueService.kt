@@ -107,6 +107,7 @@ class JiraIssueService(val jiraClient: JiraClient, val config: Config, val userS
     )
 
     private fun JiraComment.toDomain() = Comment(
+        id,
         body,
         author.toDomain(),
         createdDate.toInstant(),

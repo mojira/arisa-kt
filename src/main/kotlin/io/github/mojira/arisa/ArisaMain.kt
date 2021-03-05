@@ -8,9 +8,8 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import net.rcarz.jiraclient.JiraClient
@@ -54,7 +53,7 @@ fun main() {
     // Read helper-messages
     val helperMessagesFile = File("helper-messages.json")
     val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
-    var helperMessages = helperMessagesFile.getHelperMessages()
+    HelperMessageService.updateHelperMessages(helperMessagesFile)
     var helperMessagesLastFetch = Instant.now()
 
     // Initialize caches and registry
@@ -67,7 +66,7 @@ fun main() {
     // Create module executor
     var moduleExecutor = ModuleExecutor(
         config, moduleRegistry, queryCache,
-        getSearchIssues(jiraClient, helperMessages, config)
+        getSearchIssues(jiraClient, config)
     )
 
     while (true) {
@@ -95,15 +94,15 @@ fun main() {
 
             moduleExecutor = ModuleExecutor(
                 config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, helperMessages, config)
+                getSearchIssues(jiraClient, config)
             )
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
-            helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
+            HelperMessageService.updateHelperMessages(helperMessagesFile)
             moduleExecutor = ModuleExecutor(
                 config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, helperMessages, config)
+                getSearchIssues(jiraClient, config)
             )
             helperMessagesLastFetch = curRunTime
         }
@@ -114,12 +113,10 @@ fun main() {
 
 private fun getSearchIssues(
     jiraClient: JiraClient,
-    helperMessages: HelperMessages,
     config: Config
 ): (String, Int, () -> Unit) -> List<Issue> {
     return ::searchIssues
         .partially1(jiraClient)
-        .partially1(helperMessages)
         .partially1(config)
 }
 
@@ -162,7 +159,6 @@ private fun setWebhookOfLogger(config: Config) {
 @Suppress("LongParameterList")
 private fun searchIssues(
     jiraClient: JiraClient,
-    helperMessages: HelperMessages,
     config: Config,
     jql: String,
     startAt: Int,
@@ -188,7 +184,6 @@ private fun searchIssues(
             it.toDomain(
                 jiraClient,
                 jiraClient.getProject(it.project.key),
-                helperMessages,
                 config
             )
         }

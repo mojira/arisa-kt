@@ -17,7 +17,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.infrastructure.HelperMessages
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
@@ -71,7 +71,6 @@ fun JiraIssue.getUpdateContext(jiraClient: JiraClient): Lazy<IssueUpdateContext>
 fun JiraIssue.toDomain(
     jiraClient: JiraClient,
     project: JiraProject,
-    messages: HelperMessages,
     config: Config
 ): Issue {
     val context = getUpdateContext(jiraClient)
@@ -98,7 +97,7 @@ fun JiraIssue.toDomain(
         mapFixVersions(jiraClient),
         mapAttachments(jiraClient),
         mapComments(jiraClient),
-        mapLinks(jiraClient, messages, config),
+        mapLinks(jiraClient, config),
         getChangeLogEntries(jiraClient),
         ::reopen.partially1(context),
         ::resolveAs.partially1(context).partially1("Awaiting Response"),
@@ -113,31 +112,31 @@ fun JiraIssue.toDomain(
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
         ::createLink.partially1(context).partially1(::getOtherUpdateContext.partially1(jiraClient)),
-        { (messageKey, variable, language) ->
+        addComment = { (messageKey, variable, language) ->
             createComment(
                 context,
-                messages.getMessageWithBotSignature(
+                HelperMessageService.getMessageWithBotSignature(
                     project.key, messageKey, variable, language
                 )
             )
         },
-        { (messageKey, variable, language) ->
+        addRestrictedComment = { (messageKey, variable, language) ->
             addRestrictedComment(
                 context,
-                messages.getMessageWithBotSignature(
+                HelperMessageService.getMessageWithBotSignature(
                     project.key, messageKey, variable, language
                 ),
                 "helper"
             )
         },
-        { language ->
+        addNotEnglishComment = { language ->
             createComment(
-                context, messages.getMessageWithBotSignature(
+                context, HelperMessageService.getMessageWithBotSignature(
                     project.key, config[Arisa.Modules.Language.message], lang = language
                 )
             )
         },
-        ::addRestrictedComment.partially1(context),
+        addRawRestrictedComment = ::addRestrictedComment.partially1(context),
         ::markAsFixedWithSpecificVersion.partially1(context),
         ::changeReporter.partially1(context)
     )
@@ -184,12 +183,11 @@ private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
 @Suppress("LongParameterList")
 fun JiraIssue.toLinkedIssue(
     jiraClient: JiraClient,
-    messages: HelperMessages,
     config: Config
 ) = LinkedIssue(
     key,
     status.name,
-    { getFullIssue(jiraClient, messages, config) },
+    { getFullIssue(jiraClient, config) },
     ::createLink.partially1(getUpdateContext(jiraClient)).partially1(::getOtherUpdateContext
             .partially1(jiraClient))
 )
@@ -198,14 +196,12 @@ fun JiraIssue.toLinkedIssue(
 fun JiraIssueLink.toDomain(
     jiraClient: JiraClient,
     issue: JiraIssue,
-    messages: HelperMessages,
     config: Config
 ) = Link(
     type.name,
     outwardIssue != null,
     (outwardIssue ?: inwardIssue).toLinkedIssue(
         jiraClient,
-        messages,
         config
     ),
     ::deleteLink.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
@@ -225,10 +221,9 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
 @Suppress("LongParameterList")
 private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
-    messages: HelperMessages,
     config: Config
 ) = issueLinks.map {
-    it.toDomain(jiraClient, this, messages, config)
+    it.toDomain(jiraClient, this, config)
 }
 
 private fun JiraIssue.mapComments(jiraClient: JiraClient) =
@@ -269,7 +264,6 @@ private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toI
 @Suppress("LongParameterList")
 private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
-    messages: HelperMessages,
     config: Config
 ): Either<Throwable, Issue> =
     getIssue(jiraClient, key).fold(
@@ -278,7 +272,6 @@ private fun JiraIssue.getFullIssue(
             it.toDomain(
                 jiraClient,
                 jiraClient.getProject(it.project.key),
-                messages,
                 config
             ).right()
         }

@@ -16,23 +16,49 @@ typealias LocalizedValues = Map<String, String>
 private const val URL =
     "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
 
-data class HelperMessages(
-    val variables: Map<String, List<Variable>>,
-    val messages: Map<String, List<Message>>
-) {
-    data class Variable(
-        val project: ProjectFilter,
-        val value: String,
-        val localizedValues: LocalizedValues? = null
-    )
+data class HelperMessageVariable(
+    val project: ProjectFilter,
+    val value: String,
+    val localizedValues: LocalizedValues? = null
+)
 
-    data class Message(
-        val project: ProjectFilter,
-        val name: String,
-        val message: String,
-        val fillname: List<String>,
-        val localizedMessages: LocalizedValues? = null
-    )
+data class HelperMessage(
+    val project: ProjectFilter,
+    val name: String,
+    val message: String,
+    val fillname: List<String>,
+    val localizedMessages: LocalizedValues? = null
+)
+
+data class HelperMessageData(
+    var variables: Map<String, List<HelperMessageVariable>>,
+    var messages: Map<String, List<HelperMessage>>
+) {
+    fun toJSON() = Klaxon().toJsonString(this)
+
+    /**
+     * Replaces the current data with the deserialized data from the given JSON string
+     */
+    fun fromJSON(json: String) =
+        Klaxon().parse<HelperMessageData>(json)
+            ?.also {
+                variables = it.variables
+                messages = it.messages
+            }
+
+    /**
+     * Replaces the current data with the deserialized data from the given input stream
+     */
+    fun fromStream(stream: InputStream) =
+        Klaxon().parse<HelperMessageData>(stream)
+            ?.also {
+                variables = it.variables
+                messages = it.messages
+            }
+}
+
+object HelperMessageService {
+    var data = HelperMessageData(mapOf(), mapOf())
 
     /**
      * Get a single message from helper messages.
@@ -48,7 +74,7 @@ data class HelperMessages(
         filledText: String? = null,
         lang: String = "en"
     ): Either<Error, String> {
-        return messages[key]?.find { isProjectMatch(project, it.project) }
+        return data.messages[key]?.find { isProjectMatch(project, it.project) }
             .rightIfNotNull { Error("Failed to find message for key $key under project $project") }
             .map { localizeValue(it.message, it.localizedMessages, lang) }
             .map { resolvePlaceholder(it, filledText) }
@@ -89,7 +115,37 @@ data class HelperMessages(
     fun getMessageWithBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
         getMessage(project, listOf(key, "i-am-a-bot"), listOf(filledText), lang)
 
-    fun serialize() = Klaxon().toJsonString(this)
+    fun setHelperMessages(json: String) = data.fromJSON(json).rightIfNotNull {
+        Error("Couldn't deserialize helper messages from setHelperMessages()")
+    }
+
+    fun updateHelperMessages(file: File) = fetchHelperMessages().fold(
+        {
+            if (file.exists()) {
+                data.fromJSON(file.readText()).rightIfNotNull {
+                    Error("Couldn't deserialize saved helper messages")
+                }
+            } else {
+                it.left()
+            }
+        },
+        { inputStream ->
+            file.writeText(data.toJSON())
+            data.fromStream(inputStream).rightIfNotNull {
+                Error("Couldn't deserialize downloaded helper messages")
+            }
+        }
+    )
+
+    private fun fetchHelperMessages() = try {
+        with(URL(URL).openConnection() as URLConnection) {
+            inputStream.rightIfNotNull {
+                Error("Couldn't download helper messages")
+            }
+        }
+    } catch (e: IOException) {
+        e.left()
+    }
 
     private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {
         is String -> project.equals(filter, ignoreCase = true)
@@ -108,7 +164,7 @@ data class HelperMessages(
         return if (limit == 0) {
             message
         } else {
-            variables.entries.fold(message) { msg, (key, list) ->
+            data.variables.entries.fold(message) { msg, (key, list) ->
                 val variable = list.find { isProjectMatch(project, it.project) }
                 val variableValue = localizeValue(variable?.value ?: "", variable?.localizedValues, lang)
                 if (msg.contains("%$key%")) {
@@ -124,29 +180,3 @@ data class HelperMessages(
         return message.replace("%s%", filledText ?: "")
     }
 }
-
-private fun fetch() = try {
-    with(URL(URL).openConnection() as URLConnection) {
-        deserialize(inputStream).rightIfNotNull { Error("Couldn't download or deserialize helper messages") }
-    }
-} catch (e: IOException) {
-    e.left()
-}
-
-fun deserialize(json: String) = Klaxon().parse<HelperMessages>(json)
-
-private fun deserialize(stream: InputStream) = Klaxon().parse<HelperMessages>(stream)
-
-fun File.getHelperMessages(old: HelperMessages? = null) = fetch().fold(
-    {
-        if (this.exists()) {
-            deserialize(this.readText())!!
-        } else {
-            old ?: HelperMessages(emptyMap(), emptyMap())
-        }
-    },
-    {
-        this.writeText(it.serialize())
-        it
-    }
-)

@@ -21,14 +21,6 @@ private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val ARCHIVED_VERSION = mockVersion(id = "1", released = false, archived = true)
 private val RELEASED_VERSION = mockVersion(id = "2", released = true, archived = false)
 private val FUTURE_VERSION = mockVersion(id = "3", released = false, archived = false)
-private val RELEASED_VERSION_WITH_ADD_ERROR = mockVersion(
-    id = "2", released = true, archived = false,
-    add = { RuntimeException().left() }
-)
-private val FUTURE_VERSION_WITH_REMOVE_ERROR = mockVersion(
-    id = "3", released = false, archived = false,
-    remove = { RuntimeException().left() }
-)
 
 private val ADD_ARCHIVED_VERSION = mockChangeLogItem(field = "Version", changedTo = "1")
 private val ADD_FUTURE_VERSION = mockChangeLogItem(field = "Version", changedTo = "3")

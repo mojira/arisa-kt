@@ -5,7 +5,6 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -83,9 +82,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.size shouldBe 1
     }
@@ -101,9 +99,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.size shouldBe 1
     }
@@ -119,9 +116,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -137,9 +133,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -155,9 +150,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -170,9 +164,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -187,9 +180,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { }
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -227,14 +219,12 @@ class ModuleExecutorTest : StringSpec({
 fun getMockModuleExecutor(
     registry: ModuleRegistry = moduleRegistryMock,
     queryCache: Cache<List<Issue>> = Cache(),
-    issueUpdateContextCache: IssueUpdateContextCache = IssueUpdateContextCache(),
     searchIssues: (String, Int, () -> Unit) -> List<Issue> =
         { _, _, _ -> listOf(mockIssue()) }
 ): ModuleExecutor = ModuleExecutor(
     getConfig(),
     registry,
     queryCache,
-    issueUpdateContextCache,
     searchIssues
 )
 

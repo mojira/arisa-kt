@@ -8,7 +8,6 @@ import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.jira.applyIssueChanges
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -19,7 +18,6 @@ class ModuleExecutor(
     private val config: Config,
     private val registry: ModuleRegistry,
     private val queryCache: Cache<List<Issue>>,
-    private val issueUpdateContextCache: IssueUpdateContextCache,
     private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
 ) {
     data class ExecutionResults(
@@ -98,22 +96,10 @@ class ModuleExecutor(
                 }, {
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
-                issueUpdateContextCache.storage.forEach {
-                    it.value.triggeredBy = it.value.triggeredBy ?: issue
-                }
+                IssueUpdateContextCache.updateTriggeredBy(issue)
             }
 
-        issueUpdateContextCache.storage
-            .mapValues { Pair(it.value.triggeredBy, applyIssueChanges(it.value)) }
-            .filterValues { (_, result) -> result.isLeft() }
-            .forEach { (updateTo, pair) ->
-                val (triggeredBy, result) = pair
-                (result as Either.Left).a.exceptions.forEach {
-                    log.error("[UPDATE] [TO $updateTo] [BY $triggeredBy] Failed", it)
-                }
-                addFailedTicket(triggeredBy!!)
-            }
-        issueUpdateContextCache.clear()
+        IssueUpdateContextCache.applyChanges(addFailedTicket)
     }
 
     @Suppress("LongParameterList")

@@ -7,10 +7,8 @@ import com.github.napstr.logback.DiscordAppender
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessages
-import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
@@ -61,7 +59,6 @@ fun main() {
 
     // Initialize caches and registry
     val queryCache = Cache<List<Issue>>()
-    val issueUpdateContextCache = Cache<IssueUpdateContext>()
     val moduleRegistry = ModuleRegistry(config)
 
     val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
@@ -69,8 +66,8 @@ fun main() {
 
     // Create module executor
     var moduleExecutor = ModuleExecutor(
-        config, moduleRegistry, queryCache, issueUpdateContextCache,
-        getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)
+        config, moduleRegistry, queryCache,
+        getSearchIssues(jiraClient, helperMessages, config)
     )
 
     while (true) {
@@ -97,16 +94,16 @@ fun main() {
                 )
 
             moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache, issueUpdateContextCache,
-                getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)
+                config, moduleRegistry, queryCache,
+                getSearchIssues(jiraClient, helperMessages, config)
             )
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
             moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache, issueUpdateContextCache,
-                getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)
+                config, moduleRegistry, queryCache,
+                getSearchIssues(jiraClient, helperMessages, config)
             )
             helperMessagesLastFetch = curRunTime
         }
@@ -118,14 +115,12 @@ fun main() {
 private fun getSearchIssues(
     jiraClient: JiraClient,
     helperMessages: HelperMessages,
-    config: Config,
-    issueUpdateContextCache: Cache<IssueUpdateContext>
+    config: Config
 ): (String, Int, () -> Unit) -> List<Issue> {
     return ::searchIssues
         .partially1(jiraClient)
         .partially1(helperMessages)
         .partially1(config)
-        .partially1(issueUpdateContextCache)
 }
 
 private fun readLastRunTime(lastRun: List<String>): Instant {
@@ -169,7 +164,6 @@ private fun searchIssues(
     jiraClient: JiraClient,
     helperMessages: HelperMessages,
     config: Config,
-    issueUpdateContextCache: IssueUpdateContextCache,
     jql: String,
     startAt: Int,
     onQueryPaginated: () -> Unit
@@ -195,8 +189,7 @@ private fun searchIssues(
                 jiraClient,
                 jiraClient.getProject(it.project.key),
                 helperMessages,
-                config,
-                issueUpdateContextCache
+                config
             )
         }
 }

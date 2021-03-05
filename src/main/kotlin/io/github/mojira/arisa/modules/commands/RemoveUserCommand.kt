@@ -2,6 +2,8 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import io.github.mojira.arisa.log
+import net.rcarz.jiraclient.Attachment
+import net.rcarz.jiraclient.Comment
 import net.rcarz.jiraclient.Issue
 import java.util.concurrent.TimeUnit
 
@@ -17,11 +19,43 @@ const val REMOVABLE_ACTIVITY_CAP = 200
  */
 const val REMOVE_USER_SLEEP_INTERVAL = 10
 
-// TODO: We use two different "Issue" classes here, which is very ugly
+@Suppress("LongParameterList")
 class RemoveUserCommand(
     val searchIssues: (String, Int) -> Either<Throwable, List<String>>,
-    val getIssue: (String) -> Either<Throwable, Issue>,
-    val execute: (Runnable) -> Unit
+    val getIssue: (String) -> Either<Throwable, Pair<String, Issue>>,
+    val execute: (Runnable) -> Unit,
+
+    // All of the parameters below are for easy testing.
+    // They should be removed with a future refactor.
+
+    val getCommentsFromIssue: (String, Issue) -> List<Pair<String, Comment>> = { _, issue ->
+        issue.comments.map { it.id to it }
+    },
+    val getVisibilityValueOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
+        comment.visibility.value
+    },
+    val getAuthorOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
+        comment.author.name
+    },
+    val getBodyOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
+        comment.body
+    },
+    val updateComment: (Pair<String, Comment>, content: String) -> Unit = { (_, comment), content ->
+        comment.update(
+            content,
+            "group",
+            "staff"
+        )
+    },
+    val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
+        issue.attachments.map { it.id to it }
+    },
+    val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
+        attachment.author?.name
+    },
+    val removeAttachment: (Pair<String, Attachment>, Issue) -> Unit = { (id, _), issue ->
+        issue.removeAttachment(id)
+    }
 ) {
     operator fun invoke(
         issue: io.github.mojira.arisa.domain.Issue,
@@ -66,19 +100,18 @@ class RemoveUserCommand(
                     (either as Either.Right).b
                 }
             }
-            .forEach { issue ->
-                log.debug("Removing comments and attachments from ticket ${issue.key}")
+            .forEach { (key, issue) ->
+                log.debug("Removing comments and attachments from ticket $key")
 
-                result.removedComments += issue.comments
-                    .filter { it.visibility?.value != "staff" }
-                    .filter { it.author.name == userName }
+                result.removedComments += getCommentsFromIssue(key, issue)
+                    .filter { getVisibilityValueOfComment(it) != "staff" }
+                    .filter { getAuthorOfComment(it) == userName }
                     .onEachIndexed { index, it ->
-                        it.update(
-                            it.body?.plus(
+                        updateComment(
+                            it,
+                            getBodyOfComment(it).plus(
                                 "\n\n~Removed by Arisa - Delete user \"$userName\"~"
-                            ),
-                            "group",
-                            "staff"
+                            )
                         )
                         if (index % REMOVE_USER_SLEEP_INTERVAL == 0) {
                             TimeUnit.SECONDS.sleep(1)
@@ -86,10 +119,10 @@ class RemoveUserCommand(
                     }
                     .count()
 
-                result.removedAttachments += issue.attachments
-                    .filter { it.author?.name == userName }
+                result.removedAttachments += getAttachmentsFromIssue(key, issue)
+                    .filter { getAuthorNameFromAttachment(it) == userName }
                     .onEachIndexed { index, it ->
-                        issue.removeAttachment(it.id)
+                        removeAttachment(it, issue)
                         if (index % REMOVE_USER_SLEEP_INTERVAL == 0) {
                             TimeUnit.SECONDS.sleep(1)
                         }

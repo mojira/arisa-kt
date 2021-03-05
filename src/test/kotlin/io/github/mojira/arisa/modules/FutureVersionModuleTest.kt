@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.left
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem

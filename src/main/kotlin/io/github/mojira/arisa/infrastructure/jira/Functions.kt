@@ -106,7 +106,6 @@ fun getAllIssuesFromJql(jiraClient: JiraClient, jql: String) = runBlocking {
     }
 }
 
-// TODO: change this to io.github.mojira.arisa.domain.Issue
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {
         jiraClient.getIssue(key, "*all", "changelog")

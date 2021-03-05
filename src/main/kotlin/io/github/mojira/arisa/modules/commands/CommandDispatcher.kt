@@ -1,5 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
+import arrow.core.Either
+import arrow.core.right
 import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
@@ -29,7 +31,12 @@ fun getCommandDispatcher(
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val removeUserCommand = RemoveUserCommand(
         ::getIssuesFromJql.partially1(jiraClient),
-        ::getIssue.partially1(jiraClient),
+        {
+            when (val issue = getIssue(jiraClient, it)) {
+                is Either.Left -> issue
+                is Either.Right -> (it to issue.b).right()
+            }
+        },
         { Thread(it).start() }
     )
 

@@ -91,5 +91,6 @@ private fun mainLoop() {
     }
 
     issueService.cleanup()
+    commentCache.flush()
     TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
 }

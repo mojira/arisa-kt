@@ -51,6 +51,7 @@ data class Issue(
     }
 
     fun addComment(message: String, visType: String? = null, visValue: String? = null) {
+        // TODO this should replace the key instead
         addedComments.add(Comment(null, message, null, Instant.now(), null, visType, visValue))
     }
 }

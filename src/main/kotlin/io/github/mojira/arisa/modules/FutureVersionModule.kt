@@ -24,14 +24,14 @@ class FutureVersionModule(
             assertNotNull(latestVersion).bind()
 
             if (affectedVersions.size > removeFutureVersions.size) {
-                addComment(CommentOptions(messagePanel))
+                addComment(messagePanel)
             } else {
                 latestVersion!!.add()
                 if (resolution == null || resolution == "Unresolved") {
-                    resolveAsAwaitingResponse()
-                    addComment(CommentOptions(messageFull))
+                    resolution = "Awaiting Response"
+                    addComment(messageFull)
                 } else {
-                    addComment(CommentOptions(messagePanel))
+                    addComment(messagePanel)
                 }
             }
             removeFutureVersions.forEach(::run)

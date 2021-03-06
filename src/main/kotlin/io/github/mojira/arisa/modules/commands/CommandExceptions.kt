@@ -37,6 +37,10 @@ object CommandExceptions {
         LiteralMessage("The version $it doesn't exist in this project")
     }
 
+    val TEST_EXCEPTION = DynamicCommandExceptionType {
+        LiteralMessage("Testing error message: $it")
+    }
+
     val VERSION_ALREADY_AFFECTED = DynamicCommandExceptionType {
         LiteralMessage("The version $it was already marked as affected")
     }

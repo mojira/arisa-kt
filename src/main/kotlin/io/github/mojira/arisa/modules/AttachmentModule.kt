@@ -10,9 +10,8 @@ import java.time.Instant
 class AttachmentModule(
     private val extensionBlackList: List<String>,
     private val attachmentRemovedMessage: String
-) : Module {
-
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)
             val functions = attachments

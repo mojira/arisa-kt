@@ -9,59 +9,59 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-fun <T> Either<Throwable, T>.toFailedModuleEither(issue: Issue) = this.bimap(
-    { FailedModuleResponse(issue, listOf(it)) },
+fun <T> Either<Throwable, T>.toFailedModuleEither() = this.bimap(
+    { FailedModuleResponse(listOf(it)) },
     { it }
 )
 
-fun Collection<Either<Throwable, Any>>.toFailedModuleEither(issue: Issue): Either<ModuleError, ModuleResponse> {
+fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleError, ModuleResponse> {
     val errors =
         filter(Either<Throwable, Any>::isLeft)
             .map { (it as Either.Left).a }
 
     return if (errors.isEmpty()) {
-        ModuleResponse(issue).right()
+        ModuleResponse.right()
     } else {
-        FailedModuleResponse(issue, errors).left()
+        FailedModuleResponse(errors).left()
     }
 }
 
 fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert() = fold(
-    { ModuleResponse(it.issue).right() },
-    { OperationNotNeededModuleResponse(it.issue).left() }
+    { ModuleResponse.right() },
+    { OperationNotNeededModuleResponse.left() }
 )
 
-fun assertContains(original: String?, match: String, issue: Issue) = when {
-    original.isNullOrEmpty() -> OperationNotNeededModuleResponse(issue).left()
-    original.contains(match, true) -> ModuleResponse(issue).right()
-    else -> OperationNotNeededModuleResponse(issue).left()
+fun assertContains(original: String?, match: String) = when {
+    original.isNullOrEmpty() -> OperationNotNeededModuleResponse.left()
+    original.contains(match, true) -> ModuleResponse.right()
+    else -> OperationNotNeededModuleResponse.left()
 }
 
-fun assertEmpty(c: Collection<*>, issue: Issue) = when {
-    c.isEmpty() -> ModuleResponse(issue)
-    else -> OperationNotNeededModuleResponse(issue).left()
+fun assertEmpty(c: Collection<*>) = when {
+    c.isEmpty() -> ModuleResponse.right()
+    else -> OperationNotNeededModuleResponse.left()
 }
 
-fun assertNotEmpty(c: Collection<*>, issue: Issue) = when {
-    c.isEmpty() -> OperationNotNeededModuleResponse(issue).left()
-    else -> ModuleResponse(issue).right()
+fun assertNotEmpty(c: Collection<*>) = when {
+    c.isEmpty() -> OperationNotNeededModuleResponse.left()
+    else -> ModuleResponse.right()
 }
 
-fun <T> assertNull(e: T?, issue: Issue) = when (e) {
-    null -> ModuleResponse(issue).right()
-    else -> OperationNotNeededModuleResponse(issue).left()
+fun <T> assertNull(e: T?) = when (e) {
+    null -> ModuleResponse.right()
+    else -> OperationNotNeededModuleResponse.left()
 }
 
-fun <T> assertNotNull(e: T?, issue: Issue) = when (e) {
-    null -> OperationNotNeededModuleResponse(issue).left()
-    else -> ModuleResponse(issue).right()
+fun <T> assertNotNull(e: T?) = when (e) {
+    null -> OperationNotNeededModuleResponse.left()
+    else -> ModuleResponse.right()
 }
 
-fun assertEither(issue: Issue, vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
+fun assertEither(vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
     if (list.any { it.isRight() }) {
-        ModuleResponse(issue).right()
+        ModuleResponse.right()
     } else {
-        OperationNotNeededModuleResponse(issue).left()
+        OperationNotNeededModuleResponse.left()
     }
 
 /**
@@ -69,53 +69,52 @@ fun assertEither(issue: Issue, vararg list: Either<OperationNotNeededModuleRespo
  * when the resolve fails in case it needs to resolve and comment
  */
 fun tryRunAll(
-    functions: Collection<() -> Either<Throwable, Unit>>,
-    issue: Issue
+    functions: Collection<() -> Either<Throwable, Unit>>
 ): Either<FailedModuleResponse, ModuleResponse> {
     functions.forEach {
         val result = it()
         if (result.isLeft()) {
-            return FailedModuleResponse(issue, listOf((result as Either.Left).a)).left()
+            return FailedModuleResponse(listOf((result as Either.Left).a)).left()
         }
     }
 
-    return ModuleResponse(issue).right()
+    return ModuleResponse.right()
 }
 
-fun <T> assertEquals(o1: T, o2: T, issue: Issue) = if (o1 == o2) {
-    ModuleResponse(issue).right()
+fun <T> assertEquals(o1: T, o2: T) = if (o1 == o2) {
+    ModuleResponse.right()
 } else {
-    OperationNotNeededModuleResponse(issue).left()
+    OperationNotNeededModuleResponse.left()
 }
 
-fun assertTrue(b: Boolean, issue: Issue) = if (b) {
-    ModuleResponse(issue).right()
+fun assertTrue(b: Boolean) = if (b) {
+    ModuleResponse.right()
 } else {
-    OperationNotNeededModuleResponse(issue).left()
+    OperationNotNeededModuleResponse.left()
 }
 
-fun assertFalse(b: Boolean, issue: Issue) = if (!b) {
-    ModuleResponse(issue).right()
+fun assertFalse(b: Boolean) = if (!b) {
+    ModuleResponse.right()
 } else {
-    OperationNotNeededModuleResponse(issue).left()
+    OperationNotNeededModuleResponse.left()
 }
 
-fun <T> assertNotEquals(o1: T, o2: T, issue: Issue) = if (o1 == o2) {
-    OperationNotNeededModuleResponse(issue).left()
+fun <T> assertNotEquals(o1: T, o2: T) = if (o1 == o2) {
+    OperationNotNeededModuleResponse.left()
 } else {
-    ModuleResponse(issue).right()
+    ModuleResponse.right()
 }
 
-fun <T : Comparable<T>> assertGreaterThan(o1: T, o2: T, issue: Issue) = if (o1 > o2) {
-    ModuleResponse(issue).right()
+fun <T : Comparable<T>> assertGreaterThan(o1: T, o2: T) = if (o1 > o2) {
+    ModuleResponse.right()
 } else {
-    OperationNotNeededModuleResponse(issue).left()
+    OperationNotNeededModuleResponse.left()
 }
 
-fun assertAfter(instant1: Instant, instant2: Instant, issue: Issue) = if (instant1.isAfter(instant2)) {
-    ModuleResponse(issue).right()
+fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(instant2)) {
+    ModuleResponse.right()
 } else {
-    OperationNotNeededModuleResponse(issue).left()
+    OperationNotNeededModuleResponse.left()
 }
 
 fun String?.getOrDefault(default: String) =

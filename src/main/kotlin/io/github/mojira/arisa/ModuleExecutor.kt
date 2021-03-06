@@ -88,29 +88,29 @@ class ModuleExecutor(
     private fun executeModule(
         issues: List<Issue>,
         addFailedTicket: (String) -> Unit,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>,
+        executeModule: (Issue) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>,
     ): List<Issue> {
         val responseIssues = mutableListOf<Issue>()
         issues
             .map { executeModule(it) }
-            .forEach { (module, response) ->
+            .forEach { (module, issue, response) ->
                 response.fold({
-                    responseIssues.add(it.issue)
+                    responseIssues.add(issue)
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.Debug.logOperationNotNeeded]) {
-                            log.debug("[RESPONSE] [$module] [${it.issue.key}] Operation not needed")
+                            log.debug("[RESPONSE] [$module] [${issue.key}] Operation not needed")
                         }
                         is FailedModuleResponse -> {
-                            addFailedTicket(it.issue.key)
+                            addFailedTicket(issue.key)
 
                             for (exception in it.exceptions) {
-                                log.error("[RESPONSE] [$module] [${it.issue.key}] Failed", exception)
+                                log.error("[RESPONSE] [$module] [${issue.key}] Failed", exception)
                             }
                         }
                     }
                 }, {
-                    responseIssues.add(it.issue)
-                    log.info("[RESPONSE] [$module] [${it.issue.key}] Successful")
+                    responseIssues.add(issue)
+                    log.info("[RESPONSE] [$module] [${issue.key}] Successful")
                 })
             }
         return responseIssues

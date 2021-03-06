@@ -47,7 +47,7 @@ class ModuleRegistry(private val config: Config) {
     data class Entry(
         val name: String,
         val config: ModuleConfigSpec,
-        val execute: (issue: Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        val execute: (issue: Issue) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>
     )
 
     private val modules = mutableListOf<Entry>()
@@ -77,14 +77,15 @@ class ModuleRegistry(private val config: Config) {
     }
 
     private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue ->
-        moduleName to tryExecuteModule(issue, module)
+        val result = tryExecuteModule(issue, module)
+        Triple(moduleName, result.first, result.second)
     }
 
     @Suppress("TooGenericExceptionCaught")
     private fun tryExecuteModule(issue: Issue, module: Module) = try {
         module(issue)
     } catch (e: Throwable) {
-        FailedModuleResponse(issue, listOf(e)).left()
+        issue to FailedModuleResponse(listOf(e)).left()
     }
 
     init {

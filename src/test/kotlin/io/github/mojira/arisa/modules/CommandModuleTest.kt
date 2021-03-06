@@ -301,6 +301,6 @@ private fun getDispatcher(prefix: String) = CommandDispatcher<CommandSource>().a
             .then(
                 argument<CommandSource, String>("arg", greedyString())
                     .executes { throw CommandExceptions.TEST_EXCEPTION.create(RuntimeException()) }
-            ),
+            )
     )
 }

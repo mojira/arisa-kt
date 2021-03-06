@@ -28,6 +28,7 @@ class JiraIssueService(
         with(issue) {
             if (securityLevel != null && securityLevel != originalIssue?.securityLevel) builder.updateSecurityLevel(securityLevel!!)
             if (resolution != null && resolution != originalIssue?.resolution) builder.resolve(resolution!!)
+            if (description != null && description != originalIssue?.description) builder.updateDescription(description!!)
             if (chk != null && chk != originalIssue?.chk) builder.updateChk()
             if (linked != null && linked != originalIssue?.linked) builder.updateLinked(linked!!)
             if (addedComments.isNotEmpty()) builder.addComments(addedComments)

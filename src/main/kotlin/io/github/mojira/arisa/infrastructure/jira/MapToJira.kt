@@ -36,6 +36,11 @@ class MapToJira(val config: Config, val commentCache: CommentCache, val issueSer
             transitionName = "Resolve Issue"
         }
 
+        fun updateDescription(updatedDescription: String) {
+            edit.field(Field.DESCRIPTION, updatedDescription)
+            hasEdit = true
+        }
+
         fun updateChk() {
             hasUpdate = true
             update.field(

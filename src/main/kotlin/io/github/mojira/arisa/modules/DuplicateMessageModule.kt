@@ -2,6 +2,8 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.core.left
+import arrow.core.right
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
@@ -19,11 +21,15 @@ class DuplicateMessageModule(
     private val forwardMessage: String,
     private val ticketMessages: Map<String, String>,
     private val privateMessage: String,
+    private val preventMessageTag: String,
     private val resolutionMessages: Map<String, String>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertLinkedAfterLastRun(changeLog, lastRun).bind()
+
+            assertNotNull(preventMessageTag).bind()
+            assertNotContainsPreventMessageTag(comments).bind()
 
             val historicalParentKeys = changeLog
                 .filter(::isAddingDuplicateLink)
@@ -119,4 +125,13 @@ class DuplicateMessageModule(
 
     private fun isDuplicatesLink(link: Link) =
         link.type.toLowerCase() == "duplicate" && link.outwards
+
+    private fun isPreventMessageTag(comment: Comment) = comment.visibilityType == "group" &&
+            comment.visibilityValue == "staff" &&
+            (comment.body?.contains(preventMessageTag!!) ?: false)
+
+    private fun assertNotContainsPreventMessageTag(comments: List<Comment>) = when {
+        comments.any(::isPreventMessageTag) -> OperationNotNeededModuleResponse.left()
+        else -> Unit.right()
+    }
 }

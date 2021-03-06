@@ -209,31 +209,3 @@ private fun concatenateCombinations(list: List<String>): Set<String> {
     }
     return newSet.toSortedSet()
 }
-
-fun addLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
-    val tmp = linkTypes.filter {
-        type.toLowerCase() in it.nameVariants
-    }
-    assertNotNull(tmp).bind()
-    assertTrue(tmp.size == 1).bind()
-    val linkType = tmp[0]
-    for (key in keys) {
-        issue.newLinks.add(Link(null, linkType.id, linkType.outwards, LinkedIssue(key.toUpperCase(), null)))
-    }
-}
-
-fun deleteLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
-    val tmp = linkTypes.filter {
-        type.toLowerCase() in it.nameVariants
-    }
-    assertNotNull(tmp).bind()
-    assertTrue(tmp.size == 1).bind()
-    val linkType = tmp[0]
-    for (key in keys) {
-        val link = issue.links.find {
-            it.type == linkType.id && it.issue.key == key.toUpperCase()
-        }
-        assertNotNull(link).bind()
-        issue.removedLinks.add(link!!)
-    }
-}

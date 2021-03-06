@@ -7,12 +7,12 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-class CHKModule : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+class CHKModule : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertConfirmed(confirmationStatus).bind()
             assertNoChk(chk).bind()
-            updateCHK()
+            updateChk()
         }
     }
 

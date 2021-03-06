@@ -21,8 +21,8 @@ class ReopenAwaitingModule(
     private val keepARTag: String,
     private val onlyOPTag: String,
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(resolution, "Awaiting Response").bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()

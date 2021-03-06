@@ -15,10 +15,10 @@ class LanguageModule(
     private val allowedLanguages: List<String> = listOf("en"),
     private val lengthThreshold: Int = 0,
     private val getLanguage: (String) -> Either<Any, Map<String, Double>>
-) : Module {
+) : Module() {
     val log: Logger = LoggerFactory.getLogger("LanguageModule")
 
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertAfter(created, lastRun).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()

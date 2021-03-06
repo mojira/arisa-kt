@@ -11,8 +11,8 @@ import java.time.Instant
 class PiracyModule(
     private val piracySignatures: List<String>,
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertAfter(issue.created, lastRun).bind()
             assertContainsSignatures(

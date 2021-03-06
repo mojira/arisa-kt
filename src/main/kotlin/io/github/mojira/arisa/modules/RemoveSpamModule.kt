@@ -9,8 +9,8 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.SpamPatternConfig
 import java.time.Instant
 
-class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val removeSpamComments = comments
                 .asSequence()

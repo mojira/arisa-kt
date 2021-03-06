@@ -7,8 +7,8 @@ import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class RevokeConfirmationModule : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+class RevokeConfirmationModule : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val volunteerConfirmation = changeLog
                 .filter(::isConfirmationChange)

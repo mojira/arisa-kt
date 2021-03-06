@@ -4,15 +4,14 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
-import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
 class RemoveTriagedMeqsModule(
     private val meqsTags: List<String>,
     private val removalReason: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertTriaged(priority, triagedTime).bind()
 

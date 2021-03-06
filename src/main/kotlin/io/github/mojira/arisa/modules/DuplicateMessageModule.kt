@@ -23,8 +23,8 @@ class DuplicateMessageModule(
     private val privateMessage: String,
     private val preventMessageTag: String,
     private val resolutionMessages: Map<String, String>
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertLinkedAfterLastRun(changeLog, lastRun).bind()
 

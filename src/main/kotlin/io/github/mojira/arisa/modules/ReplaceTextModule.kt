@@ -14,7 +14,7 @@ class ReplaceTextModule(
         """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d?/#])""".toRegex() to "$1",
         "(http://i.imgur.com)".toRegex() to "https://i.imgur.com"
     )
-) : Module {
+) : Module() {
     data class Request(
         val lastRun: Instant,
         val description: String?,
@@ -22,7 +22,7 @@ class ReplaceTextModule(
         val updateDescription: (description: String) -> Either<Throwable, Unit>
     )
 
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val needUpdateDescription = created.isAfter(lastRun) &&
                     description != null &&

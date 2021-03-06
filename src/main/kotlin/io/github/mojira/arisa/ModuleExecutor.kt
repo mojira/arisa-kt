@@ -88,11 +88,11 @@ class ModuleExecutor(
     private fun executeModule(
         issues: List<Issue>,
         addFailedTicket: (String) -> Unit,
-        executeModule: (Issue) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>,
+        executeModule: (Issue, Instant) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>,
     ): List<Issue> {
         val responseIssues = mutableListOf<Issue>()
         issues
-            .map { executeModule(it) }
+            .map { executeModule(it, lastRunTime) }
             .forEach { (module, issue, response) ->
                 response.fold({
                     responseIssues.add(issue)

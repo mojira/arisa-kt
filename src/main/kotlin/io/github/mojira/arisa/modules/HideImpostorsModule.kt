@@ -2,14 +2,13 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class HideImpostorsModule : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+class HideImpostorsModule : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val restrictImpostorComments = comments
                 .asSequence()

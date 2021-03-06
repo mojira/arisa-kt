@@ -12,8 +12,8 @@ class MissingCrashModule(
     private val crashReportExtensions: List<String>,
     private val crashReader: CrashReader,
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
             assertEquals(status, "Open").bind()

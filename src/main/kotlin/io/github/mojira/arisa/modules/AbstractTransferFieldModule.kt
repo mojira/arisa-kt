@@ -2,8 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import arrow.core.left
-import arrow.core.right
 import arrow.syntax.function.partially2
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Issue
@@ -11,8 +9,8 @@ import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
 import java.time.Instant
 
-abstract class AbstractTransferFieldModule : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+abstract class AbstractTransferFieldModule : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val relevantParents = links
                 .filter(::isDuplicatesLink)

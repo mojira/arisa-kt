@@ -6,14 +6,13 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
-import java.time.Instant
 
 class ConfirmParentModule(
     private val confirmationStatusWhitelist: List<String>,
     private val targetConfirmationStatus: String,
     private val linkedThreshold: Double
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertConfirmationStatusWhitelisted(confirmationStatus, confirmationStatusWhitelist).bind()
             assertTrue(isDuplicatedEnough(issue).bind()).bind()

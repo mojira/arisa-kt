@@ -45,4 +45,8 @@ data class Issue(
             .filter { comment -> editedComments.any { it.id == comment.id } }
             .plus(editedComments)
             .sortedBy { it.created }
+
+    fun updateChk() {
+        chk = "updated!"
+    }
 }

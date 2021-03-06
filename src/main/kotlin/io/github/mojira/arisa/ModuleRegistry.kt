@@ -42,12 +42,13 @@ import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import me.urielsalis.mccrashlib.CrashReader
+import java.time.Instant
 
 class ModuleRegistry(private val config: Config) {
     data class Entry(
         val name: String,
         val config: ModuleConfigSpec,
-        val execute: (issue: Issue) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>
+        val execute: (issue: Issue, lastRun: Instant) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>
     )
 
     private val modules = mutableListOf<Entry>()
@@ -76,14 +77,14 @@ class ModuleRegistry(private val config: Config) {
         )
     }
 
-    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue ->
-        val result = tryExecuteModule(issue, module)
+    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, lastRun: Instant ->
+        val result = tryExecuteModule(issue, lastRun, module)
         Triple(moduleName, result.first, result.second)
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun tryExecuteModule(issue: Issue, module: Module) = try {
-        module(issue)
+    private fun tryExecuteModule(issue: Issue, lastRun: Instant, module: Module) = try {
+        module(issue, lastRun)
     } catch (e: Throwable) {
         issue to FailedModuleResponse(listOf(e)).left()
     }

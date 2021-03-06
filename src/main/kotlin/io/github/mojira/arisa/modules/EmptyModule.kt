@@ -25,8 +25,8 @@ const val MIN_LENGTH = 5
 
 class EmptyModule(
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertAfter(created, lastRun).bind()
             if (description != DESC_DEFAULT && environment != ENV_DEFAULT) {

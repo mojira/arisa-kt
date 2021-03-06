@@ -11,8 +11,8 @@ import java.time.Instant
 
 class PrivateDuplicateModule(
     private val keepPrivateTag: String?
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotNull(keepPrivateTag).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()

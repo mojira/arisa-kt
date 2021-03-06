@@ -5,14 +5,14 @@ import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-class RemoveIdenticalLinkModule : Module {
+class RemoveIdenticalLinkModule : Module() {
     data class GroupingLink(
         val type: String,
         val outwards: Boolean,
         val key: String
     )
 
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotEmpty(links).bind()
 

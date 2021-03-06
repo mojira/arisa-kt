@@ -10,8 +10,8 @@ import java.time.Instant
 class FutureVersionModule(
     private val messageFull: String,
     private val messagePanel: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val addedVersions = getVersionsLatelyAddedByNonStaff(lastRun)
             val removeFutureVersions = affectedVersions

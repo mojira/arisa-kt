@@ -14,8 +14,8 @@ val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()
 
 class UpdateLinkedModule(
     private val updateInterval: Long
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val lastLinkedChange = changeLog
                 .lastOrNull(::isLinkedChange)

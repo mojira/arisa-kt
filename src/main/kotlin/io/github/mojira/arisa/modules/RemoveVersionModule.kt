@@ -11,8 +11,8 @@ const val MAX_NUMBER_OF_VERSION_CHANGES = 5
 
 class RemoveVersionModule(
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
             val removeAddedVersions = affectedVersions

@@ -14,8 +14,8 @@ class MultiplePlatformsModule(
     private val targetPlatform: String,
     private val transferredPlatformBlacklist: List<String>,
     private val keepPlatformTag: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : Module() {
+    override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertPlatformWhitelisted(platform, platformWhitelist).bind()
             assertTrue(isDuplicatedWithDifferentPlatforms(platform, transferredPlatformBlacklist, issue).bind()).bind()

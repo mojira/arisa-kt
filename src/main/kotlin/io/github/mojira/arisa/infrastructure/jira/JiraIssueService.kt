@@ -4,6 +4,7 @@ import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.service.IssueService
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
 
 class JiraIssueService(val jiraClient: JiraClient, val config: Config, val mapFromJira: MapFromJira) : IssueService {
@@ -43,7 +44,7 @@ class JiraIssueService(val jiraClient: JiraClient, val config: Config, val mapFr
     }
 
     override fun searchIssues(query: String, startAt: Int): List<Issue> {
-        val issues = jiraClient.searchIssues(query, "*all", "changelog", MAX_RESULTS, startAt).issues
+        val issues = jiraClient.searchIssues(addDebugQuery(query), "*all", "changelog", MAX_RESULTS, startAt).issues
         addToCache(issues)
         return issues.map { it.key }.map { getIssue(it) }
     }
@@ -51,6 +52,15 @@ class JiraIssueService(val jiraClient: JiraClient, val config: Config, val mapFr
     override fun cleanup() {
         issueCache.clear()
         jiraIssueCache.clear()
+    }
+
+    private fun addDebugQuery(query: String): String {
+        val ticketWhitelist = config[Arisa.Debug.ticketWhitelist] ?: emptyList()
+        return if (ticketWhitelist.isNotEmpty()) {
+            "key IN (${ticketWhitelist.joinToString(",")}) AND $query"
+        } else {
+            query
+        }
     }
 
     private fun addToCache(issues: List<JiraIssue>) {

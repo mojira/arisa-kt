@@ -4,8 +4,8 @@ import arrow.core.Either
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.service.IssueService
-import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.services.Cache
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -29,6 +29,7 @@ class ModuleExecutor(
     @Suppress("TooGenericExceptionCaught")
     fun execute(
         lastRun: Instant,
+        rerunTickets: Set<String>,
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
         val newPostedCommentCache = Cache<MutableSet<String>>()
@@ -41,7 +42,7 @@ class ModuleExecutor(
                 missingResultsPage = false
 
                 val issues = issueService
-                    .searchIssues(getQuery(failedTickets, lastRun), startAt)
+                    .searchIssues(getQuery(rerunTickets, lastRun), startAt)
                     .map { it.key to it }
                     .toMap()
                     .toMutableMap()
@@ -64,11 +65,10 @@ class ModuleExecutor(
         }
     }
 
-    private fun getQuery(failedTickets: MutableSet<String>, lastRun: Instant): String {
+    private fun getQuery(rerunTickets: Set<String>, lastRun: Instant): String {
         var query = DEFAULT_JQL(lastRun)
-        if (failedTickets.isNotEmpty()) {
-            query + " OR key in (${failedTickets.joinToString(",")})"
-            failedTickets.clear()
+        if (rerunTickets.isNotEmpty()) {
+            query + " OR key in (${rerunTickets.joinToString(",")})"
         }
         return query
     }

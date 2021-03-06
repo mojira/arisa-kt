@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.infrastructure
+package io.github.mojira.arisa.infrastructure.services
 
 open class Cache<V> {
     val storage = mutableMapOf<String, V>()

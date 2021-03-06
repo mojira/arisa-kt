@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.infrastructure
+package io.github.mojira.arisa.infrastructure.services
 
 import arrow.core.Either
 import io.github.mojira.arisa.domain.Attachment

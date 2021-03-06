@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.infrastructure
+package io.github.mojira.arisa.infrastructure.services
 
 import arrow.core.Either
 import com.beust.klaxon.Klaxon

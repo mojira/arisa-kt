@@ -1,15 +1,12 @@
 package io.github.mojira.arisa
 
-import ch.qos.logback.classic.AsyncAppender
-import ch.qos.logback.classic.LoggerContext
-import com.github.napstr.logback.DiscordAppender
-import com.uchuhimo.konf.Config
-import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.JiraIssueService
 import io.github.mojira.arisa.infrastructure.jira.JiraUserService
 import io.github.mojira.arisa.infrastructure.jira.MapFromJira
+import io.github.mojira.arisa.infrastructure.services.ConfigService
+import io.github.mojira.arisa.infrastructure.services.HelperMessageService
+import io.github.mojira.arisa.infrastructure.services.LastRunService
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.TokenCredentials
 import org.slf4j.Logger
@@ -26,104 +23,68 @@ const val MAX_RESULTS = 50
 lateinit var jiraClient: JiraClient
 lateinit var credentials: TokenCredentials
 
-@Suppress("LongMethod")
+val config = ConfigService.readConfig()
+
+//last run
+val lastRelog = Instant.now()
+val lastRun = LastRunService.readLastRun()
+var lastRunTime = LastRunService.readLastRunTime(lastRun)
+var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
+val failedTickets = mutableSetOf<String>()
+
+// helper messages
+val helperMessagesFile = File("helper-messages.json")
+val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
+var helperMessagesLastFetch = Instant.now()
+
+// modules
+val moduleRegistry = ModuleRegistry(config)
+val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
+
+val userService = JiraUserService(jiraClient)
+val issueService = JiraIssueService(jiraClient, config, MapFromJira(config, userService))
+var moduleExecutor = ModuleExecutor(config, moduleRegistry, issueService)
+
 fun main() {
-    val config = readConfig()
-    setWebhookOfLogger(config)
+    ConfigService.setWebhookOfLogger(config)
 
     credentials = TokenCredentials(config[Arisa.Credentials.username], config[Arisa.Credentials.password])
-    jiraClient = connectToJira(credentials, config[Arisa.Issues.url])
+    jiraClient = JiraClient(config[Arisa.Issues.url], credentials)
     log.info("Connected to jira")
 
-    // Get tickets for re-run and last run time
-    val lastRelog = Instant.now()
-    val lastRunFile = File("last-run")
-    val lastRun = readLastRun(lastRunFile)
-    var lastRunTime = readLastRunTime(lastRun)
-    var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
-    val failedTickets = mutableSetOf<String>()
-
-    // Read helper-messages
-    val helperMessagesFile = File("helper-messages.json")
-    val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
-    var helperMessages = helperMessagesFile.getHelperMessages()
-    var helperMessagesLastFetch = Instant.now()
-
-    // Initialize caches and registry
-    val moduleRegistry = ModuleRegistry(config)
-
-    val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
+    HelperMessageService.updateHelperMessages(helperMessagesFile)
     log.debug("Enabled modules: $enabledModules")
 
-    // Create module executor
-    val jiraUserService = JiraUserService(jiraClient)
-    val jiraIssueService = JiraIssueService(jiraClient, config, MapFromJira(config, jiraUserService))
-    var moduleExecutor = ModuleExecutor(config, moduleRegistry, jiraIssueService)
-
     while (true) {
-        // save time before run, so nothing happening during the run is missed
-        val curRunTime = Instant.now()
-        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
+        mainLoop()
+    }
+}
 
-        if (executionResults.successful) {
-            rerunTickets = emptySet()
-            failedTickets.addAll(executionResults.failedTickets)
-            val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
+private fun mainLoop() {
+    // save time before run, so nothing happening during the run is missed
+    val curRunTime = Instant.now()
+    val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
 
-            if (config[Arisa.Debug.updateLastRun]) {
-                lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
-            }
-            lastRunTime = curRunTime
-        } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
-            // If last relog was more than a minute before and execution failed with an exception, relog
-            jiraClient = connectToJira(credentials, config[Arisa.Issues.url])
-            moduleExecutor = ModuleExecutor(config, moduleRegistry, jiraIssueService)
+    if (executionResults.successful) {
+        rerunTickets = emptySet()
+        failedTickets.addAll(executionResults.failedTickets)
+        val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
+
+        if (config[Arisa.Debug.updateLastRun]) {
+            LastRunService.writeLastRun(curRunTime, failed)
         }
-
-        if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
-            helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
-            moduleExecutor = ModuleExecutor(config, moduleRegistry, jiraIssueService)
-            helperMessagesLastFetch = curRunTime
-        }
-
-        TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
+        lastRunTime = curRunTime
+    } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+        // If last relog was more than a minute before and execution failed with an exception, relog
+        jiraClient = JiraClient(config[Arisa.Issues.url], credentials)
+        moduleExecutor = ModuleExecutor(config, moduleRegistry, issueService)
     }
-}
 
-private fun readLastRunTime(lastRun: List<String>): Instant {
-    return if (lastRun[0].isNotEmpty())
-        Instant.ofEpochMilli(lastRun[0].toLong())
-    else Instant.now().minus(TIME_MINUTES, ChronoUnit.MINUTES)
-}
-
-private fun readLastRun(lastRunFile: File): List<String> {
-    return (if (lastRunFile.exists())
-        lastRunFile.readText().trim()
-    else "")
-        .split(",")
-}
-
-private fun readConfig(): Config {
-    return Config { addSpec(Arisa) }
-        .from.yaml.watchFile("config/config.yml")
-        .from.yaml.watchFile("config/local.yml")
-        .from.env()
-        .from.systemProperties()
-}
-
-private fun setWebhookOfLogger(config: Config) {
-    val context = LoggerFactory.getILoggerFactory() as LoggerContext
-    val discordAsync = context.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD") as AsyncAppender?
-    if (discordAsync != null) {
-        val discordAppender = discordAsync.getAppender("DISCORD") as DiscordAppender
-        discordAppender.webhookUri = config[Arisa.Credentials.discordLogWebhook]
+    if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
+        HelperMessageService.updateHelperMessages(helperMessagesFile)
+        moduleExecutor = ModuleExecutor(config, moduleRegistry, issueService)
+        helperMessagesLastFetch = curRunTime
     }
-    val discordErrorAsync =
-        context.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_ERROR_DISCORD") as AsyncAppender?
-    if (discordErrorAsync != null) {
-        val discordErrorAppender = discordErrorAsync.getAppender("ERROR_DISCORD") as DiscordAppender
-        discordErrorAppender.webhookUri = config[Arisa.Credentials.discordErrorLogWebhook]
-    }
-}
 
-private fun connectToJira(tokenCredentials: TokenCredentials, url: String) = JiraClient(url, credentials)
+    TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
+}

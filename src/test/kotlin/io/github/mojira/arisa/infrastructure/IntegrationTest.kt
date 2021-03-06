@@ -3,6 +3,7 @@ package io.github.mojira.arisa.infrastructure
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.services.HelperMessageService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.maps.shouldContainKey
 import java.io.File

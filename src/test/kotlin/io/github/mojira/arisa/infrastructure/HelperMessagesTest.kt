@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.infrastructure
 
+import io.github.mojira.arisa.infrastructure.services.HelperMessageService
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec

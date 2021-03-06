@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.AttachmentUtils
+import io.github.mojira.arisa.infrastructure.services.AttachmentUtils
 import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 

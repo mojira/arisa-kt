@@ -19,11 +19,11 @@ class AttachmentModule(
             assertNotEmpty(functions).bind()
             val usernames = functions.getUsernames()
             val attachmentNames = functions.getAttachmentNames()
-            functions
-                .map { it.remove }
-                .forEach { it.invoke() }
+            functions.forEach {
+                attachments.remove(it)
+            }
             addComment(attachmentRemovedMessage)
-            addRawRestrictedComment("Attachment Details:\nFilename: $attachmentNames\nUploader: $usernames", "helper")
+            addComment("Attachment Details:\nFilename: $attachmentNames\nUploader: $usernames", "group", "helper")
         }
     }
 

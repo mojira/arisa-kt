@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.domain
 
+import io.github.mojira.arisa.infrastructure.services.HelperMessageService
 import java.time.Instant
 
 data class Issue(
@@ -51,10 +52,12 @@ data class Issue(
     }
 
     fun addComment(message: String, visType: String? = null, visValue: String? = null) {
-        // TODO this should replace the key instead
-        addedComments.add(Comment(null, message, null, Instant.now(), null, visType, visValue))
+        HelperMessageService.getSingleMessage(project.key, message).fold(
+            { /* TODO what to do */ },
+            { addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue)) }
+        )
     }
-    
+
     fun addLink(type: String, outwards: Boolean, key: String) {
         newLinks.add(Link(null, type, outwards, LinkedIssue(key, null)))
     }

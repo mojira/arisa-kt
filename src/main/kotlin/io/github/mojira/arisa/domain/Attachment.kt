@@ -1,13 +1,13 @@
 package io.github.mojira.arisa.domain
 
 import java.time.Instant
+import java.util.function.Supplier
 
 data class Attachment(
     val id: String,
-    val name: String,
-    val created: Instant,
-    val mimeType: String,
-    val remove: () -> Unit,
-    val getContent: () -> ByteArray,
-    val uploader: User?
+    var name: String,
+    var created: Instant,
+    var mimeType: String,
+    var uploader: User?,
+    var content: Supplier<ByteArray>
 )

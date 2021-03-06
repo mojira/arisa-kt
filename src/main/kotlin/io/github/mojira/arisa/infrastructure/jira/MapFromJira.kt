@@ -1,15 +1,15 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.new.Attachment
-import io.github.mojira.arisa.domain.new.ChangeLogItem
-import io.github.mojira.arisa.domain.new.Comment
-import io.github.mojira.arisa.domain.new.Issue
-import io.github.mojira.arisa.domain.new.Link
-import io.github.mojira.arisa.domain.new.LinkedIssue
-import io.github.mojira.arisa.domain.new.Project
-import io.github.mojira.arisa.domain.new.User
-import io.github.mojira.arisa.domain.new.Version
+import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkedIssue
+import io.github.mojira.arisa.domain.Project
+import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.domain.service.UserService
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.sf.json.JSONObject
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat
 
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-class MapFromJira(val issue: JiraIssue, val config: Config, val userService: UserService) {
+class MapFromJira(val config: Config, val userService: UserService) {
 
     fun toDomain(issue: JiraIssue) = Issue(
         issue.key,

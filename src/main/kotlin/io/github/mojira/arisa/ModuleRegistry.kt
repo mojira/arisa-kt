@@ -15,7 +15,6 @@ import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
-import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
@@ -42,19 +41,13 @@ import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
-import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-
-val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
 
 class ModuleRegistry(private val config: Config) {
     data class Entry(
         val name: String,
         val config: ModuleConfigSpec,
-        val getJql: (lastRun: Instant) -> String,
-        val execute: (issue: Issue, lastRun: Instant) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        val execute: (issue: Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     )
 
     private val modules = mutableListOf<Entry>()
@@ -64,14 +57,13 @@ class ModuleRegistry(private val config: Config) {
     fun getEnabledModules(): List<Entry> = modules.filter(::isModuleEnabled)
 
     private fun isModuleEnabled(module: Entry) =
-        // If arisa.debug.enabledModules is defined, return whether that module is in that list.
+    // If arisa.debug.enabledModules is defined, return whether that module is in that list.
         // If it's not defined, return whether this module is enabled in the module config.
         config[Arisa.Debug.enabledModules]?.contains(module.name) ?: config[module.config.enabled]
 
     private fun register(
         moduleConfig: ModuleConfigSpec,
         module: Module,
-        getJql: (lastRun: Instant) -> String = DEFAULT_JQL
     ) {
         val moduleName = moduleConfig::class.simpleName!!
 
@@ -79,28 +71,20 @@ class ModuleRegistry(private val config: Config) {
             Entry(
                 moduleName,
                 moduleConfig,
-                addDebugToJql(getJql),
                 getModuleResult(moduleName, module)
             )
         )
     }
 
-    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, lastRun: Instant ->
-        moduleName to tryExecuteModule { module(issue, lastRun) }
-    }
-
-    private fun addDebugToJql(getJql: (Instant) -> String) = { lastRun: Instant ->
-        with(config[Arisa.Debug.ticketWhitelist]) {
-            if (this == null) getJql(lastRun)
-            else "key IN (${ joinToString(",") }) AND (${ getJql(lastRun) })"
-        }
+    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue ->
+        moduleName to tryExecuteModule(issue, module)
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
-        executeModule()
+    private fun tryExecuteModule(issue: Issue, module: Module) = try {
+        module(issue)
     } catch (e: Throwable) {
-        FailedModuleResponse(listOf(e)).left()
+        FailedModuleResponse(issue, listOf(e)).left()
     }
 
     init {
@@ -159,6 +143,8 @@ class ModuleRegistry(private val config: Config) {
 
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
+        // TODO make this not require a custom JQL
+        /*
         register(
             Modules.DuplicateMessage,
             DuplicateMessageModule(
@@ -176,7 +162,7 @@ class ModuleRegistry(private val config: Config) {
             val checkEnd = Instant.now()
                 .minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
             "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
-        }
+        }*/
 
         register(Modules.HideImpostors, HideImpostorsModule())
 
@@ -285,7 +271,8 @@ class ModuleRegistry(private val config: Config) {
             CommandModule(config[Modules.Command.commandPrefix])
         )
 
-        register(
+        // TODO make this not require a custom JQL
+        /*register(
             Modules.UpdateLinked,
             UpdateLinkedModule(config[Modules.UpdateLinked.updateIntervalHours])
         ) { lastRun ->
@@ -294,6 +281,6 @@ class ModuleRegistry(private val config: Config) {
             val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
             return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
                     " AND updated > ${intervalEnd.toEpochMilli()})"
-        }
+        }*/
     }
 }

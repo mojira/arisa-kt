@@ -1,10 +1,9 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.new.Comment
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.Field
-import net.rcarz.jiraclient.Issue
 import net.sf.json.JSONObject
 import java.time.Instant
 import java.time.temporal.ChronoField

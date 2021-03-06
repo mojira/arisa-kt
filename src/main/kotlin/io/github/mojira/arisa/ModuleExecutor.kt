@@ -1,12 +1,10 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
-import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.service.IssueService
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.CommentCache
-import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -17,9 +15,12 @@ import java.time.Instant
 class ModuleExecutor(
     private val config: Config,
     private val registry: ModuleRegistry,
-    private val queryCache: Cache<List<Issue>>,
-    private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
+    private val issueService: IssueService
 ) {
+    private val DEFAULT_JQL = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
+
+    private var postedCommentCache = Cache<MutableSet<String>>()
+
     data class ExecutionResults(
         val successful: Boolean,
         val failedTickets: Collection<String>
@@ -28,9 +29,9 @@ class ModuleExecutor(
     @Suppress("TooGenericExceptionCaught")
     fun execute(
         lastRun: Instant,
-        rerunTickets: Set<String>
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
+        val newPostedCommentCache = Cache<MutableSet<String>>()
 
         try {
             var missingResultsPage: Boolean
@@ -39,20 +40,15 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                registry.getEnabledModules().forEach { (_, config, getJql, exec) ->
-                    executeModule(
-                        config,
-                        queryCache,
-                        rerunTickets,
-                        getJql(lastRun),
-                        startAt,
+                var issues = issueService.searchIssues(DEFAULT_JQL(lastRun), startAt)
+                registry.getEnabledModules().forEach { (_, _, exec) ->
+                    issues = executeModule(
+                        issues,
                         failedTickets::add,
-                        { missingResultsPage = true },
-                        exec.partially2(lastRun)
+                        exec,
                     )
                 }
 
-                queryCache.clear()
                 startAt += MAX_RESULTS
             } while (missingResultsPage)
             return ExecutionResults(true, failedTickets)
@@ -60,86 +56,39 @@ class ModuleExecutor(
             log.error("Failed to execute modules", ex)
             return ExecutionResults(false, failedTickets)
         } finally {
-            CommentCache.flush()
+            postedCommentCache = newPostedCommentCache
         }
     }
 
     @Suppress("LongParameterList")
     private fun executeModule(
-        moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        queryCache: Cache<List<Issue>>,
-        rerunTickets: Collection<String>,
-        moduleJql: String,
-        startAt: Int,
-        addFailedTicket: (String) -> Any,
-        onQueryNotAtResultEnd: () -> Unit,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
-    ) {
-        getIssues(
-            moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd
-        )
-            .map { it.key to executeModule(it) }
-            .forEach { (issue, response) ->
-                response.second.fold({
+        issues: List<Issue>,
+        addFailedTicket: (String) -> Unit,
+        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>,
+    ): List<Issue> {
+        val responseIssues = mutableListOf<Issue>()
+        issues
+            .map { executeModule(it) }
+            .forEach { (module, response) ->
+                response.fold({
+                    responseIssues.add(it.issue)
                     when (it) {
                         is OperationNotNeededModuleResponse -> if (config[Arisa.Debug.logOperationNotNeeded]) {
-                            log.debug("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                            log.debug("[RESPONSE] [$module] [${it.issue.key}] Operation not needed")
                         }
                         is FailedModuleResponse -> {
-                            addFailedTicket(issue)
+                            addFailedTicket(it.issue.key)
 
                             for (exception in it.exceptions) {
-                                log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
+                                log.error("[RESPONSE] [$module] [${it.issue.key}] Failed", exception)
                             }
                         }
                     }
                 }, {
-                    log.info("[RESPONSE] [$issue] [${response.first}] Successful")
+                    responseIssues.add(it.issue)
+                    log.info("[RESPONSE] [$module] [${it.issue.key}] Successful")
                 })
-                IssueUpdateContextCache.updateTriggeredBy(issue)
             }
-
-        IssueUpdateContextCache.applyChanges(addFailedTicket)
-    }
-
-    @Suppress("LongParameterList")
-    fun getIssues(
-        moduleConfig: Arisa.Modules.ModuleConfigSpec,
-        rerunTickets: Collection<String>,
-        moduleJql: String,
-        queryCache: Cache<List<Issue>>,
-        startAt: Int,
-        onQueryNotAtResultEnd: () -> Unit
-    ): List<Issue> {
-        val projects = config[moduleConfig.projects] ?: config[Arisa.Issues.projects]
-
-        val resolutions = (config[moduleConfig.resolutions] ?: config[Arisa.Issues.resolutions])
-            .map(String::toLowerCase)
-
-        val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
-
-        val failedTicketsJQL = with(rerunTickets) {
-            if (isNotEmpty())
-                "key in (${joinToString(",")}) OR "
-            else ""
-        }
-
-        val jql = "$failedTicketsJQL($moduleJql)"
-        val issues = queryCache.get(jql) ?: searchIssues(
-            jql,
-            startAt,
-            onQueryNotAtResultEnd
-        )
-
-        queryCache.add(jql, issues)
-
-        if (config[Arisa.Debug.logReturnedIssues]) {
-            log.debug("Returned issues for module ${ moduleConfig::class.simpleName }: ${ issues.map { it.key } }")
-        }
-
-        return issues
-            .filter { it.project.key in projects }
-            .filter { it.status.toLowerCase() !in excludedStatuses }
-            .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
+        return responseIssues
     }
 }

@@ -3,10 +3,12 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.firstOrNone
+import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import io.github.mojira.arisa.infrastructure.services.AttachmentUtils
 import me.urielsalis.mccrashlib.Crash
@@ -36,12 +38,12 @@ class CrashModule(
                 .firstOrNull()
 
             if (key == null) {
-                resolveAsInvalid()
-                addComment(CommentOptions(moddedMessage))
+                resolution = "Invalid"
+                addComment(moddedMessage)
             } else {
-                resolveAsDuplicate()
-                addComment(CommentOptions(dupeMessage, key))
-                createLink("Duplicate", key, true)
+                resolution = "Duplicate"
+                addComment(dupeMessage, key)
+                addLink("Duplicate", true, key)
             }
         }
     }
@@ -59,13 +61,13 @@ class CrashModule(
 
         return when (this) {
             is Crash.Minecraft -> minecraftConfigs
-                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(exception) }
-                    .orNull()
-                    ?.duplicates
+                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(exception) }
+                .orNull()
+                ?.duplicates
             is Crash.Java -> javaConfigs
-                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(code) }
-                    .orNull()
-                    ?.duplicates
+                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(code) }
+                .orNull()
+                ?.duplicates
             else -> null
         }
     }

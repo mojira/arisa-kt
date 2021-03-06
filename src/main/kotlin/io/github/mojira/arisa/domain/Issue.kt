@@ -54,4 +54,8 @@ data class Issue(
         // TODO this should replace the key instead
         addedComments.add(Comment(null, message, null, Instant.now(), null, visType, visValue))
     }
+    
+    fun addLink(type: String, outwards: Boolean, key: String) {
+        newLinks.add(Link(null, type, outwards, LinkedIssue(key, null)))
+    }
 }

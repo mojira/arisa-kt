@@ -49,4 +49,8 @@ data class Issue(
     fun updateChk() {
         chk = "updated!"
     }
+
+    fun addComment(message: String, visType: String? = null, visValue: String? = null) {
+        addedComments.add(Comment(null, message, null, Instant.now(), null, visType, visValue))
+    }
 }

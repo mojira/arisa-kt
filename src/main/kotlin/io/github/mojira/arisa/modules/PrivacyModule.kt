@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
@@ -38,7 +39,7 @@ class PrivacyModule(
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.mimeType.startsWith("text/") }
-                .forEach { string += "${String(it.getContent())} " }
+                .forEach { string += "${String(it.content.get())} " }
 
             changeLog
                 .filter { it.created.isAfter(lastRun) }
@@ -69,8 +70,8 @@ class PrivacyModule(
             ).bind()
 
             if (doesStringMatchPatterns || doesEmailMatches) {
-                setPrivate()
-                addComment(CommentOptions(message))
+                securityLevel = project.privateSecurity
+                addComment(message)
             }
 
             restrictCommentFunctions.forEach { it.invoke() }

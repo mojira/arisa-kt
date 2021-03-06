@@ -29,16 +29,16 @@ class RemoveUserCommand(
     // They should be removed with a future refactor.
 
     val getCommentsFromIssue: (String, Issue) -> List<Pair<String, Comment>> = { _, issue ->
-        issue.comments.map { it.id to it }
+        issue.comments.mapNotNull { it.id to it }
     },
     val getVisibilityValueOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
-        comment.visibility.value
+        comment.visibility?.value ?: ""
     },
     val getAuthorOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
-        comment.author.name
+        comment.author?.name ?: ""
     },
     val getBodyOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
-        comment.body
+        comment.body ?: ""
     },
     val updateComment: (Pair<String, Comment>, content: String) -> Unit = { (_, comment), content ->
         comment.update(
@@ -48,7 +48,7 @@ class RemoveUserCommand(
         )
     },
     val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
-        issue.attachments.map { it.id to it }
+        issue.attachments.mapNotNull { it.id to it }
     },
     val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
         attachment.author?.name

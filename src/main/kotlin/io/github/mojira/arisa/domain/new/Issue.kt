@@ -4,23 +4,23 @@ import java.time.Instant
 
 data class Issue(
     val key: String,
-    var summary: String?,
-    var status: String,
-    var description: String?,
-    var environment: String?,
+    val summary: String?,
+    val status: String,
+    val description: String?,
+    val environment: String?,
     var securityLevel: String?,
-    var reporter: User?,
+    val reporter: User?,
     var resolution: String?,
-    var created: Instant,
-    var updated: Instant,
-    var resolved: Instant?,
+    val created: Instant,
+    val updated: Instant,
+    val resolved: Instant?,
     var chk: String?,
-    var confirmationStatus: String?,
+    val confirmationStatus: String?,
     var linked: Double?,
-    var priority: String?,
-    var triagedTime: String?,
-    var project: Project,
-    var platform: String?,
+    val priority: String?,
+    val triagedTime: String?,
+    val project: Project,
+    val platform: String?,
     val affectedVersions: List<Version>,
     val fixVersions: List<Version>,
     val attachments: List<Attachment>,
@@ -30,13 +30,12 @@ data class Issue(
     val originalIssue: Issue?,
 ) {
     var addedComments = mutableListOf<Comment>()
-    var removedComments = mutableListOf<String>()
     var editedComments = mutableListOf<Comment>()
 
     val comments: List<Comment>
         get() = originalComments
-            .filter { comment -> removedComments.contains(comment.id) || editedComments.any { it.id == comment.id } }
-            .plus(editedComments)
             .plus(addedComments)
+            .filter { comment -> editedComments.any { it.id == comment.id } }
+            .plus(editedComments)
             .sortedBy { it.created }
 }

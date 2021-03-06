@@ -4,8 +4,9 @@ package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -30,9 +31,79 @@ import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
-fun connectToJira(username: String, password: String, url: String): Pair<JiraClient, TokenCredentials> {
+/**
+ * How many issues can be queried at once by [getAllIssuesFromJql].
+ */
+const val ISSUE_QUERY_BATCH_SIZE: Int = 1000
+
+fun connectToJira(username: String, password: String, url: String): JiraClient {
     val credentials = TokenCredentials(username, password)
-    return JiraClient(url, credentials) to credentials
+    return JiraClient(url, credentials)
+}
+
+/**
+ * Get a list of tickets matching a JQL query.
+ * TODO: Actually return the tickets themselves instead of only ticket IDs.
+ *
+ * @param amount How many tickets should be returned at most.
+ *
+ * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
+ */
+fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBlocking {
+    Either.catch {
+        val searchResult = try {
+            jiraClient.searchIssues(
+                jql,
+                "[]",
+                amount
+            )
+        } catch (e: JiraException) {
+            log.error("Error while retreiving filter results", e)
+            throw e
+        }
+
+        searchResult.issues.mapNotNull { it.key }
+    }
+}
+
+/**
+ * Get the list of all tickets matching a JQL query.
+ * TODO: Actually return the tickets themselves instead of only ticket IDs.
+ *
+ * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
+ * The list contains the IDs of ALL tickets matched by that filter.
+ */
+fun getAllIssuesFromJql(jiraClient: JiraClient, jql: String) = runBlocking {
+    Either.catch {
+        var missingResultsPage: Boolean
+        var startAt = 0
+        val tickets = mutableListOf<String>()
+
+        do {
+            missingResultsPage = false
+            val searchResult = try {
+                jiraClient.searchIssues(
+                    jql,
+                    "[]",
+                    null,
+                    ISSUE_QUERY_BATCH_SIZE,
+                    startAt
+                )
+            } catch (e: JiraException) {
+                log.error("Error while retreiving filter results", e)
+                throw e
+            }
+
+            tickets += searchResult.issues.mapNotNull { it.key }
+
+            if (tickets.size < searchResult.total)
+                missingResultsPage = true
+
+            startAt += MAX_RESULTS
+        } while (missingResultsPage)
+
+        tickets.toList()
+    }
 }
 
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
@@ -179,24 +250,18 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
 
 fun createComment(
     context: Lazy<IssueUpdateContext>,
-    comment: String,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>
+    comment: String
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 val key = context.value.jiraIssue.key
-                val oldPostedComments = oldPostedCommentCache.get(key)
-                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
-                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.error("The comment has already been posted under $key in last run: $comment")
-                } else {
-                    context.value.jiraIssue.addComment(comment)
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment)
                 }
 
-                newPostedComments.add(comment)
                 Unit
             }
         }
@@ -206,24 +271,18 @@ fun createComment(
 fun addRestrictedComment(
     context: Lazy<IssueUpdateContext>,
     comment: String,
-    restrictionLevel: String,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>
+    restrictionLevel: String
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 val key = context.value.jiraIssue.key
-                val oldPostedComments = oldPostedCommentCache.get(key)
-                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
-                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.warn("The comment has already been posted under $key in last run: $comment")
-                } else {
-                    context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
                 }
 
-                newPostedComments.add(comment)
                 Unit
             }
         }

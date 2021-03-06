@@ -133,7 +133,9 @@ class ModuleExecutor(
 
         queryCache.add(jql, issues)
 
-        log.debug("Returned issues for module ${ moduleConfig::class.simpleName }: ${ issues.map { it.key } }")
+        if (config[Arisa.Debug.logReturnedIssues]) {
+            log.debug("Returned issues for module ${ moduleConfig::class.simpleName }: ${ issues.map { it.key } }")
+        }
 
         return issues
             .filter { it.project.key in projects }

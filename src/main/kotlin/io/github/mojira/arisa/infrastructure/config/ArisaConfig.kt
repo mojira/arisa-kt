@@ -66,6 +66,8 @@ object Arisa : ConfigSpec() {
 
         val logOperationNotNeeded by optional(false)
 
+        val logReturnedIssues by optional(false)
+
         val ticketWhitelist by optional<List<String>?>(
             null,
             description = "Ignore all tickets except those mentioned here. " +

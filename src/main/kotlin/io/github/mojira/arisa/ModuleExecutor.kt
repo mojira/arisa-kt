@@ -41,7 +41,7 @@ class ModuleExecutor(
                 missingResultsPage = false
 
                 val issues = issueService
-                    .searchIssues(DEFAULT_JQL(lastRun), startAt)
+                    .searchIssues(getQuery(failedTickets, lastRun), startAt)
                     .map { it.key to it }
                     .toMap()
                     .toMutableMap()
@@ -62,6 +62,15 @@ class ModuleExecutor(
         } finally {
             postedCommentCache = newPostedCommentCache
         }
+    }
+
+    private fun getQuery(failedTickets: MutableSet<String>, lastRun: Instant): String {
+        var query = DEFAULT_JQL(lastRun)
+        if (failedTickets.isNotEmpty()) {
+            query + " OR key in (${failedTickets.joinToString(",")})"
+            failedTickets.clear()
+        }
+        return query
     }
 
     private fun Collection<Issue>.filterForModule(

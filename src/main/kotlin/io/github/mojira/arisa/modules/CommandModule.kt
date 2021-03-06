@@ -15,11 +15,20 @@ import java.time.Instant
 
 class CommandModule(
     private val prefix: String,
-    getDispatcher: (String) -> CommandDispatcher<CommandSource> = ::getCommandDispatcher
+    private val getDispatcher: (String) -> CommandDispatcher<CommandSource> = ::getCommandDispatcher
 ) : Module {
-    private val commandDispatcher = getDispatcher(prefix)
+    /**
+     * This is the command dispatcher.
+     * It's not initialized initially because it relies on `jiraClient` in `ArisaMain`, which is lateinit too.
+     * Therefore it's instead initialized only when this module is initially invoked.
+     */
+    private lateinit var commandDispatcher: CommandDispatcher<CommandSource>
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
+        if (!::commandDispatcher.isInitialized) {
+            commandDispatcher = getDispatcher(prefix)
+        }
+
         with(issue) {
             val staffComments = comments
                 .filter(::isUpdatedAfterLastRun.partially1(lastRun))

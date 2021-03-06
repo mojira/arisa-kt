@@ -29,6 +29,7 @@ class DuplicateMessageModuleTest : StringSpec({
         "duplicate-forward",
         mapOf("MC-297" to "duplicate-of-mc-297"),
         "duplicate-private",
+        "ARISA_NO_DUPLICATE_MESSAGE",
         mapOf("Fixed" to "duplicate-fixed")
     )
 
@@ -160,6 +161,33 @@ class DuplicateMessageModuleTest : StringSpec({
                     body = "This duplicates MC-1."
                 )
             )
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when the ticket has the prevent message tag" {
+        val issue = getIssue(
+                changeLog = listOf(
+                        mockChangeLogItem(
+                                created = TEN_THOUSAND_YEARS_LATER,
+                                field = "Link",
+                                changedTo = "MC-1",
+                                changedToString = "This issue duplicates MC-1"
+                        )
+                ),
+                links = listOf(
+                        mockLink()
+                ),
+                comments = listOf(
+                        mockComment(
+                                body = "ARISA_NO_DUPLICATE_MESSAGE",
+                                visibilityType = "group",
+                                visibilityValue = "staff"
+                        )
+                )
         )
 
         val result = module(issue, RIGHT_NOW)

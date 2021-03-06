@@ -16,9 +16,10 @@ class RemoveVersionModule(
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }
-                .map { it.remove }
             assertNotEmpty(removeAddedVersions).bind()
-            removeAddedVersions.forEach(::run)
+            removeAddedVersions.forEach {
+                affectedVersions.remove(it)
+            }
             if (calledMoreThanMaxTimes(changeLog)) {
                 reporter = "NoUser"
             }

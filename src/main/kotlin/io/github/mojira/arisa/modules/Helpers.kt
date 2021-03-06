@@ -7,6 +7,8 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.LinkedIssue
 import java.time.Instant
 
 fun <T> Either<Throwable, T>.toFailedModuleEither() = this.bimap(
@@ -216,7 +218,7 @@ fun addLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError
     assertTrue(tmp.size == 1).bind()
     val linkType = tmp[0]
     for (key in keys) {
-        issue.createLink(linkType.id, key.toUpperCase(), linkType.outwards)
+        issue.newLinks.add(Link(null, linkType.id, linkType.outwards, LinkedIssue(key.toUpperCase(), null)))
     }
 }
 
@@ -232,6 +234,6 @@ fun deleteLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleEr
             it.type == linkType.id && it.issue.key == key.toUpperCase()
         }
         assertNotNull(link).bind()
-        link?.remove?.invoke()
+        issue.removedLinks.add(link!!)
     }
 }

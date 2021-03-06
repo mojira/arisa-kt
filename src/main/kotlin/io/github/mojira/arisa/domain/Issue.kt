@@ -25,12 +25,19 @@ data class Issue(
     val fixVersions: List<Version>,
     val attachments: List<Attachment>,
     val originalComments: List<Comment>,
-    val links: List<Link>,
+    val originalLinks: List<Link>,
     val changeLog: List<ChangeLogItem>,
     val originalIssue: Issue?,
 ) {
-    var addedComments = mutableListOf<Comment>()
-    var editedComments = mutableListOf<Comment>()
+    val addedComments = mutableListOf<Comment>()
+    val editedComments = mutableListOf<Comment>()
+    val newLinks = mutableListOf<Link>()
+    val removedLinks = mutableListOf<Link>()
+
+    val links: List<Link>
+        get() = originalLinks
+            .plus(newLinks)
+            .filter { link -> removedLinks.any { it.id != null && it.id == link.id } }
 
     val comments: List<Comment>
         get() = originalComments

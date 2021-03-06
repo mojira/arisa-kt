@@ -46,7 +46,7 @@ val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
 val commentCache = CommentCache()
 val userService = JiraUserService(jiraClient)
 val issueService =
-    JiraIssueService(jiraClient, config, commentCache, MapToJira(config, commentCache), MapFromJira(config, userService))
+    JiraIssueService(jiraClient, config, MapToJira(config, commentCache), MapFromJira(config, userService))
 var moduleExecutor = ModuleExecutor(config, moduleRegistry, issueService)
 
 fun main() {

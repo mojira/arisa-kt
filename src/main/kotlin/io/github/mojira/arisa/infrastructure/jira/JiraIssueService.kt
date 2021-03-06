@@ -3,7 +3,6 @@ package io.github.mojira.arisa.infrastructure.jira
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.service.CommentCache
 import io.github.mojira.arisa.domain.service.IssueService
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
@@ -11,7 +10,6 @@ import net.rcarz.jiraclient.JiraClient
 class JiraIssueService(
     val jiraClient: JiraClient,
     val config: Config,
-    val commentCache: CommentCache,
     val mapToJira: MapToJira,
     val mapFromJira: MapFromJira
 ) : IssueService {
@@ -28,24 +26,14 @@ class JiraIssueService(
         val jiraIssue = jiraIssueCache[issue.key]
         val builder = mapToJira.startMap(jiraIssue)
         with(issue) {
-            if (securityLevel != null && securityLevel != originalIssue?.securityLevel) {
-                builder.updateSecurityLevel(securityLevel!!)
-            }
-            if (resolution != null && resolution != originalIssue?.resolution) {
-                builder.resolve(resolution!!)
-            }
-            if (chk != null && chk != originalIssue?.chk) {
-                builder.updateChk()
-            }
-            if (linked != null && linked != originalIssue?.linked) {
-                builder.updateLinked(linked!!)
-            }
-            if (addedComments.isNotEmpty()) {
-                builder.addComments(addedComments)
-            }
-            if (editedComments.isNotEmpty()) {
-                builder.editComments(editedComments)
-            }
+            if (securityLevel != null && securityLevel != originalIssue?.securityLevel) builder.updateSecurityLevel(securityLevel!!)
+            if (resolution != null && resolution != originalIssue?.resolution) builder.resolve(resolution!!)
+            if (chk != null && chk != originalIssue?.chk) builder.updateChk()
+            if (linked != null && linked != originalIssue?.linked) builder.updateLinked(linked!!)
+            if (addedComments.isNotEmpty()) builder.addComments(addedComments)
+            if (editedComments.isNotEmpty()) builder.editComments(editedComments)
+            if (newLinks.isNotEmpty()) builder.addLinks(newLinks)
+            if (removedLinks.isNotEmpty()) builder.removeLinks(removedLinks)
         }
         builder.execute()
     }
@@ -77,4 +65,6 @@ class JiraIssueService(
             it.key to issue.copy(originalIssue = issue)
         }.toMap())
     }
+
+    fun getJiraIssue(key: String): JiraIssue = jiraIssueCache[key]
 }

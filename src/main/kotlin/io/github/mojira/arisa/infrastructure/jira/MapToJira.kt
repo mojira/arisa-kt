@@ -2,6 +2,7 @@ package io.github.mojira.arisa.infrastructure.jira
 
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.service.CommentCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.log
@@ -10,7 +11,7 @@ import net.sf.json.JSONObject
 import java.time.Instant
 import java.time.temporal.ChronoField
 
-class MapToJira(val config: Config, val commentCache: CommentCache) {
+class MapToJira(val config: Config, val commentCache: CommentCache, val issueService: JiraIssueService) {
 
     fun startMap(issue: JiraIssue) = Builder(issue)
 
@@ -69,6 +70,27 @@ class MapToJira(val config: Config, val commentCache: CommentCache) {
                     .firstOrNull { it.id == comment.id }
                     ?.update(comment.body, comment.visibilityType, comment.visibilityValue)
             }
+        }
+
+        fun addLinks(links: List<Link>) {
+            links.forEach(::addLink)
+        }
+
+        fun addLink(link: Link) {
+            if (link.outwards) {
+                issue.link(link.issue.key, link.type)
+            } else {
+                val otherIssue = issueService.getJiraIssue(link.issue.key)
+                otherIssue.link(link.issue.key, link.type)
+            }
+        }
+
+        fun removeLinks(links: List<Link>) {
+            links.forEach(::removeLink)
+        }
+
+        fun removeLink(link: Link) {
+            issue.issueLinks.firstOrNull { it.id == link.id }?.delete()
         }
 
         fun execute() {

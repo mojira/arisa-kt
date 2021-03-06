@@ -87,6 +87,7 @@ class MapFromJira(val config: Config, val userService: UserService) {
     )
 
     private fun JiraIssueLink.toDomain() = Link(
+        id,
         type.name,
         outwardIssue != null,
         (outwardIssue ?: inwardIssue).toLinkedIssue()

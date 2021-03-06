@@ -9,7 +9,7 @@ class ResolveTrashModule : Module() {
     override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(project.key, "TRASH").bind()
-            resolveAsInvalid()
+            resolution = "Invalid"
         }
     }
 }

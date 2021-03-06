@@ -6,7 +6,6 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
@@ -20,12 +19,12 @@ class KeepPrivateModule(
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
 
-            setPrivate()
+            securityLevel = project.privateSecurity
 
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addComment(CommentOptions(message))
+                addComment(message)
             }
         }
     }

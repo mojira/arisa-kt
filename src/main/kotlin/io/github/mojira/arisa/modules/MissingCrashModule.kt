@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.services.AttachmentUtils
 import me.urielsalis.mccrashlib.CrashReader
@@ -24,8 +23,8 @@ class MissingCrashModule(
 
             assertEmpty(crashes).bind()
 
-            resolveAsAwaitingResponse()
-            addComment(CommentOptions(message))
+            resolution = "Awaiting Response"
+            addComment(message)
         }
     }
 }

@@ -3,14 +3,18 @@ package io.github.mojira.arisa.infrastructure.services
 open class Cache<V> {
     val storage = mutableMapOf<String, V>()
 
-    fun get(key: String) = storage.getOrDefault(key, null)
+    operator fun get(key: String) = storage.getOrDefault(key, null)
     fun getOrAdd(key: String, defaultValue: V) = storage.getOrPut(key, { defaultValue })
 
-    fun add(key: String, value: V) {
+    operator fun set(key: String, value: V) {
         storage[key] = value
     }
 
     fun clear() {
         storage.clear()
+    }
+
+    fun putAll(values: Map<String, V>) {
+        storage.putAll(values)
     }
 }

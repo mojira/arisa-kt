@@ -1,9 +1,11 @@
 package io.github.mojira.arisa
 
+import io.github.mojira.arisa.domain.service.CommentCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.JiraIssueService
 import io.github.mojira.arisa.infrastructure.jira.JiraUserService
 import io.github.mojira.arisa.infrastructure.jira.MapFromJira
+import io.github.mojira.arisa.infrastructure.jira.MapToJira
 import io.github.mojira.arisa.infrastructure.services.ConfigService
 import io.github.mojira.arisa.infrastructure.services.HelperMessageService
 import io.github.mojira.arisa.infrastructure.services.LastRunService
@@ -41,8 +43,10 @@ var helperMessagesLastFetch = Instant.now()
 val moduleRegistry = ModuleRegistry(config)
 val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
 
+val commentCache = CommentCache()
 val userService = JiraUserService(jiraClient)
-val issueService = JiraIssueService(jiraClient, config, MapFromJira(config, userService))
+val issueService =
+    JiraIssueService(jiraClient, config, commentCache, MapToJira(config, commentCache), MapFromJira(config, userService))
 var moduleExecutor = ModuleExecutor(config, moduleRegistry, issueService)
 
 fun main() {

@@ -33,8 +33,10 @@ class JiraIssueService(
             if (linked != null && linked != originalIssue?.linked) builder.updateLinked(linked!!)
             if (addedComments.isNotEmpty()) builder.addComments(addedComments)
             if (editedComments.isNotEmpty()) builder.editComments(editedComments)
-            if (newLinks.isNotEmpty()) builder.addLinks(newLinks)
-            if (removedLinks.isNotEmpty()) builder.removeLinks(removedLinks)
+            if (removedLinks.isNotEmpty()) removedLinks.forEach(builder::removeLink)
+            if (newLinks.isNotEmpty()) newLinks.forEach {
+                if (it.outwards) builder.addOutwardsLink(it) else builder.addInwardsLink(it, getJiraIssue(it.issue.key))
+            }
         }
         builder.execute()
     }

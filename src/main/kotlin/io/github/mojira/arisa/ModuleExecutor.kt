@@ -40,13 +40,17 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                var issues = issueService.searchIssues(DEFAULT_JQL(lastRun), startAt)
-                registry.getEnabledModules().forEach { (_, _, exec) ->
-                    issues = executeModule(
-                        issues,
+                val issues = issueService
+                    .searchIssues(DEFAULT_JQL(lastRun), startAt)
+                    .map { it.key to it }
+                    .toMap()
+                    .toMutableMap()
+                registry.getEnabledModules().forEach { (_, moduleConfig, exec) ->
+                    executeModule(
+                        issues.values.filterForModule(moduleConfig),
                         failedTickets::add,
                         exec,
-                    )
+                    ).forEach { issues[it.key] = it }
                 }
 
                 startAt += MAX_RESULTS
@@ -59,6 +63,17 @@ class ModuleExecutor(
             postedCommentCache = newPostedCommentCache
         }
     }
+
+    private fun Collection<Issue>.filterForModule(
+        moduleConfig: Arisa.Modules.ModuleConfigSpec
+    ) = this
+        .filter { it.project.key in config[moduleConfig.projects] ?: config[Arisa.Issues.projects] }
+        .filter { it.status.toLowerCase() !in config[moduleConfig.excludedStatuses].map(String::toLowerCase) }
+        .filter {
+            it.resolution?.toLowerCase() ?: "unresolved" in (config[moduleConfig.resolutions]
+                ?: config[Arisa.Issues.resolutions])
+                .map(String::toLowerCase)
+        }
 
     @Suppress("LongParameterList")
     private fun executeModule(

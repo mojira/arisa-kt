@@ -90,5 +90,6 @@ private fun mainLoop() {
         helperMessagesLastFetch = curRunTime
     }
 
+    issueService.cleanup()
     TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
 }

@@ -22,7 +22,7 @@ class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Mo
                 .toList()
 
             assertNotEmpty(removeSpamComments).bind()
-            removeSpamComments.forEach { it.invoke() }
+            removeSpamComments.forEach { it.invoke(issue) }
         }
     }
 
@@ -30,7 +30,7 @@ class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Mo
         comment.created.isAfter(lastRun)
 
     private fun userIsNotVolunteer(comment: Comment) =
-        comment.getAuthorGroups()?.none { listOf("helper", "global-moderators", "staff").contains(it) } ?: true
+        comment.author?.groups?.none { listOf("helper", "global-moderators", "staff").contains(it) } ?: true
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"
@@ -42,7 +42,13 @@ class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Mo
         }
     }
 
-    private fun restrictComment(comment: Comment) {
-        comment.restrict("${comment.body}\nRemoved by Arisa (RemoveSpamModule)")
+    private fun restrictComment(comment: Comment, issue: Issue) {
+        issue.editedComments.add(
+            comment.copy(
+                body = "${comment.body}\nRemoved by Arisa (RemoveSpamModule)",
+                visibilityType = "group",
+                visibilityValue = "staff"
+            )
+        )
     }
 }

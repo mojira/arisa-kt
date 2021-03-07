@@ -82,7 +82,7 @@ class CommandModule(
     /**
      * Edits the given comment (that was used to invoke some commands) with the given results.
      *
-     * @param results Command results mapped to the line number in the comment
+     * @param results The line numbers of the commands inside of the comment, mapped to the command's result
      */
     private fun editInvocationComment(comment: Comment, results: Map<Int, CommandResult>) {
         val newBody = comment.body?.lines().orEmpty()
@@ -93,7 +93,8 @@ class CommandModule(
                 }
             }
             .joinToString("\n")
-            .replace(Regex("""^\s*|\s*$"""), "")
+            .trim()
+            // If there are multiple consecutive empty lines, replace them with a single empty line
             .replace(Regex("""\n\n+"""), "\n\n")
 
         comment.update(newBody)

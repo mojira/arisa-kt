@@ -6,6 +6,6 @@ interface IssueService {
     fun getIssue(key: String): Issue
     fun saveIssue(issue: Issue)
     fun exportIssue(issue: Issue)
-    fun searchIssues(query: String, startAt: Int): List<Issue>
+    fun searchIssues(query: String): List<Issue>
     fun cleanup()
 }

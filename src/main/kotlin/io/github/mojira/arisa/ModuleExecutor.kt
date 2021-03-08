@@ -31,31 +31,46 @@ class ModuleExecutor(
         lastRun: Instant,
         rerunTickets: Set<String>,
     ): ExecutionResults {
+        runCustomModules(lastRun)
+        return runNormalModules(rerunTickets, lastRun)
+    }
+
+    private fun runCustomModules(lastRun: Instant) {
+        registry.getCustomJqlModules().forEach { (name, moduleConfig, exec, jql) ->
+            executeCustomModule(lastRun, moduleConfig, exec, jql!!)
+        }
+    }
+
+    private fun executeCustomModule(
+        lastRun: Instant,
+        moduleConfig: Arisa.Modules.ModuleConfigSpec,
+        exec: (issue: Issue, lastRun: Instant) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>,
+        jql: ((Instant) -> String)
+    ) {
+        val issues = issueService.searchIssues(jql(lastRun))
+        executeModule(issues.filterForModule(moduleConfig), {}, exec)
+    }
+
+    private fun runNormalModules(
+        rerunTickets: Set<String>,
+        lastRun: Instant,
+    ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
         val newPostedCommentCache = Cache<MutableSet<String>>()
 
         try {
-            var missingResultsPage: Boolean
-            var startAt = 0
-
-            do {
-                missingResultsPage = false
-
-                val issues = issueService
-                    .searchIssues(getQuery(rerunTickets, lastRun), startAt)
-                    .map { it.key to it }
-                    .toMap()
-                    .toMutableMap()
-                registry.getEnabledModules().forEach { (_, moduleConfig, exec) ->
-                    executeModule(
-                        issues.values.filterForModule(moduleConfig),
-                        failedTickets::add,
-                        exec,
-                    ).forEach { issues[it.key] = it }
-                }
-
-                startAt += MAX_RESULTS
-            } while (missingResultsPage)
+            val issues = issueService
+                .searchIssues(getQuery(rerunTickets, lastRun))
+                .map { it.key to it }
+                .toMap()
+                .toMutableMap()
+            registry.getEnabledModules().forEach { (_, moduleConfig, exec) ->
+                executeModule(
+                    issues.values.filterForModule(moduleConfig),
+                    failedTickets::add,
+                    exec
+                ).forEach { issues[it.key] = it }
+            }
             return ExecutionResults(true, failedTickets)
         } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)

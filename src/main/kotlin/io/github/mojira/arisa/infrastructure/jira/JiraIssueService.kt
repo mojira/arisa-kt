@@ -41,8 +41,19 @@ class JiraIssueService(
         builder.execute()
     }
 
-    override fun searchIssues(query: String, startAt: Int): List<Issue> {
-        val issues = jiraClient.searchIssues(addDebugQuery(query), "*all", "changelog", MAX_RESULTS, startAt).issues
+    override fun searchIssues(query: String): List<Issue> {
+        var missingData: Boolean
+        var startAt = 0
+        var issues = mutableListOf<JiraIssue>()
+        do {
+            missingData = false
+            val result = jiraClient.searchIssues(addDebugQuery(query), "*all", "changelog", MAX_RESULTS, startAt)
+            issues.addAll(result.issues)
+            if (result.total > result.start + result.max) {
+                missingData = true
+                startAt += result.max
+            }
+        } while (missingData)
         addToCache(issues)
         return issues.map { it.key }.map { getIssue(it) }
     }

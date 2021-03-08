@@ -1,6 +1,7 @@
 package io.github.mojira.arisa
 
 import arrow.core.Either
+import arrow.core.extensions.list.functorFilter.filter
 import arrow.core.left
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
@@ -15,6 +16,7 @@ import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
+import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
@@ -41,26 +43,33 @@ import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
+import io.github.mojira.arisa.modules.UpdateLinkedModule
 import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class ModuleRegistry(private val config: Config) {
     data class Entry(
         val name: String,
         val config: ModuleConfigSpec,
-        val execute: (issue: Issue, lastRun: Instant) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>
+        val execute: (issue: Issue, lastRun: Instant) -> Triple<String, Issue, Either<ModuleError, ModuleResponse>>,
+        val jql: ((Instant) -> String)? = null
     )
 
     private val modules = mutableListOf<Entry>()
 
-    fun getAllModules(): List<Entry> = modules
+    fun getAllModules(): List<Entry> = modules.filterNot(::isModuleCustomJql)
 
-    fun getEnabledModules(): List<Entry> = modules.filter(::isModuleEnabled)
+    fun getEnabledModules(): List<Entry> = modules.filter(::isModuleEnabled).filterNot(::isModuleCustomJql)
 
-    private fun isModuleEnabled(module: Entry) =
+    fun getCustomJqlModules(): List<Entry> = modules.filter(::isModuleCustomJql).filter(::isModuleEnabled)
+
     // If arisa.debug.enabledModules is defined, return whether that module is in that list.
-        // If it's not defined, return whether this module is enabled in the module config.
+    // If it's not defined, return whether this module is enabled in the module config.
+    private fun isModuleEnabled(module: Entry) =
         config[Arisa.Debug.enabledModules]?.contains(module.name) ?: config[module.config.enabled]
+
+    private fun isModuleCustomJql(entry: Entry) = entry.jql != null
 
     private fun register(
         moduleConfig: ModuleConfigSpec,
@@ -73,6 +82,23 @@ class ModuleRegistry(private val config: Config) {
                 moduleName,
                 moduleConfig,
                 getModuleResult(moduleName, module)
+            )
+        )
+    }
+
+    private fun register(
+        moduleConfig: ModuleConfigSpec,
+        module: Module,
+        jql: (Instant) -> String
+    ) {
+        val moduleName = moduleConfig::class.simpleName!!
+
+        modules.add(
+            Entry(
+                moduleName,
+                moduleConfig,
+                getModuleResult(moduleName, module),
+                jql
             )
         )
     }
@@ -145,8 +171,6 @@ class ModuleRegistry(private val config: Config) {
 
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
-        // TODO make this not require a custom JQL
-        /*
         register(
             Modules.DuplicateMessage,
             DuplicateMessageModule(
@@ -164,7 +188,7 @@ class ModuleRegistry(private val config: Config) {
             val checkEnd = Instant.now()
                 .minus(config[Modules.DuplicateMessage.commentDelayMinutes], ChronoUnit.MINUTES)
             "updated > ${checkStart.toEpochMilli()} AND updated < ${checkEnd.toEpochMilli()}"
-        }*/
+        }
 
         register(Modules.HideImpostors, HideImpostorsModule())
 
@@ -273,16 +297,15 @@ class ModuleRegistry(private val config: Config) {
             CommandModule(config[Modules.Command.commandPrefix])
         )
 
-        // TODO make this not require a custom JQL
-        /*register(
+        register(
             Modules.UpdateLinked,
             UpdateLinkedModule(config[Modules.UpdateLinked.updateIntervalHours])
         ) { lastRun ->
             val now = Instant.now()
             val intervalStart = now.minus(config[Modules.UpdateLinked.updateIntervalHours], ChronoUnit.HOURS)
             val intervalEnd = intervalStart.minusMillis(now.toEpochMilli() - lastRun.toEpochMilli())
-            return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
+            "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
                     " AND updated > ${intervalEnd.toEpochMilli()})"
-        }*/
+        }
     }
 }

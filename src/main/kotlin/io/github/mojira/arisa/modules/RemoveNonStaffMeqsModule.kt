@@ -22,8 +22,6 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module() {
                     )
                 }
             assertNotEmpty(updateMeqsComments).bind()
-
-            updateMeqsComments.forEach { it.invoke() }
         }
     }
 

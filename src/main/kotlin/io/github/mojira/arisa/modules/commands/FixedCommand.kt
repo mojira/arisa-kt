@@ -15,7 +15,7 @@ class FixedCommand {
             throw CommandExceptions.ALREADY_RESOLVED.create(issue.resolution)
         }
         issue.resolution = "Fixed"
-        issue.fixVersions.add(version) // TODO
+        issue.addedFixVersions.add(version) // TODO
         return 1
     }
 }

@@ -23,7 +23,7 @@ data class Issue(
     val project: Project,
     var platform: String?,
     var originalAffectedVersions: List<Version>,
-    var fixVersions: List<Version>,
+    var originalFixVersions: List<Version>,
     var originalAttachments: List<Attachment>,
     val originalComments: List<Comment>,
     val originalLinks: List<Link>,
@@ -37,6 +37,7 @@ data class Issue(
     val removedAttachments = mutableListOf<Attachment>()
     val addedAffectedVersions = mutableListOf<Version>()
     val removedAffectedVersions = mutableListOf<Version>()
+    val addedFixVersions = mutableListOf<Version>() // TODO map to jira
 
     val links: List<Link>
         get() = originalLinks
@@ -57,13 +58,23 @@ data class Issue(
     val affectedVersions: List<Version>
         get() = originalAffectedVersions
             .plus(addedAffectedVersions)
-            .filter { version -> removedAffectedVersions.any { it.id == version.id }}
+            .filter { version -> removedAffectedVersions.any { it.id == version.id } }
+
+    val fixVersions: List<Version>
+        get() = originalFixVersions
+            .plus(addedFixVersions)
 
     fun updateChk() {
         chk = "updated!"
     }
 
-    fun addComment(message: String, visType: String? = null, visValue: String? = null, filledText: String? = null, language: String = "en") {
+    fun addComment(
+        message: String,
+        visType: String? = null,
+        visValue: String? = null,
+        filledText: String? = null,
+        language: String = "en"
+    ) {
         HelperMessageService.getSingleMessage(project.key, message, filledText = filledText, lang = language).fold(
             { /* TODO what to do */ },
             { addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue)) }

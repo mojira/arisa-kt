@@ -66,19 +66,19 @@ class ReopenAwaitingModule(
                 // regular users can reopen and have commented OR
                 (!onlyOp && isSoftAR) ||
                 // reporter has commented
-                validComments.any { it.author.name == reporter?.name }
+                validComments.any { it.author?.name == reporter?.name }
     }
 
     private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            (comment.body?.contains(onlyOPTag) ?: false)
+            (comment.body.contains(onlyOPTag))
 
     private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepARTag) ?: false)
+            (comment.body.contains(keepARTag))
 
-    private fun isKeepARMessage(comment: Comment) = comment.author.name == "arisabot" &&
-            (comment.body?.contains(message) ?: false)
+    private fun isKeepARMessage(comment: Comment) = comment.author?.name == "arisabot" &&
+            (comment.body.contains(message))
 
     private fun getValidComments(
         comments: List<Comment>,
@@ -86,10 +86,7 @@ class ReopenAwaitingModule(
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
-        .filter {
-            val roles = it.author?.groups.orEmpty()
-            roles == null || roles.intersect(blacklistedRoles).isEmpty()
-        }
+        .filter { it.author?.groups.orEmpty().intersect(blacklistedRoles).isEmpty() }
         .filterNot { it.visibilityType == "group" && blacklistedVisibilities.contains(it.visibilityValue) }
 
     private fun getValidChangeLog(

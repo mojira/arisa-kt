@@ -1,13 +1,16 @@
 package io.github.mojira.arisa.infrastructure.jira
 
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.service.CommentCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.log
 import net.rcarz.jiraclient.Field
 import net.sf.json.JSONObject
+import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
@@ -87,6 +90,15 @@ class MapToJira(val config: Config, val commentCache: CommentCache) {
 
         fun removeLink(link: Link) {
             issue.issueLinks.firstOrNull { it.id == link.id }?.delete()
+        }
+
+        fun removeAttachments(removedAttachments: MutableList<Attachment>) {
+            val attachmentIds = removedAttachments.map { it.id }
+            issue.attachments.filter { removedAttachments.any { attachmentIds.contains(it.id) } }.forEach { deleteAttachment(it.self) }
+        }
+
+        private fun deleteAttachment(self: String) {
+            jiraClient.restClient.delete(URI(self))
         }
 
         fun execute() {

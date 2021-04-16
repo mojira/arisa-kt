@@ -24,7 +24,7 @@ data class Issue(
     var platform: String?,
     var affectedVersions: List<Version>,
     var fixVersions: List<Version>,
-    var attachments: List<Attachment>,
+    var originalAttachments: List<Attachment>,
     val originalComments: List<Comment>,
     val originalLinks: List<Link>,
     val changeLog: List<ChangeLogItem>,
@@ -34,6 +34,7 @@ data class Issue(
     val editedComments = mutableListOf<Comment>()
     val newLinks = mutableListOf<Link>()
     val removedLinks = mutableListOf<Link>()
+    val removedAttachments = mutableListOf<Attachment>()
 
     val links: List<Link>
         get() = originalLinks
@@ -46,6 +47,10 @@ data class Issue(
             .filter { comment -> editedComments.any { it.id == comment.id } }
             .plus(editedComments)
             .sortedBy { it.created }
+
+    val attachments: List<Attachment>
+        get() = originalAttachments
+            .filter { link -> removedAttachments.any { it.id == link.id } }
 
     fun updateChk() {
         chk = "updated!"

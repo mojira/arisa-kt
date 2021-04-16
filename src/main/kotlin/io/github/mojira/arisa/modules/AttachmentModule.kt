@@ -19,9 +19,7 @@ class AttachmentModule(
             assertNotEmpty(functions).bind()
             val usernames = functions.getUsernames()
             val attachmentNames = functions.getAttachmentNames()
-            functions.forEach {
-                attachments.remove(it)
-            }
+            removedAttachments.addAll(functions)
             addComment(attachmentRemovedMessage)
             addComment("Attachment Details:\nFilename: $attachmentNames\nUploader: $usernames", "group", "helper")
         }

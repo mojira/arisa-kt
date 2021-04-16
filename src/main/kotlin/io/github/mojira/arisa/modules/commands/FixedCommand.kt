@@ -14,7 +14,8 @@ class FixedCommand {
         if (issue.resolution !in listOf(null, "", "Unresolved")) {
             throw CommandExceptions.ALREADY_RESOLVED.create(issue.resolution)
         }
-        issue.markAsFixedWithSpecificVersion(version)
+        issue.resolution = "Fixed"
+        issue.fixVersions.add(version) // TODO
         return 1
     }
 }

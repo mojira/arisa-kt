@@ -26,13 +26,15 @@ class ListUserActivityCommand(
         }
 
         if (tickets.isNotEmpty()) {
-            issue.addRawRestrictedComment(
+            issue.addRawComment(
                 "User \"$userName\" left comments on the following tickets:\n* ${tickets.joinToString("\n* ")}",
+                "group",
                 "staff"
             )
         } else {
-            issue.addRawRestrictedComment(
+            issue.addRawComment(
                 """No unrestricted comments from user "$userName" were found.""",
+                "group",
                 "staff"
             )
         }

@@ -28,7 +28,7 @@ class FixCapitalizationCommand {
         if (newDescription == issue.description) {
             throw CommandExceptions.NO_CAPITALIZATION_MATCHES.create()
         }
-        issue.updateDescription(newDescription)
+        issue.description = newDescription
         return 1
     }
 }

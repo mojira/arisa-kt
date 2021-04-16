@@ -76,10 +76,10 @@ class RemoveUserCommand(
         execute {
             val result = removeActivity(ticketIds, userName)
 
-            issue.addRawRestrictedComment(
+            issue.addRawComment(
                 "Removed ${result.removedComments} comments " +
                         "and ${result.removedAttachments} attachments from user \"$userName\".",
-                "staff"
+                "group", "staff"
             )
         }
 

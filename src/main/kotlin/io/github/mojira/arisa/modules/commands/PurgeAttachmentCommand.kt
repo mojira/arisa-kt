@@ -13,7 +13,7 @@ class PurgeAttachmentCommand {
                 // Don't delete attachments with an ID outside of ID range
                 it.id.toInt() in minId..maxId
             }
-            .onEach { it.remove() }
+            .onEach { issue.removedAttachments.add(it) }
             .count()
     }
 }

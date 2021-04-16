@@ -16,7 +16,7 @@ class RevokeConfirmationModule : Module() {
                 ?.changedToString.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()
-            updateConfirmationStatus(volunteerConfirmation)
+            confirmationStatus = volunteerConfirmation
         }
     }
 
@@ -24,7 +24,7 @@ class RevokeConfirmationModule : Module() {
         item.field == "Confirmation Status"
 
     private fun changedByVolunteer(item: ChangeLogItem) = !updateIsRecent(item) ||
-            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+            item.author.groups.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 
     private fun updateIsRecent(item: ChangeLogItem) =
         item

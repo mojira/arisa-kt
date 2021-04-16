@@ -17,10 +17,8 @@ class RemoveTriagedMeqsModule(
 
             val updateMeqsComments = comments
                 .filter { hasMeqsTag(it.body) }
-                .map { it.update.partially1(removeMeqsTags(it.body!!)) }
+                .map { editedComments.add(it.copy(body = removeMeqsTags(it.body))) }
             assertNotEmpty(updateMeqsComments).bind()
-
-            updateMeqsComments.forEach { it.invoke() }
         }
     }
 

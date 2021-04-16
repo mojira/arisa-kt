@@ -10,8 +10,8 @@ class AddVersionCommand {
         if (issue.project.versions.none { it.name == version }) {
             throw CommandExceptions.NO_SUCH_VERSION.create(version)
         }
-        val id = issue.project.versions.first { it.name == version }.id
-        issue.addAffectedVersion(id)
+        val id = issue.project.versions.first { it.name == version }
+        issue.addedAffectedVersions.add(id)
         return 1
     }
 }

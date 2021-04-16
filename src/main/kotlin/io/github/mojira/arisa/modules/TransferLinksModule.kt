@@ -12,7 +12,7 @@ class TransferLinksModule : AbstractTransferFieldModule() {
             .filter(::isDuplicatesLink.complement())
 
         val linkRemovers = links
-            .map { it.remove }
+            .map { { issue.removedLinks.add(it); Unit } }
 
         val linkAdders = parents
             .flatMap { parent ->
@@ -28,18 +28,20 @@ class TransferLinksModule : AbstractTransferFieldModule() {
     private fun parentDoesNotHaveLink(parentLinks: List<Link>, other: Link) =
         parentLinks.none {
             it.type == other.type &&
-                (it.type.toLowerCase() == "relates" || it.outwards == other.outwards) &&
-                it.issue.key == other.issue.key
+                    (it.type.toLowerCase() == "relates" || it.outwards == other.outwards) &&
+                    it.issue?.key == other.issue?.key
         }
 
-    private fun doesNotLinkToParent(key: String, link: Link) = key != link.issue.key
+    private fun doesNotLinkToParent(key: String, link: Link) = key != link.issue?.key
 
     private fun toLinkAdder(
         link: Link,
         parent: Issue
-    ) = if (link.outwards) {
-        parent.createLink.partially1(link.type).partially1(link.issue.key).partially1(link.outwards)
-    } else {
-        link.issue.createLink.partially1(link.type).partially1(parent.key).partially1(!link.outwards)
+    ): () -> Unit = {
+        if (link.outwards) {
+            parent.addLink(link.type, link.outwards, link.issue!!.key)
+        } else {
+            parent.addLink(link.type, !link.outwards, link.issue!!.key)
+        }
     }
 }

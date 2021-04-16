@@ -13,12 +13,18 @@ class DeleteCommentsCommand {
     operator fun invoke(issue: Issue, userName: String): Int {
         val comments = issue.comments
             .filter { it.visibilityValue != "staff" }
-            .filter { it.author.name == userName }
+            .filter { it.author?.name == userName }
 
         Thread {
             comments
                 .forEachIndexed { index, it ->
-                    it.restrict("Removed by arisa")
+                    issue.editedComments.add(
+                        it.copy(
+                            body = "Removed by arisa",
+                            visibilityType = "group",
+                            visibilityValue = "staff"
+                        )
+                    )
                     if (index % DELETE_COMMENT_SLEEP_INTERVAL == 0) {
                         TimeUnit.SECONDS.sleep(1)
                     }

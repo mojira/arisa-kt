@@ -12,7 +12,15 @@ class RemoveNonStaffMeqsModule(private val removalReason: String) : Module() {
             val updateMeqsComments = comments
                 .filter(::hasMeqsTag)
                 .filter(::isNotStaffRestricted)
-                .map { it.restrict.partially1(removeMeqsTags(it.body!!)) }
+                .map {
+                    editedComments.add(
+                        it.copy(
+                            visibilityType = "group",
+                            visibilityValue = "staff",
+                            body = removeMeqsTags(it.body!!)
+                        )
+                    )
+                }
             assertNotEmpty(updateMeqsComments).bind()
 
             updateMeqsComments.forEach { it.invoke() }

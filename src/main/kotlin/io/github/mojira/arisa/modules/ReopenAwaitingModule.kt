@@ -6,7 +6,6 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
 import java.time.Instant
@@ -38,11 +37,11 @@ class ReopenAwaitingModule(
 
             val shouldReopen = shouldReopen(comments, validComments, validChangeLog, reporter, resolveTime)
             if (shouldReopen) {
-                reopen()
+                TODO("Reopen?")
             } else {
                 assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
                 if (comments.none(::isKeepARMessage)) {
-                    addComment(CommentOptions(message))
+                    addComment(message)
                 }
             }
         }
@@ -88,7 +87,7 @@ class ReopenAwaitingModule(
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
         .filter {
-            val roles = it.getAuthorGroups()
+            val roles = it.author?.groups.orEmpty()
             roles == null || roles.intersect(blacklistedRoles).isEmpty()
         }
         .filterNot { it.visibilityType == "group" && blacklistedVisibilities.contains(it.visibilityValue) }

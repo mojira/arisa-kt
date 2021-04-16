@@ -24,7 +24,7 @@ class PrivateDuplicateModule(
                 assertParentPrivate(it.securityLevel, it.project.privateSecurity).bind()
                 securityLevel = it.project.privateSecurity
                 if (parentHasKeepPrivateTag(it)) {
-                    addRawComment(keepPrivateTag!!, "staff")
+                    addRawComment(keepPrivateTag!!, "group", "staff")
                 }
             }
         }

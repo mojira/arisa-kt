@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.User
 import java.time.Instant
 
 const val MAX_NUMBER_OF_VERSION_CHANGES = 5
@@ -17,11 +18,9 @@ class RemoveVersionModule(
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }
             assertNotEmpty(removeAddedVersions).bind()
-            removeAddedVersions.forEach {
-                affectedVersions.remove(it)
-            }
+            removedAffectedVersions.addAll(removeAddedVersions)
             if (calledMoreThanMaxTimes(changeLog)) {
-                reporter = "NoUser"
+                reporter = User("NoUser", "NoUser", emptyList())
             }
             addComment(message)
         }
@@ -39,7 +38,7 @@ class RemoveVersionModule(
 
     private fun Issue.getExtraVersionsLatelyAddedByNonVolunteers(lastRun: Instant): List<String> =
         if (created.isAfter(lastRun)) {
-            if (isVolunteer(reporter?.getGroups?.invoke())) {
+            if (isVolunteer(reporter?.groups.orEmpty())) {
                 emptyList()
             } else {
                 affectedVersions.map { ver -> ver.id }
@@ -49,7 +48,7 @@ class RemoveVersionModule(
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.field.toLowerCase() == "version" }
-                .filterNot { isVolunteer(it.getAuthorGroups()) }
+                .filterNot { isVolunteer(it.author.groups) }
                 .mapNotNull { it.changedTo }
                 .toList()
         }

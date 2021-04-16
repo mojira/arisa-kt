@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.core.extensions.sequence.monad.map
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
@@ -16,25 +17,24 @@ class HideImpostorsModule : Module() {
                 .filter(::userContainsBrackets)
                 .filter(::isNotStaffRestricted)
                 .filter(::userIsNotVolunteer)
-                .map { it.restrict.partially1(it.body ?: "") }
+                .map { editedComments.add(it.copy(visibilityType = "group", visibilityValue = "staff")) }
                 .toList()
 
             assertNotEmpty(restrictImpostorComments).bind()
-            restrictImpostorComments.forEach { it.invoke() }
         }
     }
 
     private fun commentIsRecent(comment: Comment) = comment
         .updated
-        .plus(1, ChronoUnit.DAYS)
-        .isAfter(Instant.now())
+        ?.plus(1, ChronoUnit.DAYS)
+        ?.isAfter(Instant.now()) ?: false
 
-    private fun userContainsBrackets(comment: Comment) = with(comment.author.displayName) {
+    private fun userContainsBrackets(comment: Comment) = with(comment.author?.displayName) {
         this != null && matches("""\[(?:\p{L}|\p{N}|\s)+]\s.+""".toRegex())
     }
 
     private fun userIsNotVolunteer(comment: Comment) =
-        !(comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false)
+        !(comment.author?.groups.orEmpty().any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false)
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

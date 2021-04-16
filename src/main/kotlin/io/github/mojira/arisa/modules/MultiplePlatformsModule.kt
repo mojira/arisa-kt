@@ -20,7 +20,7 @@ class MultiplePlatformsModule(
             assertPlatformWhitelisted(platform, platformWhitelist).bind()
             assertTrue(isDuplicatedWithDifferentPlatforms(platform, transferredPlatformBlacklist, issue).bind()).bind()
             assertNotKeepPlatformTag(comments).bind()
-            updatePlatforms(targetPlatform)
+            platform = targetPlatform
         }
     }
 
@@ -29,7 +29,7 @@ class MultiplePlatformsModule(
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
-                val child = it.issue.getFullIssue().toFailedModuleEither().bind()
+                val child = it.issue?.issue?.get() ?: return@fx false
                 if (child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
                     return@fx true
                 }

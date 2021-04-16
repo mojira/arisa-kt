@@ -25,18 +25,16 @@ class RemoveIdenticalLinkModule : Module() {
                         } else {
                             it.outwards
                         },
-                        it.issue.key
+                        it.issue!!.key
                     )
                 }
                 .filterValues { it.size > 1 }
                 .values
                 .flatMap { list ->
-                    list.subList(1, list.size).map { it.remove }
+                    list.subList(1, list.size).map { removedLinks.add(it) }
                 }
 
             assertNotEmpty(removeLinkFunctions).bind()
-
-            removeLinkFunctions.forEach { it.invoke() }
         }
     }
 }

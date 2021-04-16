@@ -38,11 +38,11 @@ class ReplaceTextModule(
             ).bind()
 
             if (needUpdateDescription) {
-                updateDescription(replace(description!!))
+                description = replace(description!!)
             }
 
             filteredComments.forEach {
-                it.update(replace(it.body!!))
+                editedComments.add(it.copy(body = replace(it.body)))
             }
         }
     }

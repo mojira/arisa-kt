@@ -22,7 +22,7 @@ data class Issue(
     val triagedTime: String?,
     val project: Project,
     var platform: String?,
-    var affectedVersions: List<Version>,
+    var originalAffectedVersions: List<Version>,
     var fixVersions: List<Version>,
     var originalAttachments: List<Attachment>,
     val originalComments: List<Comment>,
@@ -35,6 +35,8 @@ data class Issue(
     val newLinks = mutableListOf<Link>()
     val removedLinks = mutableListOf<Link>()
     val removedAttachments = mutableListOf<Attachment>()
+    val addedAffectedVersions = mutableListOf<Version>()
+    val removedAffectedVersions = mutableListOf<Version>()
 
     val links: List<Link>
         get() = originalLinks
@@ -52,15 +54,24 @@ data class Issue(
         get() = originalAttachments
             .filter { link -> removedAttachments.any { it.id == link.id } }
 
+    val affectedVersions: List<Version>
+        get() = originalAffectedVersions
+            .plus(addedAffectedVersions)
+            .filter { version -> removedAffectedVersions.any { it.id == version.id }}
+
     fun updateChk() {
         chk = "updated!"
     }
 
-    fun addComment(message: String, visType: String? = null, visValue: String? = null, filledText: String? = null) {
-        HelperMessageService.getSingleMessage(project.key, message, filledText = filledText).fold(
+    fun addComment(message: String, visType: String? = null, visValue: String? = null, filledText: String? = null, language: String = "en") {
+        HelperMessageService.getSingleMessage(project.key, message, filledText = filledText, lang = language).fold(
             { /* TODO what to do */ },
             { addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue)) }
         )
+    }
+
+    fun addRawComment(message: String, visType: String? = null, visValue: String? = null) {
+        addedComments.add(Comment(null, message, null, Instant.now(), null, visType, visValue))
     }
 
     fun addLink(type: String, outwards: Boolean, key: String) {

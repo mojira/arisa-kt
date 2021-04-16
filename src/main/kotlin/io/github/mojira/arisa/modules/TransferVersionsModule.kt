@@ -14,9 +14,8 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
                 .map { it.id }
 
             issue.affectedVersions
-                .map { it.id }
-                .filter { it !in parentVersionIds }
-                .map { { parent.addAffectedVersion(it) } }
+                .filter { it.id !in parentVersionIds }
+                .map { { parent.addedAffectedVersions.add(it) } }
         }
 
     private fun LinkedIssue.isSameProject(otherIssue: Issue) =

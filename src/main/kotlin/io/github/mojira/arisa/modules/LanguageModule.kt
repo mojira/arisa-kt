@@ -5,6 +5,7 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -14,7 +15,8 @@ const val MINIMUM_PERCENTAGE = 0.7
 class LanguageModule(
     private val allowedLanguages: List<String> = listOf("en"),
     private val lengthThreshold: Int = 0,
-    private val getLanguage: (String) -> Either<Any, Map<String, Double>>
+    private val getLanguage: (String) -> Either<Any, Map<String, Double>>,
+    private val englishMessage: String,
 ) : Module() {
     val log: Logger = LoggerFactory.getLogger("LanguageModule")
 
@@ -32,8 +34,8 @@ class LanguageModule(
 
             log.info("Detected language for ${issue.key} is $detectedLanguage")
 
-            addNotEnglishComment(detectedLanguage)
-            resolveAsInvalid()
+            addComment(englishMessage, language = detectedLanguage)
+            resolution = "Invalid"
         }
     }
 

@@ -18,13 +18,13 @@ class PrivateDuplicateModule(
             assertIsPublic(securityLevel, project.privateSecurity).bind()
             val duplicatedReports = links
                 .filter(::isDuplicatesLink)
-                .map { it.issue.getFullIssue().toFailedModuleEither().bind() }
+                .mapNotNull { it.issue?.issue?.get() }
             assertGreaterThan(duplicatedReports.size, 0).bind()
             duplicatedReports.forEach {
                 assertParentPrivate(it.securityLevel, it.project.privateSecurity).bind()
-                setPrivate()
+                securityLevel = it.project.privateSecurity
                 if (parentHasKeepPrivateTag(it)) {
-                    addRawRestrictedComment(keepPrivateTag!!, "staff")
+                    addRawComment(keepPrivateTag!!, "staff")
                 }
             }
         }
@@ -32,7 +32,7 @@ class PrivateDuplicateModule(
 
     private fun isKeepPrivateTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepPrivateTag!!) ?: false)
+            (comment.body.contains(keepPrivateTag!!) ?: false)
 
     private fun parentHasKeepPrivateTag(parent: Issue): Boolean = parent.comments.any(::isKeepPrivateTag)
 

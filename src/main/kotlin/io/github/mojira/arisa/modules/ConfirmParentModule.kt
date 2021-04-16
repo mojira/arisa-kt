@@ -27,12 +27,13 @@ class ConfirmParentModule(
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
-                val child = it.issue.issue.get()
-                if (child.reporter?.name !in reporters) {
+                val child = it.issue?.issue?.get()
+                val reporterName = child?.reporter?.name
+                if (reporterName != null && reporterName !in reporters) {
                     if (++amount >= linkedThreshold) {
                         return@fx true
                     }
-                    reporters.add(child.reporter?.name)
+                    reporters.add(reporterName)
                 }
             }
         false

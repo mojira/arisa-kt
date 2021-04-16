@@ -21,7 +21,7 @@ class KeepPlatformModule(
             assertNotEquals(platform.getOrDefault("None"), volunteerPlatformChange).bind()
             assertNotNull(keepPlatformTag).bind()
             assertContainsKeepPlatformTag(comments).bind()
-            updatePlatforms(volunteerPlatformChange)
+            platform = volunteerPlatformChange
         }
     }
 
@@ -29,7 +29,7 @@ class KeepPlatformModule(
         item.field == "Platform"
 
     private fun changedByVolunteer(item: ChangeLogItem) = !updateIsRecent(item) ||
-            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+            item.author.groups.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
 
     private fun updateIsRecent(item: ChangeLogItem) =
         item

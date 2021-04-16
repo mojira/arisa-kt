@@ -56,14 +56,14 @@ data class Issue(
         chk = "updated!"
     }
 
-    fun addComment(message: String, visType: String? = null, visValue: String? = null) {
-        HelperMessageService.getSingleMessage(project.key, message).fold(
+    fun addComment(message: String, visType: String? = null, visValue: String? = null, filledText: String? = null) {
+        HelperMessageService.getSingleMessage(project.key, message, filledText = filledText).fold(
             { /* TODO what to do */ },
             { addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue)) }
         )
     }
 
     fun addLink(type: String, outwards: Boolean, key: String) {
-        newLinks.add(Link(null, type, outwards, LinkedIssue(key, null)))
+        newLinks.add(Link(null, type, outwards, LinkedIssue(key, null, null)))
     }
 }

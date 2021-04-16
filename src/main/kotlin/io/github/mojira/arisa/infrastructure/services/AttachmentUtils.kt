@@ -39,8 +39,7 @@ class AttachmentUtils(
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
         val getText = {
-            val data = attachment.getContent()
-            String(data)
+            String(attachment.content.get())
         }
 
         return TextDocument(getText, attachment.created)

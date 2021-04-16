@@ -45,9 +45,9 @@ class CommandModule(
             }
             results.forEach { (comment, result) ->
                 if (result.isLeft()) {
-                    comment.update("[~arisabot]: (x) ${(result as Either.Left).a.message}.\n----\n${comment.body}")
+                    editedComments.add(comment.copy(body = "[~arisabot]: (x) ${(result as Either.Left).a.message}.\n----\n${comment.body}"))
                 } else {
-                    comment.update("[~arisabot]: (/) ${(result as Either.Right).b}.\n----\n${comment.body}")
+                    editedComments.add(comment.copy(body = "[~arisabot]: (/) ${(result as Either.Right).b}.\n----\n${comment.body}"))
                 }
             }
             ModuleResponse.right().bind()
@@ -64,15 +64,15 @@ class CommandModule(
         }
     }
 
-    private fun isUpdatedAfterLastRun(lastRun: Instant, comment: Comment) = comment.updated.isAfter(lastRun)
+    private fun isUpdatedAfterLastRun(lastRun: Instant, comment: Comment) = comment.updated?.isAfter(lastRun) ?: false
 
     private fun isProbablyACommand(comment: Comment) =
-        !comment.body.isNullOrBlank() &&
+        !comment.body.isBlank() &&
                 comment.body.startsWith("${prefix}_") &&
                 (comment.body.count { it.isWhitespace() } > 0)
 
     private fun userIsVolunteer(comment: Comment) =
-        comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+        comment.author?.groups.orEmpty().any { it == "helper" || it == "global-moderators" || it == "staff" }
 
     private fun isStaffRestricted(comment: Comment) =
         comment.visibilityType == "group" && (comment.visibilityValue == "staff" || comment.visibilityValue == "helper")

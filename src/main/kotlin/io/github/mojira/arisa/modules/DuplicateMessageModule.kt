@@ -7,7 +7,6 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
@@ -40,18 +39,15 @@ class DuplicateMessageModule(
 
             val parents = links
                 .filter(::isDuplicatesLink)
-                .map { it.issue }
+                .mapNotNull { it.issue }
                 .sortedBy { it.key }
             assertNotEmpty(parents).bind()
 
             val parentKey = parents.getCommonFieldOrNull { it.key }
             var messageKey = ticketMessages[parentKey]
             if (messageKey == null) {
-                val fullParentEitherList = parents
-                    .map { it.getFullIssue() }
-                fullParentEitherList.toFailedModuleEither().bind()
-                val fullParents = fullParentEitherList
-                    .map { (it as Either.Right).b }
+                val fullParents = parents
+                    .mapNotNull { it.issue?.get() }
 
                 messageKey = getPrivateMessageOrNull(fullParents)
                     ?: getResolutionMessageOrNull(fullParents) ?: getForwardResolvedOrNot(issue, fullParents)
@@ -59,7 +55,7 @@ class DuplicateMessageModule(
 
             val filledText = parents.getFilledText()
 
-            addComment(CommentOptions(messageKey, filledText))
+            addComment(message, filledText = filledText) // TODO what to do with filled text
         }
     }
 

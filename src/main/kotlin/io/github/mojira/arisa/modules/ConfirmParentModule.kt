@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
+import java.time.Instant
 
 class ConfirmParentModule(
     private val confirmationStatusWhitelist: List<String>,
@@ -16,7 +17,7 @@ class ConfirmParentModule(
         Either.fx {
             assertConfirmationStatusWhitelisted(confirmationStatus, confirmationStatusWhitelist).bind()
             assertTrue(isDuplicatedEnough(issue).bind()).bind()
-            updateConfirmationStatus(targetConfirmationStatus)
+            confirmationStatus = targetConfirmationStatus
         }
     }
 
@@ -26,7 +27,7 @@ class ConfirmParentModule(
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
-                val child = it.issue.getFullIssue().toFailedModuleEither().bind()
+                val child = it.issue.issue.get()
                 if (child.reporter?.name !in reporters) {
                     if (++amount >= linkedThreshold) {
                         return@fx true

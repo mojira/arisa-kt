@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.core.toOption
 import arrow.syntax.function.partially2
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Issue
@@ -15,16 +16,12 @@ abstract class AbstractTransferFieldModule : Module() {
             val relevantParents = links
                 .filter(::isDuplicatesLink)
                 .filter(::createdSinceLastRun.partially2(changeLog).partially2(lastRun))
-                .map { it.issue }
+                .mapNotNull { it.issue }
                 .filter(::filterParents.partially2(issue))
             assertGreaterThan(relevantParents.size, 0).bind()
 
-            val parentEithers = relevantParents
-                .map(::toFullIssue)
-
-            parentEithers.toFailedModuleEither().bind()
-            val parents = parentEithers
-                .map { (it as Either.Right).b }
+            val parents = relevantParents
+                .mapNotNull(::toFullIssue)
 
             val functions = getFunctions(parents, issue)
 
@@ -35,16 +32,10 @@ abstract class AbstractTransferFieldModule : Module() {
 
     private fun toFullIssue(
         issue: LinkedIssue
-    ): Either<Throwable, Issue> {
-        val fullIssue = issue.getFullIssue()
-        return fullIssue.fold(
-            { it.left() },
-            { it.right() }
-        )
-    }
+    ): Issue? = issue.issue?.get()
 
     private fun createdSinceLastRun(link: Link, changeLog: List<ChangeLogItem>, lastRun: Instant) =
-        changeLog.lastOrNull { it.changedTo == link.issue.key }?.created?.isAfter(lastRun) ?: false
+        changeLog.lastOrNull { it.changedTo == link.issue?.key }?.created?.isAfter(lastRun) ?: false
 
     protected open fun filterParents(linkedIssue: LinkedIssue, issue: Issue) =
         true

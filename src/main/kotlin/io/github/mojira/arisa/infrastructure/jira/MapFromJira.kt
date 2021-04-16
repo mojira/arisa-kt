@@ -10,6 +10,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import io.github.mojira.arisa.domain.service.IssueService
 import io.github.mojira.arisa.domain.service.UserService
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.sf.json.JSONObject
@@ -17,7 +18,7 @@ import java.text.SimpleDateFormat
 
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-class MapFromJira(val config: Config, val userService: UserService) {
+class MapFromJira(val config: Config, val userService: UserService, val issueService: IssueService) {
 
     fun toDomain(issue: JiraIssue) = Issue(
         issue.key,
@@ -96,7 +97,7 @@ class MapFromJira(val config: Config, val userService: UserService) {
     private fun JiraIssue.toLinkedIssue() = LinkedIssue(
         key,
         status.name
-    )
+    ) { issueService.getIssue(key) }
 
     private fun JiraChangelogItem.toDomain(entry: JiraChangelogEntry) = ChangeLogItem(
         entry.created.toInstant(),

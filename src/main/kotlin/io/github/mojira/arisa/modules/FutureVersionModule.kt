@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Version
 import java.time.Instant
@@ -17,7 +16,7 @@ class FutureVersionModule(
             val removeFutureVersions = affectedVersions
                 .filter(::isFutureVersion)
                 .filter { it.id in addedVersions }
-                .map { it.remove }
+                .map { removedAffectedVersions.add(it) }
             assertNotEmpty(removeFutureVersions).bind()
 
             val latestVersion = project.versions.lastOrNull(::isReleasedVersion)
@@ -26,7 +25,7 @@ class FutureVersionModule(
             if (affectedVersions.size > removeFutureVersions.size) {
                 addComment(messagePanel)
             } else {
-                latestVersion!!.add()
+                addedAffectedVersions.add(latestVersion!!)
                 if (resolution == null || resolution == "Unresolved") {
                     resolution = "Awaiting Response"
                     addComment(messageFull)
@@ -34,13 +33,12 @@ class FutureVersionModule(
                     addComment(messagePanel)
                 }
             }
-            removeFutureVersions.forEach(::run)
         }
     }
 
     private fun Issue.getVersionsLatelyAddedByNonStaff(lastRun: Instant): List<String> =
         if (created.isAfter(lastRun)) {
-            if (isStaff(reporter?.getGroups?.invoke())) {
+            if (isStaff(reporter?.groups.orEmpty())) {
                 emptyList()
             } else {
                 affectedVersions.map { ver -> ver.id }
@@ -50,7 +48,7 @@ class FutureVersionModule(
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.field.toLowerCase() == "version" }
-                .filterNot { isStaff(it.getAuthorGroups()) }
+                .filterNot { isStaff(it.author.groups) }
                 .mapNotNull { it.changedTo }
                 .toList()
         }

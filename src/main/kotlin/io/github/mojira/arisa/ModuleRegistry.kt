@@ -240,7 +240,8 @@ class ModuleRegistry(private val config: Config) {
             LanguageModule(
                 config[Modules.Language.allowedLanguages],
                 config[Modules.Language.lengthThreshold],
-                ::getLanguage.partially1(config[Credentials.dandelionToken])
+                ::getLanguage.partially1(config[Credentials.dandelionToken]),
+                config[Modules.Language.message]
             )
         )
 

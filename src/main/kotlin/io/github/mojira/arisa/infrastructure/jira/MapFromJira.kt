@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat
 
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-class MapFromJira(val config: Config, val userService: UserService, val issueService: IssueService) {
+class MapFromJira(val config: Config, val userService: UserService) {
 
     fun toDomain(issue: JiraIssue) = Issue(
         issue.key,
@@ -97,7 +97,7 @@ class MapFromJira(val config: Config, val userService: UserService, val issueSer
     private fun JiraIssue.toLinkedIssue() = LinkedIssue(
         key,
         status.name
-    ) { issueService.getIssue(key) }
+    ) {  TODO("What do we do here?"); }
 
     private fun JiraChangelogItem.toDomain(entry: JiraChangelogEntry) = ChangeLogItem(
         entry.created.toInstant(),

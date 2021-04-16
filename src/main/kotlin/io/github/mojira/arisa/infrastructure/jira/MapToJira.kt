@@ -81,11 +81,11 @@ class MapToJira(val config: Config, val commentCache: CommentCache) {
         }
 
         fun addOutwardsLink(link: Link) {
-            issue.link(link.issue.key, link.type)
+            issue.link(link.issue?.key, link.type)
         }
 
         fun addInwardsLink(link: Link, otherIssue: JiraIssue) {
-            otherIssue.link(link.issue.key, link.type)
+            otherIssue.link(link.issue?.key, link.type)
         }
 
         fun removeLink(link: Link) {

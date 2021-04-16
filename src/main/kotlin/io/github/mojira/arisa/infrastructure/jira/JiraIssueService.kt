@@ -35,7 +35,7 @@ class JiraIssueService(
             if (editedComments.isNotEmpty()) builder.editComments(editedComments)
             if (removedLinks.isNotEmpty()) removedLinks.forEach(builder::removeLink)
             if (newLinks.isNotEmpty()) newLinks.forEach {
-                if (it.outwards) builder.addOutwardsLink(it) else builder.addInwardsLink(it, getJiraIssue(it.issue.key))
+                if (it.outwards) builder.addOutwardsLink(it) else builder.addInwardsLink(it, getJiraIssue(it.issue!!.key))
             }
             if (removedAttachments.isNotEmpty()) builder.removeAttachments(removedAttachments)
         }

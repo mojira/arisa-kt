@@ -7,8 +7,6 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.Link
-import io.github.mojira.arisa.domain.LinkedIssue
 import java.time.Instant
 
 fun <T> Either<Throwable, T>.toFailedModuleEither() = this.bimap(
@@ -208,4 +206,32 @@ private fun concatenateCombinations(list: List<String>): Set<String> {
         }
     }
     return newSet.toSortedSet()
+}
+
+fun addLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
+    val tmp = linkTypes.filter {
+        type.toLowerCase() in it.nameVariants
+    }
+    assertNotNull(tmp).bind()
+    assertTrue(tmp.size == 1).bind()
+    val linkType = tmp[0]
+    for (key in keys) {
+        issue.addLink(linkType.id, linkType.outwards, key.toUpperCase())
+    }
+}
+
+fun deleteLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
+    val tmp = linkTypes.filter {
+        type.toLowerCase() in it.nameVariants
+    }
+    assertNotNull(tmp).bind()
+    assertTrue(tmp.size == 1).bind()
+    val linkType = tmp[0]
+    for (key in keys) {
+        val link = issue.links.find {
+            it.type == linkType.id && it.issue?.key == key.toUpperCase()
+        }
+        assertNotNull(link).bind()
+        issue.removedLinks.add(link!!)
+    }
 }

@@ -12,4 +12,5 @@ class AddLinksCommand {
             { linkList.keys.size }
         )
     }
+
 }

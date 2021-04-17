@@ -22,7 +22,7 @@ fun getCommandDispatcher(
     val fixCapitalizationCommand = FixCapitalizationCommand()
     val fixedCommand = FixedCommand()
     val listUserActivityCommand = ListUserActivityCommand(
-        ::getIssuesFromJql.partially1(jiraClient)
+        ::fixegetIssuesFromJql.partially1(jiraClient)
     )
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val removeUserCommand = RemoveUserCommand(

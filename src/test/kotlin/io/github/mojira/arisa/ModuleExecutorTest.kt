@@ -30,7 +30,6 @@ class ModuleExecutorTest : StringSpec({
         ModuleRegistry.Entry(
             "mock",
             Arisa.Modules.Attachment,
-            DEFAULT_JQL,
             { _, _ -> "mock" to Either.left(OperationNotNeededModuleResponse) }
         )
     )
@@ -38,7 +37,6 @@ class ModuleExecutorTest : StringSpec({
         ModuleRegistry.Entry(
             "mock",
             Arisa.Modules.Attachment,
-            DEFAULT_JQL,
             { _, _ -> "mock" to Either.left(FailedModuleResponse()) }
         )
     )
@@ -76,7 +74,7 @@ class ModuleExecutorTest : StringSpec({
 
     "should allow issues that pass all checks for CHK" {
         val moduleExecutor = getMockModuleExecutor(registry = moduleRegistryMock)
-
+        
         val result = moduleExecutor.getIssues(
             Arisa.Modules.CHK,
             listOf(),

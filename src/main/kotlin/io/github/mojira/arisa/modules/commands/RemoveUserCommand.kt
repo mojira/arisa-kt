@@ -1,10 +1,10 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
+import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.service.IssueService
 import io.github.mojira.arisa.log
-import net.rcarz.jiraclient.Attachment
-import net.rcarz.jiraclient.Comment
-import net.rcarz.jiraclient.Issue
 import java.util.concurrent.TimeUnit
 
 /**
@@ -21,18 +21,17 @@ const val REMOVE_USER_SLEEP_INTERVAL = 10
 
 @Suppress("LongParameterList")
 class RemoveUserCommand(
-    val searchIssues: (String, Int) -> Either<Throwable, List<String>>,
-    val getIssue: (String) -> Either<Throwable, Pair<String, Issue>>,
+    val issueService: IssueService,
     val execute: (Runnable) -> Unit,
 
     // All of the parameters below are for easy testing.
     // They should be removed with a future refactor.
 
     val getCommentsFromIssue: (String, Issue) -> List<Pair<String, Comment>> = { _, issue ->
-        issue.comments.mapNotNull { it.id to it }
+        issue.comments.filter { it.id != null }.map { it.id!! to it }
     },
     val getVisibilityValueOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
-        comment.visibility?.value ?: ""
+        comment.visibilityValue ?: ""
     },
     val getAuthorOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
         comment.author?.name ?: ""
@@ -40,25 +39,21 @@ class RemoveUserCommand(
     val getBodyOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
         comment.body ?: ""
     },
-    val updateComment: (Pair<String, Comment>, content: String) -> Unit = { (_, comment), content ->
-        comment.update(
-            content,
-            "group",
-            "staff"
-        )
+    val updateComment: (Pair<String, Comment>, content: String, issue: Issue) -> Unit = { (_, comment), content, issue ->
+        issue.editedComments.add(comment.copy(body = content, visibilityType = "group", visibilityValue = "staff"))
     },
     val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
         issue.attachments.mapNotNull { it.id to it }
     },
     val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
-        attachment.author?.name
+        attachment.uploader?.name
     },
-    val removeAttachment: (Pair<String, Attachment>, Issue) -> Unit = { (id, _), issue ->
-        issue.removeAttachment(id)
+    val removeAttachment: (Pair<String, Attachment>, Issue) -> Unit = { (_, attachment), issue ->
+        issue.removedAttachments.add(attachment)
     }
 ) {
     operator fun invoke(
-        issue: io.github.mojira.arisa.domain.Issue,
+        issue: Issue,
         userName: String
     ): Int {
         val escapedUserName = userName.replace("'", "\\'")
@@ -68,9 +63,9 @@ class RemoveUserCommand(
             | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
             .trimMargin().replace("[\n\r]", "")
 
-        val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
-            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
-            is Either.Right -> either.b
+        val ticketIds = issueService.searchIssues(jql)
+        if (ticketIds.isEmpty()) {
+            throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
         }
 
         execute {
@@ -88,22 +83,14 @@ class RemoveUserCommand(
 
     private data class RemoveActivityResult(var removedComments: Int, var removedAttachments: Int)
 
-    private fun removeActivity(ticketIds: List<String>, userName: String): RemoveActivityResult {
+    private fun removeActivity(ticketIds: List<Issue>, userName: String): RemoveActivityResult {
         val result = RemoveActivityResult(0, 0)
 
         ticketIds
-            .mapNotNull {
-                val either = getIssue(it)
-                if (either.isLeft()) {
-                    null
-                } else {
-                    (either as Either.Right).b
-                }
-            }
-            .forEach { (key, issue) ->
-                log.debug("Removing comments and attachments from ticket $key")
+            .forEach { issue ->
+                log.debug("Removing comments and attachments from ticket ${issue.key}")
 
-                result.removedComments += getCommentsFromIssue(key, issue)
+                result.removedComments += getCommentsFromIssue(issue.key, issue)
                     .filter { getVisibilityValueOfComment(it) != "staff" }
                     .filter { getAuthorOfComment(it) == userName }
                     .onEachIndexed { index, it ->
@@ -111,7 +98,8 @@ class RemoveUserCommand(
                             it,
                             getBodyOfComment(it).plus(
                                 "\n\n~Removed by Arisa - Delete user \"$userName\"~"
-                            )
+                            ),
+                            issue
                         )
                         if (index % REMOVE_USER_SLEEP_INTERVAL == 0) {
                             TimeUnit.SECONDS.sleep(1)
@@ -119,7 +107,7 @@ class RemoveUserCommand(
                     }
                     .count()
 
-                result.removedAttachments += getAttachmentsFromIssue(key, issue)
+                result.removedAttachments += getAttachmentsFromIssue(issue.key, issue)
                     .filter { getAuthorNameFromAttachment(it) == userName }
                     .onEachIndexed { index, it ->
                         removeAttachment(it, issue)

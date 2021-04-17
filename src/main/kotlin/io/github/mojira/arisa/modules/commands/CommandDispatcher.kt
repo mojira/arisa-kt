@@ -1,13 +1,12 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
-import io.github.mojira.arisa.jiraClient
+import io.github.mojira.arisa.issueService
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 
@@ -21,18 +20,10 @@ fun getCommandDispatcher(
     val deleteLinksCommand = DeleteLinksCommand()
     val fixCapitalizationCommand = FixCapitalizationCommand()
     val fixedCommand = FixedCommand()
-    val listUserActivityCommand = ListUserActivityCommand(
-        ::fixegetIssuesFromJql.partially1(jiraClient)
-    )
+    val listUserActivityCommand = ListUserActivityCommand(issueService)
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val removeUserCommand = RemoveUserCommand(
-        ::getIssuesFromJql.partially1(jiraClient),
-        {
-            when (val issue = getIssue(jiraClient, it)) {
-                is Either.Left -> issue
-                is Either.Right -> (it to issue.b).right()
-            }
-        },
+        issueService,
         { Thread(it).start() }
     )
 

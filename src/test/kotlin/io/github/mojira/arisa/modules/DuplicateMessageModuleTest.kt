@@ -428,8 +428,6 @@ class DuplicateMessageModuleTest : StringSpec({
         commentOptions shouldBe CommentOptions("duplicate", "MC-1")
     }
 
-    
-
     "should add comment when the parent has been mentioned in a comment by a normal user" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
@@ -457,7 +455,7 @@ class DuplicateMessageModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         commentOptions shouldBe CommentOptions("duplicate", "MC-1")
-    }    
+    }
 
     "should add comment with all three parents' keys in ascending order" {
         var commentOptions: CommentOptions? = null

@@ -143,7 +143,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the parent has been mentioned in a public comment" {
+    "should return OperationNotNeededModuleResponse when the parent has been mentioned in a public comment by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -158,7 +158,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -195,7 +196,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in a public comment" {
+    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in a public comment by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -232,7 +233,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse even if only a portion of parents have been mentioned" {
+    "should return OperationNotNeededModuleResponse even if only a portion of parents have been mentioned by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -269,7 +270,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in different public comments" {
+    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in different public comments by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -310,7 +311,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when an historical parent has been mentioned in comments" {
+    "should return OperationNotNeededModuleResponse when an historical parent has been mentioned in comments by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(

@@ -29,7 +29,7 @@ class DuplicateMessageModuleTest : StringSpec({
         "duplicate-forward",
         mapOf("MC-297" to "duplicate-of-mc-297"),
         "duplicate-private",
-        "ARISA_NO_DUPLICATE_MESSAGE",
+        listOf("ARISA_NO_DUPLICATE_MESSAGE"),
         mapOf("Fixed" to "duplicate-fixed")
     )
 
@@ -168,7 +168,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the ticket has the prevent message tag" {
+    "should return OperationNotNeededModuleResponse when the ticket has a prevent message tag" {
         val issue = getIssue(
                 changeLog = listOf(
                         mockChangeLogItem(

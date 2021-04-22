@@ -138,7 +138,7 @@ class DuplicateMessageModule(
         comments.any(::isPreventMessageTag) -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
-    
+
     private fun createdByVolunteer(comment: Comment) =
         comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 }

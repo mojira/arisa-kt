@@ -36,6 +36,7 @@ class DuplicateMessageModule(
                 .map { it.changedTo!! }
             val visibleComments = comments
                 .filter(::isPublicComment)
+                .filter(::createdByVolunteer)
             assertNoneIsMentioned(visibleComments, historicalParentKeys).bind()
 
             val parents = links
@@ -137,4 +138,7 @@ class DuplicateMessageModule(
         comments.any(::isPreventMessageTag) -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
+    
+    private fun createdByVolunteer(comment: Comment) =
+        comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 }

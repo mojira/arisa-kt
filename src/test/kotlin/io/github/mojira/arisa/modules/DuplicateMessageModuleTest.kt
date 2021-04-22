@@ -221,7 +221,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1 and MC-2."
+                    body = "This duplicates MC-1 and MC-2.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -257,7 +258,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -293,10 +295,12 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 ),
                 mockComment(
-                    body = "This duplicates MC-2."
+                    body = "This duplicates MC-2.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -331,7 +335,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -393,6 +398,65 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         commentOptions shouldBe CommentOptions("duplicate", "MC-1")
     }
+
+    "should add comment when the parent has been mentioned in a comment by a user not in a group" {
+        var commentOptions: CommentOptions? = null
+        val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink()
+            ),
+            comments = listOf(
+                mockComment(
+                    body = "MC-1"
+                )
+            ),
+            addComment = { commentOptions = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+    }
+
+    
+
+    "should add comment when the parent has been mentioned in a comment by a normal user" {
+        var commentOptions: CommentOptions? = null
+        val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink()
+            ),
+            comments = listOf(
+                mockComment(
+                    body = "MC-1",
+                    getAuthorGroups = { listOf("user") }
+                )
+            ),
+            addComment = { commentOptions = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+    }    
 
     "should add comment with all three parents' keys in ascending order" {
         var commentOptions: CommentOptions? = null

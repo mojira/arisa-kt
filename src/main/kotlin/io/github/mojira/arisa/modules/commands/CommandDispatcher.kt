@@ -29,7 +29,7 @@ fun getCommandDispatcher(
         ::getIssuesFromJql.partially1(jiraClient)
     )
     val purgeAttachmentCommand = PurgeAttachmentCommand()
-    val removeUserCommand = RemoveUserCommand(
+    val removeContentCommand = RemoveContentCommand(
         ::getIssuesFromJql.partially1(jiraClient),
         {
             when (val issue = getIssue(jiraClient, it)) {
@@ -174,13 +174,13 @@ fun getCommandDispatcher(
                         )
                 )
 
-        val removeUserCommandNode =
-            literal<CommandSource>("${prefix}_REMOVE_USER")
+        val removeContentCommandNode =
+            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
                 .requires(::sentByModerator)
                 .then(
                     argument<CommandSource, String>("username", greedyString())
                         .executes {
-                            removeUserCommand(
+                            removeContentCommand(
                                 it.source.issue,
                                 it.getString("username")
                             )
@@ -197,7 +197,7 @@ fun getCommandDispatcher(
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
-        register(removeUserCommandNode)
+        register(removeContentCommandNode)
     }
 }
 

@@ -143,7 +143,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the parent has been mentioned in a public comment" {
+    "should return OperationNotNeededModuleResponse when the parent has been mentioned in a public comment by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -158,7 +158,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -195,7 +196,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in a public comment" {
+    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in a public comment by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -221,7 +222,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1 and MC-2."
+                    body = "This duplicates MC-1 and MC-2.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -231,7 +233,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse even if only a portion of parents have been mentioned" {
+    "should return OperationNotNeededModuleResponse even if only a portion of parents have been mentioned by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -257,7 +259,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -267,7 +270,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in different public comments" {
+    "should return OperationNotNeededModuleResponse when all the parents have been mentioned in different public comments by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -293,10 +296,12 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 ),
                 mockComment(
-                    body = "This duplicates MC-2."
+                    body = "This duplicates MC-2.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -306,7 +311,7 @@ class DuplicateMessageModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when an historical parent has been mentioned in comments" {
+    "should return OperationNotNeededModuleResponse when an historical parent has been mentioned in comments by staff" {
         val issue = getIssue(
             changeLog = listOf(
                 mockChangeLogItem(
@@ -331,7 +336,8 @@ class DuplicateMessageModuleTest : StringSpec({
             ),
             comments = listOf(
                 mockComment(
-                    body = "This duplicates MC-1."
+                    body = "This duplicates MC-1.",
+                    getAuthorGroups = { listOf("staff") }
                 )
             )
         )
@@ -383,6 +389,63 @@ class DuplicateMessageModuleTest : StringSpec({
                     body = "MC-1",
                     visibilityType = "group",
                     visibilityValue = "helper"
+                )
+            ),
+            addComment = { commentOptions = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+    }
+
+    "should add comment when the parent has been mentioned in a comment by a user not in a group" {
+        var commentOptions: CommentOptions? = null
+        val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink()
+            ),
+            comments = listOf(
+                mockComment(
+                    body = "MC-1"
+                )
+            ),
+            addComment = { commentOptions = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+    }
+
+    "should add comment when the parent has been mentioned in a comment by a normal user" {
+        var commentOptions: CommentOptions? = null
+        val issue = getIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink()
+            ),
+            comments = listOf(
+                mockComment(
+                    body = "MC-1",
+                    getAuthorGroups = { listOf("user") }
                 )
             ),
             addComment = { commentOptions = it; Unit.right() }

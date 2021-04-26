@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
@@ -17,6 +18,10 @@ import java.time.temporal.ChronoUnit
 private val REPORTER = getUser(name = "reporter")
 private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
+
+private val NOT_REOPEN_AR_MESSAGE = HelperMessageService.getMessageWithBotSignature(
+        "MC", "not-reopen-ar", null, "en"
+)
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
@@ -789,7 +794,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             visibilityValue = "staff"
         )
         val arisaComment = getComment(
-            body = "not-reopen-ar",
+            body = NOT_REOPEN_AR_MESSAGE,
             author = ARISA
         )
         val normalComment = getComment()
@@ -821,7 +826,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             visibilityValue = "staff"
         )
         val fakeComment = getComment(
-            body = "not-reopen-ar",
+            body = NOT_REOPEN_AR_MESSAGE,
             author = RANDOM_USER
         )
         val issue = mockIssue(

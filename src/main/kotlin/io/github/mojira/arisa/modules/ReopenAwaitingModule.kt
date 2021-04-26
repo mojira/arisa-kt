@@ -4,7 +4,12 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.domain.*
+import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.Comment
+import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Project
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import java.time.Instant
 import java.time.temporal.ChronoUnit

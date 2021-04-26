@@ -43,7 +43,7 @@ class ReopenAwaitingModule(
                 reopen()
             } else {
                 assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
-                if (comments.none { isKeepARMessage(it, project) } ) {
+                if (comments.none { isKeepARMessage(it, project) }) {
                     addComment(CommentOptions(message))
                 }
             }

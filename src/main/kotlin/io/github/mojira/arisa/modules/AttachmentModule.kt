@@ -33,9 +33,11 @@ class AttachmentModule(
         .map { it.uploader!!.name }
         .run {
             when (size) {
-                1 -> get(0)
-                2 -> "${get(0)}* and *${get(1)}"
-                else -> "${subList(0, lastIndex).joinToString("*, *")}*, and *${last()}"
+                1 -> "[${get(0)}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${get(0)}]"
+                2 -> "[${get(0)}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${get(0)}] " +
+                        "and [${get(1)}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${get(1)}]"
+                else -> "${subList(0, lastIndex).forEach{ "|https://bugs.mojang.com/secure/ViewProfile.jspa?name=" }}," +
+                        "and [${last()}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${last()}]"
             }
         }
 

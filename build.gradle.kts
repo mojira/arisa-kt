@@ -33,6 +33,7 @@ configurations {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
+val ktorVersion = "1.5.4"
 val kotestVersion = "4.4.1"
 
 dependencies {
@@ -60,6 +61,9 @@ dependencies {
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
     implementation("com.beust", "klaxon", "5.4")
     implementation("com.mojang", "brigadier", "1.0.17")
+    implementation("io.ktor", "ktor-client-core", ktorVersion)
+    implementation("io.ktor", "ktor-client-cio", ktorVersion)
+    implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)

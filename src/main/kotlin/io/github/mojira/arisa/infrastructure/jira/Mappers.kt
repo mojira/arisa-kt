@@ -21,6 +21,11 @@ import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
 import net.sf.json.JSONObject
@@ -42,6 +47,11 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachme
     getCreationDate(issue, id, issue.createdDate.toInstant()),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
+    suspend {
+        HttpClient(CIO).use {
+            it.get<HttpResponse>(contentUrl).content.toInputStream()
+        }
+    },
     this::download,
     author?.toDomain(jiraClient)
 )
@@ -317,10 +327,10 @@ private fun JiraIssue.getOtherUpdateContext(
 ): Lazy<IssueUpdateContext> =
     lazy {
         IssueUpdateContextCache.get(key) ?: IssueUpdateContext(
-                jiraClient,
-                jiraClient.getIssue(key),
-                update(),
-                transition(),
-                transition()
+            jiraClient,
+            jiraClient.getIssue(key),
+            update(),
+            transition(),
+            transition()
         ).also { IssueUpdateContextCache.add(key, it) }
     }

@@ -341,6 +341,13 @@ object Arisa : ConfigSpec() {
                 description = "The prefix for all arisa commands. It should not contain the joining underline."
             )
         }
+
+        object Thumbnail : ModuleConfigSpec() {
+            val maxImagesCount by optional(
+                description = "Maximum number of embedded images to process per comment respectively issue description",
+                default = 10
+            )
+        }
     }
 }
 

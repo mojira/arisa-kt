@@ -14,6 +14,7 @@ class RemoveVersionModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
+            assertGreaterThan(affectedVersions.size, 1)
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }

@@ -19,36 +19,22 @@ class AttachmentModule(
             val functions = attachments
                 .filter { endsWithBlacklistedExtensionAdapter(it.name) }
             assertNotEmpty(functions).bind()
-            val usernames = functions.getUsernames()
-            val attachmentNames = functions.getAttachmentNames()
+            val commentInfo = functions.getCommentInfo()
             functions
                 .map { it.remove }
                 .forEach { it.invoke() }
             addComment(CommentOptions(attachmentRemovedMessage))
-            addRawRestrictedComment("Attachment Details:\nFilename: $attachmentNames\nUploader: $usernames", "helper")
+            addRawRestrictedComment("Attachments:\n$commentInfo", "helper")
         }
     }
 
-    private fun List<Attachment>.getUsernames() = this
-        .map { it.uploader!!.name }
+    private fun List<Attachment>.getCommentInfo() = this
+        .map { it }
         .run {
             when (size) {
-                1 -> "[~${get(0)}]"
-                2 -> "[~${get(0)}] " +
-                        "and [~${get(1)}]"
+                1 -> "[~${get(0).uploader!!.name}]: ${get(0).name}"
                 else -> subList(0, lastIndex)
-                    .map { "[~$it], " } +
-                        "and [~${last()}]"
-            }
-        }
-
-    private fun List<Attachment>.getAttachmentNames() = this
-        .map { it.name }
-        .run {
-            when (size) {
-                1 -> get(0)
-                2 -> "${get(0)} and ${get(1)}"
-                else -> "${subList(0, lastIndex).joinToString(", ")}, and ${last()}"
+                    .map { "[~${get(0).uploader!!.name}]: ${get(0).name}\n" }
             }
         }
 

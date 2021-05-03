@@ -24,7 +24,7 @@ class AttachmentModule(
                 .map { it.remove }
                 .forEach { it.invoke() }
             addComment(CommentOptions(attachmentRemovedMessage))
-            addRawRestrictedComment("Attachments:\n$commentInfo", "helper")
+            addRawRestrictedComment("Removed attachments:\n$commentInfo", "helper")
         }
     }
 

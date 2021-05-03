@@ -33,12 +33,12 @@ class AttachmentModule(
         .map { it.uploader!!.name }
         .run {
             when (size) {
-                1 -> "[${get(0)}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${get(0)}]"
-                2 -> "[${get(0)}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${get(0)}] " +
-                        "and [${get(1)}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${get(1)}]"
+                1 -> "[~${get(0)}]"
+                2 -> "[~${get(0)}] " +
+                        "and [~${get(1)}]"
                 else -> subList(0, lastIndex)
-                    .map { "[$it|https://bugs.mojang.com/secure/ViewProfile.jspa?name=$it], " } +
-                        "and [${last()}|https://bugs.mojang.com/secure/ViewProfile.jspa?name=${last()}]"
+                    .map { "[~$it], " } +
+                        "and [~${last()}]"
             }
         }
 

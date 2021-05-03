@@ -29,7 +29,6 @@ class AttachmentModule(
     }
 
     private fun List<Attachment>.getCommentInfo() = this
-        .map { it }
         .run {
             when (size) {
                 1 -> "[~${get(0).uploader!!.name}]: ${get(0).name}"

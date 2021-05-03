@@ -29,13 +29,8 @@ class AttachmentModule(
     }
 
     private fun List<Attachment>.getCommentInfo() = this
-        .run {
-            when (size) {
-                1 -> "[~${get(0).uploader!!.name}]: ${get(0).name}"
-                else -> subList(0, lastIndex)
-                    .map { "[~${get(0).uploader!!.name}]: ${get(0).name}\n" }
-            }
-        }
+        .map { "- [~${it.uploader!!.name}]: ${it.name}" }
+            .joinToString { "\n" }
 
     private fun endsWithBlacklistedExtensions(extensionBlackList: List<String>, name: String) =
         extensionBlackList.any { name.endsWith(it) }

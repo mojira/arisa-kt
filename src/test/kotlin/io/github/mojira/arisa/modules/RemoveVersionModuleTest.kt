@@ -23,7 +23,7 @@ private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1", 
 private val VERSION_REMOVED =
     mockChangeLogItem(field = "Version", changedFrom = "1", author = User("arisabot", null) { emptyList() })
 private val VERSION_REMOVED_WITH_TO =
-    mockChangeLogItem(field = "Version", changedFrom = "1", changedTo = "1", author = User("arisabot", null) { emptyList() })
+    mockChangeLogItem(field = "Version", changedFrom = "1", changedTo = "2", author = User("arisabot", null) { emptyList() })
 
 class RemoveVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {

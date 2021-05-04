@@ -136,8 +136,8 @@ object Arisa : ConfigSpec() {
             val commentDelayMinutes by required<Long>(
                 description = "Delay in which the module should add the comment in minutes"
             )
-            val preventMessageTag by required<String>(
-                description = "A tag used to indicate that Arisa should not comment the duplicate message"
+            val preventMessageTags by required<List<String>>(
+                description = "A list of tags used to indicate that Arisa should not comment the duplicate message"
             )
         }
 

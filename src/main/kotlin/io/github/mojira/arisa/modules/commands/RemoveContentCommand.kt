@@ -20,7 +20,7 @@ const val REMOVABLE_ACTIVITY_CAP = 200
 const val REMOVE_USER_SLEEP_INTERVAL = 10
 
 @Suppress("LongParameterList")
-class RemoveUserCommand(
+class RemoveContentCommand(
     val searchIssues: (String, Int) -> Either<Throwable, List<String>>,
     val getIssue: (String) -> Either<Throwable, Pair<String, Issue>>,
     val execute: (Runnable) -> Unit,

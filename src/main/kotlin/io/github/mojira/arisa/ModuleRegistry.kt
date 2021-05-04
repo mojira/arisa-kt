@@ -167,7 +167,7 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.DuplicateMessage.forwardMessage],
                 config[Modules.DuplicateMessage.ticketMessages],
                 config[Modules.DuplicateMessage.privateMessage],
-                config[Modules.DuplicateMessage.preventMessageTag],
+                config[Modules.DuplicateMessage.preventMessageTags],
                 config[Modules.DuplicateMessage.resolutionMessages]
             )
         ) { lastRun ->

@@ -21,14 +21,14 @@ class DuplicateMessageModule(
     private val forwardMessage: String,
     private val ticketMessages: Map<String, String>,
     private val privateMessage: String,
-    private val preventMessageTag: String,
+    private val preventMessageTags: List<String>,
     private val resolutionMessages: Map<String, String>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertLinkedAfterLastRun(changeLog, lastRun).bind()
 
-            assertNotNull(preventMessageTag).bind()
+            assertNotNull(preventMessageTags).bind()
             assertNotContainsPreventMessageTag(comments).bind()
 
             val historicalParentKeys = changeLog
@@ -36,6 +36,7 @@ class DuplicateMessageModule(
                 .map { it.changedTo!! }
             val visibleComments = comments
                 .filter(::isPublicComment)
+                .filter(::createdByVolunteer)
             assertNoneIsMentioned(visibleComments, historicalParentKeys).bind()
 
             val parents = links
@@ -131,10 +132,13 @@ class DuplicateMessageModule(
 
     private fun isPreventMessageTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
-            (comment.body?.contains(preventMessageTag!!) ?: false)
+            preventMessageTags.any { comment.body!!.contains(it) }
 
     private fun assertNotContainsPreventMessageTag(comments: List<Comment>) = when {
         comments.any(::isPreventMessageTag) -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
+
+    private fun createdByVolunteer(comment: Comment) =
+        comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 }

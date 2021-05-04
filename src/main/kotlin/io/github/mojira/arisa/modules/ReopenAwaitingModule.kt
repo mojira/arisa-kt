@@ -8,7 +8,9 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -41,7 +43,7 @@ class ReopenAwaitingModule(
                 reopen()
             } else {
                 assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
-                if (comments.none(::isKeepARMessage)) {
+                if (comments.none { isKeepARMessage(it, project) }) {
                     addComment(CommentOptions(message))
                 }
             }
@@ -78,8 +80,10 @@ class ReopenAwaitingModule(
             comment.visibilityValue == "staff" &&
             (comment.body?.contains(keepARTag) ?: false)
 
-    private fun isKeepARMessage(comment: Comment) = comment.author.name == "arisabot" &&
-            (comment.body?.contains(message) ?: false)
+    private fun isKeepARMessage(comment: Comment, project: Project) = comment.author.name == "arisabot" &&
+            (comment.body?.contains(HelperMessageService.getMessageWithBotSignature(
+                    project.key, message, null, "en"
+            )) ?: false)
 
     private fun getValidComments(
         comments: List<Comment>,

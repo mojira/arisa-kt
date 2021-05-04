@@ -17,6 +17,8 @@ private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
 private val VERSION = mockVersion(id = "1", released = true, archived = false)
 
+private val EXTRA_VERSION = mockVersion(id = "2", released = true, archived = false)
+
 private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1", author = User("arisabot", null) { emptyList() })
 private val VERSION_REMOVED =
     mockChangeLogItem(field = "Version", changedFrom = "1", author = User("arisabot", null) { emptyList() })
@@ -28,9 +30,9 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(VERSION, EXTRA_VERSION),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(VERSION, EXTRA_VERSION)
             )
         )
 
@@ -43,7 +45,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(VERSION, EXTRA_VERSION),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -51,7 +53,7 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(VERSION, EXTRA_VERSION)
             )
         )
 
@@ -64,7 +66,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(VERSION, EXTRA_VERSION),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -74,7 +76,26 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(VERSION, EXTRA_VERSION)
+            )
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when only one version is present" {
+        val module = RemoveVersionModule("removed-version")
+        val issue = mockIssue(
+            created = FIVE_SECONDS_AGO,
+            affectedVersions = listOf(VERSION),
+            resolution = "Invalid",
+            changeLog = listOf(
+                ADD_VERSION
+            ),
+            project = mockProject(
+                versions = listOf(VERSION, EXTRA_VERSION)
             )
         )
 
@@ -87,7 +108,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(VERSION, EXTRA_VERSION),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -96,7 +117,7 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(VERSION, EXTRA_VERSION)
             )
         )
 
@@ -109,7 +130,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(VERSION),
+            affectedVersions = listOf(VERSION, EXTRA_VERSION),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -119,7 +140,7 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(VERSION, EXTRA_VERSION)
             )
         )
 
@@ -132,7 +153,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             project = mockProject(
-                versions = listOf(VERSION)
+                versions = listOf(VERSION, EXTRA_VERSION)
             )
         )
 
@@ -148,10 +169,10 @@ class RemoveVersionModuleTest : StringSpec({
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
-            affectedVersions = listOf(version),
+            affectedVersions = listOf(version, EXTRA_VERSION),
             changeLog = listOf(ADD_VERSION),
             project = mockProject(
-                versions = listOf(version)
+                versions = listOf(version, EXTRA_VERSION)
             )
         )
 
@@ -169,10 +190,10 @@ class RemoveVersionModuleTest : StringSpec({
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
-            affectedVersions = listOf(version),
+            affectedVersions = listOf(version, EXTRA_VERSION),
             changeLog = listOf(ADD_VERSION, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED),
             project = mockProject(
-                versions = listOf(version)
+                versions = listOf(version, EXTRA_VERSION)
             ),
             changeReporter = { reporterChanged = true }
         )
@@ -192,10 +213,10 @@ class RemoveVersionModuleTest : StringSpec({
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
-            affectedVersions = listOf(version),
+            affectedVersions = listOf(version, EXTRA_VERSION),
             changeLog = listOf(ADD_VERSION, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED),
             project = mockProject(
-                versions = listOf(version)
+                versions = listOf(version, EXTRA_VERSION)
             ),
             changeReporter = { reporterChanged = true }
         )
@@ -215,7 +236,7 @@ class RemoveVersionModuleTest : StringSpec({
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
-            affectedVersions = listOf(version),
+            affectedVersions = listOf(version, EXTRA_VERSION),
             changeLog = listOf(
                 ADD_VERSION,
                 VERSION_REMOVED,
@@ -225,7 +246,7 @@ class RemoveVersionModuleTest : StringSpec({
                 VERSION_REMOVED_WITH_TO
             ),
             project = mockProject(
-                versions = listOf(version)
+                versions = listOf(version, EXTRA_VERSION)
             ),
             changeReporter = { reporterChanged = true }
         )
@@ -243,7 +264,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(version),
+            affectedVersions = listOf(version, EXTRA_VERSION),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -253,7 +274,7 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(version)
+                versions = listOf(version, EXTRA_VERSION)
             )
         )
 
@@ -269,7 +290,7 @@ class RemoveVersionModuleTest : StringSpec({
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(version),
+            affectedVersions = listOf(version, EXTRA_VERSION),
             resolution = "Invalid",
             changeLog = listOf(
                 mockChangeLogItem(
@@ -279,7 +300,7 @@ class RemoveVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(version)
+                versions = listOf(version, EXTRA_VERSION)
             )
         )
 

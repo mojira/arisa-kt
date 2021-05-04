@@ -206,6 +206,8 @@ arisa:
         - MCL
         - MCPE
         - REALMS
+      excludedStatuses:
+        - Postponed
       resolutions:
         - Unresolved
       confirmationStatusWhitelist:

@@ -19,35 +19,18 @@ class AttachmentModule(
             val functions = attachments
                 .filter { endsWithBlacklistedExtensionAdapter(it.name) }
             assertNotEmpty(functions).bind()
-            val usernames = functions.getUsernames()
-            val attachmentNames = functions.getAttachmentNames()
+            val commentInfo = functions.getCommentInfo()
             functions
                 .map { it.remove }
                 .forEach { it.invoke() }
             addComment(CommentOptions(attachmentRemovedMessage))
-            addRawRestrictedComment("Attachment Details:\nFilename: $attachmentNames\nUploader: $usernames", "helper")
+            addRawRestrictedComment("Removed attachments:\n$commentInfo", "helper")
         }
     }
 
-    private fun List<Attachment>.getUsernames() = this
-        .map { it.uploader!!.name }
-        .run {
-            when (size) {
-                1 -> get(0)
-                2 -> "${get(0)}* and *${get(1)}"
-                else -> "${subList(0, lastIndex).joinToString("*, *")}*, and *${last()}"
-            }
-        }
-
-    private fun List<Attachment>.getAttachmentNames() = this
-        .map { it.name }
-        .run {
-            when (size) {
-                1 -> get(0)
-                2 -> "${get(0)} and ${get(1)}"
-                else -> "${subList(0, lastIndex).joinToString(", ")}, and ${last()}"
-            }
-        }
+    private fun List<Attachment>.getCommentInfo() = this
+        .map { "- [~${it.uploader!!.name}]: ${it.name}" }
+            .joinToString { "\n" }
 
     private fun endsWithBlacklistedExtensions(extensionBlackList: List<String>, name: String) =
         extensionBlackList.any { name.endsWith(it) }

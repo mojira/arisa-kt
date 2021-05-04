@@ -18,6 +18,7 @@ class RemoveVersionModule(
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }
                 .map { it.remove }
+            assertGreaterThan(affectedVersions.size, removeAddedVersions.size).bind()
             assertNotEmpty(removeAddedVersions).bind()
             removeAddedVersions.forEach(::run)
             if (calledMoreThanMaxTimes(changeLog)) {

@@ -282,7 +282,10 @@ class ModuleRegistry(private val config: Config) {
 
         register(
             Modules.Command,
-            CommandModule(config[Modules.Command.commandPrefix])
+            CommandModule(
+                config[Modules.Command.commandPrefix],
+                config[Credentials.username]
+            )
         )
 
         register(

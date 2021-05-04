@@ -5,5 +5,6 @@ import io.github.mojira.arisa.domain.Issue
 
 data class CommandSource(
     val issue: Issue,
-    val comment: Comment
+    val comment: Comment,
+    val line: Int
 )

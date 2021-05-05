@@ -1,11 +1,17 @@
 package io.github.mojira.arisa.modules.commands
 
+import arrow.core.Either
+import arrow.core.right
+import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
+import io.github.mojira.arisa.infrastructure.jira.getIssue
+import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
+import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 
@@ -13,14 +19,26 @@ import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 fun getCommandDispatcher(
     prefix: String
 ): CommandDispatcher<CommandSource> {
-    val addLinksCommand: Command1<LinkList> = AddLinksCommand()
-    val addVersionCommand: Command1<String> = AddVersionCommand()
-    val deleteCommentsCommand: Command1<String> = DeleteCommentsCommand()
-    val deleteLinksCommand: Command1<LinkList> = DeleteLinksCommand()
-    val fixCapitalizationCommand: Command1<String> = FixCapitalizationCommand()
-    val fixedCommand: Command1<String> = FixedCommand()
-    val purgeAttachmentCommand: Command2<Int, Int> = PurgeAttachmentCommand()
-    val removeUserCommand: Command1<String> = RemoveUserCommand()
+    val addLinksCommand = AddLinksCommand()
+    val addVersionCommand = AddVersionCommand()
+    val deleteCommentsCommand = DeleteCommentsCommand()
+    val deleteLinksCommand = DeleteLinksCommand()
+    val fixCapitalizationCommand = FixCapitalizationCommand()
+    val fixedCommand = FixedCommand()
+    val listUserActivityCommand = ListUserActivityCommand(
+        ::getIssuesFromJql.partially1(jiraClient)
+    )
+    val purgeAttachmentCommand = PurgeAttachmentCommand()
+    val removeContentCommand = RemoveContentCommand(
+        ::getIssuesFromJql.partially1(jiraClient),
+        {
+            when (val issue = getIssue(jiraClient, it)) {
+                is Either.Left -> issue
+                is Either.Right -> (it to issue.b).right()
+            }
+        },
+        { Thread(it).start() }
+    )
 
     return CommandDispatcher<CommandSource>().apply {
         val addLinksCommandNode =
@@ -88,8 +106,7 @@ fun getCommandDispatcher(
                     argument<CommandSource, String>("empty", greedyString())
                         .executes {
                             fixCapitalizationCommand(
-                                it.source.issue,
-                                it.getString("empty")
+                                it.source.issue
                             )
                         }
                 )
@@ -107,37 +124,63 @@ fun getCommandDispatcher(
                         }
                 )
 
-        val purgeAttachmentCommandNode =
-            literal<CommandSource>("${prefix}_PURGE_ATTACHMENT")
-                .requires(::sentByModerator)
-                .then(
-                    argument<CommandSource, Int>("start", integer(0))
-                        .executes {
-                            purgeAttachmentCommand(
-                                it.source.issue,
-                                it.getInt("start"),
-                                Int.MAX_VALUE
-                            )
-                        }
-                        .then(
-                            argument<CommandSource, Int>("end", integer(0))
-                                .executes {
-                                    purgeAttachmentCommand(
-                                        it.source.issue,
-                                        it.getInt("start"),
-                                        it.getInt("end")
-                                    )
-                                }
-                        )
-                )
-
-        val removeUserCommandNode =
-            literal<CommandSource>("${prefix}_REMOVE_USER")
+        val listUserActivityCommandNode =
+            literal<CommandSource>("${prefix}_LIST_USER_ACTIVITY")
                 .requires(::sentByModerator)
                 .then(
                     argument<CommandSource, String>("username", greedyString())
                         .executes {
-                            removeUserCommand(
+                            listUserActivityCommand(
+                                it.source.issue,
+                                it.getString("username")
+                            )
+                        }
+                )
+
+        val purgeAttachmentCommandNode =
+            literal<CommandSource>("${prefix}_PURGE_ATTACHMENT")
+                .requires(::sentByModerator)
+                .then(
+                    argument<CommandSource, String>("username", greedyString())
+                        .executes {
+                            purgeAttachmentCommand(
+                                it.source.issue,
+                                it.getString("username"),
+                                0,
+                                Int.MAX_VALUE
+                            )
+                        }
+                        .then(
+                            argument<CommandSource, Int>("minId", integer(0))
+                                .executes {
+                                    purgeAttachmentCommand(
+                                        it.source.issue,
+                                        it.getString("username"),
+                                        it.getInt("minId"),
+                                        Int.MAX_VALUE
+                                    )
+                                }
+                                .then(
+                                    argument<CommandSource, Int>("maxId", integer(0))
+                                        .executes {
+                                            purgeAttachmentCommand(
+                                                it.source.issue,
+                                                it.getString("username"),
+                                                it.getInt("minId"),
+                                                it.getInt("maxId")
+                                            )
+                                        }
+                                )
+                        )
+                )
+
+        val removeContentCommandNode =
+            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
+                .requires(::sentByModerator)
+                .then(
+                    argument<CommandSource, String>("username", greedyString())
+                        .executes {
+                            removeContentCommand(
                                 it.source.issue,
                                 it.getString("username")
                             )
@@ -150,10 +193,11 @@ fun getCommandDispatcher(
         register(deleteLinksCommandNode)
         register(fixCapitalizationCommandNode)
         register(fixedCommandNode)
+        register(listUserActivityCommandNode)
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
-        register(removeUserCommandNode)
+        register(removeContentCommandNode)
     }
 }
 

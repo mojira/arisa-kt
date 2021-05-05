@@ -118,6 +118,11 @@ arisa:
         MC-128302: duplicate-of-mc-128302
         MCL-5638: duplicate-of-mcl-5638
       privateMessage: duplicate-private
+      preventMessageTags:
+        - ARISA_NO_DUPLICATE_MESSAGE
+        - ARISA_NO_DUPE_MESSAGE
+        - ARISA_NO_DUPLICATE_MSG
+        - ARISA_NO_DUPE_MSG
       resolutionMessages:
         Fixed: duplicate-fixed
         Works As Intended: duplicate-wai
@@ -201,6 +206,8 @@ arisa:
         - MCL
         - MCPE
         - REALMS
+      excludedStatuses:
+        - Postponed
       resolutions:
         - Unresolved
       confirmationStatusWhitelist:

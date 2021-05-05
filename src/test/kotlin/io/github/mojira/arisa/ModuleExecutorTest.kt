@@ -5,7 +5,6 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
@@ -66,7 +65,7 @@ class ModuleExecutorTest : StringSpec({
         val moduleExecutor =
             getMockModuleExecutor(
                 registry = moduleRegistryMock,
-                searchIssues = { _, _, _, _, _ -> throw RuntimeException() }
+                searchIssues = { _, _, _ -> throw RuntimeException() }
             )
 
         val result = moduleExecutor.execute(Instant.now(), setOf("MC-1"))
@@ -83,10 +82,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.size shouldBe 1
     }
@@ -94,7 +91,7 @@ class ModuleExecutorTest : StringSpec({
     "should allow issues that pass all checks for Reopen Awaiting" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
-            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(resolution = "Awaiting Response")) }
+            searchIssues = { _, _, _ -> listOf(mockIssue(resolution = "Awaiting Response")) }
         )
 
         val result = moduleExecutor.getIssues(
@@ -102,10 +99,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.size shouldBe 1
     }
@@ -113,7 +108,7 @@ class ModuleExecutorTest : StringSpec({
     "should filter issues where project is not in global whitelist" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
-            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(project = mockProject(key = "TEST"))) }
+            searchIssues = { _, _, _ -> listOf(mockIssue(project = mockProject(key = "TEST"))) }
         )
 
         val result = moduleExecutor.getIssues(
@@ -121,10 +116,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -132,7 +125,7 @@ class ModuleExecutorTest : StringSpec({
     "should filter issues where project is not in module whitelist" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
-            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(project = mockProject(key = "MCD"))) }
+            searchIssues = { _, _, _ -> listOf(mockIssue(project = mockProject(key = "MCD"))) }
         )
 
         val result = moduleExecutor.getIssues(
@@ -140,10 +133,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -151,7 +142,7 @@ class ModuleExecutorTest : StringSpec({
     "should filter issues where status is in excluded status" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
-            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(status = "Postponed")) }
+            searchIssues = { _, _, _ -> listOf(mockIssue(status = "Postponed")) }
         )
 
         val result = moduleExecutor.getIssues(
@@ -159,10 +150,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -175,17 +164,15 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
     "should filter issues where resolution is null and unresolved is in excluded resolution" {
         val moduleExecutor = getMockModuleExecutor(
             registry = moduleRegistryMock,
-            searchIssues = { _, _, _, _, _ -> listOf(mockIssue(resolution = null)) }
+            searchIssues = { _, _, _ -> listOf(mockIssue(resolution = null)) }
         )
 
         val result = moduleExecutor.getIssues(
@@ -193,10 +180,8 @@ class ModuleExecutorTest : StringSpec({
             listOf(),
             "",
             Cache(),
-            0,
-            { },
-            Cache()
-        )
+            0
+        ) { }
 
         result.shouldBeEmpty()
     }
@@ -234,14 +219,12 @@ class ModuleExecutorTest : StringSpec({
 fun getMockModuleExecutor(
     registry: ModuleRegistry = moduleRegistryMock,
     queryCache: Cache<List<Issue>> = Cache(),
-    issueUpdateContextCache: IssueUpdateContextCache = IssueUpdateContextCache(),
-    searchIssues: (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue> =
-        { _, _, _, _, _ -> listOf(mockIssue()) }
+    searchIssues: (String, Int, () -> Unit) -> List<Issue> =
+        { _, _, _ -> listOf(mockIssue()) }
 ): ModuleExecutor = ModuleExecutor(
     getConfig(),
     registry,
     queryCache,
-    issueUpdateContextCache,
     searchIssues
 )
 

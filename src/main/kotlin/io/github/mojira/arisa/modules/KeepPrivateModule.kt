@@ -19,13 +19,21 @@ class KeepPrivateModule(
             assertNotNull(keepPrivateTag).bind()
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
-            assertChangedByUser(changeLog, securityLevel, project.privateSecurity).bind()
 
             setPrivate()
 
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
-            if (changedTime != null && changedTime.isAfter(markedTime)) {
+            if (
+                changeLog
+                    .filter { isSecurityChangeToPublic(it, securityLevel, project.privateSecurity) }
+                    .any { item -> item.getAuthorGroups()!!
+                        .any { it == "global-moderators" || it == "staff" }
+                    }
+            ) {
+                addRawRestrictedComment("To remove the security level," +
+                        "please remove the keep private tag first.", "staff")
+            } else if (changedTime != null && changedTime.isAfter(markedTime)) {
                 addComment(CommentOptions(message))
             }
         }
@@ -48,22 +56,6 @@ class KeepPrivateModule(
 
     private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
         if (securityLevel == privateLevel)
-            OperationNotNeededModuleResponse.left()
-        else
-            Unit.right()
-
-    private fun assertChangedByUser(
-        changeLog: List<ChangeLogItem>,
-        securityLevel: String?,
-        privateLevel: String
-    ) =
-        if (
-            changeLog
-                .filter { isSecurityChangeToPublic(it, securityLevel, privateLevel) }
-                .any { item -> item.getAuthorGroups()!!
-                    .any { it == "global-moderators" || it == "staff" }
-                }
-        )
             OperationNotNeededModuleResponse.left()
         else
             Unit.right()

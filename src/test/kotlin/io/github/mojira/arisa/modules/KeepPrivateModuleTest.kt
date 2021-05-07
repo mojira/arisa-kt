@@ -21,6 +21,7 @@ private val REMOVE_SECURITY_STAFF = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "security",
     changedFromString = "10318",
+    changedToString = "not private",
     getAuthorGroups = { listOf("staff") }
 )
 

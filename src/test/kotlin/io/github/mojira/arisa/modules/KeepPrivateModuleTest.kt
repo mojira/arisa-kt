@@ -113,7 +113,7 @@ class KeepPrivateModuleTest : StringSpec({
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY_STAFF),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addRawRestrictedComment = { _, _  -> didComment = true; Unit.right() }
+            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

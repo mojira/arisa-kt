@@ -13,7 +13,15 @@ import io.kotest.matchers.shouldBe
 private val REMOVE_SECURITY = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
     field = "security",
-    changedFromString = "10318"
+    changedFromString = "10318",
+    getAuthorGroups = { listOf("user") }
+)
+
+private val REMOVE_SECURITY_STAFF = mockChangeLogItem(
+    created = RIGHT_NOW.minusSeconds(10),
+    field = "security",
+    changedFromString = "10318",
+    getAuthorGroups = { listOf("staff") }
 )
 
 class KeepPrivateModuleTest : StringSpec({
@@ -90,7 +98,7 @@ class KeepPrivateModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should both set to private and comment when security level is null" {
+    "should return OperationNotNeededModuleResponse when security level is removed by staff" {
         var didSetToPrivate = false
         var didComment = false
 
@@ -102,6 +110,32 @@ class KeepPrivateModuleTest : StringSpec({
             visibilityValue = "staff"
         )
         val issue = mockIssue(
+            comments = listOf(comment),
+            changeLog = listOf(REMOVE_SECURITY_STAFF),
+            setPrivate = { didSetToPrivate = true; Unit.right() },
+            addComment = { didComment = true; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        didSetToPrivate shouldBe true
+        didComment shouldBe true
+    }
+
+    "should both set to private and comment when security level is not private" {
+        var didSetToPrivate = false
+        var didComment = false
+
+        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val comment = mockComment(
+            body = "MEQS_KEEP_PRIVATE",
+            created = RIGHT_NOW.minusSeconds(20),
+            visibilityType = "group",
+            visibilityValue = "staff"
+        )
+        val issue = mockIssue(
+            securityLevel = "not private",
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY),
             setPrivate = { didSetToPrivate = true; Unit.right() },

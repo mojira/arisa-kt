@@ -19,6 +19,7 @@ class KeepPrivateModule(
             assertNotNull(keepPrivateTag).bind()
             assertContainsKeepPrivateTag(comments).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
+            assertChangedByUser(changeLog, securityLevel, project.privateSecurity).bind()
 
             setPrivate()
 
@@ -36,6 +37,10 @@ class KeepPrivateModule(
 
     private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
 
+    private fun isSecurityChangeToPublic(item: ChangeLogItem, securityLevel: String?, privateLevel: String) =
+        item.field == "security" &&  item.changedFrom == privateLevel && item.changedTo == securityLevel &&
+                securityLevel != privateLevel
+
     private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {
         comments.any(::isKeepPrivateTag) -> Unit.right()
         else -> OperationNotNeededModuleResponse.left()
@@ -46,4 +51,18 @@ class KeepPrivateModule(
             OperationNotNeededModuleResponse.left()
         else
             Unit.right()
+
+    private fun assertChangedByUser(
+        changeLog: List<ChangeLogItem>,
+        securityLevel: String?,
+        privateLevel: String
+    ) =
+        when {
+            changeLog
+                .filter { isSecurityChangeToPublic(it, securityLevel, privateLevel) }
+                .any { item -> item.getAuthorGroups()!!
+                    .any { it == "global-moderators" || it == "staff" }
+                } -> OperationNotNeededModuleResponse.left()
+            else -> Unit.right()
+        }
 }

@@ -99,9 +99,6 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when security level is removed by staff" {
-        var didSetToPrivate = false
-        var didComment = false
-
         val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
@@ -111,16 +108,12 @@ class KeepPrivateModuleTest : StringSpec({
         )
         val issue = mockIssue(
             comments = listOf(comment),
-            changeLog = listOf(REMOVE_SECURITY_STAFF),
-            setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            changeLog = listOf(REMOVE_SECURITY_STAFF)
         )
 
         val result = module(issue, RIGHT_NOW)
 
-        result.shouldBeRight(ModuleResponse)
-        didSetToPrivate shouldBe true
-        didComment shouldBe true
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
     "should both set to private and comment when security level is not private" {

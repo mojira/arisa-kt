@@ -107,6 +107,7 @@ class KeepPrivateModuleTest : StringSpec({
             visibilityValue = "staff"
         )
         val issue = mockIssue(
+            securityLevel = "not private",
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY_STAFF)
         )
@@ -116,7 +117,7 @@ class KeepPrivateModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should both set to private and comment when security level is not private" {
+    "should both set to private and comment when security level is null" {
         var didSetToPrivate = false
         var didComment = false
 
@@ -128,7 +129,6 @@ class KeepPrivateModuleTest : StringSpec({
             visibilityValue = "staff"
         )
         val issue = mockIssue(
-            securityLevel = "not private",
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY),
             setPrivate = { didSetToPrivate = true; Unit.right() },

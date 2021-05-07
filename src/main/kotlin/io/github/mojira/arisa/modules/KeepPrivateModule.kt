@@ -57,12 +57,14 @@ class KeepPrivateModule(
         securityLevel: String?,
         privateLevel: String
     ) =
-        when {
+        if (
             changeLog
                 .filter { isSecurityChangeToPublic(it, securityLevel, privateLevel) }
                 .any { item -> item.getAuthorGroups()!!
                     .any { it == "global-moderators" || it == "staff" }
-                } -> OperationNotNeededModuleResponse.left()
-            else -> Unit.right()
-        }
+                }
+        )
+            OperationNotNeededModuleResponse.left()
+        else
+            Unit.right()
 }

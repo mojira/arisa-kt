@@ -24,12 +24,11 @@ class KeepPrivateModule(
 
             val markedTime = comments.first(::isKeepPrivateTag).created
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
+            val securityChange = changeLog
+                .lastOrNull() { isSecurityChangeToPublic(it, securityLevel, project.privateSecurity) }
             if (
-                changeLog
-                    .filter { isSecurityChangeToPublic(it, securityLevel, project.privateSecurity) }
-                    .any { item -> item.getAuthorGroups()!!
-                        .any { it == "global-moderators" || it == "staff" }
-                    }
+                securityChange != null && securityChange.getAuthorGroups()
+                    ?.any { it == "global-moderators" || it == "staff" } == true
             ) {
                 addRawRestrictedComment("To remove the security level," +
                         "please remove the keep private tag first.", "staff")

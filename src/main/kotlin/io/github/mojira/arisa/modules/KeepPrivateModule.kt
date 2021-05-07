@@ -38,7 +38,7 @@ class KeepPrivateModule(
     private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
 
     private fun isSecurityChangeToPublic(item: ChangeLogItem, securityLevel: String?, privateLevel: String) =
-        item.field == "security" &&  item.changedFrom == privateLevel && item.changedTo == securityLevel &&
+        item.field == "security" && item.changedFrom == privateLevel && item.changedTo == securityLevel &&
                 securityLevel != privateLevel
 
     private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {

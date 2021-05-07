@@ -108,7 +108,6 @@ class DuplicateMessageModule(
         val childCreationTime = child.created
         val parentCreationTime = issues.getCommonFieldOrNull { it.created }
         return if (
-            childCreationTime != null &&
             parentCreationTime != null &&
             childCreationTime.isBefore(parentCreationTime)
         ) {

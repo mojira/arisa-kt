@@ -26,14 +26,18 @@ class KeepPrivateModule(
             val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
             val securityChange = changeLog
                 .lastOrNull() { isSecurityChangeToPublic(it, securityLevel, project.privateSecurity) }
-            if (
-                securityChange != null && securityChange.getAuthorGroups()
-                    ?.any { it == "global-moderators" || it == "staff" } == true
-            ) {
-                addRawRestrictedComment("To remove the security level," +
-                        "please remove the keep private tag first.", "staff")
-            } else if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addComment(CommentOptions(message))
+            if (changedTime != null && changedTime.isAfter(markedTime)) {
+                if (
+                    securityChange != null && securityChange.getAuthorGroups()
+                        ?.any { it == "global-moderators" || it == "staff" } == true
+                ) {
+                    addRawRestrictedComment(
+                        "To remove the security level," +
+                                "please remove the keep private tag first.", "staff"
+                    )
+                } else {
+                    addComment(CommentOptions(message))
+                }
             }
         }
     }

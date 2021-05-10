@@ -61,11 +61,11 @@ class RemoveContentCommand(
         issue: io.github.mojira.arisa.domain.Issue,
         userName: String
     ): Int {
-        val escapedUserName = userName.replace("'", "\\'")
+        val escapedUserName = if (userName.contains('\'')) "\"$userName\"" else "'$userName'"
 
         val jql = """project != TRASH
-            | AND issueFunction IN commented("by '$escapedUserName'")
-            | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
+            | AND issueFunction IN commented("by $escapedUserName")
+            | OR issueFunction IN fileAttached("by $escapedUserName")"""
             .trimMargin().replace("[\n\r]", "")
 
         val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {

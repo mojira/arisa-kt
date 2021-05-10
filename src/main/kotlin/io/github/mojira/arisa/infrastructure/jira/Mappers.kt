@@ -21,6 +21,7 @@ import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.JiraException
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
 import net.rcarz.jiraclient.Attachment as JiraAttachment
@@ -172,13 +173,33 @@ fun JiraComment.toDomain(
 
 fun JiraUser.toDomain(jiraClient: JiraClient) = User(
     name, displayName,
-    ::getUserGroups.partially1(jiraClient).partially1(name)
+    ::getUserGroups.partially1(jiraClient).partially1(name),
+    ::isNewUser.partially1(jiraClient).partially1(name)
 )
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
     jiraClient,
     username
 ).fold({ null }, { it })
+
+private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
+    val escapedUserName = if (username.contains('\'')) "\"$username\"" else "'$username'"
+    val commentJql = """issueFunction IN commented("by $escapedUserName before -24h")"""
+
+    val oldCommentsExist = try {
+        jiraClient.countIssues(commentJql) > 0
+    } catch (_: JiraException) { false }
+
+    if (oldCommentsExist) return false
+
+    val reportJql = """project != TRASH AND reporter = '${username.replace("'", "\\'")}' AND created < -24h"""
+
+    val oldReportsExist = try {
+        jiraClient.countIssues(reportJql) > 0
+    } catch (_: JiraException) { true }
+
+    return !oldReportsExist
+}
 
 @Suppress("LongParameterList")
 fun JiraIssue.toLinkedIssue(

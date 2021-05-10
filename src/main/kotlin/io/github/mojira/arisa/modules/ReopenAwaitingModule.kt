@@ -91,6 +91,7 @@ class ReopenAwaitingModule(
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
+        .filterNot { it.author.isNewUser() }
         .filter {
             val roles = it.getAuthorGroups()
             roles == null || roles.intersect(blacklistedRoles).isEmpty()

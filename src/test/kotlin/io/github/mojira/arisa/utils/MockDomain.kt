@@ -203,11 +203,13 @@ fun mockProject(
 fun mockUser(
     name: String = "user",
     displayName: String = "User",
-    getGroups: () -> List<String>? = { null }
+    getGroups: () -> List<String>? = { null },
+    isNewUser: () -> Boolean = { false }
 ) = User(
     name,
     displayName,
-    getGroups
+    getGroups,
+    isNewUser
 )
 
 fun mockVersion(

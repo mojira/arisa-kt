@@ -61,7 +61,7 @@ class RemoveContentCommand(
         issue: io.github.mojira.arisa.domain.Issue,
         userName: String
     ): Int {
-        val escapedUserName = if (userName.contains('\'')) "\"$userName\"" else "'$userName'"
+        val escapedUserName = if (userName.contains('\'')) """\\"$userName\\"""" else "'$userName'"
 
         val jql = """project != TRASH
             | AND issueFunction IN commented("by $escapedUserName")

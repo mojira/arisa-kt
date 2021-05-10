@@ -54,6 +54,25 @@ class AttachmentModuleTest : StringSpec({
         removedAttachment.shouldBeTrue()
         observedCommentOptions shouldBe CommentOptions("attach-new-attachment")
     }
+
+    "should comment with attachment details when an attachment is removed" {
+        var removedAttachment = false
+        var attachmentContent = ""
+        val module = AttachmentModule(listOf(".test"), "attach-new-attachment")
+        val attachment = getAttachment(
+            remove = { removedAttachment = true }
+        )
+        val issue = mockIssue(
+            attachments = listOf(attachment),
+            addRawRestrictedComment = { it, _ -> attachmentContent = it }
+        )
+
+        val result = module(issue, NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        removedAttachment.shouldBeTrue()
+        attachmentContent.contains(".test").shouldBeTrue()
+    }
 })
 
 private fun getAttachment(

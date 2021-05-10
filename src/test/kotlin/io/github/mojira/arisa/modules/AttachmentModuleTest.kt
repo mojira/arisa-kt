@@ -64,7 +64,7 @@ class AttachmentModuleTest : StringSpec({
         )
         val issue = mockIssue(
             attachments = listOf(attachment),
-            addRawRestrictedComment = { _, _ -> attachmentContent = it }
+            addRawRestrictedComment = { it, _ -> attachmentContent = it }
         )
 
         val result = module(issue, NOW)

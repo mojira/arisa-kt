@@ -30,7 +30,7 @@ class ReopenAwaitingModule(
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
 
             val resolveTime = changeLog.last(::isAwaitingResolve).created
-            val validComments = getValidComments(comments, resolveTime, lastRun)
+            val validComments = getValidComments(comments, reporter, resolveTime, lastRun)
             val validChangeLog = getValidChangeLog(changeLog, reporter, resolveTime)
 
             assertEither(
@@ -87,11 +87,12 @@ class ReopenAwaitingModule(
 
     private fun getValidComments(
         comments: List<Comment>,
+        reporter: User?,
         resolveTime: Instant,
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
-        .filterNot { it.author.isNewUser() }
+        .filter { !it.author.isNewUser() || it.author.name == reporter?.name }
         .filter {
             val roles = it.getAuthorGroups()
             roles == null || roles.intersect(blacklistedRoles).isEmpty()

@@ -57,7 +57,9 @@ class CrashModule(
             .filter { it.second != null }
             .filterNot { issue.attachments.any { attachment -> attachment.name == getDeobfName(it.first) } }
         minecraftCrashesWithDeobf.forEach {
-            issue.addAttachment(File(getDeobfName(it.first)))
+            val file = File(getDeobfName(it.first))
+            file.writeText(it.second!!)
+            issue.addAttachment(file)
         }
     }
 

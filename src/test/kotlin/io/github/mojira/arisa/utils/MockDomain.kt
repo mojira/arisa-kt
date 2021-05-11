@@ -12,6 +12,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import java.io.File
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()
@@ -120,7 +121,8 @@ fun mockIssue(
     addNotEnglishComment: (language: String) -> Unit = { },
     addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> },
     markAsFixedInASpecificVersion: (version: String) -> Unit = { },
-    changeReporter: (reporter: String) -> Unit = { }
+    changeReporter: (reporter: String) -> Unit = { },
+    addAttachment: (file: File) -> Unit = { }
 ) = Issue(
     key,
     summary,
@@ -164,7 +166,8 @@ fun mockIssue(
     addNotEnglishComment,
     addRawRestrictedComment,
     markAsFixedInASpecificVersion,
-    changeReporter
+    changeReporter,
+    addAttachment
 )
 
 fun mockLink(

@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
+import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import io.github.mojira.arisa.log
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
@@ -61,11 +62,11 @@ class RemoveContentCommand(
         issue: io.github.mojira.arisa.domain.Issue,
         userName: String
     ): Int {
-        val escapedUserName = userName.replace("'", "\\'")
+        val issueFunctionInner = escapeIssueFunction(userName) { "by $it" }
 
         val jql = """project != TRASH
-            | AND issueFunction IN commented("by '$escapedUserName'")
-            | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
+            | AND issueFunction IN commented($issueFunctionInner)
+            | OR issueFunction IN fileAttached($issueFunctionInner)"""
             .trimMargin().replace("[\n\r]", "")
 
         val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {

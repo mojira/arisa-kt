@@ -18,8 +18,7 @@ class PrivacyModule(
         """.*\b([A-Z0-9]{4}-){3}[A-Z0-9]{4}\b.*""".toRegex(),
         """.*\bbraintree:[0-9]{6,7}\b.*""".toRegex(),
         """.*\b([A-Z0-9]{5}-){5}[A-Z0-9]{5}\b.*""".toRegex(),
-        """.*\b([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}\b.*""".toRegex(),
-        """.*\b[a-z0-9]{32}\b.*""".toRegex()
+        """.*\b([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}\b.*""".toRegex()
     )
 
     private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z0-9.\\-]{2,15}\\b".toRegex()

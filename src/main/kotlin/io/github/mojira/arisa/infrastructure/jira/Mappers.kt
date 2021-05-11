@@ -17,14 +17,15 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
 import net.sf.json.JSONObject
 import java.text.SimpleDateFormat
+import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
@@ -38,12 +39,18 @@ import net.rcarz.jiraclient.Version as JiraVersion
 fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachment(
     id,
     fileName,
-    createdDate.toInstant(),
+    getCreationDate(issue, id, createdDate.toInstant()),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
     this::download,
     author?.toDomain(jiraClient)
 )
+
+fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.changeLog.entries
+    .filter { it.items.any { it.field == "Attachment" && it.to == id } }
+    .maxByOrNull { it.created }
+    ?.created
+    ?.toInstant() ?: default
 
 fun JiraProject.getSecurityLevelId(config: Config) =
     config[Arisa.PrivateSecurityLevel.special][key] ?: config[Arisa.PrivateSecurityLevel.default]

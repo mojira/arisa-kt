@@ -47,8 +47,6 @@ class CrashModule(
         }
     }
 
-    private fun getDeobfName(name: String): String = "${name.substringBeforeLast(".")}-deobfuscated.txt"
-
     /**
      * Checks whether an analyzed crash report matches any of the specified known crash issues.
      * Returns the key of the parent bug report if one is found, and null otherwise.

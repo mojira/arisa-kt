@@ -58,7 +58,8 @@ class CrashInfoModule(
         }
     }
 
-    private fun getDeobfName(name: String): String = "${name.substringBeforeLast(".")}-deobfuscated.txt"
+    private fun getDeobfName(name: String): String =
+        "${name.substringBeforeLast(".").replace("\\", "").replace("/", "")}-deobfuscated.txt"
 
     private fun crashNewlyAdded(crash: Pair<AttachmentUtils.TextDocument, Crash>, lastRun: Instant) =
         crash.first.created.isAfter(lastRun)

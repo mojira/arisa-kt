@@ -15,6 +15,7 @@ import io.github.mojira.arisa.domain.Version
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()
+const val PRIVATE_SECURITY_LEVEL = "private"
 
 fun mockAttachment(
     id: String = "0",
@@ -193,7 +194,7 @@ fun mockLinkedIssue(
 fun mockProject(
     key: String = "MC",
     versions: List<Version> = emptyList(),
-    privateSecurity: String = "private"
+    privateSecurity: String = PRIVATE_SECURITY_LEVEL
 ) = Project(
     key,
     versions,

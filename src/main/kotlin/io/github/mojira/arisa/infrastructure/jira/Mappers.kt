@@ -39,7 +39,7 @@ import net.rcarz.jiraclient.Version as JiraVersion
 fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachment(
     id,
     fileName,
-    getCreationDate(issue, id, createdDate.toInstant()),
+    getCreationDate(issue, id, issue.createdDate.toInstant()),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
     this::download,

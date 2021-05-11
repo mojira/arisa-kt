@@ -29,8 +29,8 @@ class CrashModule(
 
             val crashes = AttachmentUtils(crashReportExtensions, crashReader).extractCrashesFromAttachments(issue)
 
-            assertContainsNewCrash(crashes, lastRun).bind()
-            uploadDeobfuscatedCrashes(issue, crashes)
+            val newCrashes = assertContainsNewCrash(crashes, lastRun).bind()
+            uploadDeobfuscatedCrashes(issue, newCrashes)
             assertNoValidCrash(crashes).bind()
 
             val key = crashes
@@ -61,7 +61,7 @@ class CrashModule(
         }
     }
 
-    private fun getDeobfName(name: String): String = "${name.substringAfterLast(".")}-deobfuscated.log"
+    private fun getDeobfName(name: String): String = "${name.substringBeforeLast(".")}-deobfuscated.txt"
 
     /**
      * Checks whether an analyzed crash report matches any of the specified known crash issues.
@@ -76,13 +76,13 @@ class CrashModule(
 
         return when (this) {
             is Crash.Minecraft -> minecraftConfigs
-                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(exception) }
-                    .orNull()
-                    ?.duplicates
+                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(exception) }
+                .orNull()
+                ?.duplicates
             is Crash.Java -> javaConfigs
-                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(code) }
-                    .orNull()
-                    ?.duplicates
+                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(code) }
+                .orNull()
+                ?.duplicates
             else -> null
         }
     }
@@ -93,11 +93,17 @@ class CrashModule(
     private fun crashNewlyAdded(crash: Pair<AttachmentUtils.TextDocument, Crash>, lastRun: Instant) =
         crash.first.created.isAfter(lastRun)
 
-    private fun assertContainsNewCrash(crashes: List<Pair<AttachmentUtils.TextDocument, Crash>>, lastRun: Instant) =
-        if (crashes.any(::crashNewlyAdded.partially2(lastRun)))
-            Unit.right()
-        else
+    private fun assertContainsNewCrash(
+        crashes: List<Pair<AttachmentUtils.TextDocument, Crash>>,
+        lastRun: Instant
+    ): Either<OperationNotNeededModuleResponse, List<Pair<AttachmentUtils.TextDocument, Crash>>> {
+        val newCrashes = crashes.filter(::crashNewlyAdded.partially2(lastRun))
+        return if (newCrashes.isNotEmpty()) {
+            newCrashes.right()
+        } else {
             OperationNotNeededModuleResponse.left()
+        }
+    }
 
     private fun assertNoValidCrash(crashes: List<Pair<AttachmentUtils.TextDocument, Crash>>) =
         if (crashes.all { isModded(it) || getDuplicateLink(it, crashDupeConfigs) != null })

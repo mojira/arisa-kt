@@ -22,5 +22,5 @@ jobs:
       with:
         arguments: build
         wrapper-cache-enabled: true
-        dependencies-cache-enabled: false
+        dependencies-cache-enabled: true
         configuration-cache-enabled: true

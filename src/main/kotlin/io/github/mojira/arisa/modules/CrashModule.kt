@@ -55,7 +55,13 @@ class CrashModule(
             .filter { it.second is Crash.Minecraft }
             .map { it.first to (it.second as Crash.Minecraft).deobf }
             .filter { it.second != null }
-            .filterNot { issue.attachments.any { attachment -> attachment.name == getDeobfName(it.first) } }
+            .filterNot {
+                issue.attachments.any { attachment ->
+                    attachment.name == getDeobfName(it.first) || attachment.name.endsWith(
+                        "deobfuscated.txt"
+                    )
+                }
+            }
         minecraftCrashesWithDeobf.forEach {
             val file = File(getDeobfName(it.first))
             file.writeText(it.second!!)

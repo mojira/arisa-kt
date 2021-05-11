@@ -14,7 +14,8 @@ class AttachmentUtils(
 ) {
     data class TextDocument(
         val getContent: () -> String,
-        val created: Instant
+        val created: Instant,
+        val name: String
     )
 
     fun extractCrashesFromAttachments(issue: Issue): List<Pair<TextDocument, Crash>> = with(issue) {
@@ -23,7 +24,7 @@ class AttachmentUtils(
             .map(::fetchAttachment)
             .toMutableList()
         // also add description, so it's searched for crash reports
-        textDocuments.add(TextDocument({ description ?: "" }, created))
+        textDocuments.add(TextDocument({ description ?: "" }, created, "description"))
 
         textDocuments
             .asSequence()
@@ -43,7 +44,7 @@ class AttachmentUtils(
             String(data)
         }
 
-        return TextDocument(getText, attachment.created)
+        return TextDocument(getText, attachment.created, attachment.name)
     }
 
     private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.getContent().lines())

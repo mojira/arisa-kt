@@ -27,6 +27,7 @@ import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
+import java.io.File
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
@@ -243,6 +244,32 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
                     }
                 }
                 Unit
+            }
+        }
+    }
+}
+
+fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File) {
+    context.value.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        context.value.jiraIssue.addAttachment(file)
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Couldn't upload ${file.name}")
+                        } else {
+                            throw e
+                        }
+                    } finally {
+                        if (file.exists()) {
+                            file.delete();
+                        }
+                    }
+                }
             }
         }
     }

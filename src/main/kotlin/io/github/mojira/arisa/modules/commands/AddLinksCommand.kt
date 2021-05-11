@@ -1,32 +1,15 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.addLinks
-import io.github.mojira.arisa.modules.assertTrue
-import io.github.mojira.arisa.modules.assertFalse
-import io.github.mojira.arisa.modules.concatLinkName
-import io.github.mojira.arisa.modules.convertLinks
-import io.github.mojira.arisa.modules.isTicketKey
-import io.github.mojira.arisa.modules.splitElemsByCommas
+import io.github.mojira.arisa.modules.commands.arguments.LinkList
 
-class AddLinksCommand : Command {
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size > 2).bind()
-        val list = arguments.toMutableList().subList(1, arguments.size).apply {
-            this.splitElemsByCommas()
-            this.concatLinkName()
-        }
-        val type = list[0]
-        assertFalse(type == "").bind()
-        list.apply {
-            this.removeAt(0)
-            this.convertLinks()
-        }
-        assertTrue(list.all { it.isTicketKey() }).bind()
-        addLinks(issue, type, list).bind()
+class AddLinksCommand {
+    operator fun invoke(issue: Issue, linkList: LinkList): Int {
+        val either = addLinks(issue, linkList.type, linkList.keys)
+        return either.fold(
+            { throw CommandExceptions.LEFT_EITHER.create(it) },
+            { linkList.keys.size }
+        )
     }
 }

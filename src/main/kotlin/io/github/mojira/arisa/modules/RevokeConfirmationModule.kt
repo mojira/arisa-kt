@@ -12,8 +12,7 @@ class RevokeConfirmationModule : Module {
         Either.fx {
             val volunteerConfirmation = changeLog
                 .filter(::isConfirmationChange)
-                .filter(::changedByVolunteer)
-                .lastOrNull()
+                .lastOrNull(::changedByVolunteer)
                 ?.changedToString.getOrDefault("Unconfirmed")
 
             assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()
@@ -32,10 +31,4 @@ class RevokeConfirmationModule : Module {
             .created
             .plus(1, ChronoUnit.DAYS)
             .isAfter(Instant.now())
-
-    private fun String?.getOrDefault(default: String) =
-        if (isNullOrBlank())
-            default
-        else
-            this
 }

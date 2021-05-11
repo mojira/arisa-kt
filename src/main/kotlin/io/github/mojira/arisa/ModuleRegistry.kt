@@ -3,20 +3,13 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import arrow.core.left
 import arrow.syntax.function.partially1
-import arrow.syntax.function.pipe
-import arrow.syntax.function.pipe2
-import arrow.syntax.function.pipe3
-import arrow.syntax.function.pipe4
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.infrastructure.getLanguage
-import io.github.mojira.arisa.modules.FailedModuleResponse
-import io.github.mojira.arisa.modules.Module
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
@@ -24,17 +17,23 @@ import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
+import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MissingCrashModule
+import io.github.mojira.arisa.modules.Module
+import io.github.mojira.arisa.modules.ModuleError
+import io.github.mojira.arisa.modules.ModuleResponse
 import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PrivacyModule
+import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveSpamModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveVersionModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
@@ -60,24 +59,42 @@ class ModuleRegistry(private val config: Config) {
 
     private val modules = mutableListOf<Entry>()
 
-    fun getModules(): List<Entry> {
-        val onlyModules = modules
-            .filter { config[it.config.only] }
-        return if (onlyModules.isEmpty()) {
-            modules
-        } else {
-            onlyModules
-        }
-    }
+    fun getAllModules(): List<Entry> = modules
+
+    fun getEnabledModules(): List<Entry> = modules.filter(::isModuleEnabled)
+
+    private fun isModuleEnabled(module: Entry) =
+        // If arisa.debug.enabledModules is defined, return whether that module is in that list.
+        // If it's not defined, return whether this module is enabled in the module config.
+        config[Arisa.Debug.enabledModules]?.contains(module.name) ?: config[module.config.enabled]
 
     private fun register(
-        config: ModuleConfigSpec,
+        moduleConfig: ModuleConfigSpec,
         module: Module,
         getJql: (lastRun: Instant) -> String = DEFAULT_JQL
-    ) = { issue: Issue, lastRun: Instant ->
-        config::class.simpleName!! to
-                ({ lastRun pipe (issue pipe2 module::invoke) } pipe ::tryExecuteModule)
-    } pipe (getJql pipe2 (config pipe3 (config::class.simpleName!! pipe4 ModuleRegistry::Entry))) pipe modules::add
+    ) {
+        val moduleName = moduleConfig::class.simpleName!!
+
+        modules.add(
+            Entry(
+                moduleName,
+                moduleConfig,
+                addDebugToJql(getJql),
+                getModuleResult(moduleName, module)
+            )
+        )
+    }
+
+    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, lastRun: Instant ->
+        moduleName to tryExecuteModule { module(issue, lastRun) }
+    }
+
+    private fun addDebugToJql(getJql: (Instant) -> String) = { lastRun: Instant ->
+        with(config[Arisa.Debug.ticketWhitelist]) {
+            if (this == null) getJql(lastRun)
+            else "key IN (${ joinToString(",") }) AND (${ getJql(lastRun) })"
+        }
+    }
 
     @Suppress("TooGenericExceptionCaught")
     private fun tryExecuteModule(executeModule: () -> Either<ModuleError, ModuleResponse>) = try {
@@ -147,8 +164,10 @@ class ModuleRegistry(private val config: Config) {
             DuplicateMessageModule(
                 config[Modules.DuplicateMessage.commentDelayMinutes],
                 config[Modules.DuplicateMessage.message],
+                config[Modules.DuplicateMessage.forwardMessage],
                 config[Modules.DuplicateMessage.ticketMessages],
                 config[Modules.DuplicateMessage.privateMessage],
+                config[Modules.DuplicateMessage.preventMessageTags],
                 config[Modules.DuplicateMessage.resolutionMessages]
             )
         ) { lastRun ->
@@ -162,9 +181,22 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.HideImpostors, HideImpostorsModule())
 
         register(
+            Modules.RemoveSpam,
+            RemoveSpamModule(
+                config[Modules.RemoveSpam.patterns]
+            )
+        )
+
+        register(
             Modules.KeepPrivate, KeepPrivateModule(
                 config[Modules.KeepPrivate.tag],
                 config[Modules.KeepPrivate.message]
+            )
+        )
+
+        register(
+            Modules.PrivateDuplicate, PrivateDuplicateModule(
+                config[Modules.PrivateDuplicate.tag]
             )
         )
 
@@ -186,7 +218,8 @@ class ModuleRegistry(private val config: Config) {
             Modules.Privacy,
             PrivacyModule(
                 config[Modules.Privacy.message],
-                config[Modules.Privacy.commentNote]
+                config[Modules.Privacy.commentNote],
+                config[Modules.Privacy.allowedEmailRegex].map(String::toRegex)
             )
         )
 
@@ -221,6 +254,7 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.ReopenAwaiting.blacklistedVisibilities],
                 config[Modules.ReopenAwaiting.softARDays],
                 config[Modules.ReopenAwaiting.keepARTag],
+                config[Modules.ReopenAwaiting.onlyOPTag],
                 config[Modules.ReopenAwaiting.message]
             )
         )
@@ -239,9 +273,20 @@ class ModuleRegistry(private val config: Config) {
             )
         )
 
-        register(Modules.RemoveVersion, RemoveVersionModule())
+        register(
+            Modules.RemoveVersion,
+            RemoveVersionModule(
+                config[Modules.RemoveVersion.message]
+            )
+        )
 
-        register(Modules.Command, CommandModule())
+        register(
+            Modules.Command,
+            CommandModule(
+                config[Modules.Command.commandPrefix],
+                config[Credentials.username]
+            )
+        )
 
         register(
             Modules.UpdateLinked,

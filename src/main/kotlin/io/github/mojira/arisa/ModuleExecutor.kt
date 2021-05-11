@@ -5,9 +5,9 @@ import arrow.syntax.function.partially2
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.jira.applyIssueChanges
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -18,12 +18,8 @@ class ModuleExecutor(
     private val config: Config,
     private val registry: ModuleRegistry,
     private val queryCache: Cache<List<Issue>>,
-    private val issueUpdateContextCache: IssueUpdateContextCache,
-    private val searchIssues:
-        (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue>
+    private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
 ) {
-    private var postedCommentCache = Cache<MutableSet<String>>()
-
     data class ExecutionResults(
         val successful: Boolean,
         val failedTickets: Collection<String>
@@ -35,7 +31,6 @@ class ModuleExecutor(
         rerunTickets: Set<String>
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
-        val newPostedCommentCache = Cache<MutableSet<String>>()
 
         try {
             var missingResultsPage: Boolean
@@ -44,7 +39,7 @@ class ModuleExecutor(
             do {
                 missingResultsPage = false
 
-                registry.getModules().forEach { (_, config, getJql, exec) ->
+                registry.getEnabledModules().forEach { (_, config, getJql, exec) ->
                     executeModule(
                         config,
                         queryCache,
@@ -53,8 +48,7 @@ class ModuleExecutor(
                         startAt,
                         failedTickets::add,
                         { missingResultsPage = true },
-                        exec.partially2(lastRun),
-                        newPostedCommentCache
+                        exec.partially2(lastRun)
                     )
                 }
 
@@ -66,7 +60,7 @@ class ModuleExecutor(
             log.error("Failed to execute modules", ex)
             return ExecutionResults(false, failedTickets)
         } finally {
-            postedCommentCache = newPostedCommentCache
+            CommentCache.flush()
         }
     }
 
@@ -79,18 +73,17 @@ class ModuleExecutor(
         startAt: Int,
         addFailedTicket: (String) -> Any,
         onQueryNotAtResultEnd: () -> Unit,
-        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>,
-        newPostedCommentCache: Cache<MutableSet<String>>
+        executeModule: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         getIssues(
-            moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd, newPostedCommentCache
+            moduleConfig, rerunTickets, moduleJql, queryCache, startAt, onQueryNotAtResultEnd
         )
             .map { it.key to executeModule(it) }
             .forEach { (issue, response) ->
                 response.second.fold({
                     when (it) {
-                        is OperationNotNeededModuleResponse -> if (config[Arisa.logOperationNotNeeded]) {
-                            log.info("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                        is OperationNotNeededModuleResponse -> if (config[Arisa.Debug.logOperationNotNeeded]) {
+                            log.debug("[RESPONSE] [$issue] [${response.first}] Operation not needed")
                         }
                         is FailedModuleResponse -> {
                             addFailedTicket(issue)
@@ -103,22 +96,10 @@ class ModuleExecutor(
                 }, {
                     log.info("[RESPONSE] [$issue] [${response.first}] Successful")
                 })
-                issueUpdateContextCache.storage.forEach {
-                    it.value.triggeredBy = it.value.triggeredBy ?: issue
-                }
+                IssueUpdateContextCache.updateTriggeredBy(issue)
             }
 
-        issueUpdateContextCache.storage
-            .mapValues { Pair(it.value.triggeredBy, applyIssueChanges(it.value)) }
-            .filterValues { (_, result) -> result.isLeft() }
-            .forEach { (updateTo, pair) ->
-                val (triggeredBy, result) = pair
-                (result as Either.Left).a.exceptions.forEach {
-                    log.error("[UPDATE] [TO $updateTo] [BY $triggeredBy] Failed", it)
-                }
-                addFailedTicket(triggeredBy!!)
-            }
-        issueUpdateContextCache.clear()
+        IssueUpdateContextCache.applyChanges(addFailedTicket)
     }
 
     @Suppress("LongParameterList")
@@ -128,12 +109,15 @@ class ModuleExecutor(
         moduleJql: String,
         queryCache: Cache<List<Issue>>,
         startAt: Int,
-        onQueryNotAtResultEnd: () -> Unit,
-        newPostedCommentCache: Cache<MutableSet<String>>
+        onQueryNotAtResultEnd: () -> Unit
     ): List<Issue> {
-        val projects = (config[moduleConfig.whitelist] ?: config[Arisa.Issues.projects])
-        val resolutions = config[moduleConfig.resolutions].map(String::toLowerCase)
+        val projects = config[moduleConfig.projects] ?: config[Arisa.Issues.projects]
+
+        val resolutions = (config[moduleConfig.resolutions] ?: config[Arisa.Issues.resolutions])
+            .map(String::toLowerCase)
+
         val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
+
         val failedTicketsJQL = with(rerunTickets) {
             if (isNotEmpty())
                 "key in (${joinToString(",")}) OR "
@@ -142,14 +126,16 @@ class ModuleExecutor(
 
         val jql = "$failedTicketsJQL($moduleJql)"
         val issues = queryCache.get(jql) ?: searchIssues(
-            postedCommentCache,
-            newPostedCommentCache,
             jql,
             startAt,
             onQueryNotAtResultEnd
         )
 
         queryCache.add(jql, issues)
+
+        if (config[Arisa.Debug.logReturnedIssues]) {
+            log.debug("Returned issues for module ${ moduleConfig::class.simpleName }: ${ issues.map { it.key } }")
+        }
 
         return issues
             .filter { it.project.key in projects }

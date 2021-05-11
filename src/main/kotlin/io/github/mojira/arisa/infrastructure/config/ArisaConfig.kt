@@ -3,12 +3,13 @@ package io.github.mojira.arisa.infrastructure.config
 import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
-    val logOperationNotNeeded by optional(false)
-
     object Credentials : ConfigSpec() {
         val username by required<String>()
         val password by required<String>()
-        val dandelionToken by required<String>(description = "Token for dandelion.eu")
+        val dandelionToken by optional<String?>(
+            null,
+            description = "Token for dandelion.eu"
+        )
         val discordLogWebhook by optional<String?>(
             null,
             description = "Webhook to post log in a Discord channel"
@@ -22,6 +23,9 @@ object Arisa : ConfigSpec() {
     object Issues : ConfigSpec() {
         val projects by required<List<String>>(
             description = "The projects to operate on. Used for default whitelist of modules"
+        )
+        val resolutions by required<List<String>>(
+            description = "The resolutions to operate on. Used for default whitelist of modules"
         )
         val url by required<String>(description = "The base url for the jira instance")
         val checkIntervalSeconds by required<Long>(description = "The interval in which all issues are checked")
@@ -52,20 +56,47 @@ object Arisa : ConfigSpec() {
         )
     }
 
+    object Debug : ConfigSpec() {
+        val enabledModules by optional<List<String>?>(
+            null,
+            description = "Disable all modules except for those in the list. " +
+                    "Entries must be module names (e.g. 'ReopenAwaiting'). " +
+                    "All modules are enabled if this is not specified."
+        )
+
+        val logOperationNotNeeded by optional(false)
+
+        val logReturnedIssues by optional(false)
+
+        val ticketWhitelist by optional<List<String>?>(
+            null,
+            description = "Ignore all tickets except those mentioned here. " +
+                    "Entries must be valid Mojira ticket keys. " +
+                    "The whitelist is disabled if this is not specified."
+        )
+
+        val updateLastRun by optional(
+            true,
+            description = "Whether or not the lastRun file should be saved after each run. " +
+                    "Do not disable this unless you've enabled the ticket whitelist."
+        )
+    }
+
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
-            val only by optional(
-                false,
-                description = "Optional. If set to true, only this module will be executed."
+            val enabled by optional(
+                true,
+                description = "Optional. Whether this module is enabled. " +
+                        "Modules are enabled by default unless debug.enabledModules is defined."
             )
-            val whitelist by optional<List<String>?>(
+            val projects by optional<List<String>?>(
                 null,
                 description = "Optional. The projects this module should operate on. Default is arisa.issues.projects"
             )
-            val resolutions by optional(
-                listOf("unresolved"),
+            val resolutions by optional<List<String>?>(
+                null,
                 description = "Optional. The resolutions that should be considered for this module." +
-                        " Default is unresolved."
+                        " Default is arisa.issues.resolutions"
             )
             val excludedStatuses by optional(
                 emptyList<String>(),
@@ -76,7 +107,8 @@ object Arisa : ConfigSpec() {
 
         object Attachment : ModuleConfigSpec() {
             val extensionBlacklist by required<List<String>>(
-                description = "The extensions that should be removed on issues. Default is no extensions."
+                description = "The extensions (including leading dots) that should be removed from issues. " +
+                        "Default is no extensions."
             )
             val comment by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
@@ -86,6 +118,10 @@ object Arisa : ConfigSpec() {
         object DuplicateMessage : ModuleConfigSpec() {
             val message by required<String>(
                 description = "The key of the message that is posted under duplicate tickets."
+            )
+            val forwardMessage by required<String>(
+                description = "The key of the message that is posted under duplicate tickets that are " +
+                        "newer than the current one."
             )
             val ticketMessages by required<Map<String, String>>(
                 description = "A map from ticket keys to keys of messages that are posted for specific parents"
@@ -99,6 +135,9 @@ object Arisa : ConfigSpec() {
             )
             val commentDelayMinutes by required<Long>(
                 description = "Delay in which the module should add the comment in minutes"
+            )
+            val preventMessageTags by required<List<String>>(
+                description = "A list of tags used to indicate that Arisa should not comment the duplicate message"
             )
         }
 
@@ -118,6 +157,10 @@ object Arisa : ConfigSpec() {
             val commentNote by optional(
                 "",
                 description = "The text which will be appended at the comments that are restricted by this module."
+            )
+            val allowedEmailRegex by optional<List<String>>(
+                default = emptyList(),
+                description = "List of regex for allowed emails"
             )
         }
 
@@ -180,8 +223,8 @@ object Arisa : ConfigSpec() {
                 description = "List of platforms that do not contribute to having multiple platforms"
             )
             val keepPlatformTag by required<String>(
-                    description = "The meqs tag that when placed in the comments will prevent the" +
-                            " plaform from being changed. Must be the same as KeepPlatform"
+                description = "The meqs tag that when placed in the comments will prevent the" +
+                        " plaform from being changed. Must be the same as KeepPlatform"
             )
         }
 
@@ -204,8 +247,11 @@ object Arisa : ConfigSpec() {
             )
             val softARDays by required<Long>(
                 description = "The ticket can also be reopened by comments posted by people other than the reporter " +
-                    "within the specific days after it was resolved. After the time has passed, only the reporter " +
-                    "can reopen the ticket."
+                        "within the specific days after it was resolved. After the time has passed, only the " +
+                        "reporter can reopen the ticket."
+            )
+            val onlyOPTag by required<String>(
+                description = "a tag used to indicate that only the reporter should be allowed to reopen the ticket"
             )
             val message by required<String>(
                 description = "The key of the message that is posted when the ticket is updated but will not be " +
@@ -261,7 +307,17 @@ object Arisa : ConfigSpec() {
             val tag by optional<String?>(null)
         }
 
+        object PrivateDuplicate : ModuleConfigSpec() {
+            val tag by optional<String?>(null)
+        }
+
         object HideImpostors : ModuleConfigSpec()
+
+        object RemoveSpam : ModuleConfigSpec() {
+            val patterns by required<List<SpamPatternConfig>>(
+                description = "Patterns that indicate that a comment is spam"
+            )
+        }
 
         object ResolveTrash : ModuleConfigSpec()
 
@@ -279,9 +335,17 @@ object Arisa : ConfigSpec() {
 
         object RemoveIdenticalLink : ModuleConfigSpec()
 
-        object RemoveVersion : ModuleConfigSpec()
+        object RemoveVersion : ModuleConfigSpec() {
+            val message by required<String>(
+                description = "The key of the message that is posted when this module succeeds."
+            )
+        }
 
-        object Command : ModuleConfigSpec()
+        object Command : ModuleConfigSpec() {
+            val commandPrefix by required<String>(
+                description = "The prefix for all arisa commands. It should not contain the joining underline."
+            )
+        }
     }
 }
 
@@ -290,3 +354,10 @@ data class CrashDupeConfig(
     val exceptionRegex: String,
     val duplicates: String
 )
+
+data class SpamPatternConfig(
+    val pattern: String,
+    val threshold: Int
+) {
+    val regex = pattern.toRegex()
+}

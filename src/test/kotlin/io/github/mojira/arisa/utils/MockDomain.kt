@@ -12,24 +12,28 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import java.io.File
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()
+const val PRIVATE_SECURITY_LEVEL = "private"
 
 fun mockAttachment(
     id: String = "0",
     name: String = "",
     created: Instant = RIGHT_NOW,
     mimeType: String = "text/plain",
-    remove: () -> Unit = { Unit },
-    getContent: () -> ByteArray = { ByteArray(0) }
+    remove: () -> Unit = { },
+    getContent: () -> ByteArray = { ByteArray(0) },
+    uploader: User = mockUser()
 ) = Attachment(
     id,
     name,
     created,
     mimeType,
     remove,
-    getContent
+    getContent,
+    uploader
 )
 
 fun mockChangeLogItem(
@@ -60,8 +64,8 @@ fun mockComment(
     updated: Instant = created,
     visibilityType: String? = null,
     visibilityValue: String? = null,
-    restrict: (String) -> Unit = { Unit },
-    update: (String) -> Unit = { Unit }
+    restrict: (String) -> Unit = { },
+    update: (String) -> Unit = { }
 ) = Comment(
     body,
     author,
@@ -94,28 +98,31 @@ fun mockIssue(
     platform: String? = null,
     project: Project = mockProject(),
     affectedVersions: List<Version> = emptyList(),
+    fixVersions: List<Version> = emptyList(),
     attachments: List<Attachment> = emptyList(),
     comments: List<Comment> = emptyList(),
     links: List<Link> = emptyList(),
     changeLog: List<ChangeLogItem> = emptyList(),
-    reopen: () -> Unit = { Unit },
-    resolveAsAwaitingResponse: () -> Unit = { Unit },
-    resolveAsInvalid: () -> Unit = { Unit },
-    resolveAsDuplicate: () -> Unit = { Unit },
-    resolveAsIncomplete: () -> Unit = { Unit },
-    updateDescription: (description: String) -> Unit = { Unit },
-    updateCHK: () -> Unit = { Unit },
-    updateConfirmationStatus: (String) -> Unit = { Unit },
-    updatePlatforms: (String) -> Unit = { Unit },
-    updateLinked: (Double) -> Unit = { Unit },
-    setPrivate: () -> Unit = { Unit },
-    addAffectedVersion: (id: String) -> Unit = { Unit },
-    createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> Unit },
-    addComment: (options: CommentOptions) -> Unit = { Unit },
-    addRestrictedComment: (options: CommentOptions) -> Unit = { Unit },
-    addNotEnglishComment: (language: String) -> Unit = { Unit },
-    addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> Unit },
-    markAsFixedInASpecificVersion: (version: String) -> Unit = { Unit }
+    reopen: () -> Unit = { },
+    resolveAsAwaitingResponse: () -> Unit = { },
+    resolveAsInvalid: () -> Unit = { },
+    resolveAsDuplicate: () -> Unit = { },
+    resolveAsIncomplete: () -> Unit = { },
+    updateDescription: (description: String) -> Unit = { },
+    updateCHK: () -> Unit = { },
+    updateConfirmationStatus: (String) -> Unit = { },
+    updatePlatforms: (String) -> Unit = { },
+    updateLinked: (Double) -> Unit = { },
+    setPrivate: () -> Unit = { },
+    addAffectedVersion: (id: String) -> Unit = { },
+    createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> },
+    addComment: (options: CommentOptions) -> Unit = { },
+    addRestrictedComment: (options: CommentOptions) -> Unit = { },
+    addNotEnglishComment: (language: String) -> Unit = { },
+    addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> },
+    markAsFixedInASpecificVersion: (version: String) -> Unit = { },
+    changeReporter: (reporter: String) -> Unit = { },
+    addAttachment: (file: File) -> Unit = { }
 ) = Issue(
     key,
     summary,
@@ -136,6 +143,7 @@ fun mockIssue(
     project,
     platform,
     affectedVersions,
+    fixVersions,
     attachments,
     comments,
     links,
@@ -157,7 +165,9 @@ fun mockIssue(
     addRestrictedComment,
     addNotEnglishComment,
     addRawRestrictedComment,
-    markAsFixedInASpecificVersion
+    markAsFixedInASpecificVersion,
+    changeReporter,
+    addAttachment
 )
 
 fun mockLink(
@@ -176,7 +186,7 @@ fun mockLinkedIssue(
     key: String = "MC-1",
     status: String = "Open",
     getFullIssue: () -> Either<Throwable, Issue> = { mockIssue().right() },
-    createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> Unit }
+    createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> }
 ) = LinkedIssue(
     key,
     status,
@@ -187,7 +197,7 @@ fun mockLinkedIssue(
 fun mockProject(
     key: String = "MC",
     versions: List<Version> = emptyList(),
-    privateSecurity: String = "private"
+    privateSecurity: String = PRIVATE_SECURITY_LEVEL
 ) = Project(
     key,
     versions,
@@ -197,11 +207,13 @@ fun mockProject(
 fun mockUser(
     name: String = "user",
     displayName: String = "User",
-    getGroups: () -> List<String>? = { null }
+    getGroups: () -> List<String>? = { null },
+    isNewUser: () -> Boolean = { false }
 ) = User(
     name,
     displayName,
-    getGroups
+    getGroups,
+    isNewUser
 )
 
 fun mockVersion(
@@ -210,8 +222,8 @@ fun mockVersion(
     released: Boolean = true,
     archived: Boolean = false,
     releaseDate: Instant? = RIGHT_NOW,
-    add: () -> Unit = { Unit },
-    remove: () -> Unit = { Unit }
+    add: () -> Unit = { },
+    remove: () -> Unit = { }
 ) = Version(
     id,
     name,

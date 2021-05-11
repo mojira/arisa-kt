@@ -7,15 +7,13 @@ import com.github.napstr.logback.DiscordAppender
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.Cache
-import io.github.mojira.arisa.infrastructure.HelperMessages
-import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.getHelperMessages
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.JiraException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -27,12 +25,16 @@ val log: Logger = LoggerFactory.getLogger("Arisa")
 
 const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
+const val MINUTES_FOR_THROTTLED_LOG = 30L
+lateinit var jiraClient: JiraClient
+var throttledLog = 0L
 
+@Suppress("LongMethod")
 fun main() {
     val config = readConfig()
     setWebhookOfLogger(config)
 
-    var jiraClient =
+    jiraClient =
         connectToJira(
             config[Arisa.Credentials.username],
             config[Arisa.Credentials.password],
@@ -51,18 +53,20 @@ fun main() {
     // Read helper-messages
     val helperMessagesFile = File("helper-messages.json")
     val helperMessagesInterval = config[Arisa.HelperMessages.updateIntervalSeconds]
-    var helperMessages = helperMessagesFile.getHelperMessages()
+    HelperMessageService.updateHelperMessages(helperMessagesFile)
     var helperMessagesLastFetch = Instant.now()
 
     // Initialize caches and registry
     val queryCache = Cache<List<Issue>>()
-    val issueUpdateContextCache = Cache<IssueUpdateContext>()
     val moduleRegistry = ModuleRegistry(config)
+
+    val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
+    log.debug("Enabled modules: $enabledModules")
 
     // Create module executor
     var moduleExecutor = ModuleExecutor(
-        config, moduleRegistry, queryCache, issueUpdateContextCache,
-        getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)
+        config, moduleRegistry, queryCache,
+        getSearchIssues(jiraClient, config)
     )
 
     while (true) {
@@ -75,26 +79,30 @@ fun main() {
             failedTickets.addAll(executionResults.failedTickets)
             val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
 
-            lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
+            if (config[Arisa.Debug.updateLastRun]) {
+                lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
+            }
             lastRunTime = curRunTime
         } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             // If last relog was more than a minute before and execution failed with an exception, relog
-            jiraClient = connectToJira(
-                config[Arisa.Credentials.username],
-                config[Arisa.Credentials.password],
-                config[Arisa.Issues.url]
-            )
+            jiraClient =
+                connectToJira(
+                    config[Arisa.Credentials.username],
+                    config[Arisa.Credentials.password],
+                    config[Arisa.Issues.url]
+                )
+
             moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache, issueUpdateContextCache,
-                getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)
+                config, moduleRegistry, queryCache,
+                getSearchIssues(jiraClient, config)
             )
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
-            helperMessages = helperMessagesFile.getHelperMessages(helperMessages)
+            HelperMessageService.updateHelperMessages(helperMessagesFile)
             moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache, issueUpdateContextCache,
-                getSearchIssues(jiraClient, helperMessages, config, issueUpdateContextCache)
+                config, moduleRegistry, queryCache,
+                getSearchIssues(jiraClient, config)
             )
             helperMessagesLastFetch = curRunTime
         }
@@ -105,15 +113,11 @@ fun main() {
 
 private fun getSearchIssues(
     jiraClient: JiraClient,
-    helperMessages: HelperMessages,
-    config: Config,
-    issueUpdateContextCache: Cache<IssueUpdateContext>
-): (Cache<MutableSet<String>>, Cache<MutableSet<String>>, String, Int, () -> Unit) -> List<Issue> {
+    config: Config
+): (String, Int, () -> Unit) -> List<Issue> {
     return ::searchIssues
         .partially1(jiraClient)
-        .partially1(helperMessages)
         .partially1(config)
-        .partially1(issueUpdateContextCache)
 }
 
 private fun readLastRunTime(lastRun: List<String>): Instant {
@@ -131,8 +135,8 @@ private fun readLastRun(lastRunFile: File): List<String> {
 
 private fun readConfig(): Config {
     return Config { addSpec(Arisa) }
-        .from.yaml.watchFile("arisa.yml")
-        .from.json.watchFile("arisa.json")
+        .from.yaml.watchFile("config/config.yml")
+        .from.yaml.watchFile("config/local.yml")
         .from.env()
         .from.systemProperties()
 }
@@ -155,17 +159,21 @@ private fun setWebhookOfLogger(config: Config) {
 @Suppress("LongParameterList")
 private fun searchIssues(
     jiraClient: JiraClient,
-    helperMessages: HelperMessages,
     config: Config,
-    issueUpdateContextCache: IssueUpdateContextCache,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>,
     jql: String,
     startAt: Int,
     onQueryPaginated: () -> Unit
 ): List<Issue> {
-    val searchResult = jiraClient
-        .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
+    val searchResult = try {
+        jiraClient
+            .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
+    } catch (e: JiraException) {
+        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
+            log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
+            throttledLog = System.currentTimeMillis()
+        }
+        null
+    } ?: return emptyList()
 
     if (startAt + searchResult.max < searchResult.total)
         onQueryPaginated()
@@ -176,11 +184,7 @@ private fun searchIssues(
             it.toDomain(
                 jiraClient,
                 jiraClient.getProject(it.project.key),
-                helperMessages,
-                config,
-                issueUpdateContextCache,
-                oldPostedCommentCache,
-                newPostedCommentCache
+                config
             )
         }
 }

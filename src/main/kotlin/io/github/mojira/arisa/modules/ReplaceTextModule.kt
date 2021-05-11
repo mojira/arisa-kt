@@ -8,10 +8,10 @@ import java.time.Instant
 
 class ReplaceTextModule(
     private val replacements: List<Pair<Regex, String>> = listOf(
-        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
-        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d\?/#])\]""".toRegex() to "$1",
-        """(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
-        """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d\?/#])""".toRegex() to "$1",
+        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/browse/\1/?(?![\d?/#])]""".toRegex() to "$1",
+        """\[([A-Z]+-\d+)\|https?://bugs\.mojang\.com/projects/[A-Z]+/issues/\1/?(?![\d?/#])]""".toRegex() to "$1",
+        """(?<!\|)https?://bugs\.mojang\.com/browse/([A-Z]+-\d+)/?(?![\d?/#])""".toRegex() to "$1",
+        """(?<!\|)https?://bugs\.mojang\.com/projects/[A-Z]+/issues/([A-Z]+-\d+)/?(?![\d?/#])""".toRegex() to "$1",
         "(http://i.imgur.com)".toRegex() to "https://i.imgur.com"
     )
 ) : Module {

@@ -10,7 +10,8 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??")
+private val ALLOWED_REGEX = listOf("allowed@.*".toRegex())
+private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??", ALLOWED_REGEX)
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
@@ -123,16 +124,6 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {
-        val issue = mockIssue(
-            summary = "[~foo@example.com]"
-        )
-
-        val result = MODULE(issue, TWO_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should mark as private when the summary contains Email" {
         var hasSetPrivate = false
 
@@ -235,6 +226,30 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
+    "should return OperationNotNeededModuleResponse when the email address is contained in a user mention" {
+        val issue = mockIssue(
+            summary = "[~foo@example.com]"
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should mark as private when the Email is contained in a link" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            description = "[foo@example.com|mailto:foo@example.com]",
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
     "should mark as private when the attachment contains session ID" {
         var hasSetPrivate = false
 
@@ -242,6 +257,24 @@ class PrivacyModuleTest : StringSpec({
             attachments = listOf(
                 mockAttachment(
                     getContent = { "(Session ID is token:My1_hnfNSd3nyQ7IbbnGbTS1fgJuM6JkfH2WEKaTTOLPc)".toByteArray() }
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should mark as private when the attachment contains access token" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            attachments = listOf(
+                mockAttachment(
+                    getContent = { "--uuid 1312dkkdk2kdart342 --accessToken eyJimfake.12345.fakestuff --userType mojang".toByteArray() }
                 )
             ),
             setPrivate = { hasSetPrivate = true }
@@ -262,6 +295,46 @@ class PrivacyModuleTest : StringSpec({
                     field = "environment",
                     changedFromString = null,
                     changedToString = "My email is foo@example.com."
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should not mark as private when the change log item contains a allowed email" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    field = "environment",
+                    changedFromString = null,
+                    changedToString = "My email is allowed@example.com."
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        hasSetPrivate shouldBe false
+    }
+
+    "should mark as private when the change log item contains a allowed email and a not allowed email" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            changeLog = listOf(
+                mockChangeLogItem(
+                    field = "environment",
+                    changedFromString = null,
+                    changedToString = "My email is allowed@example.com but I also use foo@example.com."
                 )
             ),
             setPrivate = { hasSetPrivate = true }

@@ -5,6 +5,8 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Instant
 
 const val MINIMUM_PERCENTAGE = 0.7
@@ -14,6 +16,8 @@ class LanguageModule(
     private val lengthThreshold: Int = 0,
     private val getLanguage: (String) -> Either<Any, Map<String, Double>>
 ) : Module {
+    val log: Logger = LoggerFactory.getLogger("LanguageModule")
+
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertAfter(created, lastRun).bind()
@@ -25,6 +29,8 @@ class LanguageModule(
             val detectedLanguage = getDetectedLanguage(getLanguage, combinedText)
             assertNotNull(detectedLanguage).bind()
             assertLanguageIsNotAllowed(allowedLanguages, detectedLanguage!!).bind()
+
+            log.info("Detected language for ${issue.key} is $detectedLanguage")
 
             addNotEnglishComment(detectedLanguage)
             resolveAsInvalid()
@@ -72,10 +78,11 @@ class LanguageModule(
         else -> Unit.right()
     }
 
-    private fun assertIsPublic(securityLevel: String?, privateLevel: String) = when {
-        securityLevel == privateLevel -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
-    }
+    private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
+        if (securityLevel == privateLevel)
+            OperationNotNeededModuleResponse.left()
+        else
+            Unit.right()
 
     private fun assertLanguageIsNotAllowed(allowedLanguages: List<String>, language: String) = when {
         allowedLanguages.any { language == it } -> OperationNotNeededModuleResponse.left()

@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
@@ -17,6 +18,11 @@ import java.time.temporal.ChronoUnit
 private val REPORTER = getUser(name = "reporter")
 private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
+private val NEWBIE = getUser(name = "newbieUser", newUser = true)
+
+private val NOT_REOPEN_AR_MESSAGE = HelperMessageService.getMessageWithBotSignature(
+        "MC", "not-reopen-ar", null, "en"
+)
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
@@ -26,6 +32,7 @@ private val MODULE = ReopenAwaitingModule(
     listOf("helper", "staff", "global-moderators"),
     365,
     "MEQS_KEEP_AR",
+    "ARISA_REOPEN_OP",
     "not-reopen-ar"
 )
 private val AWAITING_RESOLVE = mockChangeLogItem(
@@ -413,6 +420,77 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasCommented shouldBe false
     }
 
+    "should not reopen when someone answered and only op tag is set" {
+        var reopen = false
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment()
+        val keep = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(keep, comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { reopen = true; Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        reopen shouldBe false
+    }
+
+    "should reopen when op answered and only op tag is set" {
+        var reopen = false
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val comment = getComment(author = REPORTER)
+        val keep = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(keep, comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { reopen = true; Unit.right() },
+            addComment = { Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        reopen shouldBe true
+    }
+
+    "should reopen when op updated the bug report, even if only op tag is set" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val changeLog = mockChangeLogItem(
+            created = RIGHT_NOW.plusSeconds(3),
+            field = "Versions",
+            changedToString = "1.15.2",
+            author = REPORTER
+        )
+        val reopenOpComment = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(reopenOpComment),
+            changeLog = listOf(AWAITING_RESOLVE, changeLog),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe true
+        hasCommented shouldBe false
+    }
+
     "should reopen when someone answered within the soft AR period" {
         var hasReopened = false
         var hasCommented = false
@@ -655,6 +733,52 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasCommented shouldBe false
     }
 
+    "should not reopen when the commenter is a new user" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val comment = getComment(author = NEWBIE)
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        hasReopened shouldBe false
+        hasCommented shouldBe false
+    }
+
+    "should reopen when the commenter is a new user but also the reporter" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val comment = getComment(author = NEWBIE)
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = NEWBIE,
+            comments = listOf(comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe true
+        hasCommented shouldBe false
+    }
+
     "should comment the message when there is a keep AR tag" {
         var hasReopened = false
         var hasCommented = false
@@ -705,6 +829,69 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasReopened shouldBe false
         hasCommented shouldBe true
     }
+
+    "should not comment the message when there is a keep AR tag and arisa has already commented" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val tagComment = getComment(
+            body = "MEQS_KEEP_AR",
+            visibilityType = "group",
+            visibilityValue = "staff"
+        )
+        val arisaComment = getComment(
+            body = NOT_REOPEN_AR_MESSAGE,
+            author = ARISA
+        )
+        val normalComment = getComment()
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(tagComment, arisaComment, normalComment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe false
+        hasCommented shouldBe false
+    }
+
+    "should comment the message when there is a keep AR tag and another user has already commented the message" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val tagComment = getComment(
+            body = "MEQS_KEEP_AR",
+            visibilityType = "group",
+            visibilityValue = "staff"
+        )
+        val fakeComment = getComment(
+            body = NOT_REOPEN_AR_MESSAGE,
+            author = RANDOM_USER
+        )
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(tagComment, fakeComment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe false
+        hasCommented shouldBe true
+    }
 })
 
 private fun getComment(
@@ -725,4 +912,5 @@ private fun getComment(
     visibilityValue = visibilityValue
 )
 
-private fun getUser(name: String) = mockUser(name = name, displayName = "User")
+private fun getUser(name: String, newUser: Boolean = false) =
+    mockUser(name = name, displayName = "User", isNewUser = { newUser })

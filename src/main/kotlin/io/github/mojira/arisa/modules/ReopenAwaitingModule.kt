@@ -8,7 +8,9 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -19,6 +21,7 @@ class ReopenAwaitingModule(
     private val blacklistedVisibilities: List<String>,
     private val softArPeriod: Long,
     private val keepARTag: String,
+    private val onlyOPTag: String,
     private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -27,7 +30,7 @@ class ReopenAwaitingModule(
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
 
             val resolveTime = changeLog.last(::isAwaitingResolve).created
-            val validComments = getValidComments(comments, resolveTime, lastRun)
+            val validComments = getValidComments(comments, reporter, resolveTime, lastRun)
             val validChangeLog = getValidChangeLog(changeLog, reporter, resolveTime)
 
             assertEither(
@@ -40,7 +43,9 @@ class ReopenAwaitingModule(
                 reopen()
             } else {
                 assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
-                addComment(CommentOptions(message))
+                if (comments.none { isKeepARMessage(it, project) }) {
+                    addComment(CommentOptions(message))
+                }
             }
         }
     }
@@ -53,21 +58,41 @@ class ReopenAwaitingModule(
         resolveTime: Instant
     ): Boolean {
         val isSoftAR = resolveTime.plus(softArPeriod, ChronoUnit.DAYS).isAfter(Instant.now())
-        return comments.none(::isKeepARTag) && (isSoftAR ||
-                validChangeLog.isNotEmpty() ||
-                validComments.any { it.author.name == reporter?.name })
+        val onlyOp = comments.any(::isOPTag)
+
+        // bug report should stay in AR until a mod reopens it if keep ar flag is present
+        if (comments.any(::isKeepARTag)) return false
+
+        // reopen the bug report if:
+                // the report has been updated (by the reporter) OR
+        return validChangeLog.isNotEmpty() ||
+                // regular users can reopen and have commented OR
+                (!onlyOp && isSoftAR) ||
+                // reporter has commented
+                validComments.any { it.author.name == reporter?.name }
     }
+
+    private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
+            comment.visibilityValue == "staff" &&
+            (comment.body?.contains(onlyOPTag) ?: false)
 
     private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&
             (comment.body?.contains(keepARTag) ?: false)
 
+    private fun isKeepARMessage(comment: Comment, project: Project) = comment.author.name == "arisabot" &&
+            (comment.body?.contains(HelperMessageService.getMessageWithBotSignature(
+                    project.key, message, null, "en"
+            )) ?: false)
+
     private fun getValidComments(
         comments: List<Comment>,
+        reporter: User?,
         resolveTime: Instant,
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
+        .filter { !it.author.isNewUser() || it.author.name == reporter?.name }
         .filter {
             val roles = it.getAuthorGroups()
             roles == null || roles.intersect(blacklistedRoles).isEmpty()

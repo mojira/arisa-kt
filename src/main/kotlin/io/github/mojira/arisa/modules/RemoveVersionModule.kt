@@ -2,19 +2,40 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.ChangeLogItem
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-class RemoveVersionModule : Module {
+const val MAX_NUMBER_OF_VERSION_CHANGES = 5
+
+class RemoveVersionModule(
+    private val message: String
+) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }
                 .map { it.remove }
+            assertGreaterThan(affectedVersions.size, removeAddedVersions.size).bind()
             assertNotEmpty(removeAddedVersions).bind()
             removeAddedVersions.forEach(::run)
+            if (calledMoreThanMaxTimes(changeLog)) {
+                changeReporter("NoUser")
+            }
+            addComment(CommentOptions(message))
         }
+    }
+
+    private fun calledMoreThanMaxTimes(changeLog: List<ChangeLogItem>): Boolean {
+        return changeLog
+            .asSequence()
+            .filter { it.author.name == "arisabot" }
+            .filter { it.field == "Version" }
+            .filter { it.changedFrom != null }
+            .filter { it.changedTo == null } // To only get deleted versions
+            .count() >= MAX_NUMBER_OF_VERSION_CHANGES
     }
 
     private fun Issue.getExtraVersionsLatelyAddedByNonVolunteers(lastRun: Instant): List<String> =

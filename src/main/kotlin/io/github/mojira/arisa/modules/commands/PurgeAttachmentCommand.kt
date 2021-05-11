@@ -1,31 +1,19 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertTrue
-import io.github.mojira.arisa.modules.toFailedModuleEither
-import kotlinx.coroutines.runBlocking
 
-class PurgeAttachmentCommand : Command {
-    @Suppress("MagicNumber")
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size <= 3).bind()
-        val startID = arguments.getOrNull(1)?.toIntEither()?.bind() ?: 0
-        val endID = arguments.getOrNull(2)?.toIntEither()?.bind() ?: Int.MAX_VALUE
-        for (attachment in issue.attachments) {
-            val attachmentID = attachment.id.toIntEither().bind()
-            if (attachmentID in startID..endID) {
-                attachment.remove()
+class PurgeAttachmentCommand {
+    operator fun invoke(issue: Issue, userName: String, minId: Int, maxId: Int): Int {
+        return issue.attachments
+            .filter {
+                // Make sure that attachment is uploaded by the specified user
+                it.uploader?.name == userName
             }
-        }
+            .filter {
+                // Don't delete attachments with an ID outside of ID range
+                it.id.toInt() in minId..maxId
+            }
+            .onEach { it.remove() }
+            .count()
     }
-
-    private fun String.toIntEither() = runBlocking {
-        Either.catch {
-            toInt()
-        }
-    }.toFailedModuleEither()
 }

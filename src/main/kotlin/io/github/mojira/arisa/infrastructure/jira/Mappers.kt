@@ -183,7 +183,7 @@ private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
 ).fold({ null }, { it })
 
 private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
-    val escapedUserName = if (username.contains('\'')) """\\"$username\\"""" else "'$username'"
+    val escapedUserName = if (username.contains('\'')) """\\"$username\\"""" else "'${username.replace("\"", "\\\"")}'"
     val commentJql = """issueFunction IN commented("by $escapedUserName before -24h")"""
 
     val oldCommentsExist = try {

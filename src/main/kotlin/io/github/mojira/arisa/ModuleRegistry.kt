@@ -14,6 +14,7 @@ import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
+import io.github.mojira.arisa.modules.CrashInfoModule
 import io.github.mojira.arisa.modules.CrashModule
 import io.github.mojira.arisa.modules.DuplicateMessageModule
 import io.github.mojira.arisa.modules.EmptyModule
@@ -145,6 +146,14 @@ class ModuleRegistry(private val config: Config) {
                 CrashReader(),
                 config[Modules.Crash.duplicateMessage],
                 config[Modules.Crash.moddedMessage]
+            )
+        )
+
+        register(
+            Modules.CrashInfo,
+            CrashInfoModule(
+                config[Modules.CrashInfo.crashExtensions],
+                CrashReader()
             )
         )
 

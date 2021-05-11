@@ -316,6 +316,26 @@ fun addRestrictedComment(
     }
 }
 
+fun addRawComment(
+    context: Lazy<IssueUpdateContext>,
+    comment: String
+) {
+    context.value.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                val key = context.value.jiraIssue.key
+
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment)
+                }
+
+                Unit
+            }
+        }
+    }
+}
+
 fun createLink(
     context: Lazy<IssueUpdateContext>,
     getContext: (key: String) -> Lazy<IssueUpdateContext>,

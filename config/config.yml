@@ -332,6 +332,19 @@ arisa:
           exceptionRegex: 'ig[0-9]{1,2}icd[0-9]{2}\.dll'
           duplicates: MC-32606
 
+    crashInfo:
+      projects:
+        - MC
+        - MCL
+        - MCTEST
+      resolutions:
+        - Unresolved
+      excludedStatuses:
+        - Postponed
+      crashExtensions:
+        - txt
+        - log
+
     missingCrash:
       enabled: false
       resolutions:

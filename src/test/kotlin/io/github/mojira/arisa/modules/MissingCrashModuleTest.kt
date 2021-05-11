@@ -8,6 +8,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -31,6 +32,8 @@ Details:
 
 private val NOW = Instant.now()
 private val A_SECOND_AGO = NOW.minusSeconds(1)
+
+private val crashReader = CrashReader()
 
 class MissingCrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue has no description" {

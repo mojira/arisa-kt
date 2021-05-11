@@ -145,6 +145,7 @@ fun JiraIssue.toDomain(
                 )
             )
         },
+        addRawComment = ::addRawComment.partially1(context),
         addRawRestrictedComment = ::addRestrictedComment.partially1(context),
         ::markAsFixedWithSpecificVersion.partially1(context),
         ::changeReporter.partially1(context),

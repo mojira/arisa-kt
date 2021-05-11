@@ -10,7 +10,10 @@ import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
 import java.io.File
+import java.nio.file.Files
 import java.time.Instant
+
+val crashesDir = Files.createTempDirectory("crashes").toFile()
 
 class CrashInfoModule(
     private val crashReportExtensions: List<String>,
@@ -52,10 +55,19 @@ class CrashInfoModule(
                 }
             }
         minecraftCrashesWithDeobf.forEach {
-            val file = File(getDeobfName(it.first))
-            file.writeText(it.second!!)
-            issue.addAttachment(file)
+            if (isNotZipSlip(getDeobfName(it.first))) {
+                val file = File(crashesDir, getDeobfName(it.first))
+                file.writeText(it.second!!)
+                issue.addAttachment(file)
+            }
         }
+    }
+
+    private fun isNotZipSlip(version: String): Boolean {
+        val canonicalDestinationDir = crashesDir.canonicalPath
+        val destinationFile = File(crashesDir, version)
+        val canonicalDestinationFile = destinationFile.canonicalPath
+        return canonicalDestinationFile.startsWith(canonicalDestinationDir + File.separator)
     }
 
     private fun getDeobfName(name: String): String =

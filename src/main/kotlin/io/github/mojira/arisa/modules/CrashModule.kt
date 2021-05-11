@@ -33,7 +33,6 @@ class CrashModule(
             uploadDeobfuscatedCrashes(issue, crashes)
             assertNoValidCrash(crashes).bind()
 
-
             val key = crashes
                 .sortedByDescending { it.first.created }
                 .mapNotNull(::getDuplicateLink.partially2(crashDupeConfigs))

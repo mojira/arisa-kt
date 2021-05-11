@@ -266,7 +266,7 @@ fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File) {
                         }
                     } finally {
                         if (file.exists()) {
-                            file.delete();
+                            file.delete()
                         }
                     }
                 }

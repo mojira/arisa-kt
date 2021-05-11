@@ -230,7 +230,7 @@ arisa:
         - PlayStation 4
         - Windows 10 - PC
         - Windows 10 Mobile
-        - Xbox One
+        - Xbox
       targetPlatform: Multiple
       transferredPlatformBlacklist:
         - None

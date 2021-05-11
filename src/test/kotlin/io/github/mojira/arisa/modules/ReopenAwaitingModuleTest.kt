@@ -756,6 +756,29 @@ class ReopenAwaitingModuleTest : StringSpec({
         hasCommented shouldBe false
     }
 
+    "should reopen when the commenter is a new user but also the reporter" {
+        var hasReopened = false
+        var hasCommented = false
+
+        val comment = getComment(author = NEWBIE)
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = NEWBIE,
+            comments = listOf(comment),
+            changeLog = listOf(AWAITING_RESOLVE),
+            reopen = { hasReopened = true; Unit.right() },
+            addComment = { hasCommented = true; Unit.right() }
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasReopened shouldBe true
+        hasCommented shouldBe false
+    }
+
     "should comment the message when there is a keep AR tag" {
         var hasReopened = false
         var hasCommented = false

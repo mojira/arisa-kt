@@ -1,29 +1,30 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.extensions.fx
-import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.modules.ModuleError
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.assertTrue
 import java.util.concurrent.TimeUnit
 
-class DeleteCommentsCommand : Command {
-    @Suppress("MagicNumber")
-    override fun invoke(issue: Issue, vararg arguments: String): Either<ModuleError, ModuleResponse> = Either.fx {
-        assertTrue(arguments.size > 1).bind()
-        val name = arguments.asList().subList(1, arguments.size).joinToString(" ")
+/**
+ * After how many actions the bot should pause for a second
+ * (in order to not send too many requests too quickly)
+ */
+const val DELETE_COMMENT_SLEEP_INTERVAL = 10
+
+class DeleteCommentsCommand {
+    operator fun invoke(issue: Issue, userName: String): Int {
         val comments = issue.comments
+            .filter { it.visibilityValue != "staff" }
+            .filter { it.author.name == userName }
+
         Thread {
-            comments.filter { it.visibilityValue != "staff" }.filter { it.author.name == name }
+            comments
                 .forEachIndexed { index, it ->
                     it.restrict("Removed by arisa")
-                    if (index % 10 == 0) {
+                    if (index % DELETE_COMMENT_SLEEP_INTERVAL == 0) {
                         TimeUnit.SECONDS.sleep(1)
                     }
                 }
         }.start()
-        ModuleResponse.right()
+
+        return comments.size
     }
 }

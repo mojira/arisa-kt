@@ -4,8 +4,9 @@ package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.infrastructure.Cache
+import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -19,16 +20,92 @@ import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.IssueLink
 import net.rcarz.jiraclient.JiraClient
+import net.rcarz.jiraclient.JiraException
+import net.rcarz.jiraclient.RestException
 import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
+import org.apache.http.HttpStatus
+import java.io.File
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
-fun connectToJira(username: String, password: String, url: String) =
-    JiraClient(url, TokenCredentials(username, password))
+/**
+ * How many issues can be queried at once by [getAllIssuesFromJql].
+ */
+const val ISSUE_QUERY_BATCH_SIZE: Int = 1000
+
+fun connectToJira(username: String, password: String, url: String): JiraClient {
+    val credentials = TokenCredentials(username, password)
+    return JiraClient(url, credentials)
+}
+
+/**
+ * Get a list of tickets matching a JQL query.
+ * TODO: Actually return the tickets themselves instead of only ticket IDs.
+ *
+ * @param amount How many tickets should be returned at most.
+ *
+ * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
+ */
+fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBlocking {
+    Either.catch {
+        val searchResult = try {
+            jiraClient.searchIssues(
+                jql,
+                "[]",
+                amount
+            )
+        } catch (e: JiraException) {
+            log.error("Error while retreiving filter results", e)
+            throw e
+        }
+
+        searchResult.issues.mapNotNull { it.key }
+    }
+}
+
+/**
+ * Get the list of all tickets matching a JQL query.
+ * TODO: Actually return the tickets themselves instead of only ticket IDs.
+ *
+ * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
+ * The list contains the IDs of ALL tickets matched by that filter.
+ */
+fun getAllIssuesFromJql(jiraClient: JiraClient, jql: String) = runBlocking {
+    Either.catch {
+        var missingResultsPage: Boolean
+        var startAt = 0
+        val tickets = mutableListOf<String>()
+
+        do {
+            missingResultsPage = false
+            val searchResult = try {
+                jiraClient.searchIssues(
+                    jql,
+                    "[]",
+                    null,
+                    ISSUE_QUERY_BATCH_SIZE,
+                    startAt
+                )
+            } catch (e: JiraException) {
+                log.error("Error while retreiving filter results", e)
+                throw e
+            }
+
+            tickets += searchResult.issues.mapNotNull { it.key }
+
+            if (tickets.size < searchResult.total)
+                missingResultsPage = true
+
+            startAt += MAX_RESULTS
+        } while (missingResultsPage)
+
+        tickets.toList()
+    }
+}
 
 fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     Either.catch {
@@ -131,7 +208,18 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
 
 private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     Either.catch {
-        edit.execute()
+        try {
+            edit.execute()
+        } catch (e: JiraException) {
+            val cause = e.cause
+            if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                        cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            ) {
+                log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
+            } else {
+                throw e
+            }
+        }
     }
 }
 
@@ -146,7 +234,17 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
-                    context.value.jiraClient.restClient.delete(URI(attachment.self))
+                    try {
+                        context.value.jiraClient.restClient.delete(URI(attachment.self))
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Tried to delete ${attachment.id} when it was already deleted")
+                        } else {
+                            throw e
+                        }
+                    }
                 }
                 Unit
             }
@@ -154,26 +252,46 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
     }
 }
 
+fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File) {
+    context.value.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        context.value.jiraIssue.addAttachment(file)
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Couldn't upload ${file.name}")
+                        } else {
+                            throw e
+                        }
+                    } finally {
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fun createComment(
     context: Lazy<IssueUpdateContext>,
-    comment: String,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>
+    comment: String
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 val key = context.value.jiraIssue.key
-                val oldPostedComments = oldPostedCommentCache.get(key)
-                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
-                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.error("The comment has already been posted under $key in last run: $comment")
-                } else {
-                    context.value.jiraIssue.addComment(comment)
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment)
                 }
 
-                newPostedComments.add(comment)
                 Unit
             }
         }
@@ -183,24 +301,18 @@ fun createComment(
 fun addRestrictedComment(
     context: Lazy<IssueUpdateContext>,
     comment: String,
-    restrictionLevel: String,
-    oldPostedCommentCache: Cache<MutableSet<String>>,
-    newPostedCommentCache: Cache<MutableSet<String>>
+    restrictionLevel: String
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 val key = context.value.jiraIssue.key
-                val oldPostedComments = oldPostedCommentCache.get(key)
-                val newPostedComments = newPostedCommentCache.getOrAdd(key, mutableSetOf())
 
-                if (oldPostedComments != null && oldPostedComments.contains(comment)) {
-                    log.warn("The comment has already been posted under $key in last run: $comment")
-                } else {
-                    context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                when (val checkResult = CommentCache.check(key, comment)) {
+                    is Either.Left -> log.error(checkResult.a.message)
+                    is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
                 }
 
-                newPostedComments.add(comment)
                 Unit
             }
         }
@@ -249,8 +361,9 @@ fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body:
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                comment.update(body)
-                Unit
+                tryWithWarn(comment) {
+                    comment.update(body)
+                }
             }
         }
     }
@@ -265,9 +378,25 @@ fun restrictCommentToGroup(
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                comment.update(body, "group", group)
-                Unit
+                tryWithWarn(comment) {
+                    comment.update(body, "group", group)
+                }
             }
+        }
+    }
+}
+
+fun tryWithWarn(comment: Comment, func: () -> Unit) {
+    try {
+        func()
+    } catch (e: JiraException) {
+        val cause = e.cause
+        if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        ) {
+            log.warn("Tried to update comment ${comment.url} but it was deleted")
+        } else {
+            throw e
         }
     }
 }
@@ -291,4 +420,8 @@ fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
 fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion: String) {
     context.value.resolve.field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersion)))
     context.value.transitionName = "Resolve Issue"
+}
+
+fun changeReporter(context: Lazy<IssueUpdateContext>, reporter: String) {
+    context.value.update.field(Field.REPORTER, reporter)
 }

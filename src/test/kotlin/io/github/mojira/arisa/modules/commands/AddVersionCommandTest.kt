@@ -1,42 +1,44 @@
 package io.github.mojira.arisa.modules.commands
 
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
-import io.kotest.assertions.arrow.either.shouldBeLeft
-import io.kotest.assertions.arrow.either.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 
 class AddVersionCommandTest : StringSpec({
-    "should return OperationNotNeededModuleResponse when no argument is passed" {
+    "should throw VERSION_ALREADY_AFFECTED when version is already added" {
         val command = AddVersionCommand()
 
         val issue = mockIssue(
             project = mockProject(
-                versions = listOf(getVersion(true, false))
-            )
+                versions = listOf(getVersion(released = true, archived = false))
+            ),
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
-        val result = command(issue, "ARISA_ADD_VERSION")
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, "12w34a")
+        }
+        exception.message shouldBe "The version 12w34a was already marked as affected"
     }
 
-    "should return OperationNotNeededModuleResponse when version is already added" {
+    "should throw NO_SUCH_VERSION when version doesn't exist" {
         val command = AddVersionCommand()
 
         val issue = mockIssue(
             project = mockProject(
-                versions = listOf(getVersion(true, false))
+                versions = listOf(getVersion(released = true, archived = false))
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
-        val result = command(issue, "ARISA_ADD_VERSION", "12w34a")
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, "12w34b")
+        }
+        exception.message shouldBe "The version 12w34b doesn't exist in this project"
     }
 
     "should add version" {
@@ -45,34 +47,16 @@ class AddVersionCommandTest : StringSpec({
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
-        val result = command(issue, "ARISA_ADD_VERSION", "12w34b")
+        val result = command(issue, "12w34b")
 
-        result.shouldBeRight(ModuleResponse)
-    }
-
-    "should add version with spaces" {
-        val command = AddVersionCommand()
-
-        val issue = mockIssue(
-            project = mockProject(
-                versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "Minecraft 12w34b")
-                )
-            ),
-            affectedVersions = listOf(getVersion(true, false))
-        )
-
-        val result = command(issue, "ARISA_ADD_VERSION", "Minecraft", "12w34b")
-
-        result.shouldBeRight(ModuleResponse)
+        result shouldBe 1
     }
 })
 
@@ -80,8 +64,8 @@ private fun getVersion(
     released: Boolean,
     archived: Boolean,
     name: String = "12w34a",
-    add: () -> Unit = { Unit },
-    remove: () -> Unit = { Unit }
+    add: () -> Unit = { },
+    remove: () -> Unit = { }
 ) = mockVersion(
     name = name,
     released = released,

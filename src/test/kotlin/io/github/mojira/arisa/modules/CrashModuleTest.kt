@@ -173,6 +173,69 @@ const val JAVA_CRASH = """#
 # See problematic frame for where to report the bug.
 #"""
 
+const val OBFUSCATED_CRASH = """---- Minecraft Crash Report ----
+// Don't do that.
+
+Time: 30/04/21 17:23
+Description: mouseClicked event handler
+
+java.lang.OutOfMemoryError: Java heap space
+	at java.util.ArrayList.<init>(ArrayList.java:152)
+	at com.google.common.collect.Lists.newArrayListWithCapacity(Lists.java:190)
+	at mj$1.a(SourceFile:47)
+	at mj$1.b(SourceFile:32)
+	at md.b(SourceFile:471)
+	at md.a(SourceFile:32)
+	at md$1.a(SourceFile:83)
+	at md$1.b(SourceFile:69)
+	at md.b(SourceFile:471)
+	at md.a(SourceFile:32)
+	at md$1.a(SourceFile:83)
+	at md$1.b(SourceFile:69)
+	at md.b(SourceFile:471)
+	at md.a(SourceFile:32)
+	at md$1.a(SourceFile:83)
+	at md$1.b(SourceFile:69)
+	at mn.a(SourceFile:108)
+	at mn.a(SourceFile:75)
+	at mn.a(SourceFile:32)
+	at mn.a(SourceFile:26)
+	at cyg.a(SourceFile:229)
+	at cygLambda$2987/857564250.apply(Unknown Source)
+	at cyg.a(SourceFile:178)
+	at cyg.b(SourceFile:157)
+	at dsm.a(SourceFile:91)
+	at dsm.<init>(SourceFile:83)
+	at dsj.b(SourceFile:48)
+	at dot.b(SourceFile:325)
+	at djz.a(SourceFile:922)
+	at doy.d(SourceFile:141)
+	at doyLambda$2670/1502984812.onPress(Unknown Source)
+	at dlj.b(SourceFile:33)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.16.5
+	Minecraft Version ID: 1.16.5
+	Operating System: Windows 10 (amd64) version 10.0
+	Java Version: 1.8.0_51, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Oracle Corporation
+	Memory: 546749712 bytes (521 MB) / 771751936 bytes (736 MB) up to 2147483648 bytes (2048 MB)
+	CPUs: 4
+	JVM Flags: 9 total; -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xss1M -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M
+	Launched Version: 1.16.5
+	Backend library: LWJGL version 3.2.2 build 10
+	Backend API: GeForce GTX 1050 Ti/PCIe/SSE2 GL version 4.6.0 NVIDIA 456.71, NVIDIA Corporation
+	GL Caps: Using framebuffer using OpenGL 3.0
+	Using VBOs: Yes
+	Is Modded: Probably not. Jar signature remains and client brand is untouched.
+	Type: Client (map_client.txt)
+	Graphics mode: fast
+	Resource Packs: vanilla
+	Current Language: English (US)
+	CPU: 4x Intel(R) Core(TM) i5-7400 CPU @ 3.00GHz
+"""
+
 private val NOW = Instant.now()
 private val A_SECOND_AGO = NOW.minusSeconds(1)
 
@@ -496,6 +559,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as invalid when reported server crash is modded" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -513,7 +577,7 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
+            addAttachment = { addedAttachement = true },
             addComment = { addedComment = it }
         )
 
@@ -521,6 +585,7 @@ class CrashModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeFalse()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
         addedComment shouldBe CommentOptions("modified-game")
     }
@@ -528,6 +593,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as invalid when reported server crash is very likely modded" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -545,14 +611,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeFalse()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
         addedComment shouldBe CommentOptions("modified-game")
     }
@@ -560,6 +627,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as invalid when reported crash is modded" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -577,14 +645,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeFalse()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
         addedComment shouldBe CommentOptions("modified-game")
     }
@@ -592,6 +661,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as invalid when attached crash is modded" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -613,14 +683,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeFalse()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeTrue()
         addedComment shouldBe CommentOptions("modified-game")
     }
@@ -628,6 +699,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as dupe when reported crash is in configured list" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -645,14 +717,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
@@ -660,6 +733,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as dupe when attached crash is in configured list" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -681,14 +755,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
@@ -696,6 +771,7 @@ class CrashModuleTest : StringSpec({
     "should resolve as dupe when the configured crash is a java crash" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -713,21 +789,54 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         addedComment shouldBe CommentOptions("duplicate-tech", "MC-32606")
+    }
+
+    "should add attachment when deobfuscated" {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedAttachement = false
+
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
+            crashReader,
+            "duplicate-tech",
+            "modified-game"
+        )
+        val issue = mockIssue(
+            attachments = listOf(getAttachment(OBFUSCATED_CRASH)),
+            description = OBFUSCATED_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            priority = NoPriority,
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            addAttachment = { addedAttachement = true }
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
+        addedAttachement.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
     }
 
     "should resolve as dupe when the configured crash uses regex" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -745,14 +854,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         addedComment shouldBe CommentOptions("duplicate-tech", "MC-32606")
     }
@@ -760,6 +870,7 @@ class CrashModuleTest : StringSpec({
     "should link to configured ticket when resolving as dupe" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var isLinked = false
 
         val module = CrashModule(
@@ -782,13 +893,14 @@ class CrashModuleTest : StringSpec({
                 key.shouldBe("MC-297")
                 isLinked = true
             },
-            addComment = { Unit }
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         isLinked.shouldBeTrue()
     }
@@ -796,6 +908,7 @@ class CrashModuleTest : StringSpec({
     "should prefer crash that is not modded, if modded crash appears first" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -822,14 +935,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
@@ -837,6 +951,7 @@ class CrashModuleTest : StringSpec({
     "should prefer crash that is not modded, if duped crash appears first" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var addedComment = CommentOptions("")
 
         val module = CrashModule(
@@ -863,14 +978,15 @@ class CrashModuleTest : StringSpec({
             priority = NoPriority,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            createLink = { _, _, _ -> Unit },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         addedComment shouldBe CommentOptions("duplicate-tech", "MC-297")
     }
@@ -878,6 +994,7 @@ class CrashModuleTest : StringSpec({
     "should prefer more recent crash, if less recent crash appears first " {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var isLinked = false
 
         val module = CrashModule(
@@ -913,13 +1030,15 @@ class CrashModuleTest : StringSpec({
                 key.shouldBe("MC-297")
                 isLinked = true
             },
-            addComment = { Unit.right() }
+            addComment = { Unit.right() },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         isLinked.shouldBeTrue()
     }
@@ -927,6 +1046,7 @@ class CrashModuleTest : StringSpec({
     "should prefer more recent crash, if more recent crash appears first " {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
+        var addedAttachement = false
         var isLinked = false
 
         val module = CrashModule(
@@ -962,13 +1082,15 @@ class CrashModuleTest : StringSpec({
                 key.shouldBe("MC-297")
                 isLinked = true
             },
-            addComment = { Unit.right() }
+            addComment = { Unit.right() },
+            addAttachment = { addedAttachement = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeTrue()
+        addedAttachement.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
         isLinked.shouldBeTrue()
     }
@@ -1038,7 +1160,7 @@ private fun getAttachment(
     content: String,
     name: String = "crash.txt",
     created: Instant = NOW,
-    remove: () -> Unit = { Unit }
+    remove: () -> Unit = { }
 ) = mockAttachment(
     name = name,
     created = created,

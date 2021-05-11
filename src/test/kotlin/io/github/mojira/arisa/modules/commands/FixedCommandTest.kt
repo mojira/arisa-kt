@@ -1,63 +1,88 @@
 package io.github.mojira.arisa.modules.commands
 
-import io.github.mojira.arisa.modules.ModuleResponse
-import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
-import io.kotest.assertions.arrow.either.shouldBeLeft
-import io.kotest.assertions.arrow.either.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 
 class FixedCommandTest : StringSpec({
-    "should return OperationNotNeededModuleResponse when no argument is passed" {
-        val command = FixedCommand()
-
-        val issue = mockIssue(
-            project = mockProject(
-                versions = listOf(getVersion(true, false))
-            )
-        )
-
-        val result = command(issue, "ARISA_FIXED")
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should add version" {
         val command = FixedCommand()
 
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false))
         )
 
-        val result = command(issue, "ARISA_FIXED", "12w34b")
+        val result = command(issue, "12w34b")
 
-        result.shouldBeRight(ModuleResponse)
+        result shouldBe 1
     }
 
-    "should add version with spaces" {
+    "should throw ALREADY_FIXED_IN when ticket is already fixed in such version" {
         val command = FixedCommand()
 
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(true, false),
-                    getVersion(true, false, "Minecraft 12w34b")
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
                 )
             ),
-            affectedVersions = listOf(getVersion(true, false))
+            affectedVersions = listOf(getVersion(released = true, archived = false)),
+            fixVersions = listOf(getVersion(released = true, archived = false, "12w34b"))
         )
 
-        val result = command(issue, "ARISA_FIXED", "Minecraft", "12w34b")
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, "12w34b")
+        }
+        exception.message shouldBe "The ticket was already marked as fixed in 12w34b"
+    }
 
-        result.shouldBeRight(ModuleResponse)
+    "should throw NO_SUCH_VERSION when version doesn't exist" {
+        val command = FixedCommand()
+
+        val issue = mockIssue(
+            project = mockProject(
+                versions = listOf(
+                    getVersion(released = true, archived = false)
+                )
+            ),
+            affectedVersions = listOf(getVersion(released = true, archived = false))
+        )
+
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, "12w34b")
+        }
+        exception.message shouldBe "The version 12w34b doesn't exist in this project"
+    }
+
+    "should throw ALREADY_RESOLVED when already resolved" {
+        val command = FixedCommand()
+
+        val issue = mockIssue(
+            project = mockProject(
+                versions = listOf(
+                    getVersion(released = true, archived = false),
+                    getVersion(released = true, archived = false, "12w34b")
+                )
+            ),
+            affectedVersions = listOf(getVersion(released = true, archived = false)),
+            resolution = "Cannot Reproduce"
+        )
+
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, "12w34b")
+        }
+        exception.message shouldBe "The ticket was already resolved as Cannot Reproduce"
     }
 })
 
@@ -65,8 +90,8 @@ private fun getVersion(
     released: Boolean,
     archived: Boolean,
     name: String = "12w34a",
-    add: () -> Unit = { Unit },
-    remove: () -> Unit = { Unit }
+    add: () -> Unit = { },
+    remove: () -> Unit = { }
 ) = mockVersion(
     name = name,
     released = released,

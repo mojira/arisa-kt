@@ -14,7 +14,9 @@ data class Response(val detectedLangs: List<LangDetection>)
 data class LangDetection(val lang: String, val confidence: Double)
 
 @Suppress("ReturnCount")
-fun getLanguage(token: String, text: String): Either<Error, Map<String, Double>> {
+fun getLanguage(token: String?, text: String): Either<Error, Map<String, Double>> {
+    if (token == null) return Either.left(Error("Dandelion token is undefined"))
+
     val request = "token=" + URLEncoder.encode(token, "UTF-8") + "&text=" + URLEncoder.encode(text, "UTF-8")
     with(URL(BASE_URL).openConnection() as HttpURLConnection) {
         requestMethod = "POST"

@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.domain
 
+import java.io.File
 import java.time.Instant
 
 data class Issue(
@@ -22,6 +23,7 @@ data class Issue(
     val project: Project,
     val platform: String?,
     val affectedVersions: List<Version>,
+    val fixVersions: List<Version>,
     val attachments: List<Attachment>,
     val comments: List<Comment>,
     val links: List<Link>,
@@ -43,5 +45,7 @@ data class Issue(
     val addRestrictedComment: (options: CommentOptions) -> Unit,
     val addNotEnglishComment: (language: String) -> Unit,
     val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
-    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit
+    val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit,
+    val changeReporter: (reporter: String) -> Unit,
+    val addAttachment: (file: File) -> Unit
 )

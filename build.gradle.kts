@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.4.30"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     application
     id("io.gitlab.arturbosch.detekt") version "1.9.1"
@@ -12,29 +12,28 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://jitpack.io")
-    maven("https://dl.bintray.com/cbeust/maven")
-    jcenter()
+    maven("https://libraries.minecraft.net")
 }
 
 buildscript {
     repositories {
         mavenCentral()
-        jcenter {
-            content {
-                // just allow to include kotlinx projects
-                // detekt needs 'kotlinx-html' for the html report
-                includeGroup("org.jetbrains.kotlinx")
-            }
-        }
     }
     dependencies {
         classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.1")
     }
 }
 
+configurations {
+    all {
+        // Excluded due to being a dependency of detekt but not being in maven central
+        exclude("org.jetbrains.kotlinx", "kotlinx-html-jvm")
+    }
+}
+
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val kotestVersion = "4.2.3"
+val kotestVersion = "4.4.1"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {
@@ -59,7 +58,8 @@ dependencies {
     implementation("io.arrow-kt", "arrow-core", arrowVersion)
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
-    implementation("com.beust", "klaxon", "5.2")
+    implementation("com.beust", "klaxon", "5.4")
+    implementation("com.mojang", "brigadier", "1.0.17")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
@@ -70,10 +70,10 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 
     test {
@@ -94,10 +94,7 @@ detekt {
     buildUponDefaultConfig = true // preconfigure defaults
     parallel = true
     reports {
-        html {
-            destination = file("build/reports/detekt.html")
-            enabled = true // observe findings in your browser with structure and code snippets
-        }
+        html.enabled = false // Disabled due to requirement for kotlinx-html which is still in jcenter
         xml.enabled = false // checkstyle like format mainly for integrations like Jenkins
         txt.enabled = false // similar to the console output, contains issue signature to manually edit baseline files
     }
@@ -106,7 +103,7 @@ detekt {
 tasks {
     withType<io.gitlab.arturbosch.detekt.Detekt> {
         // Target version of the generated JVM bytecode. It is used for type resolution.
-        this.jvmTarget = "1.8"
+        this.jvmTarget = "11"
     }
 }
 

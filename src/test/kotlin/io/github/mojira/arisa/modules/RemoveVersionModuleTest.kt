@@ -1,9 +1,9 @@
 package io.github.mojira.arisa.modules
 
-import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -19,11 +19,11 @@ private val VERSION = mockVersion(id = "1", released = true, archived = false)
 
 private val EXTRA_VERSION = mockVersion(id = "2", released = true, archived = false)
 
-private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1", author = User("arisabot", null) { emptyList() })
+private val ADD_VERSION = mockChangeLogItem(field = "Version", changedTo = "1", author = mockUser(name = "arisabot"))
 private val VERSION_REMOVED =
-    mockChangeLogItem(field = "Version", changedFrom = "1", author = User("arisabot", null) { emptyList() })
+    mockChangeLogItem(field = "Version", changedFrom = "1", author = mockUser("arisabot"))
 private val VERSION_REMOVED_WITH_TO =
-    mockChangeLogItem(field = "Version", changedFrom = "1", changedTo = "1", author = User("arisabot", null) { emptyList() })
+    mockChangeLogItem(field = "Version", changedFrom = "1", changedTo = "1", author = mockUser("arisabot"))
 
 class RemoveVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {

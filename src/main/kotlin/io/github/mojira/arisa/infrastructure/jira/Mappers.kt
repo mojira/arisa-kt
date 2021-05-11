@@ -17,6 +17,7 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -183,8 +184,7 @@ private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
 ).fold({ null }, { it })
 
 private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
-    val escapedUserName = if (username.contains('\'')) """\\"$username\\"""" else "'${username.replace("\"", "\\\"")}'"
-    val commentJql = """issueFunction IN commented("by $escapedUserName before -24h")"""
+    val commentJql = "issueFunction IN commented(${ escapeIssueFunction(username) { "by $it before -24h" } })"
 
     val oldCommentsExist = try {
         jiraClient.countIssues(commentJql) > 0

@@ -27,5 +27,5 @@ class RemoveIdenticalLinkModule : Module {
         }
     }
 
-    private fun isRelatesLink(link: Link): Boolean = link.type.toLowerCase() === "relates"
+    private fun isRelatesLink(link: Link): Boolean = link.type.toLowerCase() == "relates"
 }

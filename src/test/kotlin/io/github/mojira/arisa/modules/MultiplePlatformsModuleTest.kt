@@ -48,11 +48,13 @@ private val duplicatedLinkNotResolved = mockLink(
 )
 private val duplicateLinkChangeLog = mockChangeLogItem(
     changedToString = "This issue is duplicated by MC-1",
-    created = RIGHT_NOW
+    created = RIGHT_NOW,
+    field = "Link"
 )
 private val oldDuplicateLinkChangeLog = mockChangeLogItem(
-        changedToString = "This issue is duplicated by MC-1",
-        created = FIVE_SECONDS_AGO
+    changedToString = "This issue is duplicated by MC-1",
+    created = FIVE_SECONDS_AGO,
+    field = "Link"
 )
 private val throwable = Throwable(message = "example")
 private val faultyDuplicatedLink = mockLink(

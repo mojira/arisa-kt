@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
@@ -21,8 +20,26 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the links are not Relates" {
+        val link1 = mockLink(
+            outwards = true
+        )
+        val link2 = mockLink(
+            outwards = true
+        )
+        val issue = mockIssue(
+            links = listOf(link1, link2)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when the ticket has only one link" {
-        val link = mockLink()
+        val link = mockLink(
+            type = "Relates"
+        )
         val issue = mockIssue(
             links = listOf(link)
         )
@@ -32,45 +49,15 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when the links have different directions" {
-        val link1 = mockLink(
-            outwards = true
-        )
-        val link2 = mockLink(
-            outwards = false
-        )
-        val issue = mockIssue(
-            links = listOf(link1, link2)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
-    "should return OperationNotNeededModuleResponse when the links have different types" {
-        val link1 = mockLink(
-            type = "Duplicate"
-        )
-        val link2 = mockLink(
-            type = "Relates"
-        )
-        val issue = mockIssue(
-            links = listOf(link1, link2)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should return OperationNotNeededModuleResponse when the links have different keys" {
         val link1 = mockLink(
+            type = "Relates",
             issue = mockLinkedIssue(
                 key = "MC-1"
             )
         )
         val link2 = mockLink(
+            type = "Relates",
             issue = mockLinkedIssue(
                 key = "MC-2"
             )
@@ -84,43 +71,29 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should remove extra link that is identical to the former one" {
-        var hasRemovedLink1 = false
-        var hasRemovedLink2 = false
-
-        val link1 = mockLink(
-            remove = { hasRemovedLink1 = true; Unit.right() }
-        )
-        val link2 = mockLink(
-            remove = { hasRemovedLink2 = true; Unit.right() }
-        )
-        val issue = mockIssue(
-            links = listOf(link1, link2)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeRight(ModuleResponse)
-        hasRemovedLink1 shouldBe false
-        hasRemovedLink2 shouldBe true
-    }
-
-    "should remove extra relates link that is identical to the former one regardless of directions" {
+    "should remove the extra Relates link pointing out from the host when the host is smaller" {
         var hasRemovedLink1 = false
         var hasRemovedLink2 = false
 
         val link1 = mockLink(
             type = "Relates",
             outwards = true,
-            remove = { hasRemovedLink1 = true; Unit.right() }
+            remove = { hasRemovedLink1 = true },
+            issue = mockLinkedIssue(
+                key = "MC-2"
+            )
         )
         val link2 = mockLink(
             type = "Relates",
             outwards = false,
-            remove = { hasRemovedLink2 = true; Unit.right() }
+            remove = { hasRemovedLink2 = true },
+            issue = mockLinkedIssue(
+                key = "MC-2"
+            )
         )
 
         val issue = mockIssue(
+            key = "MC-1",
             links = listOf(link1, link2)
         )
 
@@ -131,29 +104,36 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         hasRemovedLink2 shouldBe true
     }
 
-    "should remove all extra links that are identical to former ones" {
+    "should remove the extra Relates link pointing out from the target when the target is smaller" {
         var hasRemovedLink1 = false
         var hasRemovedLink2 = false
-        var hasRemovedLink3 = false
 
         val link1 = mockLink(
-            remove = { hasRemovedLink1 = true; Unit.right() }
+            type = "Relates",
+            outwards = true,
+            remove = { hasRemovedLink1 = true },
+            issue = mockLinkedIssue(
+                key = "MC-1"
+            )
         )
         val link2 = mockLink(
-            remove = { hasRemovedLink2 = true; Unit.right() }
+            type = "Relates",
+            outwards = false,
+            remove = { hasRemovedLink2 = true },
+            issue = mockLinkedIssue(
+                key = "MC-1"
+            )
         )
-        val link3 = mockLink(
-            remove = { hasRemovedLink3 = true; Unit.right() }
-        )
+
         val issue = mockIssue(
-            links = listOf(link1, link2, link3)
+            key = "MC-2",
+            links = listOf(link1, link2)
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        hasRemovedLink1 shouldBe false
-        hasRemovedLink2 shouldBe true
-        hasRemovedLink3 shouldBe true
+        hasRemovedLink1 shouldBe true
+        hasRemovedLink2 shouldBe false
     }
 })

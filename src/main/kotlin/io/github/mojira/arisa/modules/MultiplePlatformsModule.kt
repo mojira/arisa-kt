@@ -41,7 +41,7 @@ class MultiplePlatformsModule(
                     val newLinks = child.changeLog
                             .filter{ item -> isLinkToIssue(item, expectedDuplicateText) }
                             .filter{ item -> isRecent(item, lastRun) }
-                    if (newLinks.length > 0) {
+                    if (newLinks.isNotEmpty()) {
                         return@fx true
                     }
                 }

@@ -209,7 +209,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
         val issue = mockIssue(
                 platform = "Xbox One",
-                links = listOf(duplicatedLink4),
+                links = listOf(duplicatedLink4)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -221,7 +221,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
         val issue = mockIssue(
                 platform = "Xbox One",
-                links = listOf(duplicatedLink3),
+                links = listOf(duplicatedLink3)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

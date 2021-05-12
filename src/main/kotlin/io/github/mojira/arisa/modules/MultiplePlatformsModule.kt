@@ -53,7 +53,7 @@ class MultiplePlatformsModule(
 
     private fun isRecent(change: ChangeLogItem, lastRun: Instant): Boolean = change.created.isAfter(lastRun)
 
-    private fun isLinkToIssue(change: ChangeLogItem, expected: string) =
+    private fun isLinkToIssue(change: ChangeLogItem, expected: String) =
         change.field == "Link" &&
                 change.changedToString?.equals(expected) ?: false
 

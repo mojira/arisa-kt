@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
@@ -18,27 +19,46 @@ class MultiplePlatformsModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertPlatformWhitelisted(platform, platformWhitelist).bind()
-            assertTrue(isDuplicatedWithDifferentPlatforms(platform, transferredPlatformBlacklist, issue).bind()).bind()
+            assertTrue(isDuplicatedWithDifferentPlatforms(platform, transferredPlatformBlacklist, issue, lastRun).bind()).bind()
             assertNotKeepPlatformTag(comments).bind()
             updatePlatforms(targetPlatform)
         }
     }
 
-    private fun isDuplicatedWithDifferentPlatforms(platform: String?, blacklist: List<String>, issue: Issue):
-            Either<ModuleError, Boolean> = Either.fx {
+    private fun isDuplicatedWithDifferentPlatforms(
+            platform: String?,
+            blacklist: List<String>,
+            issue: Issue,
+            lastRun: Instant
+    ): Either<ModuleError, Boolean> = Either.fx {
+        val expectedDuplicateText = "This issue is duplicated by ${issue.key}"
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
                 val child = it.issue.getFullIssue().toFailedModuleEither().bind()
                 if (child.resolution == "Duplicate" && child.platform !in blacklist &&
                     child.platform != platform.getOrDefault("None")) {
-                    return@fx true
+                    val newLinks = child.changeLog
+                            .filter(::isDuplicateLinkAddedChange)
+                            .filter{ item -> isLinkToIssue(item, expectedDuplicateText) }
+                            .filter{ item -> isRecent(item, lastRun) }
+                    if (newLinks.length > 0) {
+                        return@fx true
+                    }
                 }
             }
         false
     }
 
     private fun isDuplicatedLink(link: Link): Boolean = link.type == "Duplicate" && !link.outwards
+
+    private fun isRecent(change: ChangeLogItem, lastRun: Instant): Boolean = change.created.isAfter(lastRun)
+
+    private fun isLinkToIssue(change: ChangeLogItem, text: String): Boolean = change.changedToString!!.equals(text)
+
+    private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
+        change.field == "Link" &&
+                change.changedToString?.matches(DUPLICATE_REGEX) ?: false
 
     private fun assertNotKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
         val volunteerComments = comments.filter(::isVolunteerComment)

@@ -39,7 +39,6 @@ class MultiplePlatformsModule(
                 if (child.resolution == "Duplicate" && child.platform !in blacklist &&
                     child.platform != platform.getOrDefault("None")) {
                     val newLinks = child.changeLog
-                            .filter(::isDuplicateLinkAddedChange)
                             .filter{ item -> isLinkToIssue(item, expectedDuplicateText) }
                             .filter{ item -> isRecent(item, lastRun) }
                     if (newLinks.length > 0) {
@@ -54,11 +53,9 @@ class MultiplePlatformsModule(
 
     private fun isRecent(change: ChangeLogItem, lastRun: Instant): Boolean = change.created.isAfter(lastRun)
 
-    private fun isLinkToIssue(change: ChangeLogItem, text: String): Boolean = change.changedToString!!.equals(text)
-
-    private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
+    private fun isLinkToIssue(change: ChangeLogItem, expected: string) =
         change.field == "Link" &&
-                change.changedToString?.matches(DUPLICATE_REGEX) ?: false
+                change.changedToString?.equals(expected) ?: false
 
     private fun assertNotKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
         val volunteerComments = comments.filter(::isVolunteerComment)

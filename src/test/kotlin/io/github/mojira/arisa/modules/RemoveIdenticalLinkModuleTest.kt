@@ -100,8 +100,8 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        hasRemovedLink1 shouldBe false
-        hasRemovedLink2 shouldBe true
+        hasRemovedLink1 shouldBe true
+        hasRemovedLink2 shouldBe false
     }
 
     "should remove the extra Relates link pointing out from the target when the target is smaller" {
@@ -133,7 +133,7 @@ class RemoveIdenticalLinkModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        hasRemovedLink1 shouldBe true
-        hasRemovedLink2 shouldBe false
+        hasRemovedLink1 shouldBe false
+        hasRemovedLink2 shouldBe true
     }
 })

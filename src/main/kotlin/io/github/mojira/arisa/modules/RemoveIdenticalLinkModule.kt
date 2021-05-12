@@ -18,12 +18,12 @@ class RemoveIdenticalLinkModule : Module {
                 .map {
                     // Always remove the outwards link belonging to the smaller ticket key,
                     // so that when this module is triggered on both tickets, only one link is removed.
-                    it.value.find { l -> if (key < it.key) l.outwards else !l.outwards }?.remove
+                    it.value.find { l -> if (key < it.key) l.outwards else !l.outwards }!!.remove
                 }
 
             assertNotEmpty(removeLinkFunctions).bind()
 
-            removeLinkFunctions.forEach { it?.invoke() }
+            removeLinkFunctions.forEach { it.invoke() }
         }
     }
 

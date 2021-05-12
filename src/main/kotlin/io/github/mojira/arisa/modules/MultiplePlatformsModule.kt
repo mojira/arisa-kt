@@ -19,7 +19,14 @@ class MultiplePlatformsModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertPlatformWhitelisted(platform, platformWhitelist).bind()
-            assertTrue(isDuplicatedWithDifferentPlatforms(platform, transferredPlatformBlacklist, issue, lastRun).bind()).bind()
+            assertTrue(
+                    isDuplicatedWithDifferentPlatforms(
+                            platform,
+                            transferredPlatformBlacklist,
+                            issue,
+                            lastRun
+                    ).bind()
+            ).bind()
             assertNotKeepPlatformTag(comments).bind()
             updatePlatforms(targetPlatform)
         }

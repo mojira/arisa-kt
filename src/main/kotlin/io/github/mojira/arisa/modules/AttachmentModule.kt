@@ -14,36 +14,20 @@ class AttachmentModule(
     override fun execute(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val endsWithBlacklistedExtensionAdapter = ::endsWithBlacklistedExtensions.partially1(extensionBlackList)
-            val functions = attachments
+            val blacklistedAttachments = attachments
                 .filter { endsWithBlacklistedExtensionAdapter(it.name) }
-            assertNotEmpty(functions).bind()
-            val usernames = functions.getUsernames()
-            val attachmentNames = functions.getAttachmentNames()
-            removedAttachments.addAll(functions)
+            assertNotEmpty(blacklistedAttachments).bind()
+
+            val commentInfo = blacklistedAttachments.getCommentInfo()
+            removedAttachments.addAll(blacklistedAttachments)
             addComment(attachmentRemovedMessage)
-            addComment("Attachment Details:\nFilename: $attachmentNames\nUploader: $usernames", "group", "helper")
+            addRawComment("Removed attachments:\n$commentInfo", "group", "helper")
         }
     }
 
-    private fun List<Attachment>.getUsernames() = this
-        .map { it.uploader!!.name }
-        .run {
-            when (size) {
-                1 -> get(0)
-                2 -> "${get(0)}* and *${get(1)}"
-                else -> "${subList(0, lastIndex).joinToString("*, *")}*, and *${last()}"
-            }
-        }
-
-    private fun List<Attachment>.getAttachmentNames() = this
-        .map { it.name }
-        .run {
-            when (size) {
-                1 -> get(0)
-                2 -> "${get(0)} and ${get(1)}"
-                else -> "${subList(0, lastIndex).joinToString(", ")}, and ${last()}"
-            }
-        }
+    private fun List<Attachment>.getCommentInfo() = this
+        .map { "- [~${it.uploader!!.name}]: ${it.name}" }
+        .joinToString(separator = "\n")
 
     private fun endsWithBlacklistedExtensions(extensionBlackList: List<String>, name: String) =
         extensionBlackList.any { name.endsWith(it) }

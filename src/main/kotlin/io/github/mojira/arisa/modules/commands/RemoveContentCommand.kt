@@ -4,6 +4,7 @@ import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.service.IssueService
+import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import io.github.mojira.arisa.log
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +21,7 @@ const val REMOVABLE_ACTIVITY_CAP = 200
 const val REMOVE_USER_SLEEP_INTERVAL = 10
 
 @Suppress("LongParameterList")
-class RemoveUserCommand(
+class RemoveContentCommand(
     val issueService: IssueService,
     val execute: (Runnable) -> Unit,
 
@@ -43,7 +44,7 @@ class RemoveUserCommand(
         issue.editedComments.add(comment.copy(body = content, visibilityType = "group", visibilityValue = "staff"))
     },
     val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
-        issue.attachments.mapNotNull { it.id to it }
+        issue.attachments.filter { it.id != null }.map { it.id!! to it }
     },
     val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
         attachment.uploader?.name
@@ -56,11 +57,11 @@ class RemoveUserCommand(
         issue: Issue,
         userName: String
     ): Int {
-        val escapedUserName = userName.replace("'", "\\'")
+        val issueFunctionInner = escapeIssueFunction(userName) { "by $it" }
 
         val jql = """project != TRASH
-            | AND issueFunction IN commented("by '$escapedUserName'")
-            | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
+            | AND issueFunction IN commented($issueFunctionInner)
+            | OR issueFunction IN fileAttached($issueFunctionInner)"""
             .trimMargin().replace("[\n\r]", "")
 
         val ticketIds = issueService.searchIssues(jql)

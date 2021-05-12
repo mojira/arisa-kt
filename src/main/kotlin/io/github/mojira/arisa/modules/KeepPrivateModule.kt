@@ -22,9 +22,18 @@ class KeepPrivateModule(
             securityLevel = project.privateSecurity
 
             val markedTime = comments.first(::isKeepPrivateTag).created
-            val changedTime = changeLog.lastOrNull(::isSecurityChange)?.created
+            val securityChange = changeLog
+                .lastOrNull { isSecurityChangeToPublic(it, project.privateSecurity) }
+            val changedTime = securityChange?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
-                addComment(message)
+                if (securityChange.author.groups.any { it == "global-moderators" || it == "staff" }) {
+                    addRawComment(
+                        "To remove the security level, please remove the keep private tag first.",
+                        "group", "staff"
+                    )
+                } else {
+                    addComment(message)
+                }
             }
         }
     }
@@ -33,7 +42,8 @@ class KeepPrivateModule(
             comment.visibilityValue == "staff" &&
             (comment.body?.contains(keepPrivateTag!!) ?: false)
 
-    private fun isSecurityChange(item: ChangeLogItem) = item.field == "security"
+    private fun isSecurityChangeToPublic(item: ChangeLogItem, privateLevel: String) =
+        item.field == "security" && item.changedFromString == privateLevel
 
     private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {
         comments.any(::isKeepPrivateTag) -> Unit.right()

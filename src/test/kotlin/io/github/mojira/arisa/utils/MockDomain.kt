@@ -12,9 +12,11 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
+import java.io.File
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()
+const val PRIVATE_SECURITY_LEVEL = "private"
 
 fun mockAttachment(
     id: String = "0",
@@ -119,7 +121,8 @@ fun mockIssue(
     addNotEnglishComment: (language: String) -> Unit = { },
     addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> },
     markAsFixedInASpecificVersion: (version: String) -> Unit = { },
-    changeReporter: (reporter: String) -> Unit = { }
+    changeReporter: (reporter: String) -> Unit = { },
+    addAttachment: (file: File) -> Unit = { }
 ) = Issue(
     key,
     summary,
@@ -163,7 +166,8 @@ fun mockIssue(
     addNotEnglishComment,
     addRawRestrictedComment,
     markAsFixedInASpecificVersion,
-    changeReporter
+    changeReporter,
+    addAttachment
 )
 
 fun mockLink(
@@ -193,7 +197,7 @@ fun mockLinkedIssue(
 fun mockProject(
     key: String = "MC",
     versions: List<Version> = emptyList(),
-    privateSecurity: String = "private"
+    privateSecurity: String = PRIVATE_SECURITY_LEVEL
 ) = Project(
     key,
     versions,
@@ -203,11 +207,13 @@ fun mockProject(
 fun mockUser(
     name: String = "user",
     displayName: String = "User",
-    getGroups: () -> List<String>? = { null }
+    getGroups: () -> List<String>? = { null },
+    isNewUser: () -> Boolean = { false }
 ) = User(
     name,
     displayName,
-    getGroups
+    getGroups,
+    isNewUser
 )
 
 fun mockVersion(

@@ -30,7 +30,7 @@ class MultiplePlatformsModule(
             .filter(::isDuplicatedLink)
             .forEach {
                 val child = it.issue?.issue?.get() ?: return@fx false
-                if (child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
+                if (child.resolution == "Duplicate" && child.platform !in blacklist && child.platform != platform.getOrDefault("None")) {
                     return@fx true
                 }
             }

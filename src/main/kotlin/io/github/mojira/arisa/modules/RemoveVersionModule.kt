@@ -17,6 +17,7 @@ class RemoveVersionModule(
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }
+            assertGreaterThan(affectedVersions.size, removeAddedVersions.size).bind()
             assertNotEmpty(removeAddedVersions).bind()
             removedAffectedVersions.addAll(removeAddedVersions)
             if (calledMoreThanMaxTimes(changeLog)) {

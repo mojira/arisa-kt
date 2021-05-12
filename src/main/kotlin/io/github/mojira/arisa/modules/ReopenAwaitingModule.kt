@@ -27,7 +27,7 @@ class ReopenAwaitingModule(
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
 
             val resolveTime = changeLog.last(::isAwaitingResolve).created
-            val validComments = getValidComments(comments, resolveTime, lastRun)
+            val validComments = getValidComments(comments, reporter, resolveTime, lastRun)
             val validChangeLog = getValidChangeLog(changeLog, reporter, resolveTime)
 
             assertEither(
@@ -40,9 +40,7 @@ class ReopenAwaitingModule(
                 TODO("Reopen?")
             } else {
                 assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
-                if (comments.none(::isKeepARMessage)) {
-                    addComment(message)
-                }
+                ensureComment(message)
             }
         }
     }
@@ -77,16 +75,18 @@ class ReopenAwaitingModule(
             comment.visibilityValue == "staff" &&
             (comment.body.contains(keepARTag))
 
-    private fun isKeepARMessage(comment: Comment) = comment.author?.name == "arisabot" &&
-            (comment.body.contains(message))
-
     private fun getValidComments(
         comments: List<Comment>,
+        reporter: User?,
         resolveTime: Instant,
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
-        .filter { it.author?.groups.orEmpty().intersect(blacklistedRoles).isEmpty() }
+        .filter { /* TODO: WHAT TO DO HERE??? !it.author?.isNewUser() || */ it.author?.name == reporter?.name }
+        .filter {
+            val roles = it.author?.groups
+            roles == null || roles.intersect(blacklistedRoles).isEmpty()
+        }
         .filterNot { it.visibilityType == "group" && blacklistedVisibilities.contains(it.visibilityValue) }
 
     private fun getValidChangeLog(

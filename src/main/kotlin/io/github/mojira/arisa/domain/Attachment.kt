@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.function.Supplier
 
 data class Attachment(
-    val id: String,
+    val id: String?,
     var name: String,
     var created: Instant,
     var mimeType: String,

@@ -22,10 +22,7 @@ fun getCommandDispatcher(
     val fixedCommand = FixedCommand()
     val listUserActivityCommand = ListUserActivityCommand(issueService)
     val purgeAttachmentCommand = PurgeAttachmentCommand()
-    val removeUserCommand = RemoveUserCommand(
-        issueService,
-        { Thread(it).start() }
-    )
+    val removeContentCommand = RemoveContentCommand(issueService, { Thread(it).start() })
 
     return CommandDispatcher<CommandSource>().apply {
         val addLinksCommandNode =
@@ -161,13 +158,13 @@ fun getCommandDispatcher(
                         )
                 )
 
-        val removeUserCommandNode =
-            literal<CommandSource>("${prefix}_REMOVE_USER")
+        val removeContentCommandNode =
+            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
                 .requires(::sentByModerator)
                 .then(
                     argument<CommandSource, String>("username", greedyString())
                         .executes {
-                            removeUserCommand(
+                            removeContentCommand(
                                 it.source.issue,
                                 it.getString("username")
                             )
@@ -184,7 +181,7 @@ fun getCommandDispatcher(
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
-        register(removeUserCommandNode)
+        register(removeContentCommandNode)
     }
 }
 

@@ -1,7 +1,9 @@
 package io.github.mojira.arisa.infrastructure.services
 
 import arrow.core.Either
+import arrow.core.extensions.fx
 import arrow.core.left
+import arrow.core.right
 import arrow.core.rightIfNotNull
 import com.beust.klaxon.Klaxon
 import java.io.File
@@ -96,18 +98,28 @@ object HelperMessageService {
         keys: List<String>,
         filledTexts: List<String?> = emptyList(),
         lang: String = "en"
-    ): String {
-        val target = keys
+    ): Either<Error, String> {
+        val message = keys
             .mapIndexed { i, key -> getSingleMessage(project, key, filledTexts.getOrNull(i), lang) }
-            .joinToString("\n") { either -> either.fold({ "" }, { it }) }
+            // Convert the list of Either to an Either of list.
+            .run {
+                if (all { it.isRight() })
+                    map { (it as Either.Right).b }.right()
+                else
+                    first { it.isLeft() } as Either.Left
+            }
+            .map { it.joinToString("\n") }
         return if (lang == "en") {
-            target
+            message
         } else {
-            val origin = getMessage(project, keys, filledTexts, "en")
-            if (origin == target) {
-                origin
-            } else {
-                "$target\n----\n$origin"
+            Either.fx {
+                val origin = getMessage(project, keys, filledTexts, "en").bind()
+                val translation = message.bind()
+                if (origin == translation) {
+                    origin
+                } else {
+                    "$translation\n----\n$origin"
+                }
             }
         }
     }

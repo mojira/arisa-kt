@@ -125,7 +125,7 @@ class HelperMessagesTest : StringSpec({
             }
         }
     """.trimIndent()
-    )!!
+    )
 
     "should return Error when there is no such message" {
         val result = HelperMessageService.getSingleMessage("MC", "!@#%^&*")

@@ -2,6 +2,7 @@ package io.github.mojira.arisa.domain
 
 import io.github.mojira.arisa.infrastructure.services.HelperMessageService
 import java.time.Instant
+import java.util.function.Supplier
 
 data class Issue(
     val key: String,
@@ -34,6 +35,7 @@ data class Issue(
     val editedComments = mutableListOf<Comment>()
     val newLinks = mutableListOf<Link>()
     val removedLinks = mutableListOf<Link>()
+    val addedAttachments = mutableListOf<Attachment>() // TODO map to jira
     val removedAttachments = mutableListOf<Attachment>()
     val addedAffectedVersions = mutableListOf<Version>()
     val removedAffectedVersions = mutableListOf<Version>()
@@ -68,6 +70,12 @@ data class Issue(
         chk = "updated!"
     }
 
+    fun addAttachment(name: String, mimeType: String, uploader: User, content: Supplier<ByteArray>) {
+        addedAttachments.add(Attachment(null, name, Instant.now(), mimeType, uploader, content))
+    }
+
+    // TODO: The four comment methods here are quite repetitive. Not sure if it's worth it to refactor them though.
+
     fun addComment(
         message: String,
         visType: String? = null,
@@ -75,14 +83,40 @@ data class Issue(
         filledText: String? = null,
         language: String = "en"
     ) {
-        HelperMessageService.getSingleMessage(project.key, message, filledText = filledText, lang = language).fold(
-            { /* TODO what to do */ },
-            { addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue)) }
-        )
+        HelperMessageService.getMessageWithBotSignature(project.key, message, filledText = filledText, lang = language)
+            .fold(
+                { /* TODO what to do */ },
+                { addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue)) }
+            )
+    }
+
+    /**
+     * Similar to `addComment`, but only adds the comment when it doesn't exist under the issue yet.
+     */
+    fun ensureComment(
+        message: String,
+        visType: String? = null,
+        visValue: String? = null,
+        filledText: String? = null,
+        language: String = "en"
+    ) {
+        HelperMessageService.getMessageWithBotSignature(project.key, message, filledText = filledText, lang = language)
+            .fold(
+                { /* TODO what to do */ },
+                {
+                    if (comments.doNotHave(it, visType, visValue)) {
+                        addedComments.add(Comment(null, it, null, Instant.now(), null, visType, visValue))
+                    }
+                }
+            )
     }
 
     fun addRawComment(message: String, visType: String? = null, visValue: String? = null) {
         addedComments.add(Comment(null, message, null, Instant.now(), null, visType, visValue))
+    }
+
+    private fun List<Comment>.doNotHave(body: String, visType: String? = null, visValue: String? = null): Boolean {
+        return none { c -> c.body == body && c.visibilityType == visType && c.visibilityValue == visValue }
     }
 
     fun addLink(type: String, outwards: Boolean, key: String) {

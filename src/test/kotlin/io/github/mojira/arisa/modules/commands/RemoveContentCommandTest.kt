@@ -28,14 +28,14 @@ data class MockedIssue(
     val attachments: List<String> = listOf()
 )
 
-fun mockRemoveUserCommand(
+fun mockRemoveContentCommand(
     issues: Map<String, MockedIssue>,
     comments: Map<String, MockedComment>,
     attachments: Map<String, MockedAttachment>,
     searchIssues: (String, Int) -> Unit = { _, _ -> },
     getIssue: (String) -> Unit = { }
-): RemoveUserCommand {
-    return RemoveUserCommand(
+): RemoveContentCommand {
+    return RemoveContentCommand(
         searchIssues = { jql, cap ->
             try {
                 searchIssues(jql, cap)
@@ -80,7 +80,7 @@ fun mockRemoveUserCommand(
     )
 }
 
-class RemoveUserCommandTest : StringSpec({
+class RemoveContentCommandTest : StringSpec({
     "should remove all matching comments" {
         var calledSearch = false
         var comment: String? = null
@@ -141,7 +141,7 @@ class RemoveUserCommandTest : StringSpec({
             "MC-3" to MockedIssue(listOf("ec3", "ec4", "ic4"), listOf("ea1", "ia2", "ea2"))
         )
 
-        val command = mockRemoveUserCommand(
+        val command = mockRemoveContentCommand(
             issues,
             comments,
             attachments,

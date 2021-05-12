@@ -16,15 +16,18 @@ private val DUPLICATE_LINK = mockChangeLogItem(
 )
 
 class UpdateLinkedModuleTest : StringSpec({
-    "should return OperationNotNeededModuleResponse when linked is empty and there are no duplicates" {
+    "should set linked to 0 when linked is empty and there are no duplicates" {
         val module = UpdateLinkedModule(0)
+        var linked: Double? = null
         val issue = mockIssue(
-            created = A_SECOND_AGO
+            created = A_SECOND_AGO,
+            updateLinked = { amount -> linked = amount }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
+        linked shouldBe 0.0
     }
 
     "should return OperationNotNeededModuleResponse when linked is 0 and there are no duplicates" {

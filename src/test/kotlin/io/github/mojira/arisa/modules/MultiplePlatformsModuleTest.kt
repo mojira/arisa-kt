@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.modules
 
+import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
@@ -14,14 +15,27 @@ import io.kotest.matchers.shouldBe
 private val duplicatedLink = mockLink(
     outwards = false,
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(platform = "None").right() }
+        getFullIssue = { mockIssue(platform = "None", resolution = "Duplicate").right() }
     )
 )
 private val duplicatedLink2 = mockLink(
     outwards = false,
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(platform = "Amazon").right() }
+        getFullIssue = { mockIssue(platform = "Amazon", resolution = "Duplicate").right() }
     )
+)
+private val duplicatedLinkNotResolved = mockLink(
+    outwards = false,
+    issue = mockLinkedIssue(
+        getFullIssue = { mockIssue(platform = "None", resolution = null).right() }
+    )
+)
+private val throwable = Throwable(message = "example")
+private val faultyDuplicatedLink = mockLink(
+        outwards = false,
+        issue = mockLinkedIssue(
+                getFullIssue = { throwable.left() }
+        )
 )
 private val relatesLink = mockLink(
     type = "Relates"
@@ -77,6 +91,18 @@ class MultiplePlatformsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when the child is not resolved as Duplicate" {
+        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
+        val issue = mockIssue(
+            platform = "Amazon",
+            links = listOf(duplicatedLinkNotResolved)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when Platform is the same as the child report" {
         val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
         val issue = mockIssue(
@@ -117,6 +143,18 @@ class MultiplePlatformsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return FailedModuleResponse when can't get full issue from the link" {
+        val module = MultiplePlatformsModule(listOf("Xbox One", "Amazon"), "Multiple", listOf("None"), "MEQS_KEEP_PLATFORM")
+        val issue = mockIssue(
+                platform = "Xbox One",
+                links = listOf(faultyDuplicatedLink)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(FailedModuleResponse(exceptions = listOf(throwable)))
     }
 
     "should return OperationNotNeededModuleResponse when Platform is null and there is a duplicate" {

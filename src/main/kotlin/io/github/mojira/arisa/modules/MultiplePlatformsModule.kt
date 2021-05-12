@@ -33,10 +33,10 @@ class MultiplePlatformsModule(
     }
 
     private fun isDuplicatedWithDifferentPlatforms(
-            platform: String?,
-            blacklist: List<String>,
-            issue: Issue,
-            lastRun: Instant
+        platform: String?,
+        blacklist: List<String>,
+        issue: Issue,
+        lastRun: Instant
     ): Either<ModuleError, Boolean> = Either.fx {
         val expectedDuplicateText = "This issue is duplicated by ${issue.key}"
         issue.links
@@ -46,8 +46,8 @@ class MultiplePlatformsModule(
                 if (child.resolution == "Duplicate" && child.platform !in blacklist &&
                     child.platform != platform.getOrDefault("None")) {
                     val newLinks = child.changeLog
-                            .filter{ item -> isLinkToIssue(item, expectedDuplicateText) }
-                            .filter{ item -> isRecent(item, lastRun) }
+                            .filter { item -> isLinkToIssue(item, expectedDuplicateText) }
+                            .filter { item -> isRecent(item, lastRun) }
                     if (newLinks.isNotEmpty()) {
                         return@fx true
                     }

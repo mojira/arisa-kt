@@ -31,7 +31,7 @@ class MultiplePlatformsModule(
                     ).bind()
             ).bind()
             assertNotKeepPlatformTag(comments).bind()
-            if (project.key === "MCD") {
+            if (project.key == "MCD") {
                 updateDungeonsPlatform(targetPlatform)
             } else {
                 updatePlatform(targetPlatform)
@@ -40,7 +40,7 @@ class MultiplePlatformsModule(
     }
 
     private fun getPlatformWhitelist(project: String) =
-        if (project === "MCD") dungeonsPlatformWhitelist else platformWhitelist
+        if (project == "MCD") dungeonsPlatformWhitelist else platformWhitelist
 
     private fun Issue.getPlatformValue() = if (project.key == "MCD") dungeonsPlatform else platform
 

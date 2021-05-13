@@ -7,7 +7,6 @@ import io.github.mojira.arisa.modules.Module
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldNotContain
 import org.reflections.Reflections
 
 val CONFIG = Config { addSpec(Arisa) }
@@ -16,7 +15,6 @@ val CONFIG = Config { addSpec(Arisa) }
         mapOf(
             // Overwrite these settings to ensure we're always covering both test cases
             "arisa.modules.attachment.enabled" to "true",
-            "arisa.modules.missingCrash.enabled" to "false",
 
             // Required credentials
             "arisa.credentials.username" to "test",
@@ -59,6 +57,5 @@ class ModuleRegistryTest : StringSpec({
         val enabledModules = ModuleRegistry(CONFIG).getEnabledModules().map { it.name }
 
         enabledModules shouldContain "Attachment"
-        enabledModules shouldNotContain "MissingCrash"
     }
 })

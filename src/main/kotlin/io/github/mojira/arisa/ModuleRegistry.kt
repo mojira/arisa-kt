@@ -23,7 +23,6 @@ import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
-import io.github.mojira.arisa.modules.MissingCrashModule
 import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -146,15 +145,6 @@ class ModuleRegistry(private val config: Config) {
                 CrashReader(),
                 config[Modules.Crash.duplicateMessage],
                 config[Modules.Crash.moddedMessage]
-            )
-        )
-
-        register(
-            Modules.MissingCrash,
-            MissingCrashModule(
-                config[Modules.MissingCrash.crashExtensions],
-                CrashReader(),
-                config[Modules.MissingCrash.message]
             )
         )
 

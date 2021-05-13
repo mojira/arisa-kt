@@ -238,7 +238,7 @@ class MultiplePlatformsModuleTest : StringSpec({
         val issue = mockIssue(
             platform = "Xbox One",
             links = listOf(duplicatedLink2),
-            updatePlatforms = {
+            updatePlatform = {
                 changedPlatform = it
                 Unit.right()
             }

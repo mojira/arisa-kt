@@ -102,6 +102,7 @@ fun JiraIssue.toDomain(
         getTriagedTime(config),
         project.toDomain(jiraClient, this, config),
         getPlatform(config),
+        getDungeonsPlatform(config),
         mapVersions(jiraClient),
         mapFixVersions(jiraClient),
         mapAttachments(jiraClient),
@@ -116,7 +117,8 @@ fun JiraIssue.toDomain(
         ::updateDescription.partially1(context),
         ::updateCHK.partially1(context).partially1(config[Arisa.CustomFields.chkField]),
         ::updateConfirmation.partially1(context).partially1(config[Arisa.CustomFields.confirmationField]),
-        ::updatePlatforms.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
+        ::updatePlatform.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
+        ::updateDungeonsPlatform.partially1(context).partially1(config[Arisa.CustomFields.dungeonsPlatformField]),
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
@@ -283,6 +285,7 @@ private fun JiraIssue.getEnvironment() = getFieldAsString("environment")
 
 private fun JiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.CustomFields.chkField])
 private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
+private fun JiraIssue.getDungeonsPlatform(config: Config) = getCustomField(config[Arisa.CustomFields.dungeonsPlatformField])
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])

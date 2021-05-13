@@ -27,6 +27,7 @@ arisa:
     linked: customfield_11100
     chkField: customfield_10701
     confirmationField: customfield_10500
+    dungeonsPlatformField: customfield_12400
     mojangPriorityField: customfield_12200
     triagedTimeField: customfield_12201
     platformField: customfield_10402

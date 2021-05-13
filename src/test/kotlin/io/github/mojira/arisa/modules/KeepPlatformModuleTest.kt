@@ -176,7 +176,7 @@ class KeepPlatformModuleTest : StringSpec({
             comments = listOf(comment),
             platform = "None",
             changeLog = listOf(volunteerChange, userChange),
-            updatePlatforms = { changedPlatform = it; Unit.right() }
+            updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -200,7 +200,7 @@ class KeepPlatformModuleTest : StringSpec({
                 comments = listOf(comment),
                 platform = "None",
                 changeLog = listOf(userChange),
-                updatePlatforms = { changedPlatform = it; Unit.right() }
+                updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -230,7 +230,7 @@ class KeepPlatformModuleTest : StringSpec({
                 comments = listOf(comment),
                 platform = "None",
                 changeLog = listOf(volunteerChange, userChange1, userChange2),
-                updatePlatforms = { changedPlatform = it; Unit.right() }
+                updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

@@ -35,6 +35,7 @@ object Arisa : ConfigSpec() {
         val linked by required<String>()
         val chkField by required<String>()
         val confirmationField by required<String>()
+        val dungeonsPlatformField by required<String>()
         val mojangPriorityField by required<String>()
         val triagedTimeField by required<String>()
         val platformField by required<String>()

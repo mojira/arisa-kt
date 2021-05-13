@@ -24,9 +24,9 @@ class KeepPlatformModule(
             assertNotNull(savedPlatform).bind()
             assertNotEquals(currentPlatform, savedPlatform).bind()
             if (project.key === "MCD") {
-                updatePlatform(savedPlatform!!)
-            } else {
                 updateDungeonsPlatform(savedPlatform!!)
+            } else {
+                updatePlatform(savedPlatform!!)
             }
         }
     }

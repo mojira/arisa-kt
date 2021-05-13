@@ -12,7 +12,9 @@ import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import me.urielsalis.mccrashlib.Crash
 import me.urielsalis.mccrashlib.CrashReader
+import me.urielsalis.mccrashlib.deobfuscator.isZipSlip
 import java.io.File
+import java.nio.file.Files
 import java.time.Instant
 
 class CrashModule(
@@ -22,6 +24,8 @@ class CrashModule(
     private val dupeMessage: String,
     private val moddedMessage: String
 ) : Module {
+    val tempDir = Files.createTempDirectory("crashes").toFile()
+
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
@@ -63,9 +67,11 @@ class CrashModule(
                 }
             }
         minecraftCrashesWithDeobf.forEach {
-            val file = File(getDeobfName(it.first))
-            file.writeText(it.second!!)
-            issue.addAttachment(file)
+            if (!isZipSlip(getDeobfName(it.first), tempDir)) {
+                val file = File(tempDir, getDeobfName(it.first))
+                file.writeText(it.second!!)
+                issue.addAttachment(file)
+            }
         }
     }
 

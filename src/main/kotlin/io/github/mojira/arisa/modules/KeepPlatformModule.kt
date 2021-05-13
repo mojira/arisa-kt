@@ -23,7 +23,11 @@ class KeepPlatformModule(
             val savedPlatform = platformChangeItems.getSavedValue(markedTime)
             assertNotNull(savedPlatform).bind()
             assertNotEquals(currentPlatform, savedPlatform).bind()
-            updatePlatform(savedPlatform!!)
+            if (project.key === "MCD") {
+                updateDungeonsPlatform(savedPlatform!!)
+            } else {
+                updatePlatform(savedPlatform!!)
+            }
         }
     }
 

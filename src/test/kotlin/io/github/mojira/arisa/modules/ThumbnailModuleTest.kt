@@ -7,12 +7,9 @@ import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.extensions.system.OverrideMode
 import io.kotest.matchers.shouldBe
 import java.io.ByteArrayInputStream
-import java.io.IOException
 import java.io.InputStream
 
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
@@ -23,27 +20,27 @@ private fun openClassPathInputStream(path: String): InputStream {
 }
 
 /** PNG image which does not need thumbnail */
-private val PNG_SMALL_IMAGE_STREAM: suspend () -> InputStream = {
+private val PNG_SMALL_IMAGE_STREAM: () -> InputStream = {
     openClassPathInputStream("/thumbnail-module/Small.png")
 }
 
 /** JPG image which does not need thumbnail */
-private val JPG_SMALL_IMAGE_STREAM: suspend () -> InputStream = {
+private val JPG_SMALL_IMAGE_STREAM: () -> InputStream = {
     openClassPathInputStream("/thumbnail-module/Small.jpg")
 }
 
 /** PNG image which needs thumbnail */
-private val PNG_LARGE_IMAGE_STREAM: suspend () -> InputStream = {
+private val PNG_LARGE_IMAGE_STREAM: () -> InputStream = {
     openClassPathInputStream("/thumbnail-module/Large.png")
 }
 
 /** JPG image which needs thumbnail */
-private val JPG_LARGE_IMAGE_STREAM: suspend () -> InputStream = {
+private val JPG_LARGE_IMAGE_STREAM: () -> InputStream = {
     openClassPathInputStream("/thumbnail-module/Large.jpg")
 }
 
 /** Malformed image */
-private val MALFORMED_IMAGE_STREAM: suspend () -> InputStream = {
+private val MALFORMED_IMAGE_STREAM: () -> InputStream = {
     ByteArrayInputStream(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0))
 }
 
@@ -396,35 +393,5 @@ class ThumbnailModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         hasUpdatedDescription shouldBe "!$attachmentName|thumbnail! and more text!"
-    }
-
-    "LimitingInputStream should throw exception when limit is reached" {
-        val limit = 16
-
-        var wasDelegateClosed = false
-        val delegate = object : ByteArrayInputStream(ByteArray(limit * 2) { i -> i.toByte() }) {
-            override fun close() {
-                wasDelegateClosed = true
-            }
-        }
-
-        val stream = ThumbnailModule.LimitingInputStream(delegate, limit.toLong())
-        stream.available() shouldBe limit
-
-        // Consume all allowed bytes
-        for (i in 1..limit) {
-            stream.read() shouldBe i - 1
-            stream.available() shouldBe (limit - i)
-        }
-
-        val expectedMessage = "Trying to read more than $limit bytes"
-        shouldThrow<IOException> { stream.read() }.message shouldBe expectedMessage
-        shouldThrow<IOException> { stream.readAllBytes() }.message shouldBe expectedMessage
-        shouldThrow<IOException> { stream.read(ByteArray(10)) }.message shouldBe expectedMessage
-        shouldThrow<IOException> { stream.skip(10) }.message shouldBe expectedMessage
-
-        wasDelegateClosed shouldBe false
-        stream.close()
-        wasDelegateClosed shouldBe true
     }
 })

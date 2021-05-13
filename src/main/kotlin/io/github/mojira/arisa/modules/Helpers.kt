@@ -7,6 +7,13 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import java.io.IOException
+import java.io.InputStream
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Duration
 import java.time.Instant
 
 fun <T> Either<Throwable, T>.toFailedModuleEither() = this.bimap(
@@ -236,4 +243,43 @@ fun deleteLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleEr
         assertNotNull(link).bind()
         link?.remove?.invoke()
     }
+}
+
+fun openHttpGetInputStream(uri: URI): InputStream {
+    val request = HttpRequest.newBuilder()
+        .uri(uri)
+        .GET()
+        .build()
+    return openHttpInputStream(request)
+}
+
+fun openHttpPostInputStream(uri: URI, body: String): InputStream {
+    val request = HttpRequest.newBuilder()
+        .uri(uri)
+        .POST(HttpRequest.BodyPublishers.ofString(body))
+        .build()
+    return openHttpInputStream(request)
+}
+
+private const val HTTP_STATUS_OK = 200
+
+fun openHttpInputStream(request: HttpRequest): InputStream {
+    val client = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(2))
+        .build()
+    val bodyHandler = HttpResponse.BodyHandler { responseInfo ->
+        if (responseInfo.statusCode() == HTTP_STATUS_OK) {
+            HttpResponse.BodySubscribers.ofInputStream()
+        } else {
+            // Discard response
+            HttpResponse.BodySubscribers.replacing(null)
+        }
+    }
+
+    val response = client.send(request, bodyHandler)
+    return response.body()
+        ?: throw IOException(
+            "${request.method()} request to ${request.uri()} failed with HTTP status code " +
+                    "${response.statusCode()}"
+        )
 }

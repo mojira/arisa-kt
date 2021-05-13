@@ -9,7 +9,7 @@ data class Attachment(
     val created: Instant,
     val mimeType: String,
     val remove: () -> Unit,
-    val openContentStream: suspend () -> InputStream,
+    val openContentStream: () -> InputStream,
     val getContent: () -> ByteArray,
     val uploader: User?
 )

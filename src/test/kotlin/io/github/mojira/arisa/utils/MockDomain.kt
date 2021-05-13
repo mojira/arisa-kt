@@ -25,7 +25,7 @@ fun mockAttachment(
     created: Instant = RIGHT_NOW,
     mimeType: String = "text/plain",
     remove: () -> Unit = { },
-    openInputStream: suspend () -> InputStream = { InputStream.nullInputStream() },
+    openInputStream: () -> InputStream = { InputStream.nullInputStream() },
     getContent: () -> ByteArray = { ByteArray(0) },
     uploader: User = mockUser()
 ) = Attachment(

@@ -11,8 +11,6 @@ import org.apache.commons.imaging.Imaging
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.io.InputStream
-import java.lang.Long.min
 import java.time.Instant
 
 /** Maximum number of bytes which may be read from an image */
@@ -34,54 +32,6 @@ const val MAX_WIDTH = 759
 const val MAX_HEIGHT = 600
 
 class ThumbnailModule(private val maxImagesCount: Int) : Module {
-    /**
-     * [InputStream] which reads at most a certain number of bytes.
-     */
-    class LimitingInputStream(private val stream: InputStream, private val maxBytes: Long) : InputStream() {
-        private var totalReadAmount: Long = 0
-
-        private fun getRemaining(): Long = maxBytes - totalReadAmount
-
-        private fun getMaxReadAmount(desiredReadAmount: Int): Int {
-            if (desiredReadAmount <= 0) {
-                return 0
-            }
-
-            val remaining = getRemaining()
-            if (remaining <= 0) {
-                throw IOException("Trying to read more than $maxBytes bytes")
-            }
-            // Conversion to Int here is safe because result will be at most desiredReadAmount (= Int)
-            return min(remaining, desiredReadAmount.toLong()).toInt()
-        }
-
-        override fun read(): Int {
-            getMaxReadAmount(1) // Check that reading 1 byte is allowed
-            val result = stream.read()
-            if (result != -1) {
-                totalReadAmount++
-            }
-            return result
-        }
-
-        override fun read(b: ByteArray, off: Int, len: Int): Int {
-            val actualLen = getMaxReadAmount(len)
-            val readAmount = stream.read(b, off, actualLen)
-            if (readAmount != -1) {
-                totalReadAmount += readAmount
-            }
-            return readAmount
-        }
-
-        override fun available(): Int {
-            // Conversion to Int here is safe because result will be at most stream.available() (= Int)
-            return min(stream.available().toLong(), getRemaining()).toInt()
-        }
-
-        override fun close() {
-            stream.close()
-        }
-    }
 
     private val log: Logger = LoggerFactory.getLogger(ThumbnailModule::class.java)
 
@@ -115,8 +65,6 @@ class ThumbnailModule(private val maxImagesCount: Int) : Module {
                 }
             }
 
-            // TODO: Not sure if this is correct; should assert be called before
-            // modifying issue?
             assertTrue(performedUpdate).bind()
         }
     }
@@ -135,7 +83,7 @@ class ThumbnailModule(private val maxImagesCount: Int) : Module {
      * Uses lazy quantifier ("+?") so text containing multiple exclamation marks only matches the
      * shortest substrings, e.g. "!a! !b!" matches "!a!" and "!b!"
      */
-    private val imageRegex = """(?<=(?:\s|^)!(?!\s))[^|]+?(?<!\s)(?=!(?:\s|$))""".toRegex()
+    private val imageRegex = """(?<=(?:\s|^)!)(?!\s)[^|]+?(?<!\s)(?=!(?:\s|$))""".toRegex()
 
     private fun replaceEmbeddedImages(issue: Issue, text: String): String {
         var matchIndex = 0

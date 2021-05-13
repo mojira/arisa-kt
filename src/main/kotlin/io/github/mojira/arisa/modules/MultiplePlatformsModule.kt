@@ -10,6 +10,7 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import java.time.Instant
 
+@Suppress("TooManyFunctions")
 class MultiplePlatformsModule(
     private val dungeonsPlatformWhitelist: List<String>,
     private val platformWhitelist: List<String>,

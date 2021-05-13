@@ -263,9 +263,9 @@ class MultiplePlatformsModuleTest : StringSpec({
             project = mockProject(
                 key = "MCD"
             ),
-            platform = "Arch-Illager OS",
+            dungeonsPlatform = "Arch-Illager OS",
             links = listOf(duplicatedLink2),
-            updatePlatform = { changedPlatform = it }
+            updateDungeonsPlatform = { changedPlatform = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

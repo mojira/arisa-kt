@@ -217,6 +217,10 @@ object Arisa : ConfigSpec() {
                 description = "List of platforms that can be replaced by the target platform if they are" +
                         " different than the replacement."
             )
+            val dungeonsPlatformWhitelist by required<List<String>>(
+                description = "List of Dungeons platforms that can be replaced by the target platform if they are" +
+                        " different than the replacement."
+            )
             val targetPlatform by required<String>(
                 description = "The target platform for tickets with more than one platform"
             )

@@ -222,6 +222,15 @@ arisa:
         - MCPE
       resolutions:
         - Unresolved
+      dungeonsPlatformWhitelist:
+        - Nintendo Switch
+        - PlayStation 4
+        - PlayStation 5
+        - Windows
+        - Xbox Cloud Gaming
+        - Xbox One
+        - Xbox Series S
+        - Xbox Series X
       platformWhitelist:
         - Amazon
         - Android

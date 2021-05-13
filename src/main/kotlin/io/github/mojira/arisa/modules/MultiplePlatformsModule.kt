@@ -11,6 +11,7 @@ import io.github.mojira.arisa.domain.Link
 import java.time.Instant
 
 class MultiplePlatformsModule(
+    private val dungeonsPlatformWhitelist: List<String>,
     private val platformWhitelist: List<String>,
     private val targetPlatform: String,
     private val transferredPlatformBlacklist: List<String>,
@@ -19,7 +20,7 @@ class MultiplePlatformsModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val platformValue = getPlatformValue()
-            assertPlatformWhitelisted(platformValue, platformWhitelist).bind()
+            assertPlatformWhitelisted(platformValue, getPlatformWhitelist(project.key)).bind()
             assertTrue(
                     isDuplicatedWithDifferentPlatforms(
                             platformValue,
@@ -32,6 +33,9 @@ class MultiplePlatformsModule(
             updatePlatform(targetPlatform)
         }
     }
+
+    private fun getPlatformWhitelist(project: String) =
+        if (project === "MCD") dungeonsPlatformWhitelist else platformWhitelist
 
     private fun Issue.getPlatformValue() = if (project.key == "MCD") dungeonsPlatform else platform
 

@@ -58,6 +58,7 @@ class CrashInfoModule(
             if (isNotZipSlip(getDeobfName(it.first))) {
                 val file = File(crashesDir, getDeobfName(it.first))
                 file.writeText(it.second!!)
+                // Also deletes the file once it has been attached
                 issue.addAttachment(file)
             }
         }

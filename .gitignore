@@ -9,6 +9,7 @@ helper-messages.json
 /out/
 /logs/
 last-run
+mc-mappings/
 
 # Old credentials config file
 arisa.yml

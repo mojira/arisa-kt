@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.core.extensions.fx
+import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Comment
@@ -14,20 +15,23 @@ class KeepPlatformModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            val platformChangeItems = changeLog.filter(::isPlatformChange)
+            val platformChangeItems = changeLog.filter(::isPlatformChange.partially1(project.key))
             assertNotEmpty(platformChangeItems).bind()
             assertContainsKeepPlatformTag(comments).bind()
             val markedTime = comments.first(::isKeepPlatformTag).created
-            val currentPlatform = platform.getOrDefault("None")
+            val currentPlatform = getPlatformValue()
             val savedPlatform = platformChangeItems.getSavedValue(markedTime)
             assertNotNull(savedPlatform).bind()
             assertNotEquals(currentPlatform, savedPlatform).bind()
-            updatePlatforms(savedPlatform!!)
+            updatePlatform(savedPlatform!!)
         }
     }
 
-    private fun isPlatformChange(item: ChangeLogItem) =
-        item.field == "Platform"
+    private fun Issue.getPlatformValue() =
+        (if (project.key == "MCD") dungeonsPlatform else platform).getOrDefault("None")
+
+    private fun isPlatformChange(project: String, item: ChangeLogItem) =
+        item.field == (if (project == "MCD") "Dungeons Platform" else "Platform")
 
     private fun changedByVolunteer(item: ChangeLogItem) =
             item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false

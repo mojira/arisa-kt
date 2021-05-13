@@ -136,7 +136,15 @@ fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: Str
     context.value.update.field(confirmationField, jsonValue)
 }
 
-fun updatePlatforms(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
+fun updateDungeonsPlatform(context: Lazy<IssueUpdateContext>, dungeonsPlatformField: String, value: String) {
+    val jsonValue = JSONObject()
+    jsonValue["value"] = value
+
+    context.value.hasEdits = true
+    context.value.edit.field(dungeonsPlatformField, jsonValue)
+}
+
+fun updatePlatform(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
     val jsonValue = JSONObject()
     jsonValue["value"] = value
 

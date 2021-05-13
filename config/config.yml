@@ -27,6 +27,7 @@ arisa:
     linked: customfield_11100
     chkField: customfield_10701
     confirmationField: customfield_10500
+    dungeonsPlatformField: customfield_12400
     mojangPriorityField: customfield_12200
     triagedTimeField: customfield_12201
     platformField: customfield_10402
@@ -218,9 +219,19 @@ arisa:
 
     multiplePlatforms:
       projects:
+        - MCD
         - MCPE
       resolutions:
         - Unresolved
+      dungeonsPlatformWhitelist:
+        - Nintendo Switch
+        - PlayStation 4
+        - PlayStation 5
+        - Windows
+        - Xbox Cloud Gaming
+        - Xbox One
+        - Xbox Series S
+        - Xbox Series X
       platformWhitelist:
         - Amazon
         - Android
@@ -238,6 +249,7 @@ arisa:
 
     keepPlatform:
       projects:
+        - MCD
         - MCPE
       resolutions:
         - Unresolved

@@ -10,7 +10,9 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import java.time.Instant
 
+@Suppress("TooManyFunctions")
 class MultiplePlatformsModule(
+    private val dungeonsPlatformWhitelist: List<String>,
     private val platformWhitelist: List<String>,
     private val targetPlatform: String,
     private val transferredPlatformBlacklist: List<String>,
@@ -18,19 +20,25 @@ class MultiplePlatformsModule(
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            assertPlatformWhitelisted(platform, platformWhitelist).bind()
+            val platformValue = getPlatformValue()
+            assertPlatformWhitelisted(platformValue, getPlatformWhitelist(project.key)).bind()
             assertTrue(
                     isDuplicatedWithDifferentPlatforms(
-                            platform,
+                            platformValue,
                             transferredPlatformBlacklist,
                             issue,
                             lastRun
                     ).bind()
             ).bind()
             assertNotKeepPlatformTag(comments).bind()
-            updatePlatforms(targetPlatform)
+            updatePlatform(targetPlatform)
         }
     }
+
+    private fun getPlatformWhitelist(project: String) =
+        if (project === "MCD") dungeonsPlatformWhitelist else platformWhitelist
+
+    private fun Issue.getPlatformValue() = if (project.key == "MCD") dungeonsPlatform else platform
 
     private fun isDuplicatedWithDifferentPlatforms(
         platform: String?,
@@ -43,8 +51,8 @@ class MultiplePlatformsModule(
             .filter(::isDuplicatedLink)
             .forEach {
                 val child = it.issue.getFullIssue().toFailedModuleEither().bind()
-                if (child.resolution == "Duplicate" && child.platform !in blacklist &&
-                    child.platform != platform.getOrDefault("None")) {
+                if (child.resolution == "Duplicate" && child.getPlatformValue() !in blacklist &&
+                    child.getPlatformValue() != platform.getOrDefault("None")) {
                     val newLinks = child.changeLog
                             .filter { item -> isLinkToIssue(item, expectedDuplicateText) }
                             .filter { item -> isRecent(item, lastRun) }

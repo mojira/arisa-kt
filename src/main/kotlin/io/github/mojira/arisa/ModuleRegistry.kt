@@ -123,6 +123,7 @@ class ModuleRegistry(private val config: Config) {
         register(
             Modules.MultiplePlatforms,
             MultiplePlatformsModule(
+                config[Modules.MultiplePlatforms.dungeonsPlatformWhitelist],
                 config[Modules.MultiplePlatforms.platformWhitelist],
                 config[Modules.MultiplePlatforms.targetPlatform],
                 config[Modules.MultiplePlatforms.transferredPlatformBlacklist],

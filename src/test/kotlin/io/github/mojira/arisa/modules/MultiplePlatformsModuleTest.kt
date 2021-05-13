@@ -6,6 +6,7 @@ import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue
+import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.kotest.assertions.arrow.either.shouldBeLeft

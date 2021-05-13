@@ -46,7 +46,7 @@ class MultiplePlatformsModule(
         issue: Issue,
         lastRun: Instant
     ): Either<ModuleError, Boolean> = Either.fx {
-        val expectedDuplicateText = "This issue is duplicated by ${issue.key} [ ${issue.key} ]"
+        val expectedDuplicateText = "This issue duplicates ${issue.key}"
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {

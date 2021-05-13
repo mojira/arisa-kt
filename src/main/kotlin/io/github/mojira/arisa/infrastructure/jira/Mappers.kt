@@ -285,7 +285,8 @@ private fun JiraIssue.getEnvironment() = getFieldAsString("environment")
 
 private fun JiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.CustomFields.chkField])
 private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
-private fun JiraIssue.getDungeonsPlatform(config: Config) = getCustomField(config[Arisa.CustomFields.dungeonsPlatformField])
+private fun JiraIssue.getDungeonsPlatform(config: Config) =
+    getCustomField(config[Arisa.CustomFields.dungeonsPlatformField])
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])

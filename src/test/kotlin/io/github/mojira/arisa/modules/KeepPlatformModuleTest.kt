@@ -13,7 +13,7 @@ import java.time.Instant
 
 private val CHANGE_PLATFORM = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
-    field = "platform",
+    field = "Platform",
     changedFromString = "Amazon"
 )
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
@@ -176,7 +176,7 @@ class KeepPlatformModuleTest : StringSpec({
             comments = listOf(comment),
             platform = "None",
             changeLog = listOf(volunteerChange, userChange),
-            updatePlatforms = { changedPlatform = it; Unit.right() }
+            updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -200,7 +200,7 @@ class KeepPlatformModuleTest : StringSpec({
                 comments = listOf(comment),
                 platform = "None",
                 changeLog = listOf(userChange),
-                updatePlatforms = { changedPlatform = it; Unit.right() }
+                updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -230,7 +230,7 @@ class KeepPlatformModuleTest : StringSpec({
                 comments = listOf(comment),
                 platform = "None",
                 changeLog = listOf(volunteerChange, userChange1, userChange2),
-                updatePlatforms = { changedPlatform = it; Unit.right() }
+                updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

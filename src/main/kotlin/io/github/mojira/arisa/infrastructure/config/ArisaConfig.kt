@@ -35,6 +35,7 @@ object Arisa : ConfigSpec() {
         val linked by required<String>()
         val chkField by required<String>()
         val confirmationField by required<String>()
+        val dungeonsPlatformField by required<String>()
         val mojangPriorityField by required<String>()
         val triagedTimeField by required<String>()
         val platformField by required<String>()
@@ -214,6 +215,10 @@ object Arisa : ConfigSpec() {
         object MultiplePlatforms : ModuleConfigSpec() {
             val platformWhitelist by required<List<String>>(
                 description = "List of platforms that can be replaced by the target platform if they are" +
+                        " different than the replacement."
+            )
+            val dungeonsPlatformWhitelist by required<List<String>>(
+                description = "List of Dungeons platforms that can be replaced by the target platform if they are" +
                         " different than the replacement."
             )
             val targetPlatform by required<String>(

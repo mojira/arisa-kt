@@ -181,7 +181,7 @@ val NoPriority = null
 
 private val crashReader = CrashReader()
 
-class CrashInfoModuleTest : StringSpec({
+class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue does not contain any valid crash report" {
         val module = CrashModule(
             listOf("txt"),

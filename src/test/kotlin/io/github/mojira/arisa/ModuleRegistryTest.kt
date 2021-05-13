@@ -15,7 +15,6 @@ val CONFIG = Config { addSpec(Arisa) }
         mapOf(
             // Overwrite these settings to ensure we're always covering both test cases
             "arisa.modules.attachment.enabled" to "true",
-            "arisa.modules.missingCrash.enabled" to "false",
 
             // Required credentials
             "arisa.credentials.username" to "test",

@@ -31,7 +31,11 @@ class MultiplePlatformsModule(
                     ).bind()
             ).bind()
             assertNotKeepPlatformTag(comments).bind()
-            updatePlatform(targetPlatform)
+            if (project.key === "MCD") {
+                updateDungeonsPlatform(targetPlatform)
+            } else {
+                updatePlatform(targetPlatform)
+            }
         }
     }
 

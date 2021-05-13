@@ -2,12 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.left
 import arrow.core.right
-import io.github.mojira.arisa.utils.RIGHT_NOW
-import io.github.mojira.arisa.utils.mockIssue
-import io.github.mojira.arisa.utils.mockLink
-import io.github.mojira.arisa.utils.mockLinkedIssue
-import io.github.mojira.arisa.utils.mockComment
-import io.github.mojira.arisa.utils.mockChangeLogItem
+import io.github.mojira.arisa.utils.*
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -69,7 +64,7 @@ private val relatesLink = mockLink(
 private val duplicatesLink = mockLink()
 
 val module = MultiplePlatformsModule(
-    listOf("Xbox One", "Amazon"),
+    listOf("Xbox One", "Amazon", "Arch-Illager OS"),
     listOf("Xbox One", "Amazon"),
     "Multiple",
     listOf("None"),
@@ -226,16 +221,45 @@ class MultiplePlatformsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when Platform is in another project's whitelist" {
+        val issue = mockIssue(
+            project = mockProject(
+                key = "MCPE"
+            ),
+            platform = "Arch-Illager OS",
+            links = listOf(duplicatedLink2),
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should set to Multiple when Platform is Xbox One and there is a duplicate" {
         var changedPlatform = ""
 
         val issue = mockIssue(
             platform = "Xbox One",
             links = listOf(duplicatedLink2),
-            updatePlatform = {
-                changedPlatform = it
-                Unit.right()
-            }
+            updatePlatform = { changedPlatform = it }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        changedPlatform.shouldBe("Multiple")
+    }
+
+    "should set to Multiple when Platform is Arch-Illager OS and there is a duplicate" {
+        var changedPlatform = ""
+
+        val issue = mockIssue(
+            project = mockProject(
+                key = "MCD"
+            ),
+            platform = "Arch-Illager OS",
+            links = listOf(duplicatedLink2),
+            updatePlatform = { changedPlatform = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

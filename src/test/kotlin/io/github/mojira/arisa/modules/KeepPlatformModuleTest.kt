@@ -13,7 +13,7 @@ import java.time.Instant
 
 private val CHANGE_PLATFORM = mockChangeLogItem(
     created = RIGHT_NOW.minusSeconds(10),
-    field = "platform",
+    field = "Platform",
     changedFromString = "Amazon"
 )
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)

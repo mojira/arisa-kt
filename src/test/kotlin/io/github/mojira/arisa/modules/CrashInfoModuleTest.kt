@@ -80,7 +80,7 @@ private val A_SECOND_AGO = NOW.minusSeconds(1)
 
 private val crashReader = CrashReader()
 
-class CrashModuleTest : StringSpec({
+class CrashInfoModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when issue body does not contain any recent crash" {
         val module = CrashInfoModule(

@@ -233,7 +233,7 @@ class MultiplePlatformsModuleTest : StringSpec({
                 key = "MCPE"
             ),
             platform = "Arch-Illager OS",
-            links = listOf(duplicatedLink2),
+            links = listOf(duplicatedLink2)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

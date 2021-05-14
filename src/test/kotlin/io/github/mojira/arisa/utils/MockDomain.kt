@@ -124,7 +124,7 @@ fun mockIssue(
     addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> },
     markAsFixedInASpecificVersion: (version: String) -> Unit = { },
     changeReporter: (reporter: String) -> Unit = { },
-    addAttachment: (file: File) -> Unit = { }
+    addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
 ) = Issue(
     key,
     summary,

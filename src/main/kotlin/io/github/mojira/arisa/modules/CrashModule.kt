@@ -24,8 +24,6 @@ class CrashModule(
     private val dupeMessage: String,
     private val moddedMessage: String
 ) : Module {
-    val tempDir = Files.createTempDirectory("crashes").toFile()
-
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
@@ -67,10 +65,16 @@ class CrashModule(
                 }
             }
         minecraftCrashesWithDeobf.forEach {
-            if (!isZipSlip(getDeobfName(it.first), tempDir)) {
+            val tempDir = Files.createTempDirectory("arisa-crash-upload").toFile()
+            if (isZipSlip(getDeobfName(it.first), tempDir)) {
+                tempDir.delete()
+            } else {
                 val file = File(tempDir, getDeobfName(it.first))
                 file.writeText(it.second!!)
-                issue.addAttachment(file)
+                issue.addAttachment(file) {
+                    // Once uploaded, delete the temp directory containing the crash report
+                    tempDir.deleteRecursively()
+                }
             }
         }
     }

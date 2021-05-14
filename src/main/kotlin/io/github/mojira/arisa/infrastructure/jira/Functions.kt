@@ -260,7 +260,7 @@ fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) 
     }
 }
 
-fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File) {
+fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File, cleanupCallback: () -> Unit) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
@@ -276,9 +276,7 @@ fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File) {
                             throw e
                         }
                     } finally {
-                        if (file.exists()) {
-                            file.delete()
-                        }
+                        cleanupCallback()
                     }
                 }
             }

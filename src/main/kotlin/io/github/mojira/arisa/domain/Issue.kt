@@ -49,5 +49,5 @@ data class Issue(
     val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
     val markAsFixedWithSpecificVersion: (fixVersion: String) -> Unit,
     val changeReporter: (reporter: String) -> Unit,
-    val addAttachment: (file: File) -> Unit
+    val addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit
 )

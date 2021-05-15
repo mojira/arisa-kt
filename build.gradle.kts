@@ -33,7 +33,6 @@ configurations {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val ktorVersion = "1.5.4"
 val kotestVersion = "4.4.1"
 
 dependencies {

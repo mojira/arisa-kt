@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 
 class RemoveNonStaffTagsModuleTest : StringSpec({
     val module = RemoveNonStaffTagsModule(
-        "Lorem Ipsum",
+        "Lorem Ipsum.",
         "ARISA"
     )
 

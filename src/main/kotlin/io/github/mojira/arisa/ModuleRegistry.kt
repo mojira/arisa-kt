@@ -42,6 +42,7 @@ import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
+import io.github.mojira.arisa.modules.ThumbnailModule
 import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -289,5 +290,15 @@ class ModuleRegistry(private val config: Config) {
             return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
                     " AND updated > ${intervalEnd.toEpochMilli()})"
         }
+
+        register(
+            Modules.Thumbnail,
+            ThumbnailModule(
+                maxImageWidth = config[Modules.Thumbnail.maxImageWidth],
+                maxImageHeight = config[Modules.Thumbnail.maxImageHeight],
+                maxImageReadBytes = config[Modules.Thumbnail.maxImageReadBytes],
+                maxImagesCount = config[Modules.Thumbnail.maxImagesCount]
+            )
+        )
     }
 }

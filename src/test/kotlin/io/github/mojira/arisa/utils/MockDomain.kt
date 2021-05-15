@@ -13,6 +13,7 @@ import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import java.io.File
+import java.io.InputStream
 import java.time.Instant
 
 val RIGHT_NOW: Instant = Instant.now()
@@ -24,6 +25,7 @@ fun mockAttachment(
     created: Instant = RIGHT_NOW,
     mimeType: String = "text/plain",
     remove: () -> Unit = { },
+    openInputStream: () -> InputStream = { InputStream.nullInputStream() },
     getContent: () -> ByteArray = { ByteArray(0) },
     uploader: User = mockUser()
 ) = Attachment(
@@ -32,6 +34,7 @@ fun mockAttachment(
     created,
     mimeType,
     remove,
+    openInputStream,
     getContent,
     uploader
 )

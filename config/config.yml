@@ -415,3 +415,8 @@ arisa:
         - Duplicate
 
     replaceText:
+
+    thumbnail:
+      # For the rationale for this value, see https://github.com/mojira/arisa-kt/issues/165#issuecomment-660259465
+      maxImageWidth: 759
+      maxImageHeight: 600

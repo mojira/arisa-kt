@@ -259,6 +259,7 @@ arisa:
       resolutions:
         - Awaiting Response
       blacklistedRoles:
+        - helper
         - staff
         - global-moderators
       blacklistedVisibilities:

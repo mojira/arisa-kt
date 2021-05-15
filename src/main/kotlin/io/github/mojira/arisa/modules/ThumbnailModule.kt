@@ -5,7 +5,6 @@ import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.apache.commons.imaging.ImageReadException
 import org.apache.commons.imaging.Imaging
 import org.slf4j.Logger
@@ -82,19 +81,19 @@ class ThumbnailModule(
             }
             matchIndex++
 
-            val options = runBlocking { getImageOptions(issue, imageName) }
+            val options = getImageOptions(issue, imageName)
             if (options != null) "$imageName|$options" else imageName
         }
     }
 
-    private suspend fun getImageOptions(issue: Issue, imageName: String): String? {
+    private fun getImageOptions(issue: Issue, imageName: String): String? {
         // For now only support embedded attached images (but not embedded with URL)
         val attachment = issue.attachments.find { it.name == imageName }
         if (attachment == null) {
             log.info("Did not find attachment with name '$imageName' for issue ${issue.key}")
             return null
         }
-        return withContext(Dispatchers.IO) {
+        return runBlocking(Dispatchers.IO) {
             attachment.openContentStream().use {
                 try {
                     /*

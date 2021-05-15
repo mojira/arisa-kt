@@ -40,7 +40,7 @@ class RemoveNonStaffTagsModule(private val removalReason: String, private val re
 
     private fun isNotVolunteerRestricted(comment: Comment) =
         comment.visibilityType != "group" ||
-                !listOf("staff", "global-moderators","helper").contains(comment.visibilityValue)
+                !listOf("staff", "global-moderators", "helper").contains(comment.visibilityValue)
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || !listOf("staff", "global-moderators").contains(comment.visibilityValue)

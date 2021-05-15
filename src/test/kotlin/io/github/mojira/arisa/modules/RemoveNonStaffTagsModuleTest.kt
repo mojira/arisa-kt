@@ -194,6 +194,6 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."
+        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum.\nI like QC."
     }
 })

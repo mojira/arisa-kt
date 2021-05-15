@@ -13,11 +13,11 @@ class RemoveNonStaffTagsModule(private val removalReason: String, private val re
             val updateMeqsComments = comments
                 .filter(::hasMeqsTag)
                 .filter(::isNotStaffRestricted)
-                .map { it.restrict.partially1(removeTags(it.body!!, """MEQS(_[A-Z_]+)""".toRegex())) }
+                .map { it.restrict.partially1(removeTags(it.body!!, """(MEQS)(_[A-Z_]+)""".toRegex())) }
             val updatePrefixedComments = comments
                 .filter(::hasPrefixedTag)
                 .filter(::isNotVolunteerRestricted)
-                .map { it.restrict.partially1(removeTags(it.body!!, """$removePrefix(_[A-Z_]+)""".toRegex())) }
+                .map { it.restrict.partially1(removeTags(it.body!!, """($removePrefix)(_[A-Z_]+)""".toRegex())) }
 
             assertEither(
                 assertNotEmpty(updateMeqsComments),
@@ -47,7 +47,7 @@ class RemoveNonStaffTagsModule(private val removalReason: String, private val re
 
     private fun removeTags(comment: String, regex: Regex): String {
         return regex.replace(comment) {
-            "${it.groupValues[0]}_ARISA_REMOVED${it.groupValues[1]} Removal Reason: $removalReason"
+            "${it.groupValues[1]}_ARISA_REMOVED${it.groupValues[2]} Removal Reason: $removalReason"
         }
     }
 }

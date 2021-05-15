@@ -39,13 +39,16 @@ class RemoveNonStaffTagsModule(private val removalReason: String, private val re
         comment.body?.contains("""${removePrefix}_[A-Z_]+""".toRegex()) ?: false
 
     private fun isNotVolunteerRestricted(comment: Comment) =
-        comment.visibilityType != "group" || !listOf("staff", "global-moderators","helper").contains(comment.visibilityValue)
+        comment.visibilityType != "group" ||
+                !listOf("staff", "global-moderators","helper").contains(comment.visibilityValue)
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || !listOf("staff", "global-moderators").contains(comment.visibilityValue)
 
     private fun removeTags(comment: String): String {
         val regex = """MEQS(_[A-Z_]+)||$removePrefix(_[A-Z_]+)""".toRegex()
-        return regex.replace(comment) { "${it.groupValues[0]}_ARISA_REMOVED${it.groupValues[1]} Removal Reason: $removalReason" }
+        return regex.replace(comment) {
+            "${it.groupValues[0]}_ARISA_REMOVED${it.groupValues[1]} Removal Reason: $removalReason"
+        }
     }
 }

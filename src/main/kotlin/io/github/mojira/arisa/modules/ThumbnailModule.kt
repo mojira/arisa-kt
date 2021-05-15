@@ -13,25 +13,12 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.time.Instant
 
-/** Maximum number of bytes which may be read from an image */
-const val IMAGE_MAX_BYTES: Long = 1024 * 5 // 5 KiB
-
-/**
- * Maximum width in pixels an image may have; for larger images a thumbnail
- * should be used, see https://github.com/mojira/arisa-kt/issues/165#issuecomment-660259465
- */
-const val MAX_WIDTH = 759
-
-/**
- * Maximum height in pixels an image may have; for larger images a thumbnail
- * should be used.
- *
- * Note that the exact value does not matter since Jira can be scrolled vertically; though
- * the value should not be too large nonetheless.
- */
-const val MAX_HEIGHT = 600
-
-class ThumbnailModule(private val maxImagesCount: Int) : Module {
+class ThumbnailModule(
+    private val maxImageWidth: Int,
+    private val maxImageHeight: Int,
+    private val maxImageReadBytes: Long,
+    private val maxImagesCount: Int
+) : Module {
 
     private val log: Logger = LoggerFactory.getLogger(ThumbnailModule::class.java)
 
@@ -116,8 +103,8 @@ class ThumbnailModule(private val maxImagesCount: Int) : Module {
                      * Limiting the number of bytes should not be an issue for most image formats since they
                      * contain dimension information at the beginning of the file.
                      */
-                    val dimension = Imaging.getImageSize(LimitingInputStream(it, IMAGE_MAX_BYTES), imageName)
-                    return@use if (dimension.width > MAX_WIDTH || dimension.height > MAX_HEIGHT) {
+                    val dimension = Imaging.getImageSize(LimitingInputStream(it, maxImageReadBytes), imageName)
+                    return@use if (dimension.width > maxImageWidth || dimension.height > maxImageHeight) {
                         "thumbnail"
                     } else {
                         null

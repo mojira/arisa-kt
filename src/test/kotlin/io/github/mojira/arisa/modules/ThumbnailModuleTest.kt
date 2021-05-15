@@ -46,7 +46,12 @@ private val MALFORMED_IMAGE_STREAM: () -> InputStream = {
 
 class ThumbnailModuleTest : StringSpec({
     val maxImagesCount = 2
-    val module = ThumbnailModule(maxImagesCount)
+    val module = ThumbnailModule(
+        maxImageWidth = 759,
+        maxImageHeight = 600,
+        maxImageReadBytes = 1024 * 5, // 5 KiB
+        maxImagesCount
+    )
 
     "should return OperationNotNeededModuleResponse when there is no description or comment" {
         val issue = mockIssue()

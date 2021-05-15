@@ -293,7 +293,12 @@ class ModuleRegistry(private val config: Config) {
 
         register(
             Modules.Thumbnail,
-            ThumbnailModule(config[Modules.Thumbnail.maxImagesCount])
+            ThumbnailModule(
+                maxImageWidth = config[Modules.Thumbnail.maxImageWidth],
+                maxImageHeight = config[Modules.Thumbnail.maxImageHeight],
+                maxImageReadBytes = config[Modules.Thumbnail.maxImageReadBytes],
+                maxImagesCount = config[Modules.Thumbnail.maxImagesCount]
+            )
         )
     }
 }

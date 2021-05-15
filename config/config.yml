@@ -270,8 +270,9 @@ arisa:
       onlyOPTag: ARISA_REOPEN_OP
       message: not-reopen-ar
 
-    removeNonStaffMeqs:
+    removeNonStaffTags:
       removalReason: Comment was not properly staff-restricted.
+      removePrefix: ARISA
 
     empty:
       projects:
@@ -285,7 +286,7 @@ arisa:
       message: incomplete
 
     command:
-      commandPrefix: ARISA
+      commandPrefix: $ARISA
 
     removeVersion:
       resolutions:

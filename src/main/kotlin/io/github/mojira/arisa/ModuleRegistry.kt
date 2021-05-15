@@ -31,7 +31,7 @@ import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
-import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveNonStaffTagsModule
 import io.github.mojira.arisa.modules.RemoveSpamModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveVersionModule
@@ -227,8 +227,11 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.RemoveIdenticalLink, RemoveIdenticalLinkModule())
 
         register(
-            Modules.RemoveNonStaffMeqs,
-            RemoveNonStaffMeqsModule(config[Modules.RemoveNonStaffMeqs.removalReason])
+            Modules.RemoveNonStaffTags,
+            RemoveNonStaffTagsModule(
+                config[Modules.RemoveNonStaffTags.removalReason],
+                config[Modules.RemoveNonStaffTags.removePrefix]
+            )
         )
 
         register(

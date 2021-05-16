@@ -24,7 +24,7 @@ class RemoveNonStaffTagsModule(
         }
     }
 
-    private fun hasPrefixedTag(comment: Comment) : Boolean {
+    private fun hasPrefixedTag(comment: Comment): Boolean {
         removablePrefixes.forEach {
             if (comment.body!!.contains("""${it}_[A-Z_]+""".toRegex())) {
                 return true
@@ -45,6 +45,6 @@ class RemoveNonStaffTagsModule(
                 "${it.groupValues[1]}_ARISA_REMOVED${it.groupValues[2]} Removal Reason: $removalReason"
             }
         }
-        return newComment;
+        return newComment
     }
 }

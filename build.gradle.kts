@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.4.30"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     application
-    id("io.gitlab.arturbosch.detekt") version "1.9.1"
+    id("io.gitlab.arturbosch.detekt") version "1.17.0"
     id("info.solidsoft.pitest") version "1.5.1"
 }
 
@@ -21,13 +21,6 @@ buildscript {
     }
     dependencies {
         classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.1")
-    }
-}
-
-configurations {
-    all {
-        // Excluded due to being a dependency of detekt but not being in maven central
-        exclude("org.jetbrains.kotlinx", "kotlinx-html-jvm")
     }
 }
 
@@ -91,7 +84,9 @@ application {
 }
 
 detekt {
-    failFast = true // fail build on any finding
+    // For now only consider main source files, but ignore test sources
+    input = files("src/main/kotlin")
+    allRules = true // enable all rules, including unstable ones
     buildUponDefaultConfig = true // preconfigure defaults
     parallel = true
     reports {

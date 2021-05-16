@@ -148,7 +148,6 @@ arisa:
         - 'Launcher: 3.1.0'
         - 'Launcher: 3.1.1'
         - 'Launcher: 3.1.4'
-        - 1.0.8
         - uuid sessionId
         - auth_access_token
         - keicraft

@@ -9,12 +9,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
-const val MINIMUM_PERCENTAGE = 0.7
+private const val MINIMUM_PERCENTAGE = 0.7
 
 class LanguageModule(
     private val allowedLanguages: List<String> = listOf("en"),
     private val lengthThreshold: Int = 0,
-    private val getLanguage: (String) -> Either<Any, Map<String, Double>>
+    private val getLanguage: (String) -> Map<String, Double>
 ) : Module {
     val log: Logger = LoggerFactory.getLogger("LanguageModule")
 
@@ -61,16 +61,11 @@ class LanguageModule(
         this.replace("""(?:https?://|www\.)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+\S*""".toRegex(), "")
 
     private fun getDetectedLanguage(
-        getLanguage: (String) -> Either<Any, Map<String, Double>>,
+        getLanguage: (String) -> Map<String, Double>,
         text: String
     ): String? {
         val detected = getLanguage(text)
-        return detected.fold(
-            { null },
-            { languages ->
-                languages.filter { it.value > MINIMUM_PERCENTAGE }.maxByOrNull { it.value }?.key
-            }
-        )
+        return detected.filter { it.value > MINIMUM_PERCENTAGE }.maxByOrNull { it.value }?.key
     }
 
     private fun assertExceedLengthThreshold(text: String) = when {

@@ -20,7 +20,7 @@ class ThumbnailModule(
     private val maxImagesCount: Int
 ) : Module {
 
-    private val log: Logger = LoggerFactory.getLogger(ThumbnailModule::class.java)
+    private val log: Logger = LoggerFactory.getLogger("ThumbnailModule")
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {

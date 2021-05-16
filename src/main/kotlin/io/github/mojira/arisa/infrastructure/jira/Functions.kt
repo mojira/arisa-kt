@@ -42,6 +42,7 @@ fun connectToJira(username: String, password: String, url: String): JiraClient {
     return JiraClient(url, credentials)
 }
 
+@Suppress("ForbiddenComment")
 /**
  * Get a list of tickets matching a JQL query.
  * TODO: Actually return the tickets themselves instead of only ticket IDs.
@@ -67,6 +68,7 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
     }
 }
 
+@Suppress("ForbiddenComment")
 /**
  * Get the list of all tickets matching a JQL query.
  * TODO: Actually return the tickets themselves instead of only ticket IDs.

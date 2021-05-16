@@ -27,7 +27,10 @@ import net.rcarz.jiraclient.User
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
+import org.apache.http.client.methods.HttpGet
 import java.io.File
+import java.io.IOException
+import java.io.InputStream
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
@@ -236,6 +239,20 @@ private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
 private fun applyFluentTransition(update: Issue.FluentTransition, transitionName: String) = runBlocking {
     Either.catch {
         update.execute(transitionName)
+    }
+}
+
+fun openAttachmentStream(jiraClient: JiraClient, attachment: Attachment): InputStream {
+    val httpClient = jiraClient.restClient.httpClient
+    val request = HttpGet(attachment.contentUrl)
+
+    return runBlocking(Dispatchers.IO) {
+        val response = httpClient.execute(request)
+        val statusCode = response.statusLine.statusCode
+        if (statusCode != HttpStatus.SC_OK) {
+            throw IOException("Request for attachment ${attachment.id} content failed with status code $statusCode")
+        }
+        response.entity.content
     }
 }
 

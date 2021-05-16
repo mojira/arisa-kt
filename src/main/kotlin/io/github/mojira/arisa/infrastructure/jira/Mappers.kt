@@ -21,11 +21,9 @@ import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
-import io.github.mojira.arisa.modules.openHttpGetInputStream
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
 import net.sf.json.JSONObject
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
@@ -44,7 +42,7 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachme
     getCreationDate(issue, id, issue.createdDate.toInstant()),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
-    { openHttpGetInputStream(URI(contentUrl)) },
+    { openAttachmentStream(jiraClient, this) },
     this::download,
     author?.toDomain(jiraClient)
 )

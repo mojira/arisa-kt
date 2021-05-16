@@ -34,7 +34,8 @@ class RemoveNonStaffTagsModule(
     }
 
     private fun isNotVolunteerRestricted(comment: Comment) =
-        comment.visibilityType != "group" || !listOf("staff", "global-moderators", "helper").contains(comment.visibilityValue)
+        comment.visibilityType != "group" ||
+                !listOf("staff", "global-moderators", "helper").contains(comment.visibilityValue)
 
     private fun removeTags(comment: String): String {
         var newComment = comment

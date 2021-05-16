@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 class RemoveNonStaffTagsModuleTest : StringSpec({
     val module = RemoveNonStaffTagsModule(
         "Lorem Ipsum.",
-        listOf("MEQS","ARISA")
+        listOf("MEQS", "ARISA")
     )
 
     "should return OperationNotNeededModuleResponse when there is no comments" {

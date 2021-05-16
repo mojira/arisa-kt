@@ -18,7 +18,7 @@ class RemoveNonStaffTagsModule(
                 .filter(::isNotVolunteerRestricted)
                 .map { it.restrict.partially1(removeTags(it.body!!)) }
 
-            assertNotEmpty(removableTags)
+            assertNotEmpty(removableTags).bind()
 
             removableTags.forEach { it.invoke() }
         }

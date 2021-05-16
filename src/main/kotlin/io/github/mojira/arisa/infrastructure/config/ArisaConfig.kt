@@ -270,9 +270,8 @@ object Arisa : ConfigSpec() {
                 description = "Reason Arisa should add to the edited comment for" +
                         " removing the tag. Default is no reason."
             )
-            val removePrefix by required<String>(
-                description = "The prefix of Arisa tags that should be removed," +
-                        " not including the default MEQS tag."
+            val removablePrefixes by required<List<String>>(
+                description = "The prefixes of tags that should be removed by the module."
             )
         }
 

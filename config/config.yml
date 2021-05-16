@@ -271,7 +271,9 @@ arisa:
 
     removeNonStaffTags:
       removalReason: Comment was not properly staff-restricted.
-      removePrefix: ARISA
+      removablePrefixes:
+        - MEQS
+        - ARISA
 
     empty:
       projects:

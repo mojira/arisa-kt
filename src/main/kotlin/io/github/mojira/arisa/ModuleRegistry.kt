@@ -230,7 +230,7 @@ class ModuleRegistry(private val config: Config) {
             Modules.RemoveNonStaffTags,
             RemoveNonStaffTagsModule(
                 config[Modules.RemoveNonStaffTags.removalReason],
-                config[Modules.RemoveNonStaffTags.removePrefix]
+                config[Modules.RemoveNonStaffTags.removablePrefixes]
             )
         )
 

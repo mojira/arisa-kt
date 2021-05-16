@@ -102,14 +102,11 @@ fun getCommandDispatcher(
 
         val fixCapitalizationCommandNode =
             literal<CommandSource>("${prefix}_FIX_CAPITALIZATION")
-                .then(
-                    argument<CommandSource, String>("empty", greedyString())
-                        .executes {
-                            fixCapitalizationCommand(
-                                it.source.issue
-                            )
-                        }
-                )
+                .executes {
+                    fixCapitalizationCommand(
+                        it.source.issue
+                    )
+                }
 
         val fixedCommandNode =
             literal<CommandSource>("${prefix}_FIXED")

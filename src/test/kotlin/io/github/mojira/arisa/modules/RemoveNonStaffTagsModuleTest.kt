@@ -106,7 +106,7 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum. I like QC."
     }
 
     "should update comment when there is a MEQS comment restricted to a group other than staff" {
@@ -124,7 +124,7 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum. I like QC."
     }
 
     "should update comment when there is a prefixed comment restricted to a group other than staff" {
@@ -142,7 +142,7 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "ARISA_ARISA_REMOVED_KEEP_AR Removal Reason: Lorem Ipsum. I like QC."
+        editedComment shouldBe "Arisa removed prefix 'ARISA' from '_KEEP_AR'; removal reason: Lorem Ipsum. I like QC."
     }
 
     "should update comment when there is a MEQS comment restricted to something that is not a group" {
@@ -160,7 +160,7 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum. I like QC."
     }
 
     "should only remove MEQS of the comment" {
@@ -176,6 +176,6 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum.\nI like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum.\nI like QC."
     }
 })

@@ -23,11 +23,11 @@ import java.util.concurrent.TimeUnit
 
 val log: Logger = LoggerFactory.getLogger("Arisa")
 
-const val TIME_MINUTES = 5L
+private const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
-const val MINUTES_FOR_THROTTLED_LOG = 30L
+private const val MINUTES_FOR_THROTTLED_LOG = 30L
 lateinit var jiraClient: JiraClient
-var throttledLog = 0L
+private var throttledLog = 0L
 
 @Suppress("LongMethod")
 fun main() {

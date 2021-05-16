@@ -66,6 +66,8 @@ This project depends on the following projects, thanks to every developer who ma
 - [mc-crash-lib](https://github.com/urielsalis/mc-crash-lib)
 - [Apache Commons Imaging](https://commons.apache.org/proper/commons-imaging/)
 
+Language detection [powered by Dandelion API](https://dandelion.eu/).
+
 ## Contributing
 
 You're very welcome to contribute to this project! Please note that this project uses [ktlint](https://github.com/pinterest/ktlint) to ensure consistent code.

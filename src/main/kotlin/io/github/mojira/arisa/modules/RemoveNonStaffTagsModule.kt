@@ -42,7 +42,8 @@ class RemoveNonStaffTagsModule(
         removablePrefixes.forEach { prefix ->
             val regex = """($prefix)(?!_REMOVED)(_[A-Z_]+)""".toRegex()
             newComment = regex.replace(newComment) {
-                "Arisa removed prefix '${it.groupValues[1]}' from '${it.groupValues[2]}'; removal reason: $removalReason"
+                "Arisa removed prefix '${it.groupValues[1]}' from '${it.groupValues[2]}';" +
+                        "removal reason: $removalReason"
             }
         }
         return newComment

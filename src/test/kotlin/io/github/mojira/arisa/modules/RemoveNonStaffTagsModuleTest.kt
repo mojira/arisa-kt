@@ -127,24 +127,6 @@ class RemoveNonStaffTagsModuleTest : StringSpec({
         editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
     }
 
-    "should update comment when there is a MEQS comment restricted to the helper group" {
-        var editedComment = ""
-        val comment = mockComment(
-            body = "MEQS_WAI I like QC.",
-            visibilityType = "group",
-            visibilityValue = "helper",
-            restrict = { editedComment = it }
-        )
-        val issue = mockIssue(
-            comments = listOf(comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
-    }
-
     "should update comment when there is a prefixed comment restricted to a group other than staff" {
         var editedComment = ""
         val comment = mockComment(

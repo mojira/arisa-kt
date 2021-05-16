@@ -253,14 +253,6 @@ fun openHttpGetInputStream(uri: URI): InputStream {
     return openHttpInputStream(request)
 }
 
-fun openHttpPostInputStream(uri: URI, body: String): InputStream {
-    val request = HttpRequest.newBuilder()
-        .uri(uri)
-        .POST(HttpRequest.BodyPublishers.ofString(body))
-        .build()
-    return openHttpInputStream(request)
-}
-
 private const val HTTP_STATUS_OK = 200
 
 fun openHttpInputStream(request: HttpRequest): InputStream {

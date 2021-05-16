@@ -97,7 +97,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum.\nI like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Test.\nI like QC."
     }
 
     "should not replace MEQS of tags that aren't configured" {

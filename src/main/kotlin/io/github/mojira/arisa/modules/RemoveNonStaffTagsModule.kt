@@ -7,7 +7,10 @@ import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-class RemoveNonStaffTagsModule(private val removalReason: String, private val removablePrefixes: List<String>) : Module {
+class RemoveNonStaffTagsModule(
+    private val removalReason: String,
+    private val removablePrefixes: List<String>
+) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val removableTags = comments

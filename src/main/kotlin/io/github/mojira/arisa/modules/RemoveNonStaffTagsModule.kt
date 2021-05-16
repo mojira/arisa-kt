@@ -15,6 +15,7 @@ class RemoveNonStaffTagsModule(
         Either.fx {
             val removableTags = comments
                 .filter(::hasPrefixedTag)
+                .filter(::isNotVolunteerRestricted)
                 .map { it.restrict.partially1(removeTags(it.body!!)) }
 
             assertNotEmpty(removableTags)
@@ -31,6 +32,9 @@ class RemoveNonStaffTagsModule(
         }
         return false
     }
+
+    private fun isNotVolunteerRestricted(comment: Comment) =
+        comment.visibilityType != "group" || !listOf("staff", "global-moderators", "helper").contains(comment.visibilityValue)
 
     private fun removeTags(comment: String): String {
         var newComment = comment

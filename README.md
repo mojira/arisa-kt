@@ -7,7 +7,7 @@
 
 <!-- PROJECT LOGO -->
 <br/>
-<div style="text-align: center">
+<div align="center">
   <a href="https://bugs.mojang.com/">
     <img src="arisa.png" alt="Arisa" width="80" height="80">
   </a>

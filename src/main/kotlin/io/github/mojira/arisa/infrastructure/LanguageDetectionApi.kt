@@ -65,6 +65,7 @@ fun getLanguage(token: String?, text: String): Map<String, Double> {
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)" +
                     " Chrome/51.0.2704.103 Safari/537.36"
         )
+        this.setRequestProperty("Content-Type", "application/json")
         requestMethod = "POST"
         doOutput = true
 

@@ -366,6 +366,7 @@ arisa:
       tag: MEQS_KEEP_PRIVATE
 
     language:
+      enabled: false
       resolutions:
         - Unresolved
       excludedStatuses:

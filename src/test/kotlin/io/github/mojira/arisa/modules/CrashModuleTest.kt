@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
+import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import io.github.mojira.arisa.utils.mockAttachment
@@ -11,7 +12,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
-import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

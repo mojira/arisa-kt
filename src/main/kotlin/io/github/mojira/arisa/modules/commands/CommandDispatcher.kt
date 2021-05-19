@@ -29,6 +29,7 @@ fun getCommandDispatcher(
         ::getIssuesFromJql.partially1(jiraClient)
     )
     val purgeAttachmentCommand = PurgeAttachmentCommand()
+    val reopenCommand = ReopenCommand()
     val removeContentCommand = RemoveContentCommand(
         ::getIssuesFromJql.partially1(jiraClient),
         {
@@ -187,6 +188,14 @@ fun getCommandDispatcher(
                         }
                 )
 
+        val reopenCommandNode =
+            literal<CommandSource>("${prefix}_REOPEN")
+                .executes {
+                    reopenCommand(
+                        it.source.issue
+                    )
+                }
+
         register(addLinksCommandNode)
         register(addVersionCommandNode)
         register(deleteCommentsCommandNode)
@@ -198,6 +207,7 @@ fun getCommandDispatcher(
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
         register(removeContentCommandNode)
+        register(reopenCommandNode)
     }
 }
 

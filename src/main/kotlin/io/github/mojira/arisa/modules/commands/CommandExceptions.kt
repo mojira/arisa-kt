@@ -37,6 +37,10 @@ object CommandExceptions {
         LiteralMessage("The version $it doesn't exist in this project")
     }
 
+    val NOT_AR = SimpleCommandExceptionType(
+        LiteralMessage("This issue is not resolved as Awaiting Response")
+    )
+
     val TEST_EXCEPTION = DynamicCommandExceptionType {
         LiteralMessage("Testing error message: $it")
     }

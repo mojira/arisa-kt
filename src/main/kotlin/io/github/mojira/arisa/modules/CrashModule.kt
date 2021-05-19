@@ -6,14 +6,13 @@ import arrow.core.firstOrNone
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
+import com.urielsalis.mccrashlib.Crash
+import com.urielsalis.mccrashlib.CrashReader
+import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import me.urielsalis.mccrashlib.Crash
-import me.urielsalis.mccrashlib.CrashReader
-import me.urielsalis.mccrashlib.deobfuscator.isZipSlip
-import java.io.File
 import java.nio.file.Files
 import java.time.Instant
 
@@ -66,12 +65,12 @@ class CrashModule(
             }
         minecraftCrashesWithDeobf.forEach {
             val tempDir = Files.createTempDirectory("arisa-crash-upload").toFile()
-            if (isZipSlip(getDeobfName(it.first), tempDir)) {
+            val safePath = getSafeChildPath(tempDir, getDeobfName(it.first))
+            if (safePath == null) {
                 tempDir.delete()
             } else {
-                val file = File(tempDir, getDeobfName(it.first))
-                file.writeText(it.second!!)
-                issue.addAttachment(file) {
+                safePath.writeText(it.second!!)
+                issue.addAttachment(safePath) {
                     // Once uploaded, delete the temp directory containing the crash report
                     tempDir.deleteRecursively()
                 }

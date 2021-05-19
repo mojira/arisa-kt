@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
+import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
@@ -39,11 +40,10 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
-import io.github.mojira.arisa.modules.ThumbnailModule
-import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

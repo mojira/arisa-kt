@@ -69,15 +69,15 @@ private val relatesLink = mockLink(
 )
 private val duplicatesLink = mockLink()
 
-val module = MultiplePlatformsModule(
-    listOf("Xbox One", "Amazon", "Arch-Illager OS"),
-    listOf("Xbox One", "Amazon"),
-    "Multiple",
-    listOf("None"),
-    "MEQS_KEEP_PLATFORM"
-)
-
 class MultiplePlatformsModuleTest : StringSpec({
+    val module = MultiplePlatformsModule(
+        listOf("Xbox One", "Amazon", "Arch-Illager OS"),
+        listOf("Xbox One", "Amazon"),
+        "Multiple",
+        listOf("None"),
+        "MEQS_KEEP_PLATFORM"
+    )
+
     "should return OperationNotNeededModuleResponse when there are no links" {
         val issue = mockIssue(
             platform = "Xbox One",

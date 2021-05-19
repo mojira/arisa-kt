@@ -265,10 +265,13 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object RemoveNonStaffMeqs : ModuleConfigSpec() {
+        object RemoveNonStaffTags : ModuleConfigSpec() {
             val removalReason by required<String>(
                 description = "Reason Arisa should add to the edited comment for" +
                         " removing the tag. Default is no reason."
+            )
+            val removablePrefixes by required<List<String>>(
+                description = "The prefixes of tags that should be removed by the module."
             )
         }
 

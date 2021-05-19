@@ -115,20 +115,6 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt have spaces" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
-        val comment = getComment(
-            body = "ARISA_SUCCESS"
-        )
-        val issue = mockIssue(
-            comments = listOf(comment)
-        )
-
-        val result = module(issue, RIGHT_NOW)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
     "should return successfully when comment matches a command and it returns successfully" {
         var updatedComment = ""
         val module = CommandModule("ARISA", "userName", ::getDispatcher)

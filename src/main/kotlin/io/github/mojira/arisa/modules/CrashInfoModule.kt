@@ -27,7 +27,7 @@ class CrashInfoModule(
                 .filter { it.second is Crash.Minecraft }
                 .filterNot { it.first.name.endsWith("deobfuscated.txt") }
                 .forEach {
-                    if (description?.contains("""\{code.*${it.first.name}]}(\S|\s)*\{code}""".toRegex()) == false) {
+                    if (!description!!.contains("""\{code.*${it.first.name}]}(\S|\s)*\{code}""".toRegex())) {
                         updateDescription(
                             description + "\n\n" +
                                     generateCrashMessage(it.first.name, it.second as Crash.Minecraft)

@@ -75,8 +75,8 @@ Details:
 	CPU: 4x Intel(R) Core(TM) i5-7400 CPU @ 3.00GHz
 """
 
-private val DEOBFUSCATED_CODE_BLOCK = """
-    {code:title=(1) [^crash-deobfuscated.txt]}
+const val CRASH_CODE_BLOCK = """
+    {code:title=(1) [^crash.txt]}
     EXAMPLE CRASH DETAILS
     {code}
 """
@@ -231,7 +231,7 @@ class CrashInfoModuleTest : StringSpec({
         )
         val issue = mockIssue(
             attachments = listOf(getAttachment(OBFUSCATED_CRASH)),
-            description = OBFUSCATED_CRASH + "\n" + DEOBFUSCATED_CODE_BLOCK,
+            description = OBFUSCATED_CRASH + "\n" + CRASH_CODE_BLOCK,
             created = NOW,
             confirmationStatus = Unconfirmed,
             resolveAsDuplicate = { resolvedAsDupe = true },

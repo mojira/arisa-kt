@@ -10,11 +10,8 @@ import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import com.urielsalis.mccrashlib.Crash
 import com.urielsalis.mccrashlib.CrashReader
 import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
-import java.io.File
 import java.nio.file.Files
 import java.time.Instant
-
-val crashesDir = Files.createTempDirectory("crashes").toFile()
 
 class CrashInfoModule(
     private val crashReportExtensions: List<String>,

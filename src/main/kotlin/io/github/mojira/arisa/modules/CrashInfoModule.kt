@@ -9,6 +9,7 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import com.urielsalis.mccrashlib.Crash
 import com.urielsalis.mccrashlib.CrashReader
+import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import java.io.File
 import java.nio.file.Files
 import java.time.Instant
@@ -55,20 +56,18 @@ class CrashInfoModule(
                 }
             }
         minecraftCrashesWithDeobf.forEach {
-            if (isNotZipSlip(getDeobfName(it.first))) {
-                val file = File(crashesDir, getDeobfName(it.first))
-                file.writeText(it.second!!)
-                // Also deletes the file once it has been attached
-                issue.addAttachment(file)
+            val tempDir = Files.createTempDirectory("arisa-crash-upload").toFile()
+            val safePath = getSafeChildPath(tempDir, getDeobfName(it.first))
+            if (safePath == null) {
+                tempDir.delete()
+            } else {
+                safePath.writeText(it.second!!)
+                issue.addAttachment(safePath) {
+                    // Once uploaded, delete the temp directory containing the crash report
+                    tempDir.deleteRecursively()
+                }
             }
         }
-    }
-
-    private fun isNotZipSlip(version: String): Boolean {
-        val canonicalDestinationDir = crashesDir.canonicalPath
-        val destinationFile = File(crashesDir, version)
-        val canonicalDestinationFile = destinationFile.canonicalPath
-        return canonicalDestinationFile.startsWith(canonicalDestinationDir + File.separator)
     }
 
     private fun getDeobfName(name: String): String =

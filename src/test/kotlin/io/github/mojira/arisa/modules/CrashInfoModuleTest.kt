@@ -8,7 +8,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import me.urielsalis.mccrashlib.CrashReader
+import com.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -73,6 +73,12 @@ Details:
 	Resource Packs: vanilla
 	Current Language: English (US)
 	CPU: 4x Intel(R) Core(TM) i5-7400 CPU @ 3.00GHz
+"""
+
+private val DEOBFUSCATED_CODE_BLOCK = """
+    {code:title=(1) [^crash-deobfuscated.txt]}
+    EXAMPLE CRASH DETAILS
+    {code}
 """
 
 private val NOW = Instant.now()
@@ -159,7 +165,7 @@ class CrashInfoModuleTest : StringSpec({
     "should add attachment when deobfuscated" {
         var resolvedAsDupe = false
         var resolvedAsInvalid = false
-        var addedAttachement = false
+        var addedAttachment = false
 
         val module = CrashInfoModule(
             listOf("txt"),
@@ -172,15 +178,75 @@ class CrashInfoModuleTest : StringSpec({
             confirmationStatus = Unconfirmed,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
-            addAttachment = { addedAttachement = true }
+            addAttachment = { _, _ -> addedAttachment = true }
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
         resolvedAsDupe.shouldBeFalse()
-        addedAttachement.shouldBeTrue()
+        addedAttachment.shouldBeTrue()
         resolvedAsInvalid.shouldBeFalse()
+    }
+
+    "should add to description after deobfuscated and none exists" {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedAttachment = false
+        var addedCrash = false
+
+        val module = CrashInfoModule(
+            listOf("txt"),
+            crashReader
+        )
+        val issue = mockIssue(
+            attachments = listOf(getAttachment(OBFUSCATED_CRASH)),
+            description = OBFUSCATED_CRASH,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            addAttachment = { _, _ -> addedAttachment = true },
+            updateDescription = { addedCrash = true }
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
+        addedAttachment.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedCrash.shouldBeTrue()
+    }
+
+    "should not add to description after deobfuscated and crash already exists" {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedAttachment = false
+        var addedCrash = false
+
+        val module = CrashInfoModule(
+            listOf("txt"),
+            crashReader
+        )
+        val issue = mockIssue(
+            attachments = listOf(getAttachment(OBFUSCATED_CRASH)),
+            description = OBFUSCATED_CRASH + "\n" + DEOBFUSCATED_CODE_BLOCK,
+            created = NOW,
+            confirmationStatus = Unconfirmed,
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            addAttachment = { _, _ -> addedAttachment = true },
+            updateDescription = { addedCrash = true }
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        resolvedAsDupe.shouldBeFalse()
+        addedAttachment.shouldBeTrue()
+        resolvedAsInvalid.shouldBeFalse()
+        addedCrash.shouldBeFalse()
     }
 })
 

@@ -599,6 +599,7 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the normal comment for private parent when the parent is private but the reporters are identical" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
+            reporter = "Arisa",
             changeLog = listOf(
                 mockChangeLogItem(
                     created = TEN_THOUSAND_YEARS_LATER,
@@ -613,6 +614,9 @@ class DuplicateMessageModuleTest : StringSpec({
                         key = "MC-1",
                         getFullIssue = {
                             mockIssue(
+                                reporter = mockUser(
+                                    "Arisa"
+                                ),
                                 securityLevel = "private"
                             ).right()
                         }
@@ -679,7 +683,6 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the normal comment even if portion of the parents are private" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
-            reporter = "Arisa",
             changeLog = listOf(
                 mockChangeLogItem(
                     created = TEN_THOUSAND_YEARS_LATER,
@@ -701,9 +704,6 @@ class DuplicateMessageModuleTest : StringSpec({
                         key = "MC-2",
                         getFullIssue = {
                             mockIssue(
-                                reporter = mockUser(
-                                    "Arisa"
-                                ),
                                 securityLevel = "private"
                             ).right()
                         }

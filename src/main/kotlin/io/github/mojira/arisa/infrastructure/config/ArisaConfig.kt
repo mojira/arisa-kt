@@ -265,10 +265,13 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object RemoveNonStaffMeqs : ModuleConfigSpec() {
+        object RemoveNonStaffTags : ModuleConfigSpec() {
             val removalReason by required<String>(
                 description = "Reason Arisa should add to the edited comment for" +
                         " removing the tag. Default is no reason."
+            )
+            val removablePrefixes by required<List<String>>(
+                description = "The prefixes of tags that should be removed by the module."
             )
         }
 
@@ -296,16 +299,6 @@ object Arisa : ConfigSpec() {
         object CrashInfo : ModuleConfigSpec() {
             val crashExtensions by required<List<String>>(
                 description = "File extensions that should be checked for crash reports."
-            )
-        }
-
-        object MissingCrash : ModuleConfigSpec() {
-            val crashExtensions by required<List<String>>(
-                description = "File extensions that should be checked for crash reports."
-            )
-
-            val message by required<String>(
-                description = "The key of the message to be sent when resolving."
             )
         }
 
@@ -355,6 +348,29 @@ object Arisa : ConfigSpec() {
         object Command : ModuleConfigSpec() {
             val commandPrefix by required<String>(
                 description = "The prefix for all arisa commands. It should not contain the joining underline."
+            )
+        }
+
+        object Thumbnail : ModuleConfigSpec() {
+            private const val DEFAULT_MAX_READ_BYTES: Long = 1024 * 5 // 5 KiB
+
+            val maxImageWidth by required<Int>(
+                description = "Maximum width (in pixels) an image may have; for larger images a thumbnail will be used"
+            )
+            val maxImageHeight by required<Int>(
+                description = "Maximum height (in pixels) an image may have; for larger images a thumbnail will be used"
+            )
+            val maxImageReadBytes by optional(
+                description = "Maximum number of bytes which may be read from an image. If the module tries to read " +
+                        "more bytes when parsing the image it will abort processing the image. Mostly intended to " +
+                        "prevent DoS attacks.",
+                default = DEFAULT_MAX_READ_BYTES
+            )
+            val maxImagesCount by optional(
+                description = "Maximum number of embedded images to process per comment respectively issue " +
+                        "description. Used to protect against malicious comments / issues containing hundreds of " +
+                        "embedded images.",
+                default = 10
             )
         }
     }

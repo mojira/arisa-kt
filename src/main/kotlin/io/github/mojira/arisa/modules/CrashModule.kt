@@ -6,12 +6,14 @@ import arrow.core.firstOrNone
 import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
+import com.urielsalis.mccrashlib.Crash
+import com.urielsalis.mccrashlib.CrashReader
+import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
-import me.urielsalis.mccrashlib.Crash
-import me.urielsalis.mccrashlib.CrashReader
+import java.nio.file.Files
 import java.time.Instant
 
 class CrashModule(

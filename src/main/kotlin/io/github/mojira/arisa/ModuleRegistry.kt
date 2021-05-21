@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
+import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
@@ -24,7 +25,6 @@ import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
-import io.github.mojira.arisa.modules.MissingCrashModule
 import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -33,7 +33,7 @@ import io.github.mojira.arisa.modules.PiracyModule
 import io.github.mojira.arisa.modules.PrivacyModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
-import io.github.mojira.arisa.modules.RemoveNonStaffMeqsModule
+import io.github.mojira.arisa.modules.RemoveNonStaffTagsModule
 import io.github.mojira.arisa.modules.RemoveSpamModule
 import io.github.mojira.arisa.modules.RemoveTriagedMeqsModule
 import io.github.mojira.arisa.modules.RemoveVersionModule
@@ -41,10 +41,10 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
+import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.UpdateLinkedModule
-import me.urielsalis.mccrashlib.CrashReader
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -158,15 +158,6 @@ class ModuleRegistry(private val config: Config) {
             )
         )
 
-        register(
-            Modules.MissingCrash,
-            MissingCrashModule(
-                config[Modules.MissingCrash.crashExtensions],
-                CrashReader(),
-                config[Modules.MissingCrash.message]
-            )
-        )
-
         register(Modules.Empty, EmptyModule(config[Modules.Empty.message]))
 
         register(
@@ -245,8 +236,11 @@ class ModuleRegistry(private val config: Config) {
         register(Modules.RemoveIdenticalLink, RemoveIdenticalLinkModule())
 
         register(
-            Modules.RemoveNonStaffMeqs,
-            RemoveNonStaffMeqsModule(config[Modules.RemoveNonStaffMeqs.removalReason])
+            Modules.RemoveNonStaffTags,
+            RemoveNonStaffTagsModule(
+                config[Modules.RemoveNonStaffTags.removalReason],
+                config[Modules.RemoveNonStaffTags.removablePrefixes]
+            )
         )
 
         register(
@@ -308,5 +302,15 @@ class ModuleRegistry(private val config: Config) {
             return@register "updated > ${lastRun.toEpochMilli()} OR (updated < ${intervalStart.toEpochMilli()}" +
                     " AND updated > ${intervalEnd.toEpochMilli()})"
         }
+
+        register(
+            Modules.Thumbnail,
+            ThumbnailModule(
+                maxImageWidth = config[Modules.Thumbnail.maxImageWidth],
+                maxImageHeight = config[Modules.Thumbnail.maxImageHeight],
+                maxImageReadBytes = config[Modules.Thumbnail.maxImageReadBytes],
+                maxImagesCount = config[Modules.Thumbnail.maxImagesCount]
+            )
+        )
     }
 }

@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.modules
 
-import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
@@ -14,7 +13,7 @@ private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when ticket was created before the last run" {
         val module = LanguageModule(
-            getLanguage = { mapOf("de" to 1.0).right() }
+            getLanguage = { mapOf("de" to 1.0) }
         )
         val issue = mockIssue(
             created = A_SECOND_AGO,
@@ -29,7 +28,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is no description, summary or environment" {
         val module = LanguageModule(
-            getLanguage = { emptyMap<String, Double>().right() }
+            getLanguage = { emptyMap() }
         )
         val issue = mockIssue(
             created = RIGHT_NOW
@@ -42,7 +41,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when description, summary and environment are empty" {
         val module = LanguageModule(
-            getLanguage = { emptyMap<String, Double>().right() }
+            getLanguage = { emptyMap() }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -57,7 +56,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when no language matches" {
         val module = LanguageModule(
-            getLanguage = { emptyMap<String, Double>().right() }
+            getLanguage = { emptyMap() }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -73,7 +72,7 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the combined text does not exceed the threshold" {
         val module = LanguageModule(
             lengthThreshold = 100,
-            getLanguage = { mapOf("de" to 1.0).right() }
+            getLanguage = { mapOf("de" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -89,7 +88,7 @@ class LanguageModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when the combined text only contains a URL" {
         val module = LanguageModule(
             lengthThreshold = 2,
-            getLanguage = { mapOf("de" to 1.0).right() }
+            getLanguage = { mapOf("de" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -106,7 +105,7 @@ class LanguageModuleTest : StringSpec({
         var commentLanguage = ""
         var resolved = false
         val module = LanguageModule(
-            getLanguage = { mapOf("de" to 1.0).right() }
+            getLanguage = { mapOf("de" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -125,7 +124,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse if ticket is in English" {
         val module = LanguageModule(
-            getLanguage = { mapOf("en" to 1.0).right() }
+            getLanguage = { mapOf("en" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -140,7 +139,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse if ticket is mostly in English" {
         val module = LanguageModule(
-            getLanguage = { mapOf("en" to 0.8).right() }
+            getLanguage = { mapOf("en" to 0.8) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -157,7 +156,7 @@ class LanguageModuleTest : StringSpec({
         var commentLanguage = ""
         var resolved = false
         val module = LanguageModule(
-            getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
+            getLanguage = { mapOf("en" to 0.6, "de" to 0.8) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -178,7 +177,7 @@ class LanguageModuleTest : StringSpec({
         var isApiExecuted = false
 
         val module = LanguageModule(
-            getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+            getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -196,7 +195,7 @@ class LanguageModuleTest : StringSpec({
         var isApiExecuted = false
 
         val module = LanguageModule(
-            getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+            getLanguage = { it shouldBe "Summary. Description."; isApiExecuted = true; mapOf("en" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -214,7 +213,7 @@ class LanguageModuleTest : StringSpec({
         var isApiExecuted = false
 
         val module = LanguageModule(
-            getLanguage = { it shouldBe "Summary."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+            getLanguage = { it shouldBe "Summary."; isApiExecuted = true; mapOf("en" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -231,7 +230,7 @@ class LanguageModuleTest : StringSpec({
         var isApiExecuted = false
 
         val module = LanguageModule(
-            getLanguage = { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0).right() }
+            getLanguage = { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,
@@ -251,7 +250,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 isApiExecuted = true
-                mapOf("en" to 1.0).right()
+                mapOf("en" to 1.0)
             }
         )
         val issue = mockIssue(
@@ -273,7 +272,7 @@ class LanguageModuleTest : StringSpec({
             getLanguage = {
                 it shouldBe "pillager doesn’t aim child villager.\\n\\nReproduce:\\n\\n1.Summon pillager."
                 isApiExecuted = true
-                mapOf("en" to 1.0).right()
+                mapOf("en" to 1.0)
             }
         )
         val issue = mockIssue(
@@ -290,7 +289,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeeded if ticket is private" {
         val module = LanguageModule(
-            getLanguage = { mapOf("en" to 0.6, "de" to 0.8).right() }
+            getLanguage = { mapOf("en" to 0.6, "de" to 0.8) }
         )
         val issue = mockIssue(
             securityLevel = "private",
@@ -305,7 +304,7 @@ class LanguageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse if ticket contains only a crash report" {
         val module = LanguageModule(
-            getLanguage = { mapOf("en" to 1.0).right() }
+            getLanguage = { mapOf("en" to 1.0) }
         )
         val issue = mockIssue(
             created = RIGHT_NOW,

@@ -2,19 +2,24 @@ package io.github.mojira.arisa.infrastructure
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.right
 import arrow.core.rightIfNotNull
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.KlaxonException
+import io.github.mojira.arisa.modules.openHttpGetInputStream
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.net.URL
-import java.net.URLConnection
+import java.net.URI
 
-typealias ProjectFilter = Any
-typealias LocalizedValues = Map<String, String>
+private typealias ProjectFilter = Any
+private typealias LocalizedValues = Map<String, String>
 
 private const val URL =
     "https://raw.githubusercontent.com/mojira/helper-messages/gh-pages/assets/js/messages.json"
+
+private val logger = LoggerFactory.getLogger("HelperMessages")
 
 data class HelperMessageVariable(
     val project: ProjectFilter,
@@ -57,6 +62,7 @@ data class HelperMessageData(
             }
 }
 
+@Suppress("TooManyFunctions")
 object HelperMessageService {
     var data = HelperMessageData(mapOf(), mapOf())
 
@@ -115,36 +121,46 @@ object HelperMessageService {
     fun getMessageWithBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
         getMessage(project, listOf(key, "i-am-a-bot"), listOf(filledText), lang)
 
-    fun setHelperMessages(json: String) = data.fromJSON(json).rightIfNotNull {
-        Error("Couldn't deserialize helper messages from setHelperMessages()")
+    fun setHelperMessages(json: String) = data.fromJSON(json)
+        ?: throw IOException("Couldn't deserialize helper messages from setHelperMessages()")
+
+    fun updateHelperMessages(file: File) {
+        fetchHelperMessages().fold(
+            { loadCachedHelperMessages(file, it) },
+            { inputStream ->
+                inputStream.use {
+                    try {
+                        data.fromStream(it)
+                    } catch (exception: KlaxonException) {
+                        loadCachedHelperMessages(file, exception)
+                    }
+                    file.writeText(data.toJSON())
+                }
+            }
+        )
     }
 
-    fun updateHelperMessages(file: File) = fetchHelperMessages().fold(
-        {
-            if (file.exists()) {
-                data.fromJSON(file.readText()).rightIfNotNull {
-                    Error("Couldn't deserialize saved helper messages")
-                }
-            } else {
-                it.left()
-            }
-        },
-        { inputStream ->
-            file.writeText(data.toJSON())
-            data.fromStream(inputStream).rightIfNotNull {
-                Error("Couldn't deserialize downloaded helper messages")
-            }
-        }
-    )
-
     private fun fetchHelperMessages() = try {
-        with(URL(URL).openConnection() as URLConnection) {
-            inputStream.rightIfNotNull {
-                Error("Couldn't download helper messages")
-            }
-        }
+        openHttpGetInputStream(URI(URL)).right()
     } catch (e: IOException) {
         e.left()
+    }
+
+    /**
+     * @param fetchException
+     *      Exception which caused fetching or deserializing fetched helper messages to fail
+     */
+    private fun loadCachedHelperMessages(file: File, fetchException: Exception) {
+        if (file.exists()) {
+            logger.warn("Failed fetching helper messages, reusing cached ones", fetchException)
+            try {
+                data.fromJSON(file.readText())
+            } catch (@Suppress("TooGenericExceptionCaught") exception: Exception) {
+                throw IOException("Failed loading cached helper messages", exception)
+            }
+        } else {
+            throw IOException("Fetching helper messages failed and no cached ones exist", fetchException)
+        }
     }
 
     private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {

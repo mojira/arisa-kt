@@ -1,17 +1,24 @@
 package io.github.mojira.arisa.infrastructure
 
 import arrow.core.Either
+import com.urielsalis.mccrashlib.Crash
+import com.urielsalis.mccrashlib.CrashReader
+import com.urielsalis.mccrashlib.parser.ParserError
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.Issue
-import me.urielsalis.mccrashlib.Crash
-import me.urielsalis.mccrashlib.CrashReader
-import me.urielsalis.mccrashlib.parser.ParserError
+import java.io.File
 import java.time.Instant
 
 class AttachmentUtils(
     private val crashReportExtensions: List<String>,
     private val crashReader: CrashReader
 ) {
+    private val mappingsDir by lazy {
+        val file = File("mc-mappings")
+        if (!file.exists()) file.mkdir()
+        file
+    }
+
     data class TextDocument(
         val getContent: () -> String,
         val created: Instant,
@@ -47,7 +54,7 @@ class AttachmentUtils(
         return TextDocument(getText, attachment.created, attachment.name)
     }
 
-    private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.getContent().lines())
+    private fun processCrash(it: TextDocument) = it to crashReader.processCrash(it.getContent().lines(), mappingsDir)
 
     private fun extractCrash(it: Pair<TextDocument, Either<ParserError, Crash>>) =
         it.first to (it.second as Either.Right<Crash>).b

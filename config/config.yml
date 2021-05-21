@@ -148,7 +148,6 @@ arisa:
         - 'Launcher: 3.1.0'
         - 'Launcher: 3.1.1'
         - 'Launcher: 3.1.4'
-        - 1.0.8
         - uuid sessionId
         - auth_access_token
         - keicraft
@@ -259,6 +258,7 @@ arisa:
       resolutions:
         - Awaiting Response
       blacklistedRoles:
+        - helper
         - staff
         - global-moderators
       blacklistedVisibilities:
@@ -270,8 +270,11 @@ arisa:
       onlyOPTag: ARISA_REOPEN_OP
       message: not-reopen-ar
 
-    removeNonStaffMeqs:
+    removeNonStaffTags:
       removalReason: Comment was not properly staff-restricted.
+      removablePrefixes:
+        - MEQS
+        - ARISA
 
     empty:
       projects:
@@ -285,7 +288,7 @@ arisa:
       message: incomplete
 
     command:
-      commandPrefix: ARISA
+      commandPrefix: $ARISA
 
     removeVersion:
       resolutions:
@@ -356,15 +359,6 @@ arisa:
       crashExtensions:
         - txt
         - log
-
-    missingCrash:
-      enabled: false
-      resolutions:
-        - Unresolved
-      crashExtensions:
-        - txt
-        - log
-      message: attach-crash-report
 
     revokeConfirmation:
       projects:
@@ -437,3 +431,8 @@ arisa:
         - Duplicate
 
     replaceText:
+
+    thumbnail:
+      # For the rationale for this value, see https://github.com/mojira/arisa-kt/issues/165#issuecomment-660259465
+      maxImageWidth: 759
+      maxImageHeight: 600

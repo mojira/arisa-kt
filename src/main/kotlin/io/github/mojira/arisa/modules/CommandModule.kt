@@ -74,7 +74,6 @@ class CommandModule(
         comment.body?.lines().orEmpty()
             .mapIndexed { lineNr, line -> lineNr to line.trim() }
             .filter { (_, line) -> line.startsWith("${prefix}_") }
-            .filter { (_, line) -> line.any { char -> char.isWhitespace() } }
             .map { (lineNr, line) ->
                 Command(line, CommandSource(issue, comment, lineNr))
             }

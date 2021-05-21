@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.4.30"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     application
-    id("io.gitlab.arturbosch.detekt") version "1.9.1"
+    id("io.gitlab.arturbosch.detekt") version "1.17.0"
     id("info.solidsoft.pitest") version "1.5.1"
 }
 
@@ -21,13 +21,6 @@ buildscript {
     }
     dependencies {
         classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.1")
-    }
-}
-
-configurations {
-    all {
-        // Excluded due to being a dependency of detekt but not being in maven central
-        exclude("org.jetbrains.kotlinx", "kotlinx-html-jvm")
     }
 }
 
@@ -50,7 +43,7 @@ dependencies {
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("com.github.rcarz", "jira-client", "master-SNAPSHOT")
-    implementation("me.urielsalis", "mc-crash-lib", "1.0.3")
+    implementation("com.urielsalis", "mc-crash-lib", "2.0.1")
     implementation("com.github.napstr", "logback-discord-appender", "1.0.0")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)
@@ -60,6 +53,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
     implementation("com.beust", "klaxon", "5.4")
     implementation("com.mojang", "brigadier", "1.0.17")
+    implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
@@ -90,7 +84,9 @@ application {
 }
 
 detekt {
-    failFast = true // fail build on any finding
+    // For now only consider main source files, but ignore test sources
+    input = files("src/main/kotlin")
+    allRules = true // enable all rules, including unstable ones
     buildUponDefaultConfig = true // preconfigure defaults
     parallel = true
     reports {

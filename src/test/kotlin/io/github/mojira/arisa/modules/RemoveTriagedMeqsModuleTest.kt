@@ -61,7 +61,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum. I like QC."
     }
 
     "should process tickets with triaged time" {
@@ -79,7 +79,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Lorem Ipsum. I like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Lorem Ipsum. I like QC."
     }
 
     "should replace only MEQS of a tag" {
@@ -97,7 +97,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nI like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Test.\nI like QC."
     }
 
     "should not replace MEQS of tags that aren't configured" {
@@ -115,7 +115,7 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_TRIVIAL\nI like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Test.\nMEQS_TRIVIAL\nI like QC."
     }
 
     "should replace MEQS of all configured tags" {
@@ -133,6 +133,6 @@ class RemoveTriagedMeqsModuleTest : StringSpec({
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        editedComment shouldBe "MEQS_ARISA_REMOVED_WAI Removal Reason: Test.\nMEQS_ARISA_REMOVED_WONTFIX Removal Reason: Test.\nI like QC."
+        editedComment shouldBe "Arisa removed prefix 'MEQS' from '_WAI'; removal reason: Test.\nArisa removed prefix 'MEQS' from '_WONTFIX'; removal reason: Test.\nI like QC."
     }
 })

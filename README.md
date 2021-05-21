@@ -7,7 +7,7 @@
 
 <!-- PROJECT LOGO -->
 <br/>
-<div style="text-align: center">
+<div align="center">
   <a href="https://bugs.mojang.com/">
     <img src="arisa.png" alt="Arisa" width="80" height="80">
   </a>
@@ -64,6 +64,9 @@ This project depends on the following projects, thanks to every developer who ma
 - [jira-client](https://github.com/rcarz/jira-client) by [rcarz](https://github.com/rcarz)
 - [logback-discord-appender](https://github.com/napstr/logback-discord-appender) by [napstr](https://github.com/napstr)
 - [mc-crash-lib](https://github.com/urielsalis/mc-crash-lib)
+- [Apache Commons Imaging](https://commons.apache.org/proper/commons-imaging/)
+
+Language detection [powered by Dandelion API](https://dandelion.eu/).
 
 ## Contributing
 

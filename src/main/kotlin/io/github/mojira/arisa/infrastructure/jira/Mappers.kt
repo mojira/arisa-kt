@@ -42,6 +42,7 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachme
     getCreationDate(issue, id, issue.createdDate.toInstant()),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
+    { openAttachmentStream(jiraClient, this) },
     this::download,
     author?.toDomain(jiraClient)
 )
@@ -318,10 +319,10 @@ private fun JiraIssue.getOtherUpdateContext(
 ): Lazy<IssueUpdateContext> =
     lazy {
         IssueUpdateContextCache.get(key) ?: IssueUpdateContext(
-                jiraClient,
-                jiraClient.getIssue(key),
-                update(),
-                transition(),
-                transition()
+            jiraClient,
+            jiraClient.getIssue(key),
+            update(),
+            transition(),
+            transition()
         ).also { IssueUpdateContextCache.add(key, it) }
     }

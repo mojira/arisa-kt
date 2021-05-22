@@ -11,7 +11,7 @@ class ReopenCommandTest : StringSpec({
 
     "should throw NOT_AR when the resolution is not awaiting response" {
         val issue = mockIssue(
-                resolution = "Invalid"
+            resolution = "Invalid"
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -25,10 +25,10 @@ class ReopenCommandTest : StringSpec({
         var reopened = false
 
         val issue = mockIssue(
-                resolution = "Awaiting Response",
-                reopen = {
-                    reopened = true
-                }
+            resolution = "Awaiting Response",
+            reopen = {
+                reopened = true
+            }
         )
 
         val result = command(issue)

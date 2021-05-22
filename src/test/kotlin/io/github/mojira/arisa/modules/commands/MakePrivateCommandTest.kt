@@ -11,7 +11,7 @@ class MakePrivateCommandTest : StringSpec({
 
     "should throw ALREADY_PRIVATE when the ticket is already set to private" {
         val issue = mockIssue(
-                securityLevel = "private"
+            securityLevel = "private"
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -25,8 +25,8 @@ class MakePrivateCommandTest : StringSpec({
         var hasSetPrivate = false
 
         val issue = mockIssue(
-                securityLevel = null,
-                setPrivate = { hasSetPrivate = true }
+            securityLevel = null,
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = command(issue)

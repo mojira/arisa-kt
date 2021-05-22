@@ -11,7 +11,7 @@ class FixCapitalizationCommandTest : StringSpec({
 
     "should throw NO_CAPITALIZATION_MATCHES when the description has no improper capitalization" {
         val issue = mockIssue(
-                description = "testing without capitalization."
+            description = "testing without capitalization."
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
@@ -25,10 +25,10 @@ class FixCapitalizationCommandTest : StringSpec({
         var hasUpdatedDescription: String? = null
 
         val issue = mockIssue(
-                description = "Testing With Capitalization.",
-                updateDescription = {
-                    hasUpdatedDescription = it
-                }
+            description = "Testing With Capitalization.",
+            updateDescription = {
+                hasUpdatedDescription = it
+            }
         )
 
         val result = command(issue)
@@ -41,10 +41,10 @@ class FixCapitalizationCommandTest : StringSpec({
         var hasUpdatedDescription: String? = null
 
         val issue = mockIssue(
-                description = "this is not properly capitalized and i will fix it",
-                updateDescription = {
-                    hasUpdatedDescription = it
-                }
+            description = "this is not properly capitalized and i will fix it",
+            updateDescription = {
+                hasUpdatedDescription = it
+            }
         )
 
         val result = command(issue)

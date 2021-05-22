@@ -18,7 +18,7 @@ class ReopenCommandTest : StringSpec({
             command(issue)
         }
 
-        exception.message shouldBe "This issue is not resolved as Awaiting Response"
+        exception.message shouldBe "The ticket was not resolved as Awaiting Response"
     }
 
     "should reopen issue if it is resolved as awaiting response" {

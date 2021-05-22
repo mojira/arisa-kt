@@ -12,6 +12,7 @@ import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockLink
 import io.github.mojira.arisa.utils.mockLinkedIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -595,6 +596,42 @@ class DuplicateMessageModuleTest : StringSpec({
         commentOptions shouldBe CommentOptions("duplicate-private", "MC-1")
     }
 
+    "should add the normal comment for private parent when the parent is private but the reporters are identical" {
+        var commentOptions: CommentOptions? = null
+        val issue = getIssue(
+            reporter = "Arisa",
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink(
+                    issue = mockLinkedIssue(
+                        key = "MC-1",
+                        getFullIssue = {
+                            mockIssue(
+                                reporter = mockUser(
+                                    "Arisa"
+                                ),
+                                securityLevel = "private"
+                            ).right()
+                        }
+                    )
+                )
+            ),
+            addComment = { commentOptions = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+    }
+
     "should add the comment for private parents when all parents are private" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
@@ -998,6 +1035,7 @@ class DuplicateMessageModuleTest : StringSpec({
 })
 
 private fun getIssue(
+    reporter: String = "User",
     links: List<Link> = emptyList(),
     changeLog: List<ChangeLogItem> = listOf(
         mockChangeLogItem(
@@ -1010,6 +1048,9 @@ private fun getIssue(
     comments: List<Comment> = emptyList(),
     addComment: (options: CommentOptions) -> Unit = { }
 ) = mockIssue(
+    reporter = mockUser(
+        reporter
+    ),
     links = links,
     changeLog = changeLog,
     comments = comments,

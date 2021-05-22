@@ -54,7 +54,7 @@ class DuplicateMessageModule(
                 val fullParents = fullParentEitherList
                     .map { (it as Either.Right).b }
 
-                messageKey = getPrivateMessageOrNull(fullParents)
+                messageKey = getPrivateMessageOrNull(issue, fullParents)
                     ?: getResolutionMessageOrNull(fullParents) ?: getForwardResolvedOrNot(issue, fullParents)
             }
 
@@ -94,9 +94,12 @@ class DuplicateMessageModule(
             getField(this[0])
         }
 
-    private fun getPrivateMessageOrNull(issues: List<Issue>): String? {
+    private fun getPrivateMessageOrNull(child: Issue, issues: List<Issue>): String? {
         val parentSecurity = issues.getCommonFieldOrNull { it.securityLevel }
-        return privateMessage.takeIf { parentSecurity != null }
+        val reporters = issues.getCommonFieldOrNull { it.reporter }
+        return privateMessage.takeIf {
+            parentSecurity != null && (reporters == null || child.reporter != reporters)
+        }
     }
 
     private fun getResolutionMessageOrNull(issues: List<Issue>): String? {

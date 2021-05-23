@@ -6,34 +6,32 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-class ReopenCommandTest : StringSpec({
-    val command = ReopenCommand()
+class MakePrivateCommandTest : StringSpec({
+    val command = MakePrivateCommand()
 
-    "should throw NOT_AR when the resolution is not awaiting response" {
+    "should throw ALREADY_PRIVATE when the ticket is already set to private" {
         val issue = mockIssue(
-            resolution = "Invalid"
+            securityLevel = "private"
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
             command(issue)
         }
 
-        exception.message shouldBe "The ticket was not resolved as Awaiting Response"
+        exception.message shouldBe "The ticket already had a security level set"
     }
 
-    "should reopen issue if it is resolved as awaiting response" {
-        var reopened = false
+    "should set ticket to private if the security level is null" {
+        var hasSetPrivate = false
 
         val issue = mockIssue(
-            resolution = "Awaiting Response",
-            reopen = {
-                reopened = true
-            }
+            securityLevel = null,
+            setPrivate = { hasSetPrivate = true }
         )
 
         val result = command(issue)
 
         result shouldBe 1
-        reopened shouldBe true
+        hasSetPrivate shouldBe true
     }
 })

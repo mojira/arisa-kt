@@ -28,6 +28,7 @@ fun getCommandDispatcher(
     val listUserActivityCommand = ListUserActivityCommand(
         ::getIssuesFromJql.partially1(jiraClient)
     )
+    val makePrivateCommand = MakePrivateCommand()
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val reopenCommand = ReopenCommand()
     val removeContentCommand = RemoveContentCommand(
@@ -135,6 +136,14 @@ fun getCommandDispatcher(
                         }
                 )
 
+        val makePrivateCommandNode =
+            literal<CommandSource>("${prefix}_MAKE_PRIVATE")
+                .executes {
+                    makePrivateCommand(
+                        it.source.issue
+                    )
+                }
+
         val purgeAttachmentCommandNode =
             literal<CommandSource>("${prefix}_PURGE_ATTACHMENT")
                 .requires(::sentByModerator)
@@ -200,6 +209,7 @@ fun getCommandDispatcher(
         register(fixCapitalizationCommandNode)
         register(fixedCommandNode)
         register(listUserActivityCommandNode)
+        register(makePrivateCommandNode)
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)

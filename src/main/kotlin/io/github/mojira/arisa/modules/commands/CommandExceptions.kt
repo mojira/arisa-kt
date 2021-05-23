@@ -9,6 +9,10 @@ object CommandExceptions {
         LiteralMessage("The ticket was already marked as fixed in $it")
     }
 
+    val ALREADY_PRIVATE = SimpleCommandExceptionType(
+        LiteralMessage("The ticket already had a security level set")
+    )
+
     val ALREADY_RESOLVED = DynamicCommandExceptionType {
         LiteralMessage("The ticket was already resolved as $it")
     }
@@ -38,7 +42,7 @@ object CommandExceptions {
     }
 
     val NOT_AR = SimpleCommandExceptionType(
-        LiteralMessage("This issue is not resolved as Awaiting Response")
+        LiteralMessage("The ticket was not resolved as Awaiting Response")
     )
 
     val TEST_EXCEPTION = DynamicCommandExceptionType {

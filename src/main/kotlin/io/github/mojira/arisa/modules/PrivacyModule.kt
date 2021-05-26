@@ -15,13 +15,11 @@ class PrivacyModule(
         """.*\(Session ID is token:.*""".toRegex(),
         """.*--accessToken ey.*""".toRegex(),
         """.*(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s]).*""".toRegex(),
-        """.*\b([A-Z0-9]{4}-){3}[A-Z0-9]{4}\b.*""".toRegex(),
         """.*\bbraintree:[0-9]{6,7}\b.*""".toRegex(),
-        """.*\b([A-Z0-9]{5}-){5}[A-Z0-9]{5}\b.*""".toRegex(),
         """.*\b([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}\b.*""".toRegex()
     )
 
-    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z][a-zA-Z0-9.\\-]{2,15}\\b".toRegex()
+    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {

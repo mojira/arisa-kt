@@ -21,7 +21,7 @@ class PrivacyModule(
         """.*\b([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}\b.*""".toRegex()
     )
 
-    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z0-9.\\-]{2,15}\\b".toRegex()
+    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z0-9.\\-_]+\\.[a-zA-Z][a-zA-Z0-9.\\-]{2,15}\\b".toRegex()
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {

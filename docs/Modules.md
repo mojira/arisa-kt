@@ -371,6 +371,26 @@ Revokes changes to `Confirmation Status` done by non-volunteers.
 - The `Confirmation Status` is not the same as the last one changed by users with group
   `helper`, `global-moderators`, or `staff`.
 
+## Thumbnail
+| Entry | Value                                                                        |
+| ----- | ---------------------------------------------------------------------------- |
+| Name  | `Thumbnail`                                                                  |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/ThumbnailModule.kt) |
+
+Edits embedded image references to large images in the issue description and comments to use a thumbnail reference
+instead.
+
+### Checks
+- For issues: The issue has been created after the last run (edits after the last run are ignored)
+- For comments: The comment has been added after the last run (edits after the last run are ignored)
+- The image reference refers to an attached image (URL references are not supported)
+- The image reference does not specify any display settings (e.g. custom size)
+- The image is wider than `maxImageWidth` or taller than `maxImageHeight` specified in the [config](../config/config.yml)
+- While reading the image not more than `maxImageReadBytes` as specified in the [config](../config/config.yml)
+  (defaults to 5 KiB) are read. Note that most image formats include the dimension information in the first few bytes.
+- At most `maxImagesCount` as specified in the [config](../config/config.yml) (defaults to 10) will be processed per
+  issue description respectively per comment
+
 ## TransferLinks
 | Entry | Value                                                                               |
 | ----- | ----------------------------------------------------------------------------------- |

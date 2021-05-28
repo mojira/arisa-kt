@@ -184,21 +184,6 @@ Resolves tickets that are not in English as `Invalid`.
 - The detected language is not listed in the `allowedLanguages` defined in the [config](https://github.com/mojira/arisa-kt/blob/master/config/config.yml)
   with a percentage greater than `0.7`.
 
-## MissingCrash
-| Entry | Value                                                                                                                       |
-| ----- | --------------------------------------------------------------------------------------------------------------------------- |
-| Name  | `MissingCrash`                                                                                                              |
-| Class | [Link](https://github.com/mojira/arisa-kt/blob/master/src/main/kotlin/io/github/mojira/arisa/modules/MissingCrashModule.kt) |
-
-Resolves the ticket as `Awaiting Response` when it mentions `crash` but doesn't contain any crash reports.
-
-### Checks
-- The `Confirmation Status` field is `Unconfirmed`.
-- The `Status` is `Open`.
-- The `Mojang Priority` field is `null`.
-- The description contains the word `crash`.
-- There are no valid crash reports in attachments or the description.
-
 ## MultiplePlatforms
 | Entry | Value                                                                                                                            |
 | ----- | -------------------------------------------------------------------------------------------------------------------------------- |

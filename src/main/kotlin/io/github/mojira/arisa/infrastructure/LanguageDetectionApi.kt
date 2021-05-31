@@ -13,28 +13,20 @@ private const val BASE_URL = "https://api.dandelion.eu/datatxt/li/v1/"
 
 private val logger = LoggerFactory.getLogger("LanguageDetectionApi")
 
-data class Response(val detectedLangs: List<LangDetection>)
-data class LangDetection(val lang: String, val confidence: Double)
+private data class Response(val detectedLangs: List<LangDetection>)
+private data class LangDetection(val lang: String, val confidence: Double)
 
 // See https://dandelion.eu/docs/api/#api-response-error-codes
-data class ErrorResponse(val message: String, val code: String)
+private data class ErrorResponse(val message: String, val code: String)
+
+private data class QuotaInfo(val unitsLeft: Double, val unitsResetTime: String?)
 
 // See https://dandelion.eu/docs/api/#api-response-headers
-private fun getQuotaInfo(connection: HttpURLConnection): String? {
-    val unitsLeft = connection.getHeaderField("X-DL-units-left")
-    val unitsReset = connection.getHeaderField("X-DL-units-reset")
+private fun getQuotaInfo(connection: HttpURLConnection): QuotaInfo? {
+    val unitsLeft = connection.getHeaderField("X-DL-units-left")?.let(String::toDouble)
+    val unitsResetTime = connection.getHeaderField("X-DL-units-reset")
 
-    val stringBuilder = StringBuilder()
-    if (unitsLeft != null) {
-        stringBuilder.append("units left: ").append(unitsLeft)
-    }
-    if (unitsReset != null) {
-        if (stringBuilder.isNotEmpty()) {
-            stringBuilder.append(", ")
-        }
-        stringBuilder.append("units reset: ").append(unitsReset)
-    }
-    return stringBuilder.toString().takeIf(String::isNotEmpty)
+    return if (unitsLeft != null) QuotaInfo(unitsLeft, unitsResetTime) else null
 }
 
 private fun getErrorMessage(connection: HttpURLConnection): String {
@@ -54,37 +46,52 @@ private fun getErrorMessage(connection: HttpURLConnection): String {
     return "${connection.responseCode} from language API$detailedErrorMessage"
 }
 
-@Suppress("ReturnCount", "ThrowsCount")
-fun getLanguage(token: String?, text: String): Map<String, Double> {
-    if (token == null) throw IllegalArgumentException("Dandelion token is undefined")
+class LanguageDetectionApi(private val token: String?, private val quotaWarningThreshold: Double?) {
+    private var lastQuotaUnits = 0.0
 
-    val request = "token=" + URLEncoder.encode(token, UTF_8) + "&text=" + URLEncoder.encode(text, UTF_8)
-    with(URL(BASE_URL).openConnection() as HttpURLConnection) {
-        this.setRequestProperty(
-            "User-Agent",
-            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)" +
-                    " Chrome/51.0.2704.103 Safari/537.36"
-        )
-        this.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        requestMethod = "POST"
-        doOutput = true
+    private fun checkWarnQuota(connection: HttpURLConnection) {
+        if (quotaWarningThreshold == null) return
 
-        val wr = OutputStreamWriter(outputStream, UTF_8)
-        wr.write(request)
-        wr.flush()
-
-        getQuotaInfo(this)?.let {
-            logger.info("Quota: $it")
+        getQuotaInfo(connection)?.apply {
+            val wasAboveThreshold = lastQuotaUnits > quotaWarningThreshold
+            if (wasAboveThreshold && unitsLeft <= quotaWarningThreshold) {
+                val resetMessage = unitsResetTime?.let { ", reset: $it" } ?: ""
+                logger.warn("Quota nearly used up: units left: $unitsLeft$resetMessage")
+            }
+            lastQuotaUnits = unitsLeft
         }
+    }
 
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw IOException(getErrorMessage(this))
+    @Suppress("ReturnCount", "ThrowsCount")
+    fun getLanguage(text: String): Map<String, Double> {
+        if (token == null) throw IllegalArgumentException("Dandelion token is undefined")
+
+        val request = "token=" + URLEncoder.encode(token, UTF_8) + "&text=" + URLEncoder.encode(text, UTF_8)
+        with(URL(BASE_URL).openConnection() as HttpURLConnection) {
+            this.setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)" +
+                        " Chrome/51.0.2704.103 Safari/537.36"
+            )
+            this.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            requestMethod = "POST"
+            doOutput = true
+
+            val wr = OutputStreamWriter(outputStream, UTF_8)
+            wr.write(request)
+            wr.flush()
+
+            checkWarnQuota(this)
+
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw IOException(getErrorMessage(this))
+            }
+
+            val result = inputStream.use {
+                Klaxon().parse<Response>(it) ?: throw IOException("Couldn't deserialize response")
+            }
+
+            return result.detectedLangs.associate { it.lang to it.confidence }
         }
-
-        val result = inputStream.use {
-            Klaxon().parse<Response>(it) ?: throw IOException("Couldn't deserialize response")
-        }
-
-        return result.detectedLangs.associate { it.lang to it.confidence }
     }
 }

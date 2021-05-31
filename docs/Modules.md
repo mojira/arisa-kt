@@ -222,6 +222,8 @@ Hides privacy information like Email addresses in tickets or comments.
 - The ticket is not set to private.
 #### For Setting Tickets to Private
 - Any of the fields and/or text attachments added after last run contains session ID or Email.
+- Or any of the attachments has a name specified by `sensitiveFileNames` in the [config](../config/config.yml)
+  (defaults to empty list)
 #### For Restricting Comments to `staff`
 - The comment was added after last run.
 - The comment is not restricted.

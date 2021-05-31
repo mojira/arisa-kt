@@ -11,7 +11,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 private val ALLOWED_REGEX = listOf("allowed@.*".toRegex())
-private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??", ALLOWED_REGEX)
+private val MODULE = PrivacyModule("message", "\n----\nRestricted by PrivacyModule ??[~arisabot]??", ALLOWED_REGEX, emptyList())
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
@@ -306,7 +306,7 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
-    "should not mark as private when the change log item contains a allowed email" {
+    "should not mark as private when the change log item contains an allowed email" {
         var hasSetPrivate = false
 
         val issue = mockIssue(
@@ -326,7 +326,7 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe false
     }
 
-    "should mark as private when the change log item contains a allowed email and a not allowed email" {
+    "should mark as private when the change log item contains an allowed email and a not allowed email" {
         var hasSetPrivate = false
 
         val issue = mockIssue(
@@ -368,5 +368,45 @@ class PrivacyModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         hasSetPrivate shouldBe false
         hasRestrictedComment shouldBe true
+    }
+
+    "should mark as private when attachment has sensitive name" {
+        val sensitiveFileName = "sensitive.txt"
+        val module = PrivacyModule("message", "comment", ALLOWED_REGEX, listOf(sensitiveFileName))
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            attachments = listOf(
+                mockAttachment(
+                    name = sensitiveFileName
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
+    "should not mark as private when attachment has non-sensitive name" {
+        val sensitiveFileName = "sensitive.txt"
+        val module = PrivacyModule("message", "comment", ALLOWED_REGEX, listOf(sensitiveFileName))
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            attachments = listOf(
+                mockAttachment(
+                    name = "non-$sensitiveFileName"
+                )
+            ),
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        hasSetPrivate shouldBe false
     }
 })

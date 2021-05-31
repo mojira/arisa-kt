@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
@@ -9,7 +10,8 @@ import java.time.Instant
 class PrivacyModule(
     private val message: String,
     private val commentNote: String,
-    private val allowedEmailsRegex: List<Regex>
+    private val allowedEmailsRegex: List<Regex>,
+    private val sensitiveFileNames: List<String>
 ) : Module {
     private val patterns: List<Regex> = listOf(
         """.*\(Session ID is token:.*""".toRegex(),
@@ -46,6 +48,11 @@ class PrivacyModule(
             val doesStringMatchPatterns = string.matches(patterns)
             val doesEmailMatches = matchesEmail(string)
 
+            val doesAttachmentNameMatch = attachments
+                .asSequence()
+                .map(Attachment::name)
+                .any(sensitiveFileNames::contains)
+
             val restrictCommentFunctions = comments
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
@@ -62,10 +69,11 @@ class PrivacyModule(
             assertEither(
                 assertTrue(doesStringMatchPatterns),
                 assertTrue(doesEmailMatches),
+                assertTrue(doesAttachmentNameMatch),
                 assertNotEmpty(restrictCommentFunctions)
             ).bind()
 
-            if (doesStringMatchPatterns || doesEmailMatches) {
+            if (doesStringMatchPatterns || doesEmailMatches || doesAttachmentNameMatch) {
                 setPrivate()
                 addComment(CommentOptions(message))
             }

@@ -163,6 +163,10 @@ object Arisa : ConfigSpec() {
                 default = emptyList(),
                 description = "List of regex for allowed emails"
             )
+            val sensitiveFileNames by optional<List<String>>(
+                default = emptyList(),
+                description = "Names of attachment files containing sensitive information"
+            )
         }
 
         object Language : ModuleConfigSpec() {

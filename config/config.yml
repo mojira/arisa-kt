@@ -176,6 +176,10 @@ arisa:
       allowedEmailRegex:
         - '^(mailer-daemon|postmaster|nobody|noreply|no-reply|hostmaster|usenet|news|webmaster|www|abuse|noc|security|info|support|uucp|ftp|news|admin|root)@.*'
         - '.*@(mojang.com|microsoft.com|minecraft.net|zendesk.com)$'
+      sensitiveFileNames:
+        - launcher_accounts.json
+        - launcher_msa_credentials.json
+        - launcher_profiles.json
 
     removeTriagedMeqs:
       resolutions:

@@ -170,6 +170,11 @@ object Arisa : ConfigSpec() {
         }
 
         object Language : ModuleConfigSpec() {
+            val apiQuotaWarningThreshold by optional<Double?>(
+                description = "When the number of remaining API quota units becomes equal to or lower than this" +
+                        " value a warning will be logged.",
+                default = null
+            )
             val allowedLanguages by required<List<String>>(
                 description = "Codes of languages that can be used."
             )

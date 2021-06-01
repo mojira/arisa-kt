@@ -2,15 +2,14 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import arrow.core.left
-import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Credentials
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
-import io.github.mojira.arisa.infrastructure.getLanguage
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
@@ -221,7 +220,10 @@ class ModuleRegistry(private val config: Config) {
             LanguageModule(
                 config[Modules.Language.allowedLanguages],
                 config[Modules.Language.lengthThreshold],
-                ::getLanguage.partially1(config[Credentials.dandelionToken])
+                LanguageDetectionApi(
+                    config[Credentials.dandelionToken],
+                    config[Modules.Language.apiQuotaWarningThreshold]
+                )::getLanguage
             )
         )
 

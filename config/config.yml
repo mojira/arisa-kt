@@ -377,6 +377,7 @@ arisa:
         - Unresolved
       excludedStatuses:
         - Postponed
+      apiQuotaWarningThreshold: 10.0
       allowedLanguages:
         - en
         - nl

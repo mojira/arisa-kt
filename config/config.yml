@@ -342,9 +342,6 @@ arisa:
           exceptionRegex: Maybe try a lowerresolution texturepack
           duplicates: MC-29565
         - type: minecraft
-          exceptionRegex: 'java\.lang\.OutOfMemoryError: Java heap space'
-          duplicates: MC-12949
-        - type: minecraft
           exceptionRegex: try a lowerresolution
           duplicates: MC-29565
         - type: java

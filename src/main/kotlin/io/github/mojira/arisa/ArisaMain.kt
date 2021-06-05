@@ -1,6 +1,5 @@
 package io.github.mojira.arisa
 
-import arrow.syntax.function.partially1
 import ch.qos.logback.classic.AsyncAppender
 import ch.qos.logback.classic.LoggerContext
 import com.github.napstr.logback.DiscordAppender
@@ -14,6 +13,7 @@ import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
+import net.rcarz.jiraclient.RestException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -28,10 +28,11 @@ const val MAX_RESULTS = 50
 private const val MINUTES_FOR_THROTTLED_LOG = 30L
 lateinit var jiraClient: JiraClient
 private var throttledLog = 0L
+lateinit var config: Config
 
 @Suppress("LongMethod")
 fun main() {
-    val config = readConfig()
+    config = readConfig()
     setWebhookOfLogger(config)
 
     jiraClient =
@@ -65,8 +66,7 @@ fun main() {
 
     // Create module executor
     var moduleExecutor = ModuleExecutor(
-        config, moduleRegistry, queryCache,
-        getSearchIssues(jiraClient, config)
+        config, moduleRegistry, queryCache, ::searchIssues
     )
 
     while (true) {
@@ -93,31 +93,20 @@ fun main() {
                 )
 
             moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, config)
+                config, moduleRegistry, queryCache, ::searchIssues
             )
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             HelperMessageService.updateHelperMessages(helperMessagesFile)
             moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, config)
+                config, moduleRegistry, queryCache, ::searchIssues
             )
             helperMessagesLastFetch = curRunTime
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
     }
-}
-
-private fun getSearchIssues(
-    jiraClient: JiraClient,
-    config: Config
-): (String, Int, () -> Unit) -> List<Issue> {
-    return ::searchIssues
-        .partially1(jiraClient)
-        .partially1(config)
 }
 
 private fun readLastRunTime(lastRun: List<String>): Instant {
@@ -158,8 +147,6 @@ private fun setWebhookOfLogger(config: Config) {
 
 @Suppress("LongParameterList")
 private fun searchIssues(
-    jiraClient: JiraClient,
-    config: Config,
     jql: String,
     startAt: Int,
     onQueryPaginated: () -> Unit
@@ -171,7 +158,25 @@ private fun searchIssues(
         if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
             log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
             throttledLog = System.currentTimeMillis()
+            jiraClient = connectToJira(
+                config[Arisa.Credentials.username],
+                config[Arisa.Credentials.password],
+                config[Arisa.Issues.url]
+            )
         }
+        TimeUnit.MINUTES.sleep(1)
+        null
+    } catch (e: RestException) {
+        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
+            log.warn("Failed to connect to jira. Status code ${e.httpStatusCode}.")
+            throttledLog = System.currentTimeMillis()
+            jiraClient = connectToJira(
+                config[Arisa.Credentials.username],
+                config[Arisa.Credentials.password],
+                config[Arisa.Issues.url]
+            )
+        }
+        TimeUnit.MINUTES.sleep(1)
         null
     } ?: return emptyList()
 

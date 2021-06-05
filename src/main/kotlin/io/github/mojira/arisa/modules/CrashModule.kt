@@ -58,7 +58,9 @@ class CrashModule(
             .filter { it.second != null }
             .filterNot {
                 issue.attachments.any { attachment ->
-                    attachment.name == getDeobfName(it.first) || attachment.name.startsWith("deobf_")
+                    attachment.name == getDeobfName(it.first) ||
+                        attachment.name.startsWith("deobf_") ||
+                        attachment.name.endsWith("deobfuscated.txt")
                 }
             }
         minecraftCrashesWithDeobf.forEach {

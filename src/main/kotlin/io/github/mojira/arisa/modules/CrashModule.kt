@@ -58,9 +58,9 @@ class CrashModule(
             .filter { it.second != null }
             .filterNot {
                 issue.attachments.any { attachment ->
-                    attachment.name == getDeobfName(it.first) || attachment.name.endsWith(
-                        "deobfuscated.txt"
-                    )
+                    attachment.name == getDeobfName(it.first) ||
+                        attachment.name.startsWith("deobf_") ||
+                        attachment.name.endsWith("deobfuscated.txt")
                 }
             }
         minecraftCrashesWithDeobf.forEach {
@@ -78,7 +78,7 @@ class CrashModule(
         }
     }
 
-    private fun getDeobfName(name: String): String = "${name.substringBeforeLast(".")}-deobfuscated.txt"
+    private fun getDeobfName(name: String): String = "deobf_$name"
 
     /**
      * Checks whether an analyzed crash report matches any of the specified known crash issues.

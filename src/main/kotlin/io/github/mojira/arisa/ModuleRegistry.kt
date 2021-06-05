@@ -144,7 +144,8 @@ class ModuleRegistry(private val config: Config) {
                 config[Modules.Crash.duplicates],
                 CrashReader(),
                 config[Modules.Crash.duplicateMessage],
-                config[Modules.Crash.moddedMessage]
+                config[Modules.Crash.moddedMessage],
+                config[Credentials.username]
             )
         )
 

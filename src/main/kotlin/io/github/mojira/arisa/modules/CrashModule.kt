@@ -21,60 +21,86 @@ class CrashModule(
     private val crashDupeConfigs: List<CrashDupeConfig>,
     private val crashReader: CrashReader,
     private val dupeMessage: String,
-    private val moddedMessage: String
+    private val moddedMessage: String,
+    private val botUserName: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
+            // Extract crashes from attachments
+            val crashes = AttachmentUtils(crashReportExtensions, crashReader, botUserName)
+                .extractCrashesFromAttachments(issue)
+
+            // Only check crashes added since the last run
+            val newCrashes = getNewCrashes(crashes, lastRun).bind()
+
+            // Deobfuscate crashes, if necessary
+            uploadDeobfuscatedCrashes(issue, newCrashes)
+
+            // Check if the bug report should be closed because no valid crashes are attached
+            assertNoValidCrash(crashes).bind()
+
+            // Only close bug reports that are unconfirmed and untriaged
             assertEquals(confirmationStatus ?: "Unconfirmed", "Unconfirmed").bind()
             assertNull(priority).bind()
 
-            val crashes = AttachmentUtils(crashReportExtensions, crashReader).extractCrashesFromAttachments(issue)
-
-            val newCrashes = assertContainsNewCrash(crashes, lastRun).bind()
-            uploadDeobfuscatedCrashes(issue, newCrashes)
-            assertNoValidCrash(crashes).bind()
-
-            val key = crashes
-                .sortedByDescending { it.first.created }
-                .mapNotNull(::getDuplicateLink.partially2(crashDupeConfigs))
+            // Get parent bug report key
+            val parentKey = crashes
+                .sortedByDescending { it.document.created } // newest crashes first
+                .mapNotNull { getDuplicateLink(it.crash, crashDupeConfigs) }
                 .firstOrNull()
 
-            if (key == null) {
+            if (parentKey == null) {
                 resolveAsInvalid()
                 addComment(CommentOptions(moddedMessage))
             } else {
                 resolveAsDuplicate()
-                addComment(CommentOptions(dupeMessage, key))
-                createLink("Duplicate", key, true)
+                addComment(CommentOptions(dupeMessage, parentKey))
+                createLink("Duplicate", parentKey, true)
             }
         }
     }
 
-    private fun uploadDeobfuscatedCrashes(issue: Issue, crashes: List<Pair<AttachmentUtils.TextDocument, Crash>>) {
-        val minecraftCrashesWithDeobf = crashes
-            .map { it.first.name to it.second }
-            .filter { it.second is Crash.Minecraft }
-            .map { it.first to (it.second as Crash.Minecraft).deobf }
-            .filter { it.second != null }
+    private fun uploadDeobfuscatedCrashes(issue: Issue, crashAttachments: List<AttachmentUtils.CrashAttachment>) {
+        val minecraftCrashesWithDeobf = crashAttachments
+            .asSequence()
+            .mapNotNull(::deobfuscate)
             .filterNot {
-                issue.attachments.any { attachment ->
-                    attachment.name == getDeobfName(it.first) ||
-                        attachment.name.startsWith("deobf_") ||
-                        attachment.name.endsWith("deobfuscated.txt")
-                }
+                // Don't upload new deobfuscated crash file if it already exists
+                issue.attachments.any { attachment -> attachment.name == it.name }
             }
+            .toList()
+
         minecraftCrashesWithDeobf.forEach {
             val tempDir = Files.createTempDirectory("arisa-crash-upload").toFile()
-            val safePath = getSafeChildPath(tempDir, getDeobfName(it.first))
+            val safePath = getSafeChildPath(tempDir, it.name)
             if (safePath == null) {
                 tempDir.delete()
             } else {
-                safePath.writeText(it.second!!)
+                safePath.writeText(it.deobfCrashReport)
                 issue.addAttachment(safePath) {
                     // Once uploaded, delete the temp directory containing the crash report
                     tempDir.deleteRecursively()
                 }
             }
+        }
+    }
+
+    private data class DeobfuscatedCrashAttachment(
+        val name: String,
+        val deobfCrashReport: String
+    )
+
+    // Deobfuscate the crash in the given crash attachment.
+    // If crash cannot be deobfuscated, returns null.
+    // Otherwise returns data about the deobfuscated crash attachment to be uploaded.
+    private fun deobfuscate(attachment: AttachmentUtils.CrashAttachment): DeobfuscatedCrashAttachment? {
+        return if (attachment.crash is Crash.Minecraft) {
+            val name = getDeobfName(attachment.document.name)
+            val deobfCrashReport = attachment.crash.deobf ?: return null
+
+            DeobfuscatedCrashAttachment(name, deobfCrashReport)
+        } else {
+            null
         }
     }
 
@@ -85,35 +111,35 @@ class CrashModule(
      * Returns the key of the parent bug report if one is found, and null otherwise.
      */
     private fun getDuplicateLink(
-        crash: Pair<AttachmentUtils.TextDocument, Crash>,
+        crash: Crash,
         crashDupeConfigs: List<CrashDupeConfig>
-    ): String? = with(crash.second) {
+    ): String? {
         val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
         val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
 
-        return when (this) {
+        return when (crash) {
             is Crash.Minecraft -> minecraftConfigs
-                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(exception) }
+                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
                 .orNull()
                 ?.duplicates
             is Crash.Java -> javaConfigs
-                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(code) }
+                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
                 .orNull()
                 ?.duplicates
             else -> null
         }
     }
 
-    private fun isModded(crash: Pair<AttachmentUtils.TextDocument, Crash>) =
-        crash.second is Crash.Minecraft && (crash.second as Crash.Minecraft).modded
+    private fun isModded(crash: Crash) =
+        crash is Crash.Minecraft && crash.modded
 
-    private fun crashNewlyAdded(crash: Pair<AttachmentUtils.TextDocument, Crash>, lastRun: Instant) =
-        crash.first.created.isAfter(lastRun)
+    private fun crashNewlyAdded(attachment: AttachmentUtils.CrashAttachment, lastRun: Instant) =
+        attachment.document.created.isAfter(lastRun)
 
-    private fun assertContainsNewCrash(
-        crashes: List<Pair<AttachmentUtils.TextDocument, Crash>>,
+    private fun getNewCrashes(
+        crashes: List<AttachmentUtils.CrashAttachment>,
         lastRun: Instant
-    ): Either<OperationNotNeededModuleResponse, List<Pair<AttachmentUtils.TextDocument, Crash>>> {
+    ): Either<OperationNotNeededModuleResponse, List<AttachmentUtils.CrashAttachment>> {
         val newCrashes = crashes.filter(::crashNewlyAdded.partially2(lastRun))
         return if (newCrashes.isNotEmpty()) {
             newCrashes.right()
@@ -122,8 +148,8 @@ class CrashModule(
         }
     }
 
-    private fun assertNoValidCrash(crashes: List<Pair<AttachmentUtils.TextDocument, Crash>>) =
-        if (crashes.all { isModded(it) || getDuplicateLink(it, crashDupeConfigs) != null })
+    private fun assertNoValidCrash(crashes: List<AttachmentUtils.CrashAttachment>) =
+        if (crashes.all { isModded(it.crash) || getDuplicateLink(it.crash, crashDupeConfigs) != null })
             Unit.right()
         else
             OperationNotNeededModuleResponse.left()

@@ -17,6 +17,8 @@ import net.rcarz.jiraclient.JiraException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.lang.Long.max
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
@@ -43,12 +45,14 @@ fun main() {
     log.info("Connected to jira")
 
     // Get tickets for re-run and last run time
-    val lastRelog = Instant.now()
+    var lastRelog = Instant.now()
     val lastRunFile = File("last-run")
     val lastRun = readLastRun(lastRunFile)
     var lastRunTime = readLastRunTime(lastRun)
     var rerunTickets = lastRun.subList(1, lastRun.size).toSet()
     val failedTickets = mutableSetOf<String>()
+
+    val checkIntervalSeconds = config[Arisa.Issues.checkIntervalSeconds]
 
     // Read helper-messages
     val helperMessagesFile = File("helper-messages.json")
@@ -83,19 +87,31 @@ fun main() {
                 lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
             }
             lastRunTime = curRunTime
-        } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+            TimeUnit.SECONDS.sleep(checkIntervalSeconds)
+        } else if (Duration.between(lastRelog, Instant.now()).toMinutes() >= 1) {
             // If last relog was more than a minute before and execution failed with an exception, relog
-            jiraClient =
-                connectToJira(
-                    config[Arisa.Credentials.username],
-                    config[Arisa.Credentials.password],
-                    config[Arisa.Issues.url]
+            log.info("Trying to relog")
+            try {
+                jiraClient =
+                    connectToJira(
+                        config[Arisa.Credentials.username],
+                        config[Arisa.Credentials.password],
+                        config[Arisa.Issues.url]
+                    )
+                log.info("Relog was successful")
+                lastRelog = Instant.now()
+                moduleExecutor = ModuleExecutor(
+                    config, moduleRegistry, queryCache,
+                    getSearchIssues(jiraClient, config)
                 )
-
-            moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, config)
-            )
+            } catch (exception: Exception) {
+                log.error("Relog failed", exception)
+                // Wait at least 5 minutes
+                TimeUnit.SECONDS.sleep(max(60 * 5, checkIntervalSeconds))
+            }
+        } else {
+            // Not enough time for relog passed, just try waiting a bit
+            TimeUnit.SECONDS.sleep(max(40, checkIntervalSeconds))
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
@@ -106,8 +122,6 @@ fun main() {
             )
             helperMessagesLastFetch = curRunTime
         }
-
-        TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])
     }
 }
 

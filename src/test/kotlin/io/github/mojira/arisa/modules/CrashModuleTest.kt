@@ -6,6 +6,7 @@ import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
@@ -15,7 +16,7 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-const val EXAMPLE_CRASH = """---- Minecraft Crash Report ----
+private const val EXAMPLE_CRASH = """---- Minecraft Crash Report ----
 // Surprise! Haha. Well, this is awkward.
 
 Time: 26.06.20 11:23
@@ -33,7 +34,7 @@ Details:
 	Is Modded: Probably not. Jar signature remains and client brand is untouched.
 	Type: Client (map_client.txt)"""
 
-const val PIXEL_FORMAT_CRASH = """---- Minecraft Crash Report ----
+private const val PIXEL_FORMAT_CRASH = """---- Minecraft Crash Report ----
 // Daisy, daisy...
 
 Time: 6/28/17 11:44 AM
@@ -48,7 +49,7 @@ Details:
 Is Modded: Probably not. Jar signature remains and client brand is untouched.
 """
 
-const val UNKNOWN_MODDED_CRASH = """---- Minecraft Crash Report ----
+private const val UNKNOWN_MODDED_CRASH = """---- Minecraft Crash Report ----
 // Oh - I know what I did wrong!
 
 Time: 6/5/18 9:20 PM
@@ -71,7 +72,7 @@ Details:
 	Type: Dedicated Server (map_server.txt)
 """
 
-const val DEFINITELY_MODDED_SERVER_CRASH = """---- Minecraft Crash Report ----
+private const val DEFINITELY_MODDED_SERVER_CRASH = """---- Minecraft Crash Report ----
 // Oh - I know what I did wrong!
 
 Time: 6/5/18 9:20 PM
@@ -94,7 +95,7 @@ Details:
 	Type: Dedicated Server (map_server.txt)
 """
 
-const val VERY_LIKELY_MODDED_CRASH = """---- Minecraft Crash Report ----
+private const val VERY_LIKELY_MODDED_CRASH = """---- Minecraft Crash Report ----
 // Surprise! Haha. Well, this is awkward.
 
 Time: 04.10.19 17:39
@@ -118,7 +119,7 @@ Details:
 	Is Modded: Very likely; Jar signature invalidated
 """
 
-const val DRIVER_NO_OPENGL = """---- Minecraft Crash Report ----
+private const val DRIVER_NO_OPENGL = """---- Minecraft Crash Report ----
 // I feel sad now :(
 
 Time: 12/04/18 18:49
@@ -133,7 +134,7 @@ Details:
 	Is Modded: Probably not. Jar signature remains and client brand is untouched.
 """
 
-const val DEFINITELY_MODDED_CLIENT_CRASH = """---- Minecraft Crash Report ----
+private const val DEFINITELY_MODDED_CLIENT_CRASH = """---- Minecraft Crash Report ----
 // You're mean.
 
 Time: 06.11.19 10:54
@@ -155,7 +156,7 @@ Details:
 	Is Modded: Definitely; Client brand changed to 'fabric'
 """
 
-const val JAVA_CRASH = """#
+private const val JAVA_CRASH = """#
 # A fatal error has been detected by the Java Runtime Environment:
 #
 #  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x000000000c1c1c82, pid=2768, tid=2780
@@ -173,7 +174,7 @@ const val JAVA_CRASH = """#
 # See problematic frame for where to report the bug.
 #"""
 
-const val OBFUSCATED_CRASH = """---- Minecraft Crash Report ----
+private const val OBFUSCATED_CRASH = """---- Minecraft Crash Report ----
 // Don't do that.
 
 Time: 30/04/21 17:23
@@ -238,11 +239,15 @@ Details:
 
 private val NOW = Instant.now()
 private val A_SECOND_AGO = NOW.minusSeconds(1)
+private val TWO_SECONDS_AGO = NOW.minusSeconds(2)
+private val A_MINUTE_AGO = NOW.minusSeconds(60)
 
-const val Unconfirmed = "Unconfirmed"
-val NoPriority = null
+private const val UNCONFIRMED = "Unconfirmed"
+private val NO_PRIORITY = null
 
-val crashReader = CrashReader()
+private val crashReader = CrashReader()
+
+private const val BOT_USER_NAME = "testBot"
 
 class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue does not contain any valid crash report" {
@@ -251,14 +256,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = "Help\nmy\ngame\nis\nsuper\nbroken!!\n!!!",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -276,15 +282,16 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW.minus(42, ChronoUnit.DAYS),
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -302,14 +309,15 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -327,15 +335,16 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("hytale", "The game has not yet been released", "HT-1")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -353,15 +362,16 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -379,7 +389,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val attachment = getAttachment(
@@ -391,8 +402,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(attachment),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -409,7 +420,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val attachment = getAttachment(
@@ -419,8 +431,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(attachment),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -438,7 +450,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val attachment = getAttachment(
@@ -449,8 +462,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(attachment),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -468,7 +481,8 @@ class CrashModuleTest : StringSpec({
             listOf(),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val attachment = getAttachment(
@@ -478,8 +492,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(attachment),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -497,7 +511,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val moddedCrash = getAttachment(
@@ -511,8 +526,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(moddedCrash, unmoddedCrash),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -530,7 +545,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val pixelFormatCrash = getAttachment(
             content = PIXEL_FORMAT_CRASH
@@ -543,8 +559,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(pixelFormatCrash, unmoddedCrash),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsInvalid = { Unit.right() },
             resolveAsDuplicate = { Unit.right() },
             createLink = { _, _, _ -> Unit.right() },
@@ -567,14 +583,15 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = DEFINITELY_MODDED_SERVER_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -604,14 +621,15 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = VERY_LIKELY_MODDED_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -641,14 +659,15 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = DEFINITELY_MODDED_CLIENT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -678,7 +697,8 @@ class CrashModuleTest : StringSpec({
             emptyList(),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val attachment = getAttachment(
@@ -688,8 +708,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(attachment),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -719,14 +739,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -756,7 +777,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val attachment = getAttachment(
@@ -766,8 +788,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(attachment),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -797,14 +819,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = JAVA_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -833,14 +856,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = listOf(getAttachment(OBFUSCATED_CRASH)),
             description = OBFUSCATED_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addAttachment = { _, cleanupCallback ->
@@ -868,14 +892,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = JAVA_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -905,14 +930,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             createLink = { type, key, _ ->
@@ -946,7 +972,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val modded = getAttachment(
             name = "crash_modded.txt",
@@ -961,8 +988,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(modded, dupe),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -992,7 +1019,8 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val modded = getAttachment(
             name = "crash_modded.txt",
@@ -1007,8 +1035,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(dupe, modded),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             addComment = { addedComment = it },
@@ -1041,7 +1069,8 @@ class CrashModuleTest : StringSpec({
             ),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val fromNow = getAttachment(
@@ -1057,8 +1086,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(fromYesterday, fromNow),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             createLink = { type, key, _ ->
@@ -1096,7 +1125,8 @@ class CrashModuleTest : StringSpec({
             ),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
 
         val fromNow = getAttachment(
@@ -1112,8 +1142,8 @@ class CrashModuleTest : StringSpec({
             attachments = listOf(fromNow, fromYesterday),
             description = "",
             created = NOW,
-            confirmationStatus = Unconfirmed,
-            priority = NoPriority,
+            confirmationStatus = UNCONFIRMED,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             createLink = { type, key, _ ->
@@ -1146,14 +1176,15 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
             confirmationStatus = "Confirmed",
-            priority = NoPriority,
+            priority = NO_PRIORITY,
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
             createLink = { _, _, _ -> Unit.right() },
@@ -1176,13 +1207,14 @@ class CrashModuleTest : StringSpec({
             listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
             crashReader,
             "duplicate-tech",
-            "modified-game"
+            "modified-game",
+            BOT_USER_NAME
         )
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
             created = NOW,
-            confirmationStatus = Unconfirmed,
+            confirmationStatus = UNCONFIRMED,
             priority = "Medium",
             resolveAsDuplicate = { resolvedAsDupe = true },
             resolveAsInvalid = { resolvedAsInvalid = true },
@@ -1196,16 +1228,58 @@ class CrashModuleTest : StringSpec({
         resolvedAsDupe.shouldBeFalse()
         resolvedAsInvalid.shouldBeFalse()
     }
+
+    "should return operation not needed when only new attachment is uploaded by the bot itself (no infinite loop)" {
+        var resolvedAsDupe = false
+        var resolvedAsInvalid = false
+        var addedAttachment = false
+
+        val module = CrashModule(
+            listOf("txt"),
+            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            crashReader,
+            "duplicate-tech",
+            "modified-game",
+            BOT_USER_NAME
+        )
+        val issue = mockIssue(
+            attachments = listOf(
+                getAttachment(OBFUSCATED_CRASH, "obfuscated.txt", A_MINUTE_AGO),
+                getAttachment(OBFUSCATED_CRASH, "deobf_obfuscated.txt", A_SECOND_AGO, uploader = BOT_USER_NAME)
+            ),
+            description = "hello please verify my crash thanks",
+            created = A_MINUTE_AGO,
+            confirmationStatus = UNCONFIRMED,
+            priority = "Medium",
+            resolveAsDuplicate = { resolvedAsDupe = true },
+            resolveAsInvalid = { resolvedAsInvalid = true },
+            createLink = { _, _, _ -> Unit.right() },
+            addComment = { Unit.right() },
+            addAttachment = { _, cleanupCallback ->
+                addedAttachment = true
+                cleanupCallback()
+            }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        addedAttachment.shouldBeFalse()
+        resolvedAsDupe.shouldBeFalse()
+        resolvedAsInvalid.shouldBeFalse()
+    }
 })
 
 private fun getAttachment(
     content: String,
     name: String = "crash.txt",
     created: Instant = NOW,
-    remove: () -> Unit = { }
+    remove: () -> Unit = { },
+    uploader: String = "someRandomUser"
 ) = mockAttachment(
     name = name,
     created = created,
     remove = remove,
-    getContent = { content.toByteArray() }
+    getContent = { content.toByteArray() },
+    uploader = mockUser(uploader)
 )

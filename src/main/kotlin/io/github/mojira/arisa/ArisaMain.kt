@@ -7,11 +7,11 @@ import com.github.napstr.logback.DiscordAppender
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
+import io.github.mojira.arisa.registry.getModuleRegistries
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
 import org.slf4j.Logger
@@ -56,23 +56,16 @@ fun main() {
     HelperMessageService.updateHelperMessages(helperMessagesFile)
     var helperMessagesLastFetch = Instant.now()
 
-    // Initialize caches and registry
-    val queryCache = Cache<List<Issue>>()
-    val moduleRegistry = ModuleRegistry(config)
-
-    val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
-    log.debug("Enabled modules: $enabledModules")
-
-    // Create module executor
-    var moduleExecutor = ModuleExecutor(
-        config, moduleRegistry, queryCache,
-        getSearchIssues(jiraClient, config)
+    // Create executor
+    val moduleRegistries = getModuleRegistries(config)
+    var executor = Executor(
+        config, moduleRegistries, getSearchIssues(jiraClient, config)
     )
 
     while (true) {
         // save time before run, so nothing happening during the run is missed
         val curRunTime = Instant.now()
-        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
+        val executionResults = executor.execute(lastRunTime, rerunTickets)
 
         if (executionResults.successful) {
             rerunTickets = emptySet()
@@ -92,17 +85,15 @@ fun main() {
                     config[Arisa.Issues.url]
                 )
 
-            moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, config)
+            executor = Executor(
+                config, moduleRegistries, getSearchIssues(jiraClient, config)
             )
         }
 
         if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             HelperMessageService.updateHelperMessages(helperMessagesFile)
-            moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, config)
+            executor = Executor(
+                config, moduleRegistries, getSearchIssues(jiraClient, config)
             )
             helperMessagesLastFetch = curRunTime
         }
@@ -162,7 +153,7 @@ private fun searchIssues(
     config: Config,
     jql: String,
     startAt: Int,
-    onQueryPaginated: () -> Unit
+    finishedCallback: () -> Unit
 ): List<Issue> {
     val searchResult = try {
         jiraClient
@@ -172,11 +163,10 @@ private fun searchIssues(
             log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
             throttledLog = System.currentTimeMillis()
         }
-        null
+        throw e
     } ?: return emptyList()
 
-    if (startAt + searchResult.max < searchResult.total)
-        onQueryPaginated()
+    if (startAt + searchResult.max >= searchResult.total) finishedCallback()
 
     return searchResult
         .issues

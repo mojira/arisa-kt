@@ -4,6 +4,8 @@ import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.Module
+import io.github.mojira.arisa.registry.ModuleRegistry
+import io.github.mojira.arisa.registry.getModuleRegistries
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -25,7 +27,7 @@ val CONFIG = Config { addSpec(Arisa) }
 
 class ModuleRegistryTest : StringSpec({
     "should register a module for each config class" {
-        val modules = ModuleRegistry(CONFIG).getAllModules().map { it.name }
+        val modules = getAllModules().map { it.name }
         val configs = Arisa.Modules::class.java.classes.map { it.simpleName }.filter { !it.endsWith("Spec") }
         println("Configs not mapped to a registered module " + configs.filter { !modules.contains(it) })
         println("Registered modules not mapped to a config " + modules.filter { !configs.contains(it) })
@@ -38,7 +40,7 @@ class ModuleRegistryTest : StringSpec({
             .map { it.simpleName }
             .filter { !it.startsWith("Abstract") }
             .map { it.replace("Module", "") }
-        val modules = ModuleRegistry(CONFIG).getAllModules()
+        val modules = getAllModules()
             .map { it.name }
 
         println("Classes not mapped to a registered module " + classes.filter { !modules.contains(it) })
@@ -47,15 +49,23 @@ class ModuleRegistryTest : StringSpec({
     }
 
     "should register each config not more than once" {
-        val modules = ModuleRegistry(CONFIG).getAllModules().map { it.config.prefix }
+        val modules = getAllModules().map { it.config.prefix }
         val uniqueModules = modules.distinct()
         println("Not unique modules " + modules.filter { !uniqueModules.contains(it) })
         uniqueModules shouldContainExactlyInAnyOrder modules
     }
 
     "should disable modules that aren't enabled and enable modules that aren't disabled" {
-        val enabledModules = ModuleRegistry(CONFIG).getEnabledModules().map { it.name }
+        val enabledModules = getEnabledModules().map { it.name }
 
         enabledModules shouldContain "Attachment"
     }
 })
+
+private fun getAllModules(): List<ModuleRegistry.Entry> {
+    return getModuleRegistries(CONFIG).flatMap { it.getAllModules() }
+}
+
+private fun getEnabledModules(): List<ModuleRegistry.Entry> {
+    return getModuleRegistries(CONFIG).flatMap { it.getEnabledModules() }
+}

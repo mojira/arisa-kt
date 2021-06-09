@@ -21,6 +21,7 @@ fun getCommandDispatcher(
 ): CommandDispatcher<CommandSource> {
     val addLinksCommand = AddLinksCommand()
     val addVersionCommand = AddVersionCommand()
+    val clearProjectCacheCommand = ClearProjectCacheCommand()
     val deleteCommentsCommand = DeleteCommentsCommand()
     val deleteLinksCommand = DeleteLinksCommand()
     val fixCapitalizationCommand = FixCapitalizationCommand()
@@ -67,6 +68,12 @@ fun getCommandDispatcher(
                             )
                         }
                 )
+
+        val clearProjectCacheCommandNode =
+            literal<CommandSource>("${prefix}_CLEAR_PROJECT_CACHE")
+                .executes {
+                    clearProjectCacheCommand()
+                }
 
         val deleteCommentsCommandNodeChild =
             argument<CommandSource, String>("name", greedyString())
@@ -204,6 +211,7 @@ fun getCommandDispatcher(
 
         register(addLinksCommandNode)
         register(addVersionCommandNode)
+        register(clearProjectCacheCommandNode)
         register(deleteCommentsCommandNode)
         register(deleteLinksCommandNode)
         register(fixCapitalizationCommandNode)

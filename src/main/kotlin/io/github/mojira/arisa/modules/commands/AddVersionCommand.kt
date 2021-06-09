@@ -11,7 +11,7 @@ class AddVersionCommand {
             throw CommandExceptions.NO_SUCH_VERSION.create(version)
         }
         val id = issue.project.versions.first { it.name == version }.id
-        issue.addAffectedVersion(id)
+        issue.addAffectedVersionById(id)
         return 1
     }
 }

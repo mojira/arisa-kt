@@ -164,7 +164,7 @@ class RemoveVersionModuleTest : StringSpec({
 
     "should remove extra versions added via editing" {
         var removed = false
-        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val version = mockVersion(id = "1", released = true, archived = false)
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -173,7 +173,8 @@ class RemoveVersionModuleTest : StringSpec({
             changeLog = listOf(ADD_VERSION),
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
-            )
+            ),
+            removeAffectedVersion = { removed = it.id == "1" }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -185,7 +186,7 @@ class RemoveVersionModuleTest : StringSpec({
     "should set to nouser when user changes version 5 times" {
         var removed = false
         var reporterChanged = false
-        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val version = mockVersion(id = "1", released = true, archived = false)
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -195,7 +196,8 @@ class RemoveVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
             ),
-            changeReporter = { reporterChanged = true }
+            changeReporter = { reporterChanged = true },
+            removeAffectedVersion = { removed = it.id == "1" }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -208,7 +210,7 @@ class RemoveVersionModuleTest : StringSpec({
     "should not set to nouser when user changes version 4 times" {
         var removed = false
         var reporterChanged = false
-        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val version = mockVersion(id = "1", released = true, archived = false)
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -218,7 +220,8 @@ class RemoveVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
             ),
-            changeReporter = { reporterChanged = true }
+            changeReporter = { reporterChanged = true },
+            removeAffectedVersion = { removed = it.id == "1" }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -231,7 +234,7 @@ class RemoveVersionModuleTest : StringSpec({
     "should not count to version for nouser" {
         var removed = false
         var reporterChanged = false
-        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val version = mockVersion(id = "1", released = true, archived = false)
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -248,7 +251,8 @@ class RemoveVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
             ),
-            changeReporter = { reporterChanged = true }
+            changeReporter = { reporterChanged = true },
+            removeAffectedVersion = { removed = it.id == "1" }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -260,7 +264,7 @@ class RemoveVersionModuleTest : StringSpec({
 
     "should remove extra versions added by users via editing" {
         var removed = false
-        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val version = mockVersion(id = "1", released = true, archived = false)
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -275,7 +279,8 @@ class RemoveVersionModuleTest : StringSpec({
             ),
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
-            )
+            ),
+            removeAffectedVersion = { removed = it.id == "1" }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -286,7 +291,7 @@ class RemoveVersionModuleTest : StringSpec({
 
     "should remove extra versions added by users without a group via editing" {
         var removed = false
-        val version = mockVersion(id = "1", released = true, archived = false, remove = { removed = true })
+        val version = mockVersion(id = "1", released = true, archived = false)
         val module = RemoveVersionModule("removed-version")
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
@@ -301,7 +306,8 @@ class RemoveVersionModuleTest : StringSpec({
             ),
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
-            )
+            ),
+            removeAffectedVersion = { removed = it.id == "1" }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

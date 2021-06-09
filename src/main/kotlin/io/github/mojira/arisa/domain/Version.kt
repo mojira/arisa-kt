@@ -7,7 +7,5 @@ data class Version(
     val name: String,
     val released: Boolean,
     val archived: Boolean,
-    val releaseDate: Instant?,
-    val add: () -> Unit,
-    val remove: () -> Unit
+    val releaseDate: Instant?
 )

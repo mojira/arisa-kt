@@ -9,6 +9,7 @@ import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessageService
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
@@ -183,7 +184,7 @@ private fun searchIssues(
         .map {
             it.toDomain(
                 jiraClient,
-                jiraClient.getProject(it.project.key),
+                ProjectCache.getProjectFromTicketId(it.key),
                 config
             )
         }

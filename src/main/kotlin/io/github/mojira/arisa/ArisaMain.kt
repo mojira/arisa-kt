@@ -14,7 +14,6 @@ import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.registry.getModuleRegistries
 import net.rcarz.jiraclient.JiraClient
-import net.rcarz.jiraclient.JiraException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -26,9 +25,7 @@ val log: Logger = LoggerFactory.getLogger("Arisa")
 
 private const val TIME_MINUTES = 5L
 const val MAX_RESULTS = 50
-private const val MINUTES_FOR_THROTTLED_LOG = 30L
 lateinit var jiraClient: JiraClient
-private var throttledLog = 0L
 
 @Suppress("LongMethod")
 fun main() {
@@ -156,16 +153,13 @@ private fun searchIssues(
     startAt: Int,
     finishedCallback: () -> Unit
 ): List<Issue> {
-    val searchResult = try {
-        jiraClient
-            .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
-    } catch (e: JiraException) {
-        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
-            log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
-            throttledLog = System.currentTimeMillis()
-        }
-        throw e
-    } ?: return emptyList()
+    val searchResult = jiraClient.searchIssues(
+        jql,
+        "*all",
+        "changelog",
+        MAX_RESULTS,
+        startAt
+    ) ?: return emptyList()
 
     if (startAt + searchResult.max >= searchResult.total) finishedCallback()
 

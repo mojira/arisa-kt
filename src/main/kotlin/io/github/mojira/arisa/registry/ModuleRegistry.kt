@@ -18,7 +18,7 @@ val getModuleRegistries = { config: Config ->
     listOf(
         InstantModuleRegistry(config),
         DelayedModuleRegistry(config),
-        LazyModuleRegistry(config)
+        LinkedModuleRegistry(config)
     )
 }
 
@@ -64,10 +64,12 @@ abstract class ModuleRegistry(private val config: Config) {
     }
 
     private fun getJqlWithDebug(lastRun: Instant): String {
+        val registryJql = getJql(lastRun)
+
         val debugWhitelist = config[Arisa.Debug.ticketWhitelist]
 
-        return if (debugWhitelist == null) getJql(lastRun)
-        else "key IN (${debugWhitelist.joinToString()}) AND (${getJql(lastRun)})"
+        return if (debugWhitelist == null) registryJql
+        else "key IN (${debugWhitelist.joinToString()}) AND ($registryJql)"
     }
 
     fun getFullJql(lastRun: Instant, failedTickets: Collection<String>): String {

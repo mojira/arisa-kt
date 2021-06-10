@@ -7,10 +7,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 /**
- * This class is the registry for modules that get executed "lazily", i.e. with a delay of multiple hours.
+ * This class is the registry for the UpdateLinkedModule.
+ * It only updates the linked field once if it's not set, and otherwise only updates it at most once per day.
  * This is done in order to avoid spam.
  */
-class LazyModuleRegistry(config: Config) : ModuleRegistry(config) {
+class LinkedModuleRegistry(config: Config) : ModuleRegistry(config) {
     override val getJql = { lastRun: Instant ->
         val now = Instant.now()
         val intervalStart = now.minus(config[Arisa.Modules.UpdateLinked.updateIntervalHours], ChronoUnit.HOURS)

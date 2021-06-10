@@ -31,13 +31,14 @@ import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
-import java.time.Instant
 
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
  */
 class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
-    override val getJql = { lastRun: Instant -> "updated > ${lastRun.toEpochMilli()}" }
+    override fun getJql(timeframe: TicketQueryTimeframe): String {
+        return "updated > ${ timeframe.lastRun.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
+    }
 
     init {
         register(

@@ -5,7 +5,7 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.registry.ModuleRegistry
-import java.time.Instant
+import io.github.mojira.arisa.registry.TicketQueryTimeframe
 
 class Executor(
     private val config: Config,
@@ -19,14 +19,16 @@ class Executor(
 
     @Suppress("TooGenericExceptionCaught")
     fun execute(
-        lastRun: Instant,
+        timeframe: TicketQueryTimeframe,
         rerunTickets: Set<String>
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
 
+        log.debug("Executing timeframe $timeframe")
+
         try {
             registries.forEach {
-                executeRegistry(it, rerunTickets, failedTickets::add, lastRun)
+                executeRegistry(it, rerunTickets, failedTickets::add, timeframe)
             }
         } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)
@@ -42,24 +44,28 @@ class Executor(
         registry: ModuleRegistry,
         rerunTickets: Collection<String>,
         addFailedTicket: (String) -> Unit,
-        lastRun: Instant
+        timeframe: TicketQueryTimeframe
     ) {
-        val issues = getIssuesForRegistry(registry, rerunTickets, lastRun)
+        val issues = getIssuesForRegistry(registry, rerunTickets, timeframe)
 
         registry.getEnabledModules().forEach { (moduleName, _, execute, moduleExecutor) ->
             log.debug("Executing module $moduleName")
-            moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, lastRun) }
+            moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, timeframe.lastRun) }
         }
     }
 
     private fun getIssuesForRegistry(
         registry: ModuleRegistry,
         rerunTickets: Collection<String>,
-        lastRun: Instant
+        timeframe: TicketQueryTimeframe
     ): List<Issue> {
         val issues = mutableListOf<Issue>()
 
-        val jql = registry.getFullJql(lastRun, rerunTickets)
+        val jql = registry.getFullJql(timeframe, rerunTickets)
+
+        if (config[Arisa.Debug.logQueryJql]) {
+            log.debug("${registry::class.simpleName} JQL: `$jql`")
+        }
 
         var continueSearching = true
         var startAt = 0

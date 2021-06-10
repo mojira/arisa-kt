@@ -8,6 +8,7 @@ import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.registry.ModuleRegistry
+import io.github.mojira.arisa.registry.TicketQueryTimeframe
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -18,10 +19,12 @@ import io.mockk.mockk
 import io.mockk.slot
 import java.time.Instant
 
-val moduleRegistryMock = mockk<ModuleRegistry>()
-val failedModuleRegistryMock = mockk<ModuleRegistry>()
-val moduleExecutorMock = mockk<ModuleExecutor>()
-val failedModuleExecutorMock = mockk<ModuleExecutor>()
+private val moduleRegistryMock = mockk<ModuleRegistry>()
+private val failedModuleRegistryMock = mockk<ModuleRegistry>()
+private val moduleExecutorMock = mockk<ModuleExecutor>()
+private val failedModuleExecutorMock = mockk<ModuleExecutor>()
+
+private val dummyTimeframe = TicketQueryTimeframe(Instant.now(), Instant.now(), true)
 
 class ExecutorTest : StringSpec({
     every { moduleRegistryMock.getEnabledModules() } returns listOf(
@@ -52,7 +55,7 @@ class ExecutorTest : StringSpec({
     "should add failed tickets" {
         val executor = getMockExecutor(listOf(failedModuleRegistryMock))
 
-        val result = executor.execute(Instant.now(), setOf("MC-1"))
+        val result = executor.execute(dummyTimeframe, setOf("MC-1"))
 
         result.failedTickets shouldContain "MC-1"
         result.successful shouldBe true
@@ -61,7 +64,7 @@ class ExecutorTest : StringSpec({
     "should not add succesful tickets" {
         val executor = getMockExecutor(listOf(moduleRegistryMock))
 
-        val result = executor.execute(Instant.now(), setOf("MC-1"))
+        val result = executor.execute(dummyTimeframe, setOf("MC-1"))
 
         result.failedTickets.shouldBeEmpty()
         result.successful shouldBe true
@@ -74,7 +77,7 @@ class ExecutorTest : StringSpec({
                 searchIssues = { _, _, _ -> throw RuntimeException() }
             )
 
-        val result = executor.execute(Instant.now(), setOf("MC-1"))
+        val result = executor.execute(dummyTimeframe, setOf("MC-1"))
 
         result.failedTickets.shouldBeEmpty()
         result.successful shouldBe false

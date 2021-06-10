@@ -12,6 +12,7 @@ import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
+import io.github.mojira.arisa.registry.TicketQueryTimeframe
 import io.github.mojira.arisa.registry.getModuleRegistries
 import net.rcarz.jiraclient.JiraClient
 import org.slf4j.Logger
@@ -24,6 +25,8 @@ import java.util.concurrent.TimeUnit
 val log: Logger = LoggerFactory.getLogger("Arisa")
 
 private const val TIME_MINUTES = 5L
+private const val MAX_QUERY_TIMEFRAME_IN_MINUTES = 10L
+
 const val MAX_RESULTS = 50
 lateinit var jiraClient: JiraClient
 
@@ -61,9 +64,21 @@ fun main() {
     )
 
     while (true) {
-        // save time before run, so nothing happening during the run is missed
-        val curRunTime = Instant.now()
-        val executionResults = executor.execute(lastRunTime, rerunTickets)
+        // Save time before run, so nothing happening during the run is missed
+        val currentTime = Instant.now()
+        val endOfMaxTimeframe = lastRunTime.plus(MAX_QUERY_TIMEFRAME_IN_MINUTES, ChronoUnit.MINUTES)
+
+        // The time at which we execute the bot.
+        // If we exceed our maximum time frame, act as if we were executing at the end of the maximum time frame.
+        // This is to make sure that `last-run` is updated once in a while,
+        // even if the bot is catching up after a long downtime.
+        val runOpenEnded = currentTime.isBefore(endOfMaxTimeframe)
+        val currentRunTime = if (runOpenEnded) { currentTime } else { endOfMaxTimeframe }
+
+        val timeframe = TicketQueryTimeframe(lastRunTime, currentRunTime, runOpenEnded)
+
+        // Execute all enabled modules using the executor
+        val executionResults = executor.execute(timeframe, rerunTickets)
 
         if (executionResults.successful) {
             rerunTickets = emptySet()
@@ -71,9 +86,9 @@ fun main() {
             val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
 
             if (config[Arisa.Debug.updateLastRun]) {
-                lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
+                lastRunFile.writeText("${currentRunTime.toEpochMilli()}$failed")
             }
-            lastRunTime = curRunTime
+            lastRunTime = currentRunTime
         } else if (lastRelog.plus(1, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             // If last relog was more than a minute before and execution failed with an exception, relog
             jiraClient =
@@ -88,12 +103,13 @@ fun main() {
             )
         }
 
-        if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
+        // Update helper messages if necessary
+        if (currentTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             HelperMessageService.updateHelperMessages(helperMessagesFile)
             executor = Executor(
                 config, moduleRegistries, getSearchIssues(jiraClient, config)
             )
-            helperMessagesLastFetch = curRunTime
+            helperMessagesLastFetch = currentTime
         }
 
         TimeUnit.SECONDS.sleep(config[Arisa.Issues.checkIntervalSeconds])

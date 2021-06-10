@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
@@ -17,7 +18,7 @@ class RemoveVersionModule(
             val addedVersions = getExtraVersionsLatelyAddedByNonVolunteers(lastRun)
             val removeAddedVersions = affectedVersions
                 .filter { it.id in addedVersions }
-                .map { it.remove }
+                .map { issue.removeAffectedVersion.partially1(it) }
             assertGreaterThan(affectedVersions.size, removeAddedVersions.size).bind()
             assertNotEmpty(removeAddedVersions).bind()
             removeAddedVersions.forEach(::run)

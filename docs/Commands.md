@@ -26,6 +26,23 @@ Keys and type are case insensitive
 | Syntax      | `$ARISA_ADD_VERSION <version>` |
 | Permissions | Helper+                        |
 
+## $ARISA_CLEAR_PROJECT_CACHE
+| Entry       | Value                          |
+| ----------- | ------------------------------ |
+| Syntax      | `$ARISA_CLEAR_PROJECT_CACHE`   |
+| Permissions | Helper+                        |
+
+Clears the project cache.
+
+Arisa has a project cache that only gets updated every 5 minutes.
+
+This means that if a new version is released, Arisa might only notice this after a certain amount of time.
+
+In oder to avoid complications (e.g. with the FutureVersion module), any helper or mod can run this command
+on any bug report in order to force Arisa to clear its project cache.
+
+This command currently only exists because of a technical limitation. It will be removed in the future.
+
 ## $ARISA_FIX_CAPITALIZATION
 | Entry       | Value                       |
 | ----------- | --------------------------- |

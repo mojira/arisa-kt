@@ -189,6 +189,11 @@ fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.edit.fieldAdd("versions", Field.valueById(id))
 }
 
+fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
+    context.value.hasEdits = true
+    context.value.edit.fieldRemove("versions", Field.valueById(id))
+}
+
 fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
     context.value.hasEdits = true
     context.value.edit.fieldAdd("versions", version)

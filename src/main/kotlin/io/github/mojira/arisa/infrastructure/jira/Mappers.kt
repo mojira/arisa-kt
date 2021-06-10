@@ -19,6 +19,7 @@ import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
@@ -56,14 +57,12 @@ fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.chan
 fun JiraProject.getSecurityLevelId(config: Config) =
     config[Arisa.PrivateSecurityLevel.special][key] ?: config[Arisa.PrivateSecurityLevel.default]
 
-fun JiraVersion.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Version(
+fun JiraVersion.toDomain() = Version(
     id,
     name,
     isReleased,
     isArchived,
-    releaseDate?.toVersionReleaseInstant(),
-    ::addAffectedVersion.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
-    ::removeAffectedVersion.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
+    releaseDate?.toVersionReleaseInstant()
 )
 
 fun JiraIssue.getUpdateContext(jiraClient: JiraClient): Lazy<IssueUpdateContext> =
@@ -101,11 +100,11 @@ fun JiraIssue.toDomain(
         getLinked(config),
         getPriority(config),
         getTriagedTime(config),
-        project.toDomain(jiraClient, this, config),
+        project.toDomain(config),
         getPlatform(config),
         getDungeonsPlatform(config),
-        mapVersions(jiraClient),
-        mapFixVersions(jiraClient),
+        mapVersions(),
+        mapFixVersions(),
         mapAttachments(jiraClient),
         mapComments(jiraClient),
         mapLinks(jiraClient, config),
@@ -123,6 +122,8 @@ fun JiraIssue.toDomain(
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
+        { version -> addAffectedVersionById(context, version.id) },
+        { version -> removeAffectedVersionById(context, version.id) },
         ::createLink.partially1(context).partially1(::getOtherUpdateContext.partially1(jiraClient)),
         addComment = { (messageKey, variable, language) ->
             createComment(
@@ -156,12 +157,10 @@ fun JiraIssue.toDomain(
 }
 
 fun JiraProject.toDomain(
-    jiraClient: JiraClient,
-    issue: JiraIssue,
     config: Config
 ) = Project(
     key,
-    versions.map { it.toDomain(jiraClient, issue) },
+    versions.map { it.toDomain() },
     getSecurityLevelId(config)
 )
 
@@ -264,11 +263,11 @@ private fun JiraIssue.mapComments(jiraClient: JiraClient) =
 private fun JiraIssue.mapAttachments(jiraClient: JiraClient) =
     attachments.map { it.toDomain(jiraClient, this) }
 
-private fun JiraIssue.mapVersions(jiraClient: JiraClient) =
-    versions.map { it.toDomain(jiraClient, this) }
+private fun JiraIssue.mapVersions() =
+    versions.map { it.toDomain() }
 
-private fun JiraIssue.mapFixVersions(jiraClient: JiraClient) =
-    fixVersions.map { it.toDomain(jiraClient, this) }
+private fun JiraIssue.mapFixVersions() =
+    fixVersions.map { it.toDomain() }
 
 private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
     changeLog.entries.flatMap { e ->
@@ -305,7 +304,7 @@ private fun JiraIssue.getFullIssue(
         {
             it.toDomain(
                 jiraClient,
-                jiraClient.getProject(it.project.key),
+                ProjectCache.getProjectFromTicketId(it.key),
                 config
             ).right()
         }

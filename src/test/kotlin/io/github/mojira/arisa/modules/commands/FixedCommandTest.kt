@@ -89,13 +89,9 @@ class FixedCommandTest : StringSpec({
 private fun getVersion(
     released: Boolean,
     archived: Boolean,
-    name: String = "12w34a",
-    add: () -> Unit = { },
-    remove: () -> Unit = { }
+    name: String = "12w34a"
 ) = mockVersion(
     name = name,
     released = released,
-    archived = archived,
-    add = add,
-    remove = remove
+    archived = archived
 )

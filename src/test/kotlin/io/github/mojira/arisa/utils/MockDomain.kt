@@ -119,7 +119,9 @@ fun mockIssue(
     updateDungeonsPlatform: (String) -> Unit = { },
     updateLinked: (Double) -> Unit = { },
     setPrivate: () -> Unit = { },
-    addAffectedVersion: (id: String) -> Unit = { },
+    addAffectedVersionById: (id: String) -> Unit = { },
+    addAffectedVersion: (version: Version) -> Unit = { },
+    removeAffectedVersion: (version: Version) -> Unit = { },
     createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> },
     addComment: (options: CommentOptions) -> Unit = { },
     addRestrictedComment: (options: CommentOptions) -> Unit = { },
@@ -166,7 +168,9 @@ fun mockIssue(
     updateDungeonsPlatform,
     updateLinked,
     setPrivate,
+    addAffectedVersionById,
     addAffectedVersion,
+    removeAffectedVersion,
     createLink,
     addComment,
     addRestrictedComment,
@@ -228,15 +232,11 @@ fun mockVersion(
     name: String = "name",
     released: Boolean = true,
     archived: Boolean = false,
-    releaseDate: Instant? = RIGHT_NOW,
-    add: () -> Unit = { },
-    remove: () -> Unit = { }
+    releaseDate: Instant? = RIGHT_NOW
 ) = Version(
     id,
     name,
     released,
     archived,
-    releaseDate,
-    add,
-    remove
+    releaseDate
 )

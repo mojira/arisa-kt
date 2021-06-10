@@ -85,7 +85,7 @@ class Executor(
     }
 
     init {
-        val enabledModules = registries.flatMap { smth -> smth.getEnabledModules().map { it.name } }
+        val enabledModules = registries.flatMap { registry -> registry.getEnabledModules().map { it.name } }
         log.debug("Enabled modules: $enabledModules")
     }
 }

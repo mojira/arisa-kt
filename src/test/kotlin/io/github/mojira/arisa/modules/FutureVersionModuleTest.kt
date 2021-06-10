@@ -233,16 +233,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -252,7 +249,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -273,16 +272,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -295,7 +291,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -316,16 +314,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -338,7 +333,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { preResolved = false },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -359,16 +356,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -380,7 +374,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -401,16 +397,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -422,7 +415,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -443,23 +438,19 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val archivedVersion = mockVersion(
             id = "1",
             released = false,
-            archived = true,
-            add = { versionsAdded.add("archived") }
+            archived = true
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -472,7 +463,15 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, archivedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = {
+                when (it.id) {
+                    "3" -> versionsAdded.add("future")
+                    "2" -> versionsAdded.add("released")
+                    "1" -> versionsAdded.add("archived")
+                }
+            }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -493,16 +492,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -520,7 +516,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -541,16 +539,13 @@ class FutureVersionModuleTest : StringSpec({
         val futureVersion = mockVersion(
             id = "3",
             released = false,
-            archived = false,
-            remove = { isRemoved = true },
-            add = { versionsAdded.add("future") }
+            archived = false
         )
 
         val releasedVersion = mockVersion(
             id = "2",
             released = true,
-            archived = false,
-            add = { versionsAdded.add("released") }
+            archived = false
         )
 
         val module = FutureVersionModule("message", "panel")
@@ -568,7 +563,9 @@ class FutureVersionModuleTest : StringSpec({
                 versions = listOf(releasedVersion, futureVersion)
             ),
             resolveAsAwaitingResponse = { isResolved = true },
-            addComment = { addedComment = it }
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == "3" },
+            addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

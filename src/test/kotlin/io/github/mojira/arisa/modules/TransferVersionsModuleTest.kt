@@ -234,7 +234,7 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1",
                 getFullIssue = {
                     mockIssue(
-                        addAffectedVersion = { v ->
+                        addAffectedVersionById = { v ->
                             when (v) {
                                 "v1" -> firstVersionAdded = true
                                 "v2" -> secondVersionAdded = true
@@ -270,7 +270,7 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1",
                 getFullIssue = {
                     mockIssue(
-                        addAffectedVersion = { v ->
+                        addAffectedVersionById = { v ->
                             when (v) {
                                 "v1" -> firstVersionAdded = true
                                 "v2" -> secondVersionAdded = true
@@ -307,7 +307,7 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-1",
                 getFullIssue = {
                     mockIssue(
-                        addAffectedVersion = {
+                        addAffectedVersionById = {
                             addedToFirstParent = true
                             Unit.right()
                         }
@@ -321,7 +321,7 @@ class TransferVersionsModuleTest : StringSpec({
                 key = "MC-2",
                 getFullIssue = {
                     mockIssue(
-                        addAffectedVersion = {
+                        addAffectedVersionById = {
                             addedToSecondParent = true
                             Unit.right()
                         }

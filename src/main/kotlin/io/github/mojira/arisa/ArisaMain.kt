@@ -7,14 +7,14 @@ import com.github.napstr.logback.DiscordAppender
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.Cache
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import io.github.mojira.arisa.infrastructure.jira.toDomain
+import io.github.mojira.arisa.registry.TicketQueryTimeframe
+import io.github.mojira.arisa.registry.getModuleRegistries
 import net.rcarz.jiraclient.JiraClient
-import net.rcarz.jiraclient.JiraException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -27,12 +27,14 @@ import java.util.concurrent.TimeUnit
 val log: Logger = LoggerFactory.getLogger("Arisa")
 
 private const val TIME_MINUTES = 5L
+private const val MAX_QUERY_TIMEFRAME_IN_MINUTES = 10L
+
 const val MAX_RESULTS = 50
-private const val MINUTES_FOR_THROTTLED_LOG = 30L
+
 private const val RELOG_INTERVAL_IN_SECONDS = 5 * 60L
 private const val WAIT_TIME_AFTER_CONNECTION_ERROR_IN_SECONDS = 40L
+
 lateinit var jiraClient: JiraClient
-private var throttledLog = 0L
 
 @Suppress("LongMethod", "TooGenericExceptionCaught", "NestedBlockDepth")
 fun main() {
@@ -63,23 +65,28 @@ fun main() {
     HelperMessageService.updateHelperMessages(helperMessagesFile)
     var helperMessagesLastFetch = Instant.now()
 
-    // Initialize caches and registry
-    val queryCache = Cache<List<Issue>>()
-    val moduleRegistry = ModuleRegistry(config)
-
-    val enabledModules = moduleRegistry.getEnabledModules().map { it.name }
-    log.debug("Enabled modules: $enabledModules")
-
-    // Create module executor
-    var moduleExecutor = ModuleExecutor(
-        config, moduleRegistry, queryCache,
-        getSearchIssues(jiraClient, config)
+    // Create executor
+    val moduleRegistries = getModuleRegistries(config)
+    var executor = Executor(
+        config, moduleRegistries, getSearchIssues(jiraClient, config)
     )
 
     while (true) {
-        // save time before run, so nothing happening during the run is missed
-        val curRunTime = Instant.now()
-        val executionResults = moduleExecutor.execute(lastRunTime, rerunTickets)
+        // Save time before run, so nothing happening during the run is missed
+        val currentTime = Instant.now()
+        val endOfMaxTimeframe = lastRunTime.plus(MAX_QUERY_TIMEFRAME_IN_MINUTES, ChronoUnit.MINUTES)
+
+        // The time at which we execute the bot.
+        // If we exceed our maximum time frame, act as if we were executing at the end of the maximum time frame.
+        // This is to make sure that `last-run` is updated once in a while,
+        // even if the bot is catching up after a long downtime.
+        val runOpenEnded = currentTime.isBefore(endOfMaxTimeframe)
+        val currentRunTime = if (runOpenEnded) { currentTime } else { endOfMaxTimeframe }
+
+        val timeframe = TicketQueryTimeframe(lastRunTime, currentRunTime, runOpenEnded)
+
+        // Execute all enabled modules using the executor
+        val executionResults = executor.execute(timeframe, rerunTickets)
 
         if (executionResults.successful) {
             rerunTickets = emptySet()
@@ -87,9 +94,9 @@ fun main() {
             val failed = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
 
             if (config[Arisa.Debug.updateLastRun]) {
-                lastRunFile.writeText("${curRunTime.toEpochMilli()}$failed")
+                lastRunFile.writeText("${currentRunTime.toEpochMilli()}$failed")
             }
-            lastRunTime = curRunTime
+            lastRunTime = currentRunTime
             TimeUnit.SECONDS.sleep(checkIntervalSeconds)
         } else {
             if (Duration.between(lastRelog, Instant.now()).toMinutes() >= 1) {
@@ -104,13 +111,12 @@ fun main() {
                         )
                     log.info("Relog was successful")
                     lastRelog = Instant.now()
-                    moduleExecutor = ModuleExecutor(
-                        config, moduleRegistry, queryCache,
-                        getSearchIssues(jiraClient, config)
+                    executor = Executor(
+                        config, moduleRegistries, getSearchIssues(jiraClient, config)
                     )
                 } catch (exception: Exception) {
                     log.error("Relog failed", exception)
-                    // Wait at least 5 minutes
+                    // Wait before performing any further action
                     TimeUnit.SECONDS.sleep(max(RELOG_INTERVAL_IN_SECONDS, checkIntervalSeconds))
                 }
             } else {
@@ -119,13 +125,13 @@ fun main() {
             }
         }
 
-        if (curRunTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
+        // Update helper messages if necessary
+        if (currentTime.epochSecond - helperMessagesLastFetch.epochSecond >= helperMessagesInterval) {
             HelperMessageService.updateHelperMessages(helperMessagesFile)
-            moduleExecutor = ModuleExecutor(
-                config, moduleRegistry, queryCache,
-                getSearchIssues(jiraClient, config)
+            executor = Executor(
+                config, moduleRegistries, getSearchIssues(jiraClient, config)
             )
-            helperMessagesLastFetch = curRunTime
+            helperMessagesLastFetch = currentTime
         }
     }
 }
@@ -181,21 +187,17 @@ private fun searchIssues(
     config: Config,
     jql: String,
     startAt: Int,
-    onQueryPaginated: () -> Unit
+    finishedCallback: () -> Unit
 ): List<Issue> {
-    val searchResult = try {
-        jiraClient
-            .searchIssues(jql, "*all", "changelog", MAX_RESULTS, startAt)
-    } catch (e: JiraException) {
-        if (System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(MINUTES_FOR_THROTTLED_LOG) > throttledLog) {
-            log.warn("Failed to connect to jira. Caused by: ${e.cause?.message}")
-            throttledLog = System.currentTimeMillis()
-        }
-        null
-    } ?: return emptyList()
+    val searchResult = jiraClient.searchIssues(
+        jql,
+        "*all",
+        "changelog",
+        MAX_RESULTS,
+        startAt
+    ) ?: return emptyList()
 
-    if (startAt + searchResult.max < searchResult.total)
-        onQueryPaginated()
+    if (startAt + searchResult.max >= searchResult.total) finishedCallback()
 
     return searchResult
         .issues

@@ -42,7 +42,7 @@ dependencies {
     pitest("com.github.pitest:pitest-kotlin:master-SNAPSHOT")
 
     implementation("com.uchuhimo", "konf", "0.22.1")
-    implementation("com.github.rcarz", "jira-client", "master-SNAPSHOT")
+    implementation("com.github.rcarz", "jira-client", "868a5ca897")
     implementation("com.urielsalis", "mc-crash-lib", "2.0.2")
     implementation("com.github.napstr", "logback-discord-appender", "1.0.0")
     implementation("org.slf4j", "slf4j-api", "1.7.25")

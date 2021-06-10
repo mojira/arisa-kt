@@ -116,7 +116,7 @@ fun main() {
                     )
                 } catch (exception: Exception) {
                     log.error("Relog failed", exception)
-                    // Wait at least 5 minutes
+                    // Wait before performing any further action
                     TimeUnit.SECONDS.sleep(max(RELOG_INTERVAL_IN_SECONDS, checkIntervalSeconds))
                 }
             } else {

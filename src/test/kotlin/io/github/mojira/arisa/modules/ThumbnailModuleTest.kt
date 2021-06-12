@@ -399,4 +399,27 @@ class ThumbnailModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         hasUpdatedDescription shouldBe "!$attachmentName|thumbnail! and more text!"
     }
+
+    "regex should match multiple images without space between" {
+        var hasUpdatedDescription: String? = null
+        val attachmentName = "test.png"
+        val issue = mockIssue(
+            description = "!$attachmentName!!$attachmentName!",
+            updateDescription = {
+                hasUpdatedDescription = it
+                Unit.right()
+            },
+            attachments = listOf(
+                mockAttachment(
+                    name = attachmentName,
+                    openInputStream = PNG_LARGE_IMAGE_STREAM
+                )
+            )
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasUpdatedDescription shouldBe "!$attachmentName|thumbnail!!$attachmentName|thumbnail!"
+    }
 })

@@ -9,7 +9,7 @@ object HelperMessageUpdateService {
     private const val UPDATE_INTERVAL_IN_SECONDS = 60 * 60L // 1 hour
 
     private val helperMessagesFile = File("helper-messages.json")
-    private var helperMessagesLastFetch = Instant.now()
+    private var helperMessagesLastFetch = Instant.now().minusSeconds(UPDATE_INTERVAL_IN_SECONDS + 1)
 
     fun checkForUpdate() {
         val currentTime = Instant.now()

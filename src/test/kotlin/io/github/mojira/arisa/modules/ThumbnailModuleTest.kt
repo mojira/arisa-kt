@@ -193,7 +193,7 @@ class ThumbnailModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse for malformed / ambiguous embedded image references" {
         val attachmentName = "test.png"
         val issue = mockIssue(
-            description = "!$attachmentName!$attachmentName! !|$attachmentName! !!$attachmentName!!",
+            description = "!$attachmentName!$attachmentName! !|$attachmentName!",
             attachments = listOf(
                 mockAttachment(
                     name = attachmentName,

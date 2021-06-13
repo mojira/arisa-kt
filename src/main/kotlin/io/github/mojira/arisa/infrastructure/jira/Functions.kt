@@ -4,7 +4,6 @@ package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import arrow.syntax.function.partially1
-import io.github.mojira.arisa.MAX_RESULTS
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.log
@@ -35,11 +34,6 @@ import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
 
-/**
- * How many issues can be queried at once by [getAllIssuesFromJql].
- */
-const val ISSUE_QUERY_BATCH_SIZE: Int = 1000
-
 fun connectToJira(username: String, password: String, url: String): JiraClient {
     val credentials = TokenCredentials(username, password)
     return JiraClient(url, credentials)
@@ -68,47 +62,6 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
         }
 
         searchResult.issues.mapNotNull { it.key }
-    }
-}
-
-@Suppress("ForbiddenComment")
-/**
- * Get the list of all tickets matching a JQL query.
- * TODO: Actually return the tickets themselves instead of only ticket IDs.
- *
- * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
- * The list contains the IDs of ALL tickets matched by that filter.
- */
-fun getAllIssuesFromJql(jiraClient: JiraClient, jql: String) = runBlocking {
-    Either.catch {
-        var missingResultsPage: Boolean
-        var startAt = 0
-        val tickets = mutableListOf<String>()
-
-        do {
-            missingResultsPage = false
-            val searchResult = try {
-                jiraClient.searchIssues(
-                    jql,
-                    "[]",
-                    null,
-                    ISSUE_QUERY_BATCH_SIZE,
-                    startAt
-                )
-            } catch (e: JiraException) {
-                log.error("Error while retreiving filter results", e)
-                throw e
-            }
-
-            tickets += searchResult.issues.mapNotNull { it.key }
-
-            if (tickets.size < searchResult.total)
-                missingResultsPage = true
-
-            startAt += MAX_RESULTS
-        } while (missingResultsPage)
-
-        tickets.toList()
     }
 }
 

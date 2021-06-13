@@ -28,7 +28,6 @@ object Arisa : ConfigSpec() {
             description = "The resolutions to operate on. Used for default whitelist of modules"
         )
         val url by required<String>(description = "The base url for the jira instance")
-        val checkIntervalSeconds by required<Long>(description = "The interval in which all issues are checked")
     }
 
     object CustomFields : ConfigSpec() {
@@ -48,12 +47,6 @@ object Arisa : ConfigSpec() {
         val special by required<Map<String, String>>(
             description = "Some projects define their own security level. These projects need to be defined here with" +
                     " their own ID.. Default is all projects use the default ID"
-        )
-    }
-
-    object HelperMessages : ConfigSpec() {
-        val updateIntervalSeconds by required<Long>(
-            description = "The interval in which the messages.json file is updated"
         )
     }
 

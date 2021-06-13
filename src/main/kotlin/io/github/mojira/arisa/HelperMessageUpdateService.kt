@@ -1,0 +1,27 @@
+package io.github.mojira.arisa
+
+import io.github.mojira.arisa.infrastructure.HelperMessageService
+import java.io.File
+import java.time.Duration
+import java.time.Instant
+
+object HelperMessageUpdateService {
+    private const val UPDATE_INTERVAL_IN_SECONDS = 60 * 60L // 1 hour
+
+    private val helperMessagesFile = File("helper-messages.json")
+    private var helperMessagesLastFetch = Instant.now()
+
+    fun checkForUpdate() {
+        val currentTime = Instant.now()
+
+        val secondsSinceLastUpdate =
+            Duration.between(helperMessagesLastFetch, currentTime).abs().toSeconds()
+
+        // Update helper messages if necessary
+        if (secondsSinceLastUpdate >= UPDATE_INTERVAL_IN_SECONDS) {
+            HelperMessageService.updateHelperMessages(helperMessagesFile)
+
+            helperMessagesLastFetch = currentTime
+        }
+    }
+}

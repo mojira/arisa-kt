@@ -8,7 +8,6 @@ import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.registry.ModuleRegistry
-import io.github.mojira.arisa.registry.TicketQueryTimeframe
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -24,7 +23,7 @@ private val failedModuleRegistryMock = mockk<ModuleRegistry>()
 private val moduleExecutorMock = mockk<ModuleExecutor>()
 private val failedModuleExecutorMock = mockk<ModuleExecutor>()
 
-private val dummyTimeframe = TicketQueryTimeframe(Instant.now(), Instant.now(), true)
+private val dummyTimeframe = ExecutionTimeframe(Instant.now(), Instant.now(), true)
 
 class ExecutorTest : StringSpec({
     every { moduleRegistryMock.getEnabledModules() } returns listOf(

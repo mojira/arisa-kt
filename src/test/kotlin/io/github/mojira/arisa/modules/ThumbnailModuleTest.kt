@@ -373,7 +373,7 @@ class ThumbnailModuleTest : StringSpec({
         result.shouldBeRight(ModuleResponse)
         // Module is created with maxImagesCount=2, should only process at most two images
         hasUpdatedDescription shouldBe ("!$attachmentName|thumbnail! !$attachmentName|thumbnail! " +
-                "!$attachmentName! !$attachmentName! ")
+            "!$attachmentName! !$attachmentName! ")
     }
 
     "regex should match embedded images lazily" {
@@ -421,5 +421,34 @@ class ThumbnailModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         hasUpdatedDescription shouldBe "!$attachmentName|thumbnail!!$attachmentName|thumbnail!"
+    }
+
+    "regex should not match newlines and exclamation marks as the file name" {
+        val issue = mockIssue(
+            // from MCPE-120943
+            description = "Hello !!!\n" +
+                "I’ve found the ultimate solution to the problem !!!!! \n" +
+                "Just login from settings and not the main menu ! " +
+                "Enter the code given to enter in aka.ms/remoteconnect and all done !!!!",
+            attachments = listOf(
+                mockAttachment(
+                    name = "!",
+                    openInputStream = PNG_LARGE_IMAGE_STREAM
+                ),
+                mockAttachment(
+                    name = "!\nI’ve found the ultimate solution to the problem !",
+                    openInputStream = PNG_LARGE_IMAGE_STREAM
+                ),
+                mockAttachment(
+                    name = "! \nJust login from settings and not the main menu ! " +
+                        "Enter the code given to enter in aka.ms/remoteconnect and all done !",
+                    openInputStream = PNG_LARGE_IMAGE_STREAM
+                )
+            )
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 })

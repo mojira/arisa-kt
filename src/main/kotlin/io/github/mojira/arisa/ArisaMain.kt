@@ -114,6 +114,7 @@ fun main() {
                     executor = Executor(
                         config, moduleRegistries, getSearchIssues(jiraClient, config)
                     )
+                    TimeUnit.SECONDS.sleep(checkIntervalSeconds)
                 } catch (exception: Exception) {
                     log.error("Relog failed", exception)
                     // Wait before performing any further action
@@ -121,6 +122,7 @@ fun main() {
                 }
             } else {
                 // Not enough time for relog passed, just try waiting a bit
+                log.info("Not enough time for relog has passed")
                 TimeUnit.SECONDS.sleep(max(WAIT_TIME_AFTER_CONNECTION_ERROR_IN_SECONDS, checkIntervalSeconds))
             }
         }

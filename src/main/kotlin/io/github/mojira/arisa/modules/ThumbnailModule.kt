@@ -61,16 +61,15 @@ class ThumbnailModule(
      * Only consider if:
      * - At start of line or has space or '!' in front
      * - At end of line or has space or '!' behind
-     * - Starting '!' is not followed by space or exclamation mark
-     * - Ending '!' is not preceded by space or exclamation mark
+     * - Starting '!' is not followed by space
+     * - Ending '!' is not preceded by space
      * - Does not include a '|', since then it already has display settings and trying to modify them
      *   might break the embedded image (or user already specified a reasonable size)
-     * - Does not include another exclamation mark somewhere inbetween
+     * - Does not include an exclamation mark or line break in the image name
      *
      * Uses lazy quantifier ("+?") so text containing multiple exclamation marks only matches the
      * shortest substrings, e.g. "!a! !b!" matches "!a!" and "!b!"
      */
-//    private val imageRegex = """(?<=(?:\s|!|^)!)(?!\s)[^|]+?(?<!\s)(?=!(?:\s|!|$))""".toRegex()
     private val imageRegex = """(?<=(?:\s|!|^)!)(?!\s)[^|\n!]+?(?<!\s)(?=!(?:\s|!|$))""".toRegex()
 
     private fun replaceEmbeddedImages(issue: Issue, text: String): String {

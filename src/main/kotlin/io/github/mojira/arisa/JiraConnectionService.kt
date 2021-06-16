@@ -12,6 +12,8 @@ class JiraConnectionService(
     private val config: Config
 ) {
     companion object {
+        const val MIN_TIME_BETWEEN_EXECUTION_CYCLES_IN_SECONDS = 10L
+
         /**
          * How long ago the last successful connection needs to be for Arisa to try to relog
          */
@@ -28,7 +30,7 @@ class JiraConnectionService(
         private const val WAIT_TIME_AFTER_CONNECTION_ERROR_IN_SECONDS = 40L
     }
 
-    private var lastSuccessfulConnection = Instant.now().minusSeconds(MAX_SECONDS_SINCE_LAST_SUCCESSFUL_CONNECTION + 1)
+    private var lastSuccessfulConnection = Instant.now()
 
     /**
      * Tries to establish a connection and log into Jira.
@@ -66,16 +68,25 @@ class JiraConnectionService(
         return if (secondsSinceLastSuccessfulConnection > MAX_SECONDS_SINCE_LAST_SUCCESSFUL_CONNECTION) {
             log.info("Trying to relog")
 
-            establishConnection() ?: return RelogResult.SuccessfulRelog()
+            val exception = establishConnection() ?: run {
+                notifyOfSuccessfulConnection()
+                return@tryRelog RelogResult.SuccessfulRelog()
+            }
 
             val relogResult = RelogResult.UnsucessfulRelog()
             log.error(
                 "Could not reconnect. Will attempt to relog again in ${ relogResult.sleepTimeInSeconds } seconds."
             )
+            log.debug("Connection error:", exception)
 
             relogResult
         } else {
-            RelogResult.NoRelogAttempted()
+            val relogResult = RelogResult.NoRelogAttempted()
+            log.info(
+                "Something went wrong. " +
+                    "Will wait for ${ relogResult.sleepTimeInSeconds } seconds and see if it'll work then."
+            )
+            relogResult
         }
     }
 

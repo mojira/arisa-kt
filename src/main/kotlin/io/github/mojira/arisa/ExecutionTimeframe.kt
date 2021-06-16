@@ -19,10 +19,10 @@ class ExecutionTimeframe(
          * @return An [ExecutionTimeframe] beginning at [LastRun], either until right now,
          * or until [MAX_TIMEFRAME_DURATION_IN_MINUTES] after [LastRun].
          */
-        fun getTimeframeFromLastRun(): ExecutionTimeframe {
+        fun getTimeframeFromLastRun(lastRun: LastRun): ExecutionTimeframe {
             // Save time before run, so nothing happening during the run is missed
             val currentTime = Instant.now()
-            val endOfMaxTimeframe = LastRun.time.plus(MAX_TIMEFRAME_DURATION_IN_MINUTES, ChronoUnit.MINUTES)
+            val endOfMaxTimeframe = lastRun.time.plus(MAX_TIMEFRAME_DURATION_IN_MINUTES, ChronoUnit.MINUTES)
 
             // The time at which we execute the bot.
             // If we exceed our maximum time frame, act as if we were executing at the end of the maximum time frame.
@@ -35,7 +35,7 @@ class ExecutionTimeframe(
                 endOfMaxTimeframe
             }
 
-            return ExecutionTimeframe(LastRun.time, currentRunTime, runOpenEnded)
+            return ExecutionTimeframe(lastRun.time, currentRunTime, runOpenEnded)
         }
     }
 

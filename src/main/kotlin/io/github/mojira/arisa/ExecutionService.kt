@@ -6,6 +6,7 @@ class ExecutionService(
     config: Config,
     private val connectionService: JiraConnectionService
 ) {
+    private val helperMessageUpdateService = HelperMessageUpdateService()
     private val executor = Executor(config)
     private val lastRun = LastRun(config)
 
@@ -13,7 +14,7 @@ class ExecutionService(
      * @return amount of seconds to sleep after this execution cycle
      */
     fun runExecutionCycle(): Long {
-        HelperMessageUpdateService.checkForUpdate()
+        helperMessageUpdateService.checkForUpdate()
 
         val timeframe = ExecutionTimeframe.getTimeframeFromLastRun(lastRun)
         val currentRunTime = timeframe.currentRunTime

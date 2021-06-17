@@ -5,8 +5,10 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 
-object HelperMessageUpdateService {
-    private const val UPDATE_INTERVAL_IN_SECONDS = 60 * 60L // 1 hour
+class HelperMessageUpdateService {
+    companion object {
+        private const val UPDATE_INTERVAL_IN_SECONDS = 60 * 60L // 1 hour
+    }
 
     private val helperMessagesFile = File("helper-messages.json")
     private var helperMessagesLastFetch = Instant.now().minusSeconds(UPDATE_INTERVAL_IN_SECONDS + 1)

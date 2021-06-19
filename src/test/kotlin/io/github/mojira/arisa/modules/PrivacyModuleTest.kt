@@ -208,6 +208,20 @@ class PrivacyModuleTest : StringSpec({
         hasSetPrivate shouldBe true
     }
 
+    "should mark as private when the description contains braintree transaction ID" {
+        var hasSetPrivate = false
+
+        val issue = mockIssue(
+            description = "My transaction id: *braintree:1a2b3c4d*",
+            setPrivate = { hasSetPrivate = true }
+        )
+
+        val result = MODULE(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        hasSetPrivate shouldBe true
+    }
+
     "should mark as private when the attachment contains Email" {
         var hasSetPrivate = false
 

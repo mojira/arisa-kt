@@ -17,7 +17,9 @@ class PrivacyModule(
         """.*\(Session ID is token:.*""".toRegex(),
         """.*--accessToken ey.*""".toRegex(),
         """.*(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s]).*""".toRegex(),
-        """.*\bbraintree:[0-9]{6,7}\b.*""".toRegex(),
+        // At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
+        // match if there are more chars as well
+        """.*\bbraintree:[a-f0-9]{6,12}\b.*""".toRegex(),
         """.*\b([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}\b.*""".toRegex()
     )
 

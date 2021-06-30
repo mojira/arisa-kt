@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.infrastructure
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import arrow.core.rightIfNotNull
@@ -119,11 +120,18 @@ object HelperMessageService {
         }
     }
 
+    private const val BOT_SIGNATURE_KEY = "i-am-a-bot"
     fun getMessageWithBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
-        getMessage(project, listOf(key, "i-am-a-bot"), listOf(filledText), lang)
+        getMessage(project, listOf(key, BOT_SIGNATURE_KEY), listOf(filledText), lang)
 
     fun getMessageWithDupeBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
         getMessage(project, listOf(key, "i-am-a-bot-dupe"), listOf(filledText), lang)
+
+    fun getRawMessageWithBotSignature(rawMessage: String): String {
+        // Note: Project does not matter, message is (currently) the same for all projects
+        val botSignature = getSingleMessage("MC", BOT_SIGNATURE_KEY).getOrElse { "" }
+        return "$rawMessage\n$botSignature"
+    }
 
     fun setHelperMessages(json: String) = data.fromJSON(json)
         ?: throw IOException("Couldn't deserialize helper messages from setHelperMessages()")

@@ -3,8 +3,10 @@ package io.github.mojira.arisa.registry
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.ExecutionTimeframe
+import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.modules.AccessTokenRedactor
 import io.github.mojira.arisa.modules.AffectedVersionMessageModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -87,15 +89,14 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
+        val attachmentUtils = AttachmentUtils(config[Arisa.Modules.Crash.crashExtensions], CrashReader())
         register(
             Arisa.Modules.Crash,
             CrashModule(
-                config[Arisa.Modules.Crash.crashExtensions],
+                attachmentUtils,
                 config[Arisa.Modules.Crash.duplicates],
-                CrashReader(),
                 config[Arisa.Modules.Crash.duplicateMessage],
-                config[Arisa.Modules.Crash.moddedMessage],
-                config[Arisa.Credentials.username]
+                config[Arisa.Modules.Crash.moddedMessage]
             )
         )
 
@@ -151,6 +152,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Modules.Privacy.message],
                 config[Arisa.Modules.Privacy.commentNote],
                 config[Arisa.Modules.Privacy.allowedEmailRegex].map(String::toRegex),
+                AccessTokenRedactor,
                 config[Arisa.Modules.Privacy.sensitiveFileNames]
             )
         )

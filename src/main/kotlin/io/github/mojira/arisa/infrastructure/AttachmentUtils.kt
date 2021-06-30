@@ -10,8 +10,7 @@ import java.time.Instant
 
 class AttachmentUtils(
     private val crashReportExtensions: List<String>,
-    private val crashReader: CrashReader,
-    private val botUserName: String
+    private val crashReader: CrashReader
 ) {
     private val mappingsDir by lazy {
         val file = File("mc-mappings")
@@ -34,7 +33,7 @@ class AttachmentUtils(
         // Get crashes from issue attachments
         val textDocuments = attachments
             // Ignore attachments from Arisa (e.g. deobfuscated crash reports)
-            .filterNot { it.uploader?.name == botUserName }
+            .filterNot { it.uploader?.isBotUser?.invoke() == true }
 
             // Only check attachments with allowed extensions
             .filter { isCrashAttachment(it.name) }
@@ -58,10 +57,7 @@ class AttachmentUtils(
         crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
     private fun fetchAttachment(attachment: Attachment): TextDocument {
-        val getText = {
-            val data = attachment.getContent()
-            String(data)
-        }
+        val getText = attachment::getTextContent
 
         return TextDocument(getText, attachment.created, attachment.name)
     }

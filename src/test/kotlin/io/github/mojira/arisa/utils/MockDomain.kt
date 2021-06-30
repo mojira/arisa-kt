@@ -130,6 +130,7 @@ fun mockIssue(
     addRestrictedComment: (options: CommentOptions) -> Unit = { },
     addNotEnglishComment: (language: String) -> Unit = { },
     addRawRestrictedComment: (body: String, restriction: String) -> Unit = { _, _ -> },
+    addRawBotComment: (rawBody: String) -> Unit = { },
     markAsFixedInASpecificVersion: (versionName: String) -> Unit = { },
     changeReporter: (reporter: String) -> Unit = { },
     addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
@@ -180,6 +181,7 @@ fun mockIssue(
     addRestrictedComment,
     addNotEnglishComment,
     addRawRestrictedComment,
+    addRawBotComment,
     markAsFixedInASpecificVersion,
     changeReporter,
     addAttachment
@@ -223,12 +225,14 @@ fun mockUser(
     name: String = "user",
     displayName: String = "User",
     getGroups: () -> List<String>? = { null },
-    isNewUser: () -> Boolean = { false }
+    isNewUser: () -> Boolean = { false },
+    isBotUser: () -> Boolean = { false }
 ) = User(
     name,
     displayName,
     getGroups,
-    isNewUser
+    isNewUser,
+    isBotUser
 )
 
 fun mockVersion(

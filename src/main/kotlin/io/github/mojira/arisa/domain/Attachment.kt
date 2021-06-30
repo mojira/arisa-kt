@@ -12,4 +12,10 @@ data class Attachment(
     val openContentStream: () -> InputStream,
     val getContent: () -> ByteArray,
     val uploader: User?
-)
+) {
+    /** Returns whether the type of the content is text */
+    fun hasTextContent() = mimeType.startsWith("text/")
+
+    /** Decodes the content as UTF-8 String */
+    fun getTextContent() = String(getContent())
+}

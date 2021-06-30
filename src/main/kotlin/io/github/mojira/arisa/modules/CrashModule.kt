@@ -7,7 +7,6 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
 import com.urielsalis.mccrashlib.Crash
-import com.urielsalis.mccrashlib.CrashReader
 import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
@@ -17,17 +16,15 @@ import java.nio.file.Files
 import java.time.Instant
 
 class CrashModule(
-    private val crashReportExtensions: List<String>,
+    private val attachmentUtils: AttachmentUtils,
     private val crashDupeConfigs: List<CrashDupeConfig>,
-    private val crashReader: CrashReader,
     private val dupeMessage: String,
-    private val moddedMessage: String,
-    private val botUserName: String
+    private val moddedMessage: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             // Extract crashes from attachments
-            val crashes = AttachmentUtils(crashReportExtensions, crashReader, botUserName)
+            val crashes = attachmentUtils
                 .extractCrashesFromAttachments(issue)
 
             // Only check crashes added since the last run

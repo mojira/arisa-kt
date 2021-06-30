@@ -233,12 +233,15 @@ Resolves tickets about pirated games as `Invalid`.
 | Name  | `Privacy`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/PrivacyModule.kt) |
 
-Hides privacy information like Email addresses in tickets or comments.
+Makes tickets and comments, which contain sensitive data like Email addresses, private.
+Additionally in some cases it redacts sensitive data from attachments by deleting the original attachment,
+reuploading it with redacted content and its name prefixed with `redacted_` and adding a comment informing the uploader.
 
 ### Checks
 - The ticket is not set to private.
 #### For Setting Tickets to Private
-- Any of the fields and/or text attachments added after last run contains session ID or Email.
+- Any of the fields and/or text attachments added after last run contains session ID or Email, and for attachments the
+  module was not able to redact sensitive data.
 - Or any of the attachments has a name specified by `sensitiveFileNames` in the [config](../config/config.yml)
   (defaults to empty list)
 #### For Restricting Comments to `staff`

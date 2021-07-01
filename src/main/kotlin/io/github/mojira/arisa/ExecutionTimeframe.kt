@@ -13,7 +13,7 @@ class ExecutionTimeframe(
     private val openEnded: Boolean
 ) {
     companion object {
-        private const val MAX_TIMEFRAME_DURATION_IN_MINUTES = 10L
+        const val MAX_TIMEFRAME_DURATION_IN_MINUTES = 10L
 
         /**
          * @return An [ExecutionTimeframe] beginning at [LastRun], either until right now,
@@ -21,7 +21,7 @@ class ExecutionTimeframe(
          */
         fun getTimeframeFromLastRun(lastRun: LastRun): ExecutionTimeframe {
             // Save time before run, so nothing happening during the run is missed
-            val currentTime = Instant.now()
+            val currentTime = Instant.now().truncatedTo(ChronoUnit.MILLIS)
             val endOfMaxTimeframe = lastRun.time.plus(MAX_TIMEFRAME_DURATION_IN_MINUTES, ChronoUnit.MINUTES)
 
             // The time at which we execute the bot.

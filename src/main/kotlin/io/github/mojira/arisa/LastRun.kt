@@ -10,22 +10,30 @@ import java.time.temporal.ChronoUnit
  * Stores information about the previous run (start time, and tickets that failed during the run)
  */
 class LastRun(
-    private val config: Config
+    private val readFromFile: () -> String,
+    private val writeToFile: (String) -> Unit
 ) {
     companion object {
-        private const val DEFAULT_START_TIME_MINUTES_BEFORE_NOW = 5L
+        const val DEFAULT_START_TIME_MINUTES_BEFORE_NOW = 5L
+
+        fun getLastRun(config: Config): LastRun {
+            val lastRunFile = File("last-run")
+            return LastRun(
+                readFromFile = {
+                    if (lastRunFile.exists()) lastRunFile.readText()
+                    else ""
+                },
+                writeToFile = { contents ->
+                    if (config[Arisa.Debug.updateLastRun]) {
+                        lastRunFile.writeText(contents)
+                    }
+                }
+            )
+        }
     }
 
     var time: Instant
     var failedTickets: Set<String>
-
-    private val lastRunFile = File("last-run")
-
-    private fun writeToFile() {
-        val failedString = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
-
-        lastRunFile.writeText("${time.toEpochMilli()}$failedString")
-    }
 
     /**
      * Updates last run and writes it to the `last-run` file
@@ -34,15 +42,13 @@ class LastRun(
         time = newTime
         failedTickets = newFailedTickets
 
-        if (config[Arisa.Debug.updateLastRun]) {
-            writeToFile()
-        }
+        val failedString = failedTickets.joinToString("") { ",$it" } // even first entry should start with a comma
+
+        writeToFile("${time.toEpochMilli()}$failedString")
     }
 
     init {
-        val fileContents = if (lastRunFile.exists()) { lastRunFile.readText() } else ""
-
-        val lastRunFileComponents = fileContents.trim().split(',')
+        val lastRunFileComponents = readFromFile().trim().split(',')
 
         time = if (lastRunFileComponents[0].isNotEmpty()) {
             Instant.ofEpochMilli(lastRunFileComponents[0].toLong())

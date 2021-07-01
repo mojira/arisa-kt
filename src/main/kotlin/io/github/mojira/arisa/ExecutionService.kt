@@ -8,7 +8,7 @@ class ExecutionService(
 ) {
     private val helperMessageUpdateService = HelperMessageUpdateService()
     private val executor = Executor(config)
-    private val lastRun = LastRun(config)
+    private val lastRun = LastRun.getLastRun(config)
 
     /**
      * @return amount of seconds to sleep after this execution cycle

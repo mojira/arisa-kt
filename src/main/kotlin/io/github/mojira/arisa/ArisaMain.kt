@@ -15,12 +15,12 @@ val log: Logger = LoggerFactory.getLogger("Arisa")
  */
 lateinit var jiraClient: JiraClient
 
-val configService = ConfigService()
-val webhookService = WebhookService(configService.config)
-val connectionService = JiraConnectionService(configService.config)
-val executionService = ExecutionService(configService.config, connectionService)
-
 fun main() {
+    val configService = ConfigService()
+    val webhookService = WebhookService(configService.config)
+    val connectionService = JiraConnectionService(configService.config)
+    val executionService = ExecutionService(configService.config, connectionService)
+
     webhookService.setLoggerWebhooks()
 
     connectionService.connect()

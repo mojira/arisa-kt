@@ -193,6 +193,23 @@ class RevokeConfirmationModuleTest : StringSpec({
         changedConfirmation.shouldBe("Unconfirmed")
     }
 
+    "should set to Unconfirmed when ticket when confirmation status is removed by a non-volunteer" {
+        var changedConfirmation = ""
+
+        val module = RevokeConfirmationModule()
+        val changeLogItem = mockChangeLogItem(value = null) { listOf("users") }
+        val issue = mockIssue(
+            confirmationStatus = null,
+            changeLog = listOf(changeLogItem),
+            updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeRight(ModuleResponse)
+        changedConfirmation.shouldBe("Unconfirmed")
+    }
+
     "should set back to status set by volunteer, when regular user changes confirmation status" {
         var changedConfirmation = ""
 

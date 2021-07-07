@@ -102,18 +102,22 @@ class RevokeConfirmationModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when ticket is Unconfirmed and Confirmation Status was unset" {
+    "should unset confirmation when ticket is Unconfirmed and Confirmation Status was unset by a volunteer" {
+        var changedConfirmation = "Unconfirmed"
+
         val module = RevokeConfirmationModule()
         val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
         val otherVolunteerChange = mockChangeLogItem(value = "") { listOf("helper") }
         val issue = mockIssue(
             confirmationStatus = "Unconfirmed",
             changeLog = listOf(volunteerChange, otherVolunteerChange)
+            updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        result.shouldBeRight(ModuleResponse)
+        changedConfirmation.shouldBe("")
     }
 
     "should return OperationNotNeededModuleResponse when confirmation status is null and was unset" {

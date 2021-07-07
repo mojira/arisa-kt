@@ -13,9 +13,9 @@ class RevokeConfirmationModule : Module {
             val volunteerConfirmation = changeLog
                 .filter(::isConfirmationChange)
                 .lastOrNull(::changedByVolunteer)
-                ?.changedToString.getOrDefault("Unconfirmed")
+                ?.changedToString.getOrDefaultNull("Unconfirmed")
 
-            assertNotEquals(confirmationStatus.getOrDefault("Unconfirmed"), volunteerConfirmation).bind()
+            assertNotEquals(confirmationStatus.getOrDefaultNull("Unconfirmed"), volunteerConfirmation).bind()
             updateConfirmationStatus(volunteerConfirmation)
         }
     }

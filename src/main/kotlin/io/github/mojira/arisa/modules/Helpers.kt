@@ -132,6 +132,12 @@ fun String?.getOrDefault(default: String) =
     else
         this
 
+fun String?.getOrDefaultNull(default: String) =
+    if (this == null)
+        default
+    else
+        this
+
 fun MutableList<String>.splitElemsByCommas() {
     val newList = this.flatMap { s ->
         s.split(',').filter {

@@ -197,9 +197,9 @@ class RevokeConfirmationModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = RevokeConfirmationModule()
-        val changeLogItem = mockChangeLogItem(value = null) { listOf("users") }
+        val changeLogItem = mockChangeLogItem(value = "") { listOf("users") }
         val issue = mockIssue(
-            confirmationStatus = null,
+            confirmationStatus = "",
             changeLog = listOf(changeLogItem),
             updateConfirmationStatus = { changedConfirmation = it; Unit.right() }
         )

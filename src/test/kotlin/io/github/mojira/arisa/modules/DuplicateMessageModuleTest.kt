@@ -362,7 +362,7 @@ class DuplicateMessageModuleTest : StringSpec({
             links = listOf(
                 mockLink()
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -392,7 +392,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     visibilityValue = "helper"
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -420,7 +420,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     body = "MC-1"
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -449,7 +449,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     getAuthorGroups = { listOf("user") }
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -494,7 +494,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -521,7 +521,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -555,7 +555,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -587,7 +587,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -623,7 +623,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -671,7 +671,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -710,7 +710,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -742,7 +742,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -790,7 +790,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -829,7 +829,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -861,7 +861,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -893,7 +893,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -926,7 +926,7 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -1024,7 +1024,7 @@ class DuplicateMessageModuleTest : StringSpec({
                                 )
                         )
                 ),
-                addComment = { commentOptions = it; Unit.right() }
+            addDupeMessage = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -1046,7 +1046,7 @@ private fun getIssue(
         )
     ),
     comments: List<Comment> = emptyList(),
-    addComment: (options: CommentOptions) -> Unit = { }
+    addDupeMessage: (options: CommentOptions) -> Unit = { }
 ) = mockIssue(
     reporter = mockUser(
         reporter
@@ -1054,5 +1054,5 @@ private fun getIssue(
     links = links,
     changeLog = changeLog,
     comments = comments,
-    addComment = addComment
+    addDupeMessage = addDupeMessage
 )

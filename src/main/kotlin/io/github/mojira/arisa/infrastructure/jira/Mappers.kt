@@ -133,6 +133,14 @@ fun JiraIssue.toDomain(
                 )
             )
         },
+        addDupeMessage = { (messageKey, variable, language) ->
+            createComment(
+                context,
+                HelperMessageService.getMessageWithDupeBotSignature(
+                    project.key, messageKey, variable, language
+                )
+            )
+        },
         addRestrictedComment = { (messageKey, variable, language) ->
             addRestrictedComment(
                 context,

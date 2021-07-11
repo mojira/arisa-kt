@@ -36,7 +36,13 @@ class Executor(
 
         try {
             registries.forEach {
-                executeRegistry(it, rerunTickets, failedTickets::add, timeframe)
+                executeRegistry(it, rerunTickets, timeframe) { ticket ->
+                    if (ticket !in rerunTickets) {
+                        failedTickets.add(ticket)
+                    } else {
+                        log.info("$ticket failed to run again, dropping it.")
+                    }
+                }
             }
         } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)
@@ -51,8 +57,8 @@ class Executor(
     private fun executeRegistry(
         registry: ModuleRegistry,
         rerunTickets: Collection<String>,
-        addFailedTicket: (String) -> Unit,
-        timeframe: ExecutionTimeframe
+        timeframe: ExecutionTimeframe,
+        addFailedTicket: (String) -> Unit
     ) {
         val issues = getIssuesForRegistry(registry, rerunTickets, timeframe)
 

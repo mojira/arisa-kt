@@ -21,13 +21,13 @@ private const val URL =
 
 private val logger = LoggerFactory.getLogger("HelperMessages")
 
-data class HelperMessageVariable(
+internal data class HelperMessageVariable(
     val project: ProjectFilter,
     val value: String,
     val localizedValues: LocalizedValues? = null
 )
 
-data class HelperMessage(
+internal data class HelperMessage(
     val project: ProjectFilter,
     val name: String,
     val message: String,
@@ -35,7 +35,7 @@ data class HelperMessage(
     val localizedMessages: LocalizedValues? = null
 )
 
-data class HelperMessageData(
+internal data class HelperMessageData(
     var variables: Map<String, List<HelperMessageVariable>>,
     var messages: Map<String, List<HelperMessage>>
 ) {
@@ -63,8 +63,9 @@ data class HelperMessageData(
 }
 
 @Suppress("TooManyFunctions")
-object HelperMessageService {
-    var data = HelperMessageData(mapOf(), mapOf())
+class HelperMessageService {
+    // Visible for testing
+    internal var data = HelperMessageData(mapOf(), mapOf())
 
     /**
      * Get a single message from helper messages.
@@ -124,8 +125,10 @@ object HelperMessageService {
     fun getMessageWithDupeBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
         getMessage(project, listOf(key, "i-am-a-bot-dupe"), listOf(filledText), lang)
 
-    fun setHelperMessages(json: String) = data.fromJSON(json)
-        ?: throw IOException("Couldn't deserialize helper messages from setHelperMessages()")
+    fun setHelperMessages(json: String) {
+        data.fromJSON(json)
+            ?: throw IOException("Couldn't deserialize helper messages from setHelperMessages()")
+    }
 
     fun updateHelperMessages(file: File) {
         fetchHelperMessages().fold(

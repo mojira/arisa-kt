@@ -26,9 +26,10 @@ class IntegrationTest : StringSpec({
 
     "should contain required messages in helper-messages" {
         val helperMessagesFile = File("helper-messages.json")
-        HelperMessageService.updateHelperMessages(helperMessagesFile)
+        val helperMessageService = HelperMessageService()
+        helperMessageService.updateHelperMessages(helperMessagesFile)
 
-        with(HelperMessageService.data.messages) {
+        with(helperMessageService.data.messages) {
             this shouldContainKey "attach-new-attachment"
             this shouldContainKey "duplicate"
             this shouldContainKey "duplicate-fixed"

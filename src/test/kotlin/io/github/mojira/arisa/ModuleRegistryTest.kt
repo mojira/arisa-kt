@@ -2,6 +2,7 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.Module
@@ -66,10 +67,12 @@ class ModuleRegistryTest : StringSpec({
 
 private fun getAllModules(): List<ModuleRegistry.Entry> {
     val projectCache = mockk<ProjectCache>()
-    return getModuleRegistries(CONFIG, projectCache).flatMap { it.getAllModules() }
+    val helperMessageService = mockk<HelperMessageService>()
+    return getModuleRegistries(CONFIG, projectCache, helperMessageService).flatMap { it.getAllModules() }
 }
 
 private fun getEnabledModules(): List<ModuleRegistry.Entry> {
     val projectCache = mockk<ProjectCache>()
-    return getModuleRegistries(CONFIG, projectCache).flatMap { it.getEnabledModules() }
+    val helperMessageService = mockk<HelperMessageService>()
+    return getModuleRegistries(CONFIG, projectCache, helperMessageService).flatMap { it.getEnabledModules() }
 }

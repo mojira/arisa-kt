@@ -16,7 +16,9 @@ import java.time.temporal.ChronoUnit
 
 const val TWO_SECONDS_IN_MILLIS = 2000
 
+@Suppress("LongParameterList")
 class ReopenAwaitingModule(
+    private val helperMessageService: HelperMessageService,
     private val blacklistedRoles: List<String>,
     private val blacklistedVisibilities: List<String>,
     private val softArPeriod: Long,
@@ -81,7 +83,7 @@ class ReopenAwaitingModule(
             (comment.body?.contains(keepARTag) ?: false)
 
     private fun isKeepARMessage(comment: Comment, project: Project) = comment.author.name == "arisabot" &&
-            (comment.body?.contains(HelperMessageService.getMessageWithBotSignature(
+            (comment.body?.contains(helperMessageService.getMessageWithBotSignature(
                     project.key, message, null, "en"
             )) ?: false)
 

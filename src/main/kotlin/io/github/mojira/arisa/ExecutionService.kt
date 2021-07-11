@@ -1,14 +1,19 @@
 package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.ProjectCache
+import io.github.mojira.arisa.infrastructure.jira.Mapper
 
 class ExecutionService(
     config: Config,
     private val connectionService: JiraConnectionService
 ) {
-    private val helperMessageUpdateService = HelperMessageUpdateService()
-    private val executor = Executor(config, ProjectCache())
+    private val helperMessageService = HelperMessageService()
+    private val helperMessageUpdateService = HelperMessageUpdateService(helperMessageService)
+    private val projectCache = ProjectCache()
+    private val mapper = Mapper(jiraClient, config, projectCache, helperMessageService)
+    private val executor = Executor(config, projectCache, helperMessageService, mapper)
     private val lastRun = LastRun.getLastRun(config)
 
     /**

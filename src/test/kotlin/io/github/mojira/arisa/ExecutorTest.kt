@@ -90,7 +90,7 @@ class ExecutorTest : StringSpec({
         val executor =
             getMockExecutor(
                 listOf(moduleRegistryMock),
-                searchIssues = { _, _, _ -> throw RuntimeException() }
+                searchIssues = { _, _, _ -> throw RuntimeException("dummy exception") }
             )
 
         val result = executor.execute(dummyTimeframe, setOf("MC-1"))
@@ -110,6 +110,8 @@ fun getMockExecutor(
 ): Executor = Executor(
     getConfig(),
     mockk(), // no real ProjectCache needed
+    mockk(), // no real HelperMessageService needed
+    mockk(), // no real Mapper needed
     registries,
     searchIssues
 )

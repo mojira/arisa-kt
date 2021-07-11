@@ -7,7 +7,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class HelperMessagesTest : StringSpec({
-    HelperMessageService.setHelperMessages(
+    val helperMessageService = HelperMessageService()
+    helperMessageService.setHelperMessages(
         """
         {
             "variables": {
@@ -127,7 +128,7 @@ class HelperMessagesTest : StringSpec({
     )
 
     "should return Error when there is no such message" {
-        val result = HelperMessageService.getSingleMessage("MC", "!@#%^&*")
+        val result = helperMessageService.getSingleMessage("MC", "!@#%^&*")
 
         result.shouldBeLeft()
         result.a should { it is Error }
@@ -135,7 +136,7 @@ class HelperMessagesTest : StringSpec({
     }
 
     "should return Error when the message doesn't have a value for the project" {
-        val result = HelperMessageService.getSingleMessage("MCTEST", "normal")
+        val result = helperMessageService.getSingleMessage("MCTEST", "normal")
 
         result.shouldBeLeft()
         result.a should { it is Error }
@@ -143,76 +144,76 @@ class HelperMessagesTest : StringSpec({
     }
 
     "should return the message when the project matches a string filter" {
-        val result = HelperMessageService.getSingleMessage("MC", "normal")
+        val result = helperMessageService.getSingleMessage("MC", "normal")
 
         result.shouldBeRight()
         result.b shouldBe "Normal message"
     }
 
     "should return the message when the project matches a list filter" {
-        val result = HelperMessageService.getSingleMessage("MC", "normal-list-filter")
+        val result = helperMessageService.getSingleMessage("MC", "normal-list-filter")
 
         result.shouldBeRight()
         result.b shouldBe "Normal message with a list filter"
     }
 
     "should replace the variable with the value for MC project" {
-        val result = HelperMessageService.getSingleMessage("MC", "with-variable")
+        val result = helperMessageService.getSingleMessage("MC", "with-variable")
 
         result.shouldBeRight()
         result.b shouldBe "With variable for MC"
     }
 
     "should replace the variable with the value for MCD project" {
-        val result = HelperMessageService.getSingleMessage("MCD", "with-variable")
+        val result = helperMessageService.getSingleMessage("MCD", "with-variable")
 
         result.shouldBeRight()
         result.b shouldBe "With variable for MCD"
     }
 
     "should replace the variable with an empty string for MCPE project" {
-        val result = HelperMessageService.getSingleMessage("MCPE", "with-variable")
+        val result = helperMessageService.getSingleMessage("MCPE", "with-variable")
 
         result.shouldBeRight()
         result.b shouldBe "With "
     }
 
     "should be able to handle variables containing other variables" {
-        val result = HelperMessageService.getSingleMessage("MCTEST", "varception")
+        val result = helperMessageService.getSingleMessage("MCTEST", "varception")
 
         result.shouldBeRight()
         result.b shouldBe "3 2 1 0"
     }
 
     "should not get caught in an infinite loop when a variable contains itself" {
-        val result = HelperMessageService.getSingleMessage("MCTEST", "infinite-loop")
+        val result = helperMessageService.getSingleMessage("MCTEST", "infinite-loop")
 
         result.shouldBeRight()
         result.b shouldBe "..........%infinite_loop%"
     }
 
     "should replace the placeholder with filled text" {
-        val result = HelperMessageService.getSingleMessage("MC", "with-placeholder", "MC-4")
+        val result = helperMessageService.getSingleMessage("MC", "with-placeholder", "MC-4")
 
         result.shouldBeRight()
         result.b shouldBe "With MC-4"
     }
 
     "should use the original value when the lang doesn't exist" {
-        val result = HelperMessageService.getSingleMessage("MC", "normal", lang = "cd")
+        val result = helperMessageService.getSingleMessage("MC", "normal", lang = "cd")
 
         result.shouldBeRight()
         result.b shouldBe "Normal message"
     }
 
     "should combine multiple messages correctly" {
-        val result = HelperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"))
+        val result = helperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"))
 
         result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
 
     "should prepend localized messages" {
-        val result = HelperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "ab")
+        val result = helperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "ab")
 
         result shouldBe "Ababab abababa\n~{color:#888}-- A ba b aba.{color}~" +
                 "\n----\n" +
@@ -220,13 +221,13 @@ class HelperMessagesTest : StringSpec({
     }
 
     "should only contain original message when the lang doesn't exist" {
-        val result = HelperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "cd")
+        val result = helperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "cd")
 
         result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
 
     "should append the bot signature correctly" {
-        val result = HelperMessageService.getMessageWithBotSignature("MC", "normal")
+        val result = helperMessageService.getMessageWithBotSignature("MC", "normal")
 
         result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }

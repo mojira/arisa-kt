@@ -12,6 +12,8 @@ import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -20,14 +22,14 @@ private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
 private val NEWBIE = getUser(name = "newbieUser", newUser = true)
 
-private val NOT_REOPEN_AR_MESSAGE = HelperMessageService.getMessageWithBotSignature(
-        "MC", "not-reopen-ar", null, "en"
-)
+private val helperMessageServiceMock = mockk<HelperMessageService>()
+private const val NOT_REOPEN_AR_MESSAGE = "DO NOT REOPEN"
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
 
 private val MODULE = ReopenAwaitingModule(
+    helperMessageServiceMock,
     listOf("staff", "global-moderators"),
     listOf("helper", "staff", "global-moderators"),
     365,
@@ -47,6 +49,13 @@ private val OLD_AWAITING_RESOLVE = mockChangeLogItem(
 )
 
 class ReopenAwaitingModuleTest : StringSpec({
+    every { helperMessageServiceMock.getMessageWithBotSignature(
+        "MC",
+        "not-reopen-ar",
+        null,
+        "en"
+    ) } returns NOT_REOPEN_AR_MESSAGE
+
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = RIGHT_NOW.plusSeconds(3)
         val issue = mockIssue(

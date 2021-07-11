@@ -5,7 +5,7 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 
-class HelperMessageUpdateService {
+class HelperMessageUpdateService(private val helperMessageService: HelperMessageService) {
     companion object {
         private const val UPDATE_INTERVAL_IN_SECONDS = 60 * 60L // 1 hour
     }
@@ -21,7 +21,7 @@ class HelperMessageUpdateService {
 
         // Update helper messages if necessary
         if (secondsSinceLastUpdate >= UPDATE_INTERVAL_IN_SECONDS) {
-            HelperMessageService.updateHelperMessages(helperMessagesFile)
+            helperMessageService.updateHelperMessages(helperMessagesFile)
 
             helperMessagesLastFetch = currentTime
         }

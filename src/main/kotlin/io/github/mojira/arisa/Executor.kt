@@ -4,18 +4,21 @@ import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.CommentCache
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.jira.toDomain
+import io.github.mojira.arisa.infrastructure.jira.Mapper
 import io.github.mojira.arisa.registry.ModuleRegistry
 import io.github.mojira.arisa.registry.getModuleRegistries
 
 class Executor(
     private val config: Config,
     private val projectCache: ProjectCache,
-    private val registries: List<ModuleRegistry> = getModuleRegistries(config, projectCache),
+    private val helperMessageService: HelperMessageService,
+    private val mapper: Mapper,
+    private val registries: List<ModuleRegistry> = getModuleRegistries(config, projectCache, helperMessageService),
     private val searchIssues: (String, Int, () -> Unit) -> List<Issue> =
-        ::getSearchResultsFromJira.partially1(config).partially1(projectCache).partially1(MAX_RESULTS)
+        ::getSearchResultsFromJira.partially1(mapper).partially1(MAX_RESULTS)
 ) {
     companion object {
         private const val MAX_RESULTS = 100
@@ -113,8 +116,7 @@ class Executor(
 
 @Suppress("LongParameterList")
 private fun getSearchResultsFromJira(
-    config: Config,
-    projectCache: ProjectCache,
+    mapper: Mapper,
     maxResults: Int,
     jql: String,
     startAt: Int,
@@ -132,11 +134,5 @@ private fun getSearchResultsFromJira(
 
     return searchResult
         .issues
-        .map {
-            it.toDomain(
-                jiraClient,
-                config,
-                projectCache
-            )
-        }
+        .map { mapper.toDomain(it) }
 }

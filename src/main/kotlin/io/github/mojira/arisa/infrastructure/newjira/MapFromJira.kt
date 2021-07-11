@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat
 
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
+@Suppress("TooManyFunctions")
 class MapFromJira(
     val config: Config,
     val userService: UserService,

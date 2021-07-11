@@ -121,6 +121,9 @@ object HelperMessageService {
     fun getMessageWithBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
         getMessage(project, listOf(key, "i-am-a-bot"), listOf(filledText), lang)
 
+    fun getMessageWithDupeBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
+        getMessage(project, listOf(key, "i-am-a-bot-dupe"), listOf(filledText), lang)
+
     fun setHelperMessages(json: String) = data.fromJSON(json)
         ?: throw IOException("Couldn't deserialize helper messages from setHelperMessages()")
 

@@ -60,7 +60,7 @@ class DuplicateMessageModule(
 
             val filledText = parents.getFilledText()
 
-            addComment(CommentOptions(messageKey, filledText))
+            addDupeMessage(CommentOptions(messageKey, filledText))
         }
     }
 

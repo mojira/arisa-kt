@@ -23,7 +23,6 @@ import net.rcarz.jiraclient.JiraException
 import net.rcarz.jiraclient.RestException
 import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
-import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
 import org.apache.http.client.methods.HttpGet
@@ -71,7 +70,7 @@ fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
     }
 }
 
-const val MILLI_FOR_FORMAT = 123L
+private const val MILLI_FOR_FORMAT = 123L
 
 fun updateCHK(context: Lazy<IssueUpdateContext>, chkField: String) {
     context.value.hasUpdates = true
@@ -132,11 +131,6 @@ fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
     context.value.edit.field(Field.SECURITY, Field.valueById(levelId))
 }
 
-fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
-    context.value.hasEdits = true
-    context.value.edit.fieldRemove("versions", version)
-}
-
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
     context.value.edit.fieldAdd("versions", Field.valueById(id))
@@ -145,11 +139,6 @@ fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
     context.value.edit.fieldRemove("versions", Field.valueById(id))
-}
-
-fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
-    context.value.hasEdits = true
-    context.value.edit.fieldAdd("versions", version)
 }
 
 fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {

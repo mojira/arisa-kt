@@ -28,9 +28,8 @@ class AttachmentModule(
         }
     }
 
-    private fun List<Attachment>.getCommentInfo() = this
-        .map { "- [~${it.uploader!!.name}]: ${it.name}" }
-        .joinToString(separator = "\n")
+    private fun List<Attachment>.getCommentInfo() =
+        this.joinToString(separator = "\n") { "- [~${it.uploader!!.name}]: ${it.name}" }
 
     private fun endsWithBlacklistedExtensions(extensionBlackList: List<String>, name: String) =
         extensionBlackList.any { name.endsWith(it) }

@@ -133,10 +133,7 @@ fun String?.getOrDefault(default: String) =
         this
 
 fun String?.getOrDefaultNull(default: String) =
-    if (this == null)
-        default
-    else
-        this
+    this ?: default
 
 fun MutableList<String>.splitElemsByCommas() {
     val newList = this.flatMap { s ->

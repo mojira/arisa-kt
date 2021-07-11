@@ -51,10 +51,27 @@ class ExecutorTest : StringSpec({
         addFailed.captured("MC-1")
     }
 
-    "should add failed tickets" {
+    "should not add tickets that failed before" {
         val executor = getMockExecutor(listOf(failedModuleRegistryMock))
 
         val result = executor.execute(dummyTimeframe, setOf("MC-1"))
+
+        result.failedTickets.shouldBeEmpty()
+        result.successful shouldBe true
+    }
+
+    "should add failed tickets" {
+        val executor = getMockExecutor(
+            listOf(failedModuleRegistryMock),
+            searchIssues = { _, _, finishedCallback ->
+                run {
+                    finishedCallback()
+                    listOf(mockIssue("MC-1"))
+                }
+            }
+        )
+
+        val result = executor.execute(dummyTimeframe, emptySet())
 
         result.failedTickets shouldContain "MC-1"
         result.successful shouldBe true

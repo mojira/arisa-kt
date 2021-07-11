@@ -104,26 +104,26 @@ object Arisa : ConfigSpec() {
                 description = "The extensions (including leading dots) that should be removed from issues. " +
                         "Default is no extensions."
             )
-            val comment by required<String>(
+            val comment by requiredMessageKey(
                 description = "The key of the message that is posted when this module succeeds."
             )
         }
 
         object DuplicateMessage : ModuleConfigSpec() {
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted under duplicate tickets."
             )
-            val forwardMessage by required<String>(
+            val forwardMessage by requiredMessageKey(
                 description = "The key of the message that is posted under duplicate tickets that are " +
                         "newer than the current one."
             )
-            val ticketMessages by required<Map<String, String>>(
+            val ticketMessages by requiredMessageKeyMap<String>(
                 description = "A map from ticket keys to keys of messages that are posted for specific parents"
             )
-            val privateMessage by required<String>(
+            val privateMessage by requiredMessageKey(
                 description = "The key of the message that is posted when the parent is private."
             )
-            val resolutionMessages by required<Map<String, String>>(
+            val resolutionMessages by requiredMessageKeyMap<String>(
                 description = "A map from resolution names to keys of messages that are posted when the parents were" +
                         " resolved as specific resolutions"
             )
@@ -136,7 +136,7 @@ object Arisa : ConfigSpec() {
         }
 
         object Piracy : ModuleConfigSpec() {
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted when this module succeeds."
             )
             val piracySignatures by required<List<String>>(
@@ -145,7 +145,7 @@ object Arisa : ConfigSpec() {
         }
 
         object Privacy : ModuleConfigSpec() {
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted when this module succeeds."
             )
             val commentNote by optional(
@@ -171,7 +171,7 @@ object Arisa : ConfigSpec() {
             val allowedLanguages by required<List<String>>(
                 description = "Codes of languages that can be used."
             )
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "Key of message in helper-messages."
             )
             val lengthThreshold by required<Int>(
@@ -190,11 +190,12 @@ object Arisa : ConfigSpec() {
         }
 
         object FutureVersion : ModuleConfigSpec() {
-            val message by required<String>(
-                description = "The key of the message that is posted when this module succeeds."
+            val message by requiredMessageKey(
+                description = "The key of the message that is posted when Arisa had to choose the latest release" +
+                        "and the user should pick the correct version."
             )
-            val panel by required<String>(
-                description = "The key of the message that is posted when there are more versions."
+            val panel by requiredMessageKey(
+                description = "The key of the message indicating that future versions are not allowed."
             )
         }
 
@@ -260,7 +261,7 @@ object Arisa : ConfigSpec() {
             val onlyOPTag by required<String>(
                 description = "a tag used to indicate that only the reporter should be allowed to reopen the ticket"
             )
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted when the ticket is updated but will not be " +
                         "reopened by Arisa, e.g. the ticket has a keep AR tag, or the ticket is too old and is not " +
                         "updated by the reporter."
@@ -278,7 +279,7 @@ object Arisa : ConfigSpec() {
         }
 
         object Empty : ModuleConfigSpec() {
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted when this module succeeds."
             )
         }
@@ -287,11 +288,11 @@ object Arisa : ConfigSpec() {
             val crashExtensions by required<List<String>>(
                 description = "File extensions that should be checked for crash reports."
             )
-            val duplicateMessage by required<String>(
+            val duplicateMessage by requiredMessageKey(
                 description = "The key of the message to be sent when resolving a duplicate."
             )
-            val moddedMessage by required<String>(
-                description = "The key of the message to be sent when resolving a duplicate."
+            val moddedMessage by requiredMessageKey(
+                description = "The key of the message to be sent when resolving an issue with modded crash."
             )
             val duplicates by required<List<CrashDupeConfig>>(
                 description = "List of exception details that are resolved as duplicates for a specific ticket key."
@@ -301,7 +302,7 @@ object Arisa : ConfigSpec() {
         object RevokeConfirmation : ModuleConfigSpec()
 
         object KeepPrivate : ModuleConfigSpec() {
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted when this module succeeds."
             )
             val tag by optional<String?>(null)
@@ -336,7 +337,7 @@ object Arisa : ConfigSpec() {
         object RemoveIdenticalLink : ModuleConfigSpec()
 
         object RemoveVersion : ModuleConfigSpec() {
-            val message by required<String>(
+            val message by requiredMessageKey(
                 description = "The key of the message that is posted when this module succeeds."
             )
         }

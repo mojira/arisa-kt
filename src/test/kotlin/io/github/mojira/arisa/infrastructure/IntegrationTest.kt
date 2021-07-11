@@ -2,10 +2,15 @@ package io.github.mojira.arisa.infrastructure
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.ConfigService
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.config.MessageKeyItem
+import io.github.mojira.arisa.infrastructure.config.MessageKeyMapItem
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.engine.spec.tempdir
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.maps.shouldContainKey
-import java.io.File
+import io.kotest.matchers.maps.shouldContainKeys
 
 class IntegrationTest : StringSpec({
     "should be able to read the main config file correctly" {
@@ -25,26 +30,32 @@ class IntegrationTest : StringSpec({
     }
 
     "should contain required messages in helper-messages" {
-        val helperMessagesFile = File("helper-messages.json")
+        val helperMessagesFile = tempdir("helper-messages").resolve("helper-messages.json")
         val helperMessageService = HelperMessageService()
         helperMessageService.updateHelperMessages(helperMessagesFile)
+        // Manually delete file because Kotest `tempdir` won't delete the directory otherwise,
+        // see also https://github.com/kotest/kotest/pull/2227
+        helperMessagesFile.delete()
 
-        with(helperMessageService.data.messages) {
-            this shouldContainKey "attach-new-attachment"
-            this shouldContainKey "duplicate"
-            this shouldContainKey "duplicate-fixed"
-            this shouldContainKey "duplicate-of-mc-297"
-            this shouldContainKey "duplicate-of-mc-128302"
-            this shouldContainKey "duplicate-of-mcl-5638"
-            this shouldContainKey "duplicate-private"
-            this shouldContainKey "duplicate-wai"
-            this shouldContainKey "duplicate-wf"
-            this shouldContainKey "pirated-minecraft"
-            this shouldContainKey "provide-affected-versions"
-            this shouldContainKey "incomplete"
-            this shouldContainKey "modified-game"
-            this shouldContainKey "not-reopen-ar"
-            this shouldContainKey "panel-unmark-private-issue"
+        val messages = helperMessageService.data.messages
+        messages.shouldContainKeys(
+            "i-am-a-bot",
+            "i-am-a-bot-dupe"
+        )
+
+        // Verify that messages exist for all keys used by config
+        val config = ConfigService().config
+        val messageKeysUsedByConfig = config.items.flatMap {
+            when (it) {
+                is MessageKeyItem -> listOf(config[it])
+                is MessageKeyMapItem<*> -> config[it].values
+                else -> emptyList()
+            }
+        }
+        // Sanity check to verify that message key items are correctly identified
+        messageKeysUsedByConfig.shouldNotBeEmpty()
+        messageKeysUsedByConfig.forEach {
+            messages shouldContainKey it
         }
     }
 })

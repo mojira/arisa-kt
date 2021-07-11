@@ -8,7 +8,6 @@ import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.registry.ModuleRegistry
-import io.github.mojira.arisa.registry.TicketQueryTimeframe
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -24,7 +23,7 @@ private val failedModuleRegistryMock = mockk<ModuleRegistry>()
 private val moduleExecutorMock = mockk<ModuleExecutor>()
 private val failedModuleExecutorMock = mockk<ModuleExecutor>()
 
-private val dummyTimeframe = TicketQueryTimeframe(Instant.now(), Instant.now(), true)
+private val dummyTimeframe = ExecutionTimeframe(Instant.now(), Instant.now(), true)
 
 class ExecutorTest : StringSpec({
     every { moduleRegistryMock.getEnabledModules() } returns listOf(
@@ -52,10 +51,27 @@ class ExecutorTest : StringSpec({
         addFailed.captured("MC-1")
     }
 
-    "should add failed tickets" {
+    "should not add tickets that failed before" {
         val executor = getMockExecutor(listOf(failedModuleRegistryMock))
 
         val result = executor.execute(dummyTimeframe, setOf("MC-1"))
+
+        result.failedTickets.shouldBeEmpty()
+        result.successful shouldBe true
+    }
+
+    "should add failed tickets" {
+        val executor = getMockExecutor(
+            listOf(failedModuleRegistryMock),
+            searchIssues = { _, _, finishedCallback ->
+                run {
+                    finishedCallback()
+                    listOf(mockIssue("MC-1"))
+                }
+            }
+        )
+
+        val result = executor.execute(dummyTimeframe, emptySet())
 
         result.failedTickets shouldContain "MC-1"
         result.successful shouldBe true

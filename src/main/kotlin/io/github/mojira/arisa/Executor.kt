@@ -1,25 +1,33 @@
 package io.github.mojira.arisa
 
+import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.CommentCache
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.jira.toDomain
 import io.github.mojira.arisa.registry.ModuleRegistry
-import io.github.mojira.arisa.registry.TicketQueryTimeframe
+import io.github.mojira.arisa.registry.getModuleRegistries
 
 class Executor(
     private val config: Config,
-    private val registries: List<ModuleRegistry>,
-    private val searchIssues: (String, Int, () -> Unit) -> List<Issue>
+    private val registries: List<ModuleRegistry> = getModuleRegistries(config),
+    private val searchIssues: (String, Int, () -> Unit) -> List<Issue> =
+        ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
 ) {
+    companion object {
+        private const val MAX_RESULTS = 100
+    }
+
     data class ExecutionResults(
         val successful: Boolean,
-        val failedTickets: Collection<String>
+        val failedTickets: Set<String>
     )
 
     @Suppress("TooGenericExceptionCaught")
     fun execute(
-        timeframe: TicketQueryTimeframe,
+        timeframe: ExecutionTimeframe,
         rerunTickets: Set<String>
     ): ExecutionResults {
         val failedTickets = mutableSetOf<String>()
@@ -28,7 +36,13 @@ class Executor(
 
         try {
             registries.forEach {
-                executeRegistry(it, rerunTickets, failedTickets::add, timeframe)
+                executeRegistry(it, rerunTickets, timeframe) { ticket ->
+                    if (ticket !in rerunTickets) {
+                        failedTickets.add(ticket)
+                    } else {
+                        log.info("$ticket failed to run again, dropping it.")
+                    }
+                }
             }
         } catch (ex: Throwable) {
             log.error("Failed to execute modules", ex)
@@ -43,21 +57,21 @@ class Executor(
     private fun executeRegistry(
         registry: ModuleRegistry,
         rerunTickets: Collection<String>,
-        addFailedTicket: (String) -> Unit,
-        timeframe: TicketQueryTimeframe
+        timeframe: ExecutionTimeframe,
+        addFailedTicket: (String) -> Unit
     ) {
         val issues = getIssuesForRegistry(registry, rerunTickets, timeframe)
 
         registry.getEnabledModules().forEach { (moduleName, _, execute, moduleExecutor) ->
             log.debug("Executing module $moduleName")
-            moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, timeframe.lastRun) }
+            moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, timeframe.lastRunTime) }
         }
     }
 
     private fun getIssuesForRegistry(
         registry: ModuleRegistry,
         rerunTickets: Collection<String>,
-        timeframe: TicketQueryTimeframe
+        timeframe: ExecutionTimeframe
     ): List<Issue> {
         val issues = mutableListOf<Issue>()
 
@@ -82,9 +96,9 @@ class Executor(
         }
 
         if (config[Arisa.Debug.logReturnedIssues]) {
-            log.debug("Returned issues for registry ${ registry::class.simpleName }: ${ issues.map { it.key } }")
+            log.debug("Returned issues for registry ${registry::class.simpleName}: ${issues.map { it.key }}")
         } else {
-            log.debug("${ issues.size } issues have been returned for registry ${ registry::class.simpleName }")
+            log.debug("${issues.size} issues have been returned for registry ${registry::class.simpleName}")
         }
 
         return issues
@@ -94,4 +108,32 @@ class Executor(
         val enabledModules = registries.flatMap { registry -> registry.getEnabledModules().map { it.name } }
         log.debug("Enabled modules: $enabledModules")
     }
+}
+
+private fun getSearchResultsFromJira(
+    config: Config,
+    maxResults: Int,
+    jql: String,
+    startAt: Int,
+    finishedCallback: () -> Unit
+): List<Issue> {
+    val searchResult = jiraClient.searchIssues(
+        jql,
+        "*all",
+        "changelog",
+        maxResults,
+        startAt
+    ) ?: return emptyList()
+
+    if (startAt + searchResult.max >= searchResult.total) finishedCallback()
+
+    return searchResult
+        .issues
+        .map {
+            it.toDomain(
+                jiraClient,
+                ProjectCache.getProjectFromTicketId(it.key),
+                config
+            )
+        }
 }

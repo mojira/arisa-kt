@@ -21,7 +21,6 @@ arisa:
       - Won't Fix
       - Works As Intended
     url: https://bugs.mojang.com/
-    checkIntervalSeconds: 10
 
   customFields:
     linked: customfield_11100
@@ -36,9 +35,6 @@ arisa:
     default: '10318'
     special:
       MCL: '10502'
-
-  helperMessages:
-    updateIntervalSeconds: 3600
 
   modules:
     attachment:

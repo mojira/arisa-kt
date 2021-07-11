@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.jira.getIssue
 import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
 import io.github.mojira.arisa.jiraClient
@@ -19,11 +20,12 @@ import io.github.mojira.arisa.modules.commands.arguments.greedyStringWithFlag
 
 @Suppress("LongMethod")
 fun getCommandDispatcher(
+    projectCache: ProjectCache,
     prefix: String
 ): CommandDispatcher<CommandSource> {
     val addLinksCommand = AddLinksCommand()
     val addVersionCommand = AddVersionCommand()
-    val clearProjectCacheCommand = ClearProjectCacheCommand()
+    val clearProjectCacheCommand = ClearProjectCacheCommand(projectCache)
     val deleteCommentsCommand = DeleteCommentsCommand()
     val deleteLinksCommand = DeleteLinksCommand()
     val fixCapitalizationCommand = FixCapitalizationCommand()

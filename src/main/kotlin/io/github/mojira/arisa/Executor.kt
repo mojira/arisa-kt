@@ -12,9 +12,10 @@ import io.github.mojira.arisa.registry.getModuleRegistries
 
 class Executor(
     private val config: Config,
-    private val registries: List<ModuleRegistry> = getModuleRegistries(config),
+    private val projectCache: ProjectCache,
+    private val registries: List<ModuleRegistry> = getModuleRegistries(config, projectCache),
     private val searchIssues: (String, Int, () -> Unit) -> List<Issue> =
-        ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
+        ::getSearchResultsFromJira.partially1(config).partially1(projectCache).partially1(MAX_RESULTS)
 ) {
     companion object {
         private const val MAX_RESULTS = 100
@@ -110,8 +111,10 @@ class Executor(
     }
 }
 
+@Suppress("LongParameterList")
 private fun getSearchResultsFromJira(
     config: Config,
+    projectCache: ProjectCache,
     maxResults: Int,
     jql: String,
     startAt: Int,
@@ -132,8 +135,8 @@ private fun getSearchResultsFromJira(
         .map {
             it.toDomain(
                 jiraClient,
-                ProjectCache.getProjectFromTicketId(it.key),
-                config
+                config,
+                projectCache
             )
         }
 }

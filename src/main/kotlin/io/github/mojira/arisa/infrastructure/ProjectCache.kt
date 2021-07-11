@@ -5,11 +5,11 @@ import java.time.Duration
 import java.time.Instant
 import net.rcarz.jiraclient.Project as JiraProject
 
-object ProjectCache {
+private const val REFRESH_INTERVAL_IN_MINUTES: Long = 5
+
+class ProjectCache {
     private var cache = Cache<JiraProject>()
     private var lastRefresh = Instant.now()
-
-    private const val REFRESH_INTERVAL_IN_MINUTES: Long = 5
 
     fun getProjectFromTicketId(id: String): JiraProject {
         checkForRefresh()

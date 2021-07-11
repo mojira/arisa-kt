@@ -1,13 +1,14 @@
 package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.infrastructure.ProjectCache
 
 class ExecutionService(
     config: Config,
     private val connectionService: JiraConnectionService
 ) {
     private val helperMessageUpdateService = HelperMessageUpdateService()
-    private val executor = Executor(config)
+    private val executor = Executor(config, ProjectCache())
     private val lastRun = LastRun.getLastRun(config)
 
     /**

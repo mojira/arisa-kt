@@ -49,7 +49,7 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachme
 )
 
 fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.changeLog.entries
-    .filter { it.items.any { it.field == "Attachment" && it.to == id } }
+    .filter { it.items.any { item -> item.field == "Attachment" && item.to == id } }
     .maxByOrNull { it.created }
     ?.created
     ?.toInstant() ?: default
@@ -79,9 +79,10 @@ fun JiraIssue.getUpdateContext(jiraClient: JiraClient): Lazy<IssueUpdateContext>
 @Suppress("LongMethod", "LongParameterList")
 fun JiraIssue.toDomain(
     jiraClient: JiraClient,
-    project: JiraProject,
-    config: Config
+    config: Config,
+    projectCache: ProjectCache
 ): Issue {
+    val project = projectCache.getProjectFromTicketId(key)
     val context = getUpdateContext(jiraClient)
     return Issue(
         key,
@@ -107,7 +108,7 @@ fun JiraIssue.toDomain(
         mapFixVersions(),
         mapAttachments(jiraClient),
         mapComments(jiraClient),
-        mapLinks(jiraClient, config),
+        mapLinks(jiraClient, config, projectCache),
         getChangeLogEntries(jiraClient),
         ::reopen.partially1(context),
         ::resolveAs.partially1(context).partially1("Awaiting Response"),
@@ -222,11 +223,12 @@ private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
 @Suppress("LongParameterList")
 fun JiraIssue.toLinkedIssue(
     jiraClient: JiraClient,
-    config: Config
+    config: Config,
+    projectCache: ProjectCache
 ) = LinkedIssue(
     key,
     status.name,
-    { getFullIssue(jiraClient, config) },
+    { getFullIssue(jiraClient, config, projectCache) },
     ::createLink.partially1(getUpdateContext(jiraClient)).partially1(::getOtherUpdateContext
             .partially1(jiraClient))
 )
@@ -235,13 +237,15 @@ fun JiraIssue.toLinkedIssue(
 fun JiraIssueLink.toDomain(
     jiraClient: JiraClient,
     issue: JiraIssue,
-    config: Config
+    config: Config,
+    projectCache: ProjectCache
 ) = Link(
     type.name,
     outwardIssue != null,
     (outwardIssue ?: inwardIssue).toLinkedIssue(
         jiraClient,
-        config
+        config,
+        projectCache
     ),
     ::deleteLink.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
 )
@@ -260,9 +264,10 @@ fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry
 @Suppress("LongParameterList")
 private fun JiraIssue.mapLinks(
     jiraClient: JiraClient,
-    config: Config
+    config: Config,
+    projectCache: ProjectCache
 ) = issueLinks.map {
-    it.toDomain(jiraClient, this, config)
+    it.toDomain(jiraClient, this, config, projectCache)
 }
 
 private fun JiraIssue.mapComments(jiraClient: JiraClient) =
@@ -302,18 +307,18 @@ private fun JiraIssue.getPlatform(config: Config) = getCustomField(config[Arisa.
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 
-@Suppress("LongParameterList")
 private fun JiraIssue.getFullIssue(
     jiraClient: JiraClient,
-    config: Config
+    config: Config,
+    projectCache: ProjectCache
 ): Either<Throwable, Issue> =
     getIssue(jiraClient, key).fold(
         { it.left() },
         {
             it.toDomain(
                 jiraClient,
-                ProjectCache.getProjectFromTicketId(it.key),
-                config
+                config,
+                projectCache
             ).right()
         }
     )

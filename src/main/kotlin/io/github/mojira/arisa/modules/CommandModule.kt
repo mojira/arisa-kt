@@ -7,6 +7,7 @@ import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.modules.commands.getCommandDispatcher
 import kotlinx.coroutines.runBlocking
@@ -17,9 +18,11 @@ data class Command(val command: String, val source: CommandSource)
 private typealias CommandResult = Either<Throwable, Int>
 
 class CommandModule(
+    projectCache: ProjectCache,
     private val prefix: String,
     private val botUserName: String,
-    private val getDispatcher: (String) -> CommandDispatcher<CommandSource> = ::getCommandDispatcher
+    private val getDispatcher: (String) -> CommandDispatcher<CommandSource> =
+        ::getCommandDispatcher.partially1(projectCache)
 ) : Module {
     /**
      * This is the command dispatcher.
@@ -46,9 +49,7 @@ class CommandModule(
                 }
                 .filter { it.second.isNotEmpty() }
                 .onEach { invocation ->
-                    val commandResults = invocation.second
-                        .map { it.source.line to executeCommand(it) }
-                        .toMap()
+                    val commandResults = invocation.second.associate { it.source.line to executeCommand(it) }
                     editInvocationComment(invocation.first, commandResults)
                 }
             assertNotEmpty(commands).bind()

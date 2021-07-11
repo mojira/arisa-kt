@@ -6,6 +6,7 @@ import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.ModuleExecutor
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -15,9 +16,9 @@ import io.github.mojira.arisa.modules.ModuleResponse
 import java.time.Instant
 
 // All defined module registries
-val getModuleRegistries = { config: Config ->
-    listOf(
-        InstantModuleRegistry(config),
+fun getModuleRegistries(config: Config, projectCache: ProjectCache): List<ModuleRegistry> {
+    return listOf(
+        InstantModuleRegistry(config, projectCache),
         DelayedModuleRegistry(config),
         LinkedModuleRegistry(config)
     )

@@ -2,6 +2,7 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.registry.ModuleRegistry
@@ -9,6 +10,7 @@ import io.github.mojira.arisa.registry.getModuleRegistries
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.mockk.mockk
 import org.reflections.Reflections
 
 val CONFIG = Config { addSpec(Arisa) }
@@ -63,9 +65,11 @@ class ModuleRegistryTest : StringSpec({
 })
 
 private fun getAllModules(): List<ModuleRegistry.Entry> {
-    return getModuleRegistries(CONFIG).flatMap { it.getAllModules() }
+    val projectCache = mockk<ProjectCache>()
+    return getModuleRegistries(CONFIG, projectCache).flatMap { it.getAllModules() }
 }
 
 private fun getEnabledModules(): List<ModuleRegistry.Entry> {
-    return getModuleRegistries(CONFIG).flatMap { it.getEnabledModules() }
+    val projectCache = mockk<ProjectCache>()
+    return getModuleRegistries(CONFIG, projectCache).flatMap { it.getEnabledModules() }
 }

@@ -109,6 +109,7 @@ fun getMockExecutor(
         }
 ): Executor = Executor(
     getConfig(),
+    mockk(), // no real ProjectCache needed
     registries,
     searchIssues
 )

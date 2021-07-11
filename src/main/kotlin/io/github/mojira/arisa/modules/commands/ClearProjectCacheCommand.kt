@@ -2,9 +2,9 @@ package io.github.mojira.arisa.modules.commands
 
 import io.github.mojira.arisa.infrastructure.ProjectCache
 
-class ClearProjectCacheCommand {
+class ClearProjectCacheCommand(private val projectCache: ProjectCache) {
     operator fun invoke(): Int {
-        ProjectCache.forceClear()
+        projectCache.forceClear()
         return 1
     }
 }

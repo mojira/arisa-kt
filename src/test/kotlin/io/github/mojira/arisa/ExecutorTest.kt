@@ -63,7 +63,12 @@ class ExecutorTest : StringSpec({
     "should add failed tickets" {
         val executor = getMockExecutor(
             listOf(failedModuleRegistryMock),
-            searchIssues = { _, _, _ -> listOf(mockIssue("MC-1")) }
+            searchIssues = { _, _, finishedCallback ->
+                run {
+                    finishedCallback()
+                    listOf(mockIssue("MC-1"))
+                }
+            }
         )
 
         val result = executor.execute(dummyTimeframe, emptySet())

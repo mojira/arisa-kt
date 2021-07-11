@@ -96,9 +96,9 @@ class Executor(
         }
 
         if (config[Arisa.Debug.logReturnedIssues]) {
-            log.debug("Returned issues for registry ${ registry::class.simpleName }: ${ issues.map { it.key } }")
+            log.debug("Returned issues for registry ${registry::class.simpleName}: ${issues.map { it.key }}")
         } else {
-            log.debug("${ issues.size } issues have been returned for registry ${ registry::class.simpleName }")
+            log.debug("${issues.size} issues have been returned for registry ${registry::class.simpleName}")
         }
 
         return issues

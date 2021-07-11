@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.registry
 
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.UpdateLinkedModule
 import java.time.temporal.ChronoUnit
@@ -11,10 +12,10 @@ import java.time.temporal.ChronoUnit
  * This is done in order to avoid spam.
  */
 class LinkedModuleRegistry(config: Config) : ModuleRegistry(config) {
-    override fun getJql(timeframe: TicketQueryTimeframe): String {
-        val freshlyUpdatedJql = "updated > ${ timeframe.lastRun.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
+    override fun getJql(timeframe: ExecutionTimeframe): String {
+        val freshlyUpdatedJql = "updated > ${ timeframe.lastRunTime.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
 
-        val intervalEnd = timeframe.currentRun.minus(
+        val intervalEnd = timeframe.currentRunTime.minus(
             config[Arisa.Modules.UpdateLinked.updateIntervalHours], ChronoUnit.HOURS
         )
         val intervalStart = intervalEnd.minus(timeframe.duration())

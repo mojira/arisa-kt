@@ -2,6 +2,7 @@ package io.github.mojira.arisa.registry
 
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.CrashReader
+import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.AttachmentModule
@@ -36,8 +37,8 @@ import io.github.mojira.arisa.modules.TransferVersionsModule
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
  */
 class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
-    override fun getJql(timeframe: TicketQueryTimeframe): String {
-        return "updated > ${ timeframe.lastRun.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
+    override fun getJql(timeframe: ExecutionTimeframe): String {
+        return "updated > ${ timeframe.lastRunTime.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
     }
 
     init {

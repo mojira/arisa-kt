@@ -6,7 +6,7 @@ data class Comment(
     var body: String = "",
     val author: User,
     val created: Instant,
-    var updated: Instant,
+    var updated: Instant?,
     var visibilityType: String?,
     var visibilityValue: String?
 )

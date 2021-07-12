@@ -25,6 +25,7 @@ class DelayedModuleRegistry(config: Config) : ModuleRegistry(config) {
             DuplicateMessageModule(
                 config[Arisa.Modules.DuplicateMessage.commentDelayMinutes],
                 config[Arisa.Modules.DuplicateMessage.message],
+                config[Arisa.Modules.DuplicateMessage.botCommentSignatureMessage],
                 config[Arisa.Modules.DuplicateMessage.forwardMessage],
                 config[Arisa.Modules.DuplicateMessage.ticketMessages],
                 config[Arisa.Modules.DuplicateMessage.privateMessage],

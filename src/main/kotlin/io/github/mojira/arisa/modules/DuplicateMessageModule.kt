@@ -18,6 +18,7 @@ import java.time.temporal.ChronoUnit
 class DuplicateMessageModule(
     private val commentDelayMinutes: Long,
     private val message: String,
+    private val signatureMessage: String,
     private val forwardMessage: String,
     private val ticketMessages: Map<String, String>,
     private val privateMessage: String,
@@ -60,7 +61,11 @@ class DuplicateMessageModule(
 
             val filledText = parents.getFilledText()
 
-            addDupeMessage(CommentOptions(messageKey, filledText))
+            addComment(CommentOptions(
+                messageKey = messageKey,
+                variable = filledText,
+                signatureMessageKey = signatureMessage
+            ))
         }
     }
 

@@ -1,6 +1,8 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
+import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.utils.PRIVATE_SECURITY_LEVEL
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
@@ -35,10 +37,12 @@ private val REMOVE_SECURITY_STAFF = mockChangeLogItem(
     getAuthorGroups = { listOf("staff") }
 )
 
+private const val TAG = "MEQS_KEEP_PRIVATE"
+
 class KeepPrivateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when keep private tag is null" {
         val module = KeepPrivateModule(null, "message")
-        val comment = mockComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
+        val comment = mockComment(TAG, visibilityType = "group", visibilityValue = "staff")
         val issue = mockIssue(
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY)
@@ -50,7 +54,7 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comments are empty" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val issue = mockIssue(
             changeLog = listOf(REMOVE_SECURITY)
         )
@@ -61,7 +65,7 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when no comment contains private tag" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "Hello world!",
             visibilityType = "group",
@@ -78,7 +82,7 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the comment isn't restricted to staff group" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE"
         )
@@ -93,7 +97,7 @@ class KeepPrivateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when security level is set to private" {
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             visibilityType = "group",
@@ -111,9 +115,10 @@ class KeepPrivateModuleTest : StringSpec({
 
     "should both set to private and comment when security level is removed by staff" {
         var didSetToPrivate = false
-        var didComment = false
+        var addedComment: String? = null
+        var commentRestriction: Restriction? = null
 
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             created = RIGHT_NOW.minusSeconds(20),
@@ -124,21 +129,26 @@ class KeepPrivateModuleTest : StringSpec({
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY_STAFF),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
+            addRawComment = { body, restriction ->
+                addedComment = body
+                commentRestriction = restriction
+                Unit.right()
+            }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
-        didComment shouldBe true
+        addedComment shouldBe "To remove the security level, please remove the keep private tag first."
+        commentRestriction shouldBe Restriction.STAFF
     }
 
     "should both set to private and comment when security level is null" {
         var didSetToPrivate = false
-        var didComment = false
+        var commentOptions: CommentOptions? = null
 
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             created = RIGHT_NOW.minusSeconds(20),
@@ -149,21 +159,21 @@ class KeepPrivateModuleTest : StringSpec({
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
-        didComment shouldBe true
+        commentOptions shouldBe CommentOptions("message")
     }
 
     "should both set to private and comment when security level is not private" {
         var didSetToPrivate = false
-        var didComment = false
+        var commentOptions: CommentOptions? = null
 
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             created = RIGHT_NOW.minusSeconds(20),
@@ -175,21 +185,21 @@ class KeepPrivateModuleTest : StringSpec({
             comments = listOf(comment),
             changeLog = listOf(USE_PUBLIC_SECURITY),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
-        didComment shouldBe true
+        commentOptions shouldBe CommentOptions("message")
     }
 
     "should both set to private and comment when security level is transitively not private" {
         var didSetToPrivate = false
-        var didComment = false
+        var commentOptions: CommentOptions? = null
 
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             created = RIGHT_NOW.minusSeconds(20),
@@ -212,21 +222,21 @@ class KeepPrivateModuleTest : StringSpec({
             // private -> public -> other-public
             changeLog = listOf(USE_PUBLIC_SECURITY, otherSecurityLevelChange),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addComment = { didComment = true; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
-        didComment shouldBe true
+        commentOptions shouldBe CommentOptions("message")
     }
 
     "should set to private but not comment when security level has never been changed" {
         var didSetToPrivate = false
         var didComment = false
 
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             visibilityType = "group",
@@ -249,7 +259,7 @@ class KeepPrivateModuleTest : StringSpec({
         var didSetToPrivate = false
         var didComment = false
 
-        val module = KeepPrivateModule("MEQS_KEEP_PRIVATE", "message")
+        val module = KeepPrivateModule(TAG, "message")
         val comment = mockComment(
             body = "MEQS_KEEP_PRIVATE",
             created = RIGHT_NOW.minusSeconds(2),

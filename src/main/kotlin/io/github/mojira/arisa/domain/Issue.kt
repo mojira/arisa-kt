@@ -46,10 +46,7 @@ data class Issue(
     val removeAffectedVersion: (version: Version) -> Unit,
     val createLink: (type: String, key: String, outwards: Boolean) -> Unit,
     val addComment: (options: CommentOptions) -> Unit,
-    val addDupeMessage: (options: CommentOptions) -> Unit,
-    val addRestrictedComment: (options: CommentOptions) -> Unit,
-    val addNotEnglishComment: (language: String) -> Unit,
-    val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
+    val addRawComment: (body: String, restriction: Restriction?) -> Unit,
     val markAsFixedWithSpecificVersion: (fixVersionName: String) -> Unit,
     val changeReporter: (reporter: String) -> Unit,
     val addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit

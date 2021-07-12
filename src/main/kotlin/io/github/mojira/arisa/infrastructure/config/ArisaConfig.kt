@@ -76,6 +76,11 @@ object Arisa : ConfigSpec() {
         )
     }
 
+    val botCommentSignatureMessage by requiredMessageKey(
+        description = "The key of the message used as signature for comments added by the bot, " +
+                " that is \"I am a bot ...\"."
+    )
+
     object Modules : ConfigSpec() {
         open class ModuleConfigSpec : ConfigSpec() {
             val enabled by optional(
@@ -126,6 +131,10 @@ object Arisa : ConfigSpec() {
             val resolutionMessages by requiredMessageKeyMap<String>(
                 description = "A map from resolution names to keys of messages that are posted when the parents were" +
                         " resolved as specific resolutions"
+            )
+            val botCommentSignatureMessage by requiredMessageKey(
+                description = "The key of the message used as signature for the comment added by the bot, " +
+                        " that is \"I am a bot ...\"."
             )
             val commentDelayMinutes by required<Long>(
                 description = "Delay in which the module should add the comment in minutes"

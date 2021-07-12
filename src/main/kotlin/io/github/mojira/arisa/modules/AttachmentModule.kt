@@ -6,6 +6,7 @@ import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Restriction
 import java.time.Instant
 
 class AttachmentModule(
@@ -24,7 +25,7 @@ class AttachmentModule(
                 .map { it.remove }
                 .forEach { it.invoke() }
             addComment(CommentOptions(attachmentRemovedMessage))
-            addRawRestrictedComment("Removed attachments:\n$commentInfo", "helper")
+            addRawComment("Removed attachments:\n$commentInfo", Restriction.HELPER)
         }
     }
 

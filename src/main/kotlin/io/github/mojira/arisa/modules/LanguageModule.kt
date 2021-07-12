@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,9 +15,10 @@ private const val MINIMUM_PERCENTAGE = 0.7
 class LanguageModule(
     private val allowedLanguages: List<String> = listOf("en"),
     private val lengthThreshold: Int = 0,
-    private val getLanguage: (String) -> Map<String, Double>
+    private val getLanguage: (String) -> Map<String, Double>,
+    private val message: String
 ) : Module {
-    val log: Logger = LoggerFactory.getLogger("LanguageModule")
+    private val log: Logger = LoggerFactory.getLogger("LanguageModule")
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -32,7 +34,10 @@ class LanguageModule(
 
             log.info("Detected language for ${issue.key} is $detectedLanguage")
 
-            addNotEnglishComment(detectedLanguage)
+            addComment(CommentOptions(
+                messageKey = message,
+                language = detectedLanguage
+            ))
             resolveAsInvalid()
         }
     }

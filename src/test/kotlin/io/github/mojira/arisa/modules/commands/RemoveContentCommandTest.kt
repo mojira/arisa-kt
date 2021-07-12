@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -84,7 +85,7 @@ class RemoveContentCommandTest : StringSpec({
     "should remove all matching comments" {
         var calledSearch = false
         var comment: String? = null
-        var commentRestrictions: String? = null
+        var commentRestriction: Restriction? = null
 
         var removedInnocentComments = 0
         var removedEvilComments = 0
@@ -150,9 +151,9 @@ class RemoveContentCommandTest : StringSpec({
         )
 
         val issue = mockIssue(
-            addRawRestrictedComment = { body, restrictions ->
+            addRawComment = { body, restriction ->
                 comment = body
-                commentRestrictions = restrictions
+                commentRestriction = restriction
             }
         )
 
@@ -171,6 +172,6 @@ class RemoveContentCommandTest : StringSpec({
         removedEvilAttachments shouldBe 2
 
         comment.shouldNotBeNull()
-        commentRestrictions.shouldBe("staff")
+        commentRestriction shouldBe Restriction.STAFF
     }
 })

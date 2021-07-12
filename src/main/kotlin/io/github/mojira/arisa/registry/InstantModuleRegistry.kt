@@ -156,7 +156,8 @@ class InstantModuleRegistry(
                 LanguageDetectionApi(
                     config[Arisa.Credentials.dandelionToken],
                     config[Arisa.Modules.Language.apiQuotaWarningThreshold]
-                )::getLanguage
+                )::getLanguage,
+                config[Arisa.Modules.Language.message]
             )
         )
 

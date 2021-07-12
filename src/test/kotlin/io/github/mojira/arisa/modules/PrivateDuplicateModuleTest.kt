@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import arrow.core.right
+import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
@@ -10,6 +11,8 @@ import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+
+private const val TAG = "MEQS_KEEP_PRIVATE"
 
 private val duplicatesLink1 = mockLink(
     type = "Duplicate",
@@ -22,7 +25,7 @@ private val duplicatesLinkComment = mockLink(
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(
             securityLevel = "private",
-            comments = listOf(mockComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff"))
+            comments = listOf(mockComment(TAG, visibilityType = "group", visibilityValue = "staff"))
         ).right() }
     )
 )
@@ -52,7 +55,7 @@ class PrivateDuplicateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when security level is set to private" {
-        val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
+        val module = PrivateDuplicateModule(TAG)
         val issue = mockIssue(
             securityLevel = "private",
             links = listOf(duplicatesLink1)
@@ -65,50 +68,62 @@ class PrivateDuplicateModuleTest : StringSpec({
 
     "should both set to private and comment when security level is null and parent has comment" {
         var didSetToPrivate = false
-        var didComment = false
+        var comment: String? = null
+        var commentRestriction: Restriction? = null
 
-        val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
+        val module = PrivateDuplicateModule(TAG)
         val issue = mockIssue(
             links = listOf(duplicatesLinkComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
+            addRawComment = { body, restriction ->
+                comment = body
+                commentRestriction = restriction
+                Unit.right()
+            }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
-        didComment shouldBe true
+        comment shouldBe TAG
+        commentRestriction shouldBe Restriction.STAFF
     }
 
     "should both set to private and comment when security level is not private and parent has comment" {
         var didSetToPrivate = false
-        var didComment = false
+        var comment: String? = null
+        var commentRestriction: Restriction? = null
 
-        val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
+        val module = PrivateDuplicateModule(TAG)
         val issue = mockIssue(
             securityLevel = "not private",
             links = listOf(duplicatesLinkComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
+            addRawComment = { body, restriction ->
+                comment = body
+                commentRestriction = restriction
+                Unit.right()
+            }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
         didSetToPrivate shouldBe true
-        didComment shouldBe true
+        comment shouldBe TAG
+        commentRestriction shouldBe Restriction.STAFF
     }
 
     "should set to private but not comment when parent has no comment" {
         var didSetToPrivate = false
         var didComment = false
 
-        val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
+        val module = PrivateDuplicateModule(TAG)
         val issue = mockIssue(
             links = listOf(duplicatesLink1),
             setPrivate = { didSetToPrivate = true; Unit.right() },
-            addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
+            addRawComment = { _, _ -> didComment = true; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -119,7 +134,7 @@ class PrivateDuplicateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when link is not duplicates" {
-        val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
+        val module = PrivateDuplicateModule(TAG)
         val issue = mockIssue(
             links = listOf(relatesLink)
         )
@@ -130,7 +145,7 @@ class PrivateDuplicateModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when parent is not private" {
-        val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
+        val module = PrivateDuplicateModule(TAG)
         val issue = mockIssue(
             links = listOf(duplicatesLink2)
         )

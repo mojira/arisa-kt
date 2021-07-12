@@ -50,10 +50,11 @@ private val OLD_AWAITING_RESOLVE = mockChangeLogItem(
 
 class ReopenAwaitingModuleTest : StringSpec({
     every { helperMessageServiceMock.getMessageWithBotSignature(
-        "MC",
-        "not-reopen-ar",
-        null,
-        "en"
+        project = "MC",
+        key = "not-reopen-ar",
+        filledText = null,
+        signatureKey = null,
+        lang = "en"
     ) } returns NOT_REOPEN_AR_MESSAGE
 
     "should return OperationNotNeededModuleResponse when there is no resolution" {

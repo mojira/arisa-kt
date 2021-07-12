@@ -130,40 +130,20 @@ class Mapper(
                 { version -> addAffectedVersionById(context, version.id) },
                 { version -> removeAffectedVersionById(context, version.id) },
                 ::createLink.partially1(context).partially1 { key -> getOtherUpdateContext(key) },
-                addComment = { (messageKey, variable, language) ->
+                addComment = { (messageKey, variable, signatureMessageKey, language, restriction) ->
                     createComment(
                         context,
                         helperMessageService.getMessageWithBotSignature(
-                            project.key, messageKey, variable, language
-                        )
-                    )
-                },
-                addDupeMessage = { (messageKey, variable, language) ->
-                    createComment(
-                        context,
-                        helperMessageService.getMessageWithDupeBotSignature(
-                            project.key, messageKey, variable, language
-                        )
-                    )
-                },
-                addRestrictedComment = { (messageKey, variable, language) ->
-                    addRestrictedComment(
-                        context,
-                        helperMessageService.getMessageWithBotSignature(
-                            project.key, messageKey, variable, language
+                            project = project.key,
+                            key = messageKey,
+                            filledText = variable,
+                            signatureKey = signatureMessageKey,
+                            lang = language
                         ),
-                        "helper"
+                        restriction
                     )
                 },
-                addNotEnglishComment = { language ->
-                    createComment(
-                        context,
-                        helperMessageService.getMessageWithBotSignature(
-                            project.key, config[Arisa.Modules.Language.message], lang = language
-                        )
-                    )
-                },
-                addRawRestrictedComment = ::addRestrictedComment.partially1(context),
+                addRawComment = ::createComment.partially1(context),
                 ::markAsFixedWithSpecificVersion.partially1(context),
                 ::changeReporter.partially1(context),
                 ::addAttachmentFile.partially1(context)

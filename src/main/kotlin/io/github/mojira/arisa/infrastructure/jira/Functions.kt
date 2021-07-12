@@ -5,6 +5,7 @@ package io.github.mojira.arisa.infrastructure.jira
 import arrow.core.Either
 import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -252,37 +253,23 @@ fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File, cleanupCall
 
 fun createComment(
     context: Lazy<IssueUpdateContext>,
-    comment: String
-) {
-    context.value.otherOperations.add {
-        runBlocking {
-            Either.catch {
-                val key = context.value.jiraIssue.key
-
-                when (val checkResult = CommentCache.check(key, comment)) {
-                    is Either.Left -> log.error(checkResult.a.message)
-                    is Either.Right -> context.value.jiraIssue.addComment(comment)
-                }
-
-                Unit
-            }
-        }
-    }
-}
-
-fun addRestrictedComment(
-    context: Lazy<IssueUpdateContext>,
     comment: String,
-    restrictionLevel: String
+    restriction: Restriction? = null
 ) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                val key = context.value.jiraIssue.key
+                val issue = context.value.jiraIssue
+                val key = issue.key
 
                 when (val checkResult = CommentCache.check(key, comment)) {
                     is Either.Left -> log.error(checkResult.a.message)
-                    is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                    is Either.Right -> {
+                        when (restriction) {
+                            null -> issue.addComment(comment)
+                            else -> issue.addComment(comment, "group", restriction.groupName)
+                        }
+                    }
                 }
 
                 Unit

@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
+import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import io.github.mojira.arisa.log
 import net.rcarz.jiraclient.Attachment
@@ -77,10 +78,10 @@ class RemoveContentCommand(
         execute {
             val result = removeActivity(ticketIds, userName)
 
-            issue.addRawRestrictedComment(
+            issue.addRawComment(
                 "Removed ${result.removedComments} comments " +
                         "and ${result.removedAttachments} attachments from user \"$userName\".",
-                "staff"
+                Restriction.STAFF
             )
         }
 

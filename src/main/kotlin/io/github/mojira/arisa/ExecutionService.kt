@@ -3,13 +3,14 @@ package io.github.mojira.arisa
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.ProjectCache
+import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.Mapper
 
 class ExecutionService(
     config: Config,
     private val connectionService: JiraConnectionService
 ) {
-    private val helperMessageService = HelperMessageService()
+    private val helperMessageService = HelperMessageService(config[Arisa.botCommentSignatureMessage])
     private val helperMessageUpdateService = HelperMessageUpdateService(helperMessageService)
     private val projectCache = ProjectCache()
     private val mapper = Mapper(jiraClient, config, projectCache, helperMessageService)

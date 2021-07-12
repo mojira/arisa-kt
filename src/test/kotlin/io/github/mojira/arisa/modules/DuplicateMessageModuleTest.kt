@@ -23,10 +23,13 @@ private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val TEN_SECONDS_LATER = RIGHT_NOW.plusSeconds(10)
 private val TEN_THOUSAND_YEARS_LATER = RIGHT_NOW.plusSeconds(315360000000)
 
+private const val BOT_SIGNATURE_KEY = "bot-signature"
+
 class DuplicateMessageModuleTest : StringSpec({
     val module = DuplicateMessageModule(
         0L,
         "duplicate",
+        BOT_SIGNATURE_KEY,
         "duplicate-forward",
         mapOf("MC-297" to "duplicate-of-mc-297"),
         "duplicate-private",
@@ -362,13 +365,17 @@ class DuplicateMessageModuleTest : StringSpec({
             links = listOf(
                 mockLink()
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add comment when the parent has only been mentioned in an restricted comment" {
@@ -392,13 +399,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     visibilityValue = "helper"
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add comment when the parent has been mentioned in a comment by a user not in a group" {
@@ -420,13 +431,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     body = "MC-1"
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add comment when the parent has been mentioned in a comment by a normal user" {
@@ -449,13 +464,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     getAuthorGroups = { listOf("user") }
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add comment with all three parents' keys in ascending order" {
@@ -494,13 +513,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1*, *MC-2*, and *MC-3")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1*, *MC-2*, and *MC-3",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for specific ticket when there's only one parent" {
@@ -521,13 +544,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-of-mc-297", "MC-297")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-of-mc-297",
+            "MC-297",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the normal comment even if one of the parents is a special ticket" {
@@ -555,13 +582,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1* and *MC-297")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1* and *MC-297",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for private parent when the only parent is private" {
@@ -587,13 +618,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-private", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-private",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the normal comment for private parent when the parent is private but the reporters are identical" {
@@ -623,13 +658,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for private parents when all parents are private" {
@@ -671,13 +710,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-private", "MC-1* and *MC-2")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-private",
+            "MC-1* and *MC-2",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the normal comment even if portion of the parents are private" {
@@ -710,13 +753,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1* and *MC-2")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1* and *MC-2",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for specific resolution when the only parent has that resolution" {
@@ -742,13 +789,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-fixed", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-fixed",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for specific resolution when all parents have the same resolution" {
@@ -790,13 +841,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-fixed", "MC-1* and *MC-2")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-fixed",
+            "MC-1* and *MC-2",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the normal comment even if portion of the parents have the special resolution" {
@@ -829,13 +884,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1* and *MC-2")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1* and *MC-2",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the normal comment if there's no special message for the resolution" {
@@ -861,13 +920,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for specific parent instead of the comment for private parents" {
@@ -893,13 +956,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-of-mc-297", "MC-297")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-of-mc-297",
+            "MC-297",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should add the comment for private instead of the comment for specific resolution" {
@@ -926,13 +993,17 @@ class DuplicateMessageModuleTest : StringSpec({
                     )
                 )
             ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-private", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-private",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 
     "should return FailedModuleResponse when getting an issue fails" {
@@ -1003,34 +1074,38 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the forward comment if the ticket was created before the parent" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
-                changeLog = listOf(
-                        mockChangeLogItem(
-                                created = TEN_SECONDS_LATER,
-                                field = "Link",
-                                changedTo = "MC-1",
-                                changedToString = "This issue duplicates MC-1"
-                        )
-                ),
-                links = listOf(
-                        mockLink(
-                                issue = mockLinkedIssue(
-                                        key = "MC-1",
-                                        getFullIssue = {
-                                            mockIssue(
-                                                    created = TEN_THOUSAND_YEARS_LATER,
-                                                    resolution = "Invalid"
-                                            ).right()
-                                        }
-                                )
-                        )
-                ),
-            addDupeMessage = { commentOptions = it; Unit.right() }
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_SECONDS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink(
+                    issue = mockLinkedIssue(
+                        key = "MC-1",
+                        getFullIssue = {
+                            mockIssue(
+                                    created = TEN_THOUSAND_YEARS_LATER,
+                                    resolution = "Invalid"
+                            ).right()
+                        }
+                    )
+                )
+            ),
+            addComment = { commentOptions = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
 
         result.shouldBeRight(ModuleResponse)
-        commentOptions shouldBe CommentOptions("duplicate-forward", "MC-1")
+        commentOptions shouldBe CommentOptions(
+            "duplicate-forward",
+            "MC-1",
+            signatureMessageKey = BOT_SIGNATURE_KEY
+        )
     }
 })
 
@@ -1046,7 +1121,7 @@ private fun getIssue(
         )
     ),
     comments: List<Comment> = emptyList(),
-    addDupeMessage: (options: CommentOptions) -> Unit = { }
+    addComment: (options: CommentOptions) -> Unit = { }
 ) = mockIssue(
     reporter = mockUser(
         reporter
@@ -1054,5 +1129,5 @@ private fun getIssue(
     links = links,
     changeLog = changeLog,
     comments = comments,
-    addDupeMessage = addDupeMessage
+    addComment = addComment
 )

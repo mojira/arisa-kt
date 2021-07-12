@@ -7,6 +7,7 @@ import arrow.core.right
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.Restriction
 import java.time.Instant
 
 class PrivateDuplicateModule(
@@ -24,7 +25,7 @@ class PrivateDuplicateModule(
                 assertParentPrivate(it.securityLevel, it.project.privateSecurity).bind()
                 setPrivate()
                 if (parentHasKeepPrivateTag(it)) {
-                    addRawRestrictedComment(keepPrivateTag!!, "staff")
+                    addRawComment(keepPrivateTag!!, Restriction.STAFF)
                 }
             }
         }

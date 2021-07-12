@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Restriction
 
 /**
  * How many tickets should be listed at max.
@@ -26,14 +27,14 @@ class ListUserActivityCommand(
         }
 
         if (tickets.isNotEmpty()) {
-            issue.addRawRestrictedComment(
+            issue.addRawComment(
                 "User \"$userName\" left comments on the following tickets:\n* ${tickets.joinToString("\n* ")}",
-                "staff"
+                Restriction.STAFF
             )
         } else {
-            issue.addRawRestrictedComment(
+            issue.addRawComment(
                 """No unrestricted comments from user "$userName" were found.""",
-                "staff"
+                Restriction.STAFF
             )
         }
 

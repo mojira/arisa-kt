@@ -63,7 +63,7 @@ internal data class HelperMessageData(
 }
 
 @Suppress("TooManyFunctions")
-class HelperMessageService {
+class HelperMessageService(private val botCommentSignatureMessageKey: String) {
     // Visible for testing
     internal var data = HelperMessageData(mapOf(), mapOf())
 
@@ -119,11 +119,14 @@ class HelperMessageService {
         }
     }
 
-    fun getMessageWithBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
-        getMessage(project, listOf(key, "i-am-a-bot"), listOf(filledText), lang)
-
-    fun getMessageWithDupeBotSignature(project: String, key: String, filledText: String? = null, lang: String = "en") =
-        getMessage(project, listOf(key, "i-am-a-bot-dupe"), listOf(filledText), lang)
+    fun getMessageWithBotSignature(
+        project: String,
+        key: String,
+        filledText: String? = null,
+        signatureKey: String? = null,
+        lang: String = "en"
+    ) =
+        getMessage(project, listOf(key, signatureKey ?: botCommentSignatureMessageKey), listOf(filledText), lang)
 
     fun setHelperMessages(json: String) {
         data.fromJSON(json)

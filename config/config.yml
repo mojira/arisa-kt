@@ -36,6 +36,8 @@ arisa:
     special:
       MCL: '10502'
 
+  botCommentSignatureMessage: i-am-a-bot
+
   modules:
     attachment:
       extensionBlacklist:
@@ -125,6 +127,7 @@ arisa:
         Fixed: duplicate-fixed
         Works As Intended: duplicate-wai
         Won't Fix: duplicate-wf
+      botCommentSignatureMessage: i-am-a-bot-dupe
 
     piracy:
       projects:

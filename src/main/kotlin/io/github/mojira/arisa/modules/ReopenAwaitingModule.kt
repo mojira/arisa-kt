@@ -84,7 +84,10 @@ class ReopenAwaitingModule(
 
     private fun isKeepARMessage(comment: Comment, project: Project) = comment.author.name == "arisabot" &&
             (comment.body?.contains(helperMessageService.getMessageWithBotSignature(
-                    project.key, message, null, "en"
+                project = project.key,
+                key = message,
+                filledText = null,
+                lang = "en"
             )) ?: false)
 
     private fun getValidComments(

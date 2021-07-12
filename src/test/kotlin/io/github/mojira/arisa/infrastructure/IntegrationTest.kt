@@ -10,7 +10,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.maps.shouldContainKey
-import io.kotest.matchers.maps.shouldContainKeys
 
 class IntegrationTest : StringSpec({
     "should be able to read the main config file correctly" {
@@ -31,17 +30,16 @@ class IntegrationTest : StringSpec({
 
     "should contain required messages in helper-messages" {
         val helperMessagesFile = tempdir("helper-messages").resolve("helper-messages.json")
-        val helperMessageService = HelperMessageService()
+
+        // Can ignore this since it is read in from config, whose items are checked below
+        val botSignatureKey = "#IGNORE-i-am-a-bot"
+        val helperMessageService = HelperMessageService(botSignatureKey)
         helperMessageService.updateHelperMessages(helperMessagesFile)
         // Manually delete file because Kotest `tempdir` won't delete the directory otherwise,
         // see also https://github.com/kotest/kotest/pull/2227
         helperMessagesFile.delete()
 
         val messages = helperMessageService.data.messages
-        messages.shouldContainKeys(
-            "i-am-a-bot",
-            "i-am-a-bot-dupe"
-        )
 
         // Verify that messages exist for all keys used by config
         val config = ConfigService().config

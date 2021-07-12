@@ -10,6 +10,7 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Link
 import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
+import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
 import java.io.File
@@ -124,10 +125,7 @@ fun mockIssue(
     removeAffectedVersion: (version: Version) -> Unit = { },
     createLink: (key: String, type: String, outwards: Boolean) -> Unit = { _, _, _ -> },
     addComment: (options: CommentOptions) -> Unit = { },
-    addDupeMessage: (options: CommentOptions) -> Unit = { },
-    addRestrictedComment: (options: CommentOptions) -> Unit = { },
-    addNotEnglishComment: (language: String) -> Unit = { },
-    addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> },
+    addRawComment: (body: String, restriction: Restriction?) -> Unit = { _, _ -> },
     markAsFixedInASpecificVersion: (versionName: String) -> Unit = { },
     changeReporter: (reporter: String) -> Unit = { },
     addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
@@ -174,10 +172,7 @@ fun mockIssue(
     removeAffectedVersion,
     createLink,
     addComment,
-    addDupeMessage,
-    addRestrictedComment,
-    addNotEnglishComment,
-    addRawRestrictedComment,
+    addRawComment,
     markAsFixedInASpecificVersion,
     changeReporter,
     addAttachment

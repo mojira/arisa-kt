@@ -8,6 +8,7 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.Restriction
 import java.time.Instant
 
 class KeepPrivateModule(
@@ -31,9 +32,9 @@ class KeepPrivateModule(
                     securityChange.getAuthorGroups()
                         ?.any { it == "global-moderators" || it == "staff" } == true
                 ) {
-                    addRawRestrictedComment(
-                        "To remove the security level," +
-                                "please remove the keep private tag first.", "staff"
+                    addRawComment(
+                        "To remove the security level, please remove the keep private tag first.",
+                        Restriction.STAFF
                     )
                 } else {
                     addComment(CommentOptions(message))

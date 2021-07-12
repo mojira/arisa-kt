@@ -7,7 +7,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class HelperMessagesTest : StringSpec({
-    val helperMessageService = HelperMessageService()
+    val helperMessageService = HelperMessageService("i-am-a-bot")
     helperMessageService.setHelperMessages(
         """
         {

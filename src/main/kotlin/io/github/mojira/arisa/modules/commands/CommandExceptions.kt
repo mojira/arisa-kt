@@ -21,6 +21,10 @@ object CommandExceptions {
         LiteralMessage("Could not query activity of user \"$it\"")
     }
 
+    val FIX_VERSION_BEFORE_LATEST_AFFECTED_VERSION = DynamicCommandExceptionType {
+        LiteralMessage("Cannot add fix version $it because a newer version is marked as affecting the issue")
+    }
+
     val INVALID_LINK_TYPE = SimpleCommandExceptionType(
         LiteralMessage("Cannot parse a valid link type")
     )

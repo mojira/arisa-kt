@@ -1,12 +1,16 @@
 package io.github.mojira.arisa.modules.commands
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+
+private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
+private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
 
 class FixedCommandTest : StringSpec({
     "should add version" {
@@ -84,14 +88,35 @@ class FixedCommandTest : StringSpec({
         }
         exception.message shouldBe "The ticket was already resolved as Cannot Reproduce"
     }
+
+    "should throw FIX_VERSION_BEFORE_LATEST_AFFECTED_VERSION when the fix version was released before one of the affected versions" {
+        val command = FixedCommand()
+
+        val issue = mockIssue(
+            project = mockProject(
+                versions = listOf(
+                    getVersion(released = true, archived = false, "12w34a", releaseDate = TWO_YEARS_AGO),
+                    getVersion(released = true, archived = false, "12w34b", releaseDate = TEN_SECONDS_AGO)
+                )
+            ),
+            affectedVersions = listOf(getVersion(released = true, archived = false, "12w34b", releaseDate = TEN_SECONDS_AGO))
+        )
+
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, "12w34a")
+        }
+        exception.message shouldBe "Cannot add fix version 12w34a because a newer version is marked as affecting the issue"
+    }
 })
 
 private fun getVersion(
     released: Boolean,
     archived: Boolean,
-    name: String = "12w34a"
+    name: String = "12w34a",
+    releaseDate: Instant = RIGHT_NOW
 ) = mockVersion(
     name = name,
     released = released,
-    archived = archived
+    archived = archived,
+    releaseDate = releaseDate
 )

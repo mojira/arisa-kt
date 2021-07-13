@@ -91,7 +91,7 @@ class FixedCommandTest : StringSpec({
         exception.message shouldBe "The ticket was already resolved as Cannot Reproduce"
     }
 
-    "should throw FIX_VERSION_BEFORE_LATEST_AFFECTED_VERSION when the fix version was released before one of the affected versions" {
+    "should throw FIX_VERSION_BEFORE_FIRST_AFFECTED_VERSION when the fix version was released before the first affected version" {
         val command = FixedCommand()
 
         val issue = mockIssue(
@@ -107,7 +107,7 @@ class FixedCommandTest : StringSpec({
         val exception = shouldThrow<CommandSyntaxException> {
             command(issue, "12w34a")
         }
-        exception.message shouldBe "Cannot add fix version 12w34a because a newer version is marked as affecting the issue"
+        exception.message shouldBe "Cannot add fix version 12w34a because the first affected version of the issue was released after it"
     }
 })
 

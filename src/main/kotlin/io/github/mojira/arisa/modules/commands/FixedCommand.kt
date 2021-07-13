@@ -14,7 +14,7 @@ class FixedCommand {
         if (issue.resolution !in listOf(null, "", "Unresolved")) {
             throw CommandExceptions.ALREADY_RESOLVED.create(issue.resolution)
         }
-        if (issue.affectedVersions.any { it.releaseDate.isAfter(issue.project.versions.first { v -> v.name == version }.releaseDate) }) {
+        if (issue.affectedVersions.any { it.releaseDate!!.isAfter(issue.project.versions.first { v -> v.name == version }.releaseDate) }) {
             throw CommandExceptions.FIX_VERSION_BEFORE_LATEST_AFFECTED_VERSION.create(version)
         }
 

@@ -22,7 +22,8 @@ object CommandExceptions {
     }
 
     val FIX_VERSION_BEFORE_FIRST_AFFECTED_VERSION = DynamicCommandExceptionType {
-        LiteralMessage("Cannot add fix version $it because the first affected version of the issue was released after it")
+        LiteralMessage("Cannot add fix version $it because the first affected " +
+                "version of the issue was released after it")
     }
 
     val INVALID_LINK_TYPE = SimpleCommandExceptionType(

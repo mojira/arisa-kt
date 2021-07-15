@@ -101,6 +101,7 @@ arisa:
         - '.dylib'
         - '.rtf'
         - '.pptx'
+        - '.sys'
       comment: attach-new-attachment
 
     duplicateMessage:

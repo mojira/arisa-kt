@@ -248,7 +248,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -290,7 +290,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -332,7 +332,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { preResolved = false },
+            resolveAsInvalid = { preResolved = false },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -373,7 +373,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -414,7 +414,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -462,7 +462,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, archivedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = {
@@ -515,7 +515,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -562,7 +562,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsAwaitingResponse = { isResolved = true },
+            resolveAsInvalid = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }

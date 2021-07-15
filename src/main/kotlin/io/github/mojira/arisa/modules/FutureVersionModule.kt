@@ -29,7 +29,7 @@ class FutureVersionModule(
             } else {
                 issue.addAffectedVersion(latestVersion!!)
                 if (resolution == null || resolution == "Unresolved") {
-                    resolveAsAwaitingResponse()
+                    resolveAsInvalid()
                     addComment(CommentOptions(messageFull))
                 } else {
                     addComment(CommentOptions(messagePanel))

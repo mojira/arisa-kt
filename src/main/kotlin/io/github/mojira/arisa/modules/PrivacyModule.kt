@@ -19,8 +19,7 @@ class PrivacyModule(
         """.*(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s]).*""".toRegex(),
         // At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
         // match if there are more chars as well
-        """.*\bbraintree:[a-f0-9]{6,12}\b.*""".toRegex(),
-        """.*\b([A-Za-z0-9]{4}-){3}[A-Za-z0-9]{4}\b.*""".toRegex()
+        """.*\bbraintree:[a-f0-9]{6,12}\b.*""".toRegex()
     )
 
     private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()

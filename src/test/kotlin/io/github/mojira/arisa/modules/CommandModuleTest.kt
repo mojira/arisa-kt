@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.infrastructure.ProjectCache
+import io.github.mojira.arisa.modules.commands.CommandDispatcherFactory
 import io.github.mojira.arisa.modules.commands.CommandExceptions
 import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.utils.RIGHT_NOW
@@ -21,7 +21,34 @@ import io.kotest.matchers.shouldBe
 private val TWO_SECONDS_LATER = RIGHT_NOW.plusSeconds(2)
 
 class CommandModuleTest : StringSpec({
-    val module = CommandModule(ProjectCache(), "ARISA", "userName", ::getDispatcher)
+    val dispatcherFactory = object : CommandDispatcherFactory {
+        override fun createDispatcher(prefix: String): CommandDispatcher<CommandSource> {
+            return CommandDispatcher<CommandSource>().apply {
+                register(
+                    literal<CommandSource>("${prefix}_SUCCESS")
+                        .then(
+                            argument<CommandSource, String>("arg", greedyString())
+                                .executes { 1 }
+                        )
+                )
+                register(
+                    literal<CommandSource>("${prefix}_VALUE")
+                        .then(
+                            argument<CommandSource, Int>("arg", integer())
+                                .executes { it.getArgument("arg", Int::class.java) }
+                        )
+                )
+                register(
+                    literal<CommandSource>("${prefix}_FAIL")
+                        .then(
+                            argument<CommandSource, String>("arg", greedyString())
+                                .executes { throw CommandExceptions.TEST_EXCEPTION.create(RuntimeException()) }
+                        )
+                )
+            }
+        }
+    }
+    val module = CommandModule("ARISA", "userName", dispatcherFactory)
 
     "should return OperationNotNeededModuleResponse when no comments" {
         val issue = mockIssue()
@@ -58,7 +85,7 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt have correct group" {
+    "should return OperationNotNeededModuleResponse when comment doesn't have correct group" {
         val comment = getComment(
             visibilityType = "notagroup"
         )
@@ -71,7 +98,7 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt have correct value" {
+    "should return OperationNotNeededModuleResponse when comment doesn't have correct value" {
         val comment = getComment(
             visibilityValue = "notagroup"
         )
@@ -98,7 +125,7 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt start with ARISA_" {
+    "should return OperationNotNeededModuleResponse when comment doesn't start with ARISA_" {
         val comment = getComment(
             body = "ARISA"
         )
@@ -178,7 +205,7 @@ class CommandModuleTest : StringSpec({
 
     "should work for other prefixes" {
         var updatedComment = ""
-        val module = CommandModule(ProjectCache(), "TESTING_COMMAND", "userName", ::getDispatcher)
+        val module = CommandModule("TESTING_COMMAND", "userName", dispatcherFactory)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
@@ -258,27 +285,3 @@ private fun getComment(
     author = author,
     update = update
 )
-
-private fun getDispatcher(prefix: String) = CommandDispatcher<CommandSource>().apply {
-    register(
-        literal<CommandSource>("${prefix}_SUCCESS")
-            .then(
-                argument<CommandSource, String>("arg", greedyString())
-                    .executes { 1 }
-            )
-    )
-    register(
-        literal<CommandSource>("${prefix}_VALUE")
-            .then(
-                argument<CommandSource, Int>("arg", integer())
-                    .executes { it.getArgument("arg", Int::class.java) }
-            )
-    )
-    register(
-        literal<CommandSource>("${prefix}_FAIL")
-            .then(
-                argument<CommandSource, String>("arg", greedyString())
-                    .executes { throw CommandExceptions.TEST_EXCEPTION.create(RuntimeException()) }
-            )
-    )
-}

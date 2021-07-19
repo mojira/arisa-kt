@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
+import io.github.mojira.arisa.IssueSearcher
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Restriction
 
@@ -12,7 +13,7 @@ import io.github.mojira.arisa.domain.Restriction
 const val ACTIVITY_LIST_CAP = 50
 
 class ListUserActivityCommand(
-    val searchIssues: (String, Int) -> Either<Throwable, List<String>>
+    private val issueSearcher: IssueSearcher
 ) {
     operator fun invoke(issue: Issue, userName: String): Int {
         val escapedUserName = userName.replace("'", "\\'")
@@ -21,7 +22,7 @@ class ListUserActivityCommand(
             | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
             .trimMargin().replace("[\n\r]", "")
 
-        val tickets = when (val either = searchIssues(jql, ACTIVITY_LIST_CAP)) {
+        val tickets = when (val either = issueSearcher.searchIssues(jql, ACTIVITY_LIST_CAP)) {
             is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
             is Either.Right -> either.b
         }

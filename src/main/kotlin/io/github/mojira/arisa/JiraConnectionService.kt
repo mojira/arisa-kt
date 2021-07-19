@@ -3,6 +3,7 @@ package io.github.mojira.arisa
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
+import net.rcarz.jiraclient.JiraClient
 import java.lang.Long.max
 import java.time.Duration
 import java.time.Instant
@@ -30,7 +31,15 @@ class JiraConnectionService(
         private const val WAIT_TIME_AFTER_CONNECTION_ERROR_IN_SECONDS = 40L
     }
 
+    private lateinit var jiraClient: JiraClient
     private var lastSuccessfulConnection = Instant.now()
+
+    /**
+     * Gets the currently used Jira client, used for connecting to Jira.
+     * The returned instance may change over time when the connection is re-established. Therefore for **every
+     * use** of the Jira client this function should be called. Its result **must not** be stored in a property.
+     */
+    fun getCurrentJiraClient() = jiraClient
 
     /**
      * Tries to establish a connection and log into Jira.
@@ -59,7 +68,7 @@ class JiraConnectionService(
      * Try relogging if the last successful connection was at least [MAX_SECONDS_SINCE_LAST_SUCCESSFUL_CONNECTION] ago.
      * @return
      * - [RelogResult.SuccessfulRelog] if relog was successful
-     * - [RelogResult.UnsucessfulRelog] if unable to relog
+     * - [RelogResult.UnsuccessfulRelog] if unable to relog
      * - [RelogResult.NoRelogAttempted] if no relog was attempted because the last relog happened recently
      */
     fun tryRelog(): RelogResult {
@@ -73,7 +82,7 @@ class JiraConnectionService(
                 return@tryRelog RelogResult.SuccessfulRelog()
             }
 
-            val relogResult = RelogResult.UnsucessfulRelog()
+            val relogResult = RelogResult.UnsuccessfulRelog()
             log.error(
                 "Could not reconnect. Will attempt to relog again in ${ relogResult.sleepTimeInSeconds } seconds."
             )
@@ -130,7 +139,7 @@ class JiraConnectionService(
             override val sleepTimeInSeconds = MIN_TIME_BETWEEN_EXECUTION_CYCLES_IN_SECONDS
         }
 
-        class UnsucessfulRelog : RelogResult {
+        class UnsuccessfulRelog : RelogResult {
             override val sleepTimeInSeconds =
                 max(WAIT_TIME_AFTER_UNSUCCESSFUL_RELOG_IN_SECONDS, MIN_TIME_BETWEEN_EXECUTION_CYCLES_IN_SECONDS)
         }

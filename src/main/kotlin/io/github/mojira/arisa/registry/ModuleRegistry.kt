@@ -5,6 +5,7 @@ import arrow.core.left
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.ModuleExecutor
 import io.github.mojira.arisa.ExecutionTimeframe
+import io.github.mojira.arisa.JiraConnectionService
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.ProjectCache
@@ -19,11 +20,12 @@ import java.time.Instant
 // All defined module registries
 fun getModuleRegistries(
     config: Config,
+    connectionService: JiraConnectionService,
     projectCache: ProjectCache,
     helperMessageService: HelperMessageService
 ): List<ModuleRegistry> {
     return listOf(
-        InstantModuleRegistry(config, projectCache, helperMessageService),
+        InstantModuleRegistry(config, connectionService, projectCache, helperMessageService),
         DelayedModuleRegistry(config),
         LinkedModuleRegistry(config)
     )

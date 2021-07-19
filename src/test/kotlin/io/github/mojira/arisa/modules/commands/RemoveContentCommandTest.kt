@@ -1,7 +1,9 @@
 package io.github.mojira.arisa.modules.commands
 
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import io.github.mojira.arisa.IssueSearcher
 import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.utils.mockIssue
 import io.kotest.core.spec.style.StringSpec
@@ -37,12 +39,14 @@ fun mockRemoveContentCommand(
     getIssue: (String) -> Unit = { }
 ): RemoveContentCommand {
     return RemoveContentCommand(
-        searchIssues = { jql, cap ->
-            try {
-                searchIssues(jql, cap)
-                issues.keys.toList().right()
-            } catch (e: Exception) {
-                e.left()
+        issueSearcher = object : IssueSearcher {
+            override fun searchIssues(jql: String, maxResults: Int): Either<Throwable, List<String>> {
+                return try {
+                    searchIssues(jql, maxResults)
+                    issues.keys.toList().right()
+                } catch (e: Exception) {
+                    e.left()
+                }
             }
         },
         getIssue = { id ->

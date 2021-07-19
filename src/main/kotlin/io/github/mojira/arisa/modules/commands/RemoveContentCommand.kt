@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
+import io.github.mojira.arisa.IssueSearcher
 import io.github.mojira.arisa.domain.Restriction
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import io.github.mojira.arisa.log
@@ -13,49 +14,49 @@ import java.util.concurrent.TimeUnit
  * How many tickets can have the user activity removed.
  * This is a safety guard in case the command gets invoked on a very active user.
  */
-const val REMOVABLE_ACTIVITY_CAP = 200
+private const val REMOVABLE_ACTIVITY_CAP = 200
 
 /**
  * After how many actions the bot should pause for a second
  * (in order to not send too many requests too quickly)
  */
-const val REMOVE_USER_SLEEP_INTERVAL = 10
+private const val REMOVE_USER_SLEEP_INTERVAL = 10
 
 @Suppress("LongParameterList")
 class RemoveContentCommand(
-    val searchIssues: (String, Int) -> Either<Throwable, List<String>>,
-    val getIssue: (String) -> Either<Throwable, Pair<String, Issue>>,
-    val execute: (Runnable) -> Unit,
+    private val issueSearcher: IssueSearcher,
+    private val getIssue: (String) -> Either<Throwable, Pair<String, Issue>>,
+    private val execute: (Runnable) -> Unit,
 
     // All of the parameters below are for easy testing.
     // They should be removed with a future refactor.
 
-    val getCommentsFromIssue: (String, Issue) -> List<Pair<String, Comment>> = { _, issue ->
+    private val getCommentsFromIssue: (String, Issue) -> List<Pair<String, Comment>> = { _, issue ->
         issue.comments.mapNotNull { it.id to it }
     },
-    val getVisibilityValueOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
+    private val getVisibilityValueOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
         comment.visibility?.value ?: ""
     },
-    val getAuthorOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
+    private val getAuthorOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
         comment.author?.name ?: ""
     },
-    val getBodyOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
+    private val getBodyOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
         comment.body ?: ""
     },
-    val updateComment: (Pair<String, Comment>, content: String) -> Unit = { (_, comment), content ->
+    private val updateComment: (Pair<String, Comment>, content: String) -> Unit = { (_, comment), content ->
         comment.update(
             content,
             "group",
             "staff"
         )
     },
-    val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
+    private val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
         issue.attachments.mapNotNull { it.id to it }
     },
-    val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
+    private val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
         attachment.author?.name
     },
-    val removeAttachment: (Pair<String, Attachment>, Issue) -> Unit = { (id, _), issue ->
+    private val removeAttachment: (Pair<String, Attachment>, Issue) -> Unit = { (id, _), issue ->
         issue.removeAttachment(id)
     }
 ) {
@@ -70,7 +71,7 @@ class RemoveContentCommand(
             | OR issueFunction IN fileAttached($issueFunctionInner)"""
             .trimMargin().replace("[\n\r]", "")
 
-        val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
+        val ticketIds = when (val either = issueSearcher.searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
             is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
             is Either.Right -> either.b
         }

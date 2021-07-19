@@ -66,13 +66,15 @@ class ModuleRegistryTest : StringSpec({
 })
 
 private fun getAllModules(): List<ModuleRegistry.Entry> {
+    val connectionService = mockk<JiraConnectionService>()
     val projectCache = mockk<ProjectCache>()
     val helperMessageService = mockk<HelperMessageService>()
-    return getModuleRegistries(CONFIG, projectCache, helperMessageService).flatMap { it.getAllModules() }
+    return getModuleRegistries(CONFIG, connectionService, projectCache, helperMessageService).flatMap { it.getAllModules() }
 }
 
 private fun getEnabledModules(): List<ModuleRegistry.Entry> {
+    val connectionService = mockk<JiraConnectionService>()
     val projectCache = mockk<ProjectCache>()
     val helperMessageService = mockk<HelperMessageService>()
-    return getModuleRegistries(CONFIG, projectCache, helperMessageService).flatMap { it.getEnabledModules() }
+    return getModuleRegistries(CONFIG, connectionService, projectCache, helperMessageService).flatMap { it.getEnabledModules() }
 }

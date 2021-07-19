@@ -4,12 +4,10 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.right
 import arrow.syntax.function.partially1
-import com.mojang.brigadier.CommandDispatcher
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.ProjectCache
+import io.github.mojira.arisa.modules.commands.CommandDispatcherFactory
 import io.github.mojira.arisa.modules.commands.CommandSource
-import io.github.mojira.arisa.modules.commands.getCommandDispatcher
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 
@@ -18,24 +16,13 @@ data class Command(val command: String, val source: CommandSource)
 private typealias CommandResult = Either<Throwable, Int>
 
 class CommandModule(
-    projectCache: ProjectCache,
     private val prefix: String,
     private val botUserName: String,
-    private val getDispatcher: (String) -> CommandDispatcher<CommandSource> =
-        ::getCommandDispatcher.partially1(projectCache)
+    dispatcherFactory: CommandDispatcherFactory
 ) : Module {
-    /**
-     * This is the command dispatcher.
-     * It's not initialized initially because it relies on `jiraClient` in `ArisaMain`, which is lateinit too.
-     * Therefore it's instead initialized only when this module is initially invoked.
-     */
-    private lateinit var commandDispatcher: CommandDispatcher<CommandSource>
+    private val commandDispatcher = dispatcherFactory.createDispatcher(prefix)
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
-        if (!::commandDispatcher.isInitialized) {
-            commandDispatcher = getDispatcher(prefix)
-        }
-
         with(issue) {
             val staffComments = comments
                 .filter(::isUpdatedAfterLastRun.partially1(lastRun))

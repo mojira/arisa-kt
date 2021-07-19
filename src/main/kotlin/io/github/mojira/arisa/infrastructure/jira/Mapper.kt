@@ -7,6 +7,7 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.JiraConnectionService
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
@@ -38,11 +39,15 @@ import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
 class Mapper(
-    private val jiraClient: JiraClient,
+    private val connectionService: JiraConnectionService,
     private val config: Config,
     private val projectCache: ProjectCache,
     private val helperMessageService: HelperMessageService
 ) {
+    private val jiraClient: JiraClient
+        // Always return the current client in case it was replaced in the meantime
+        get() = connectionService.getCurrentJiraClient()
+
     private fun JiraAttachment.toDomain(issue: JiraIssue) = Attachment(
         id,
         fileName,

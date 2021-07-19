@@ -3,6 +3,7 @@ package io.github.mojira.arisa.registry
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.ExecutionTimeframe
+import io.github.mojira.arisa.JiraConnectionService
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.ProjectCache
@@ -34,12 +35,14 @@ import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
+import io.github.mojira.arisa.modules.commands.CommandDispatcherFactory
 
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
  */
 class InstantModuleRegistry(
     config: Config,
+    connectionService: JiraConnectionService,
     projectCache: ProjectCache,
     helperMessageService: HelperMessageService
 ) : ModuleRegistry(config) {
@@ -216,9 +219,9 @@ class InstantModuleRegistry(
         register(
             Arisa.Modules.Command,
             CommandModule(
-                projectCache,
                 config[Arisa.Modules.Command.commandPrefix],
-                config[Arisa.Credentials.username]
+                config[Arisa.Credentials.username],
+                CommandDispatcherFactory.createFactory(connectionService, projectCache)
             )
         )
 

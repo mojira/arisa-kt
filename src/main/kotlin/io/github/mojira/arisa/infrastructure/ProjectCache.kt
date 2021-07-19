@@ -1,13 +1,13 @@
 package io.github.mojira.arisa.infrastructure
 
-import io.github.mojira.arisa.jiraClient
+import io.github.mojira.arisa.JiraConnectionService
 import java.time.Duration
 import java.time.Instant
 import net.rcarz.jiraclient.Project as JiraProject
 
 private const val REFRESH_INTERVAL_IN_MINUTES: Long = 5
 
-class ProjectCache {
+class ProjectCache(private val connectionService: JiraConnectionService) {
     private var cache = Cache<JiraProject>()
     private var lastRefresh = Instant.now()
 
@@ -16,7 +16,7 @@ class ProjectCache {
 
         val projectKey = id.split("-")[0]
         return cache.get(projectKey) ?: run {
-            val jiraProject = jiraClient.getProject(projectKey)
+            val jiraProject = connectionService.getCurrentJiraClient().getProject(projectKey)
             cache.add(projectKey, jiraProject)
             jiraProject
         }

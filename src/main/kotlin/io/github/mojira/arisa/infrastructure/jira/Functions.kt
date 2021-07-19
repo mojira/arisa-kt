@@ -57,7 +57,7 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
                 amount
             )
         } catch (e: JiraException) {
-            log.error("Error while retreiving filter results", e)
+            log.error("Error while retrieving filter results", e)
             throw e
         }
 

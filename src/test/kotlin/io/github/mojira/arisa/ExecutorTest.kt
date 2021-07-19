@@ -63,12 +63,7 @@ class ExecutorTest : StringSpec({
     "should add failed tickets" {
         val executor = getMockExecutor(
             listOf(failedModuleRegistryMock),
-            searchIssues = { _, _, finishedCallback ->
-                run {
-                    finishedCallback()
-                    listOf(mockIssue("MC-1"))
-                }
-            }
+            searchIssues = { listOf(mockIssue("MC-1")) }
         )
 
         val result = executor.execute(dummyTimeframe, emptySet())
@@ -77,7 +72,7 @@ class ExecutorTest : StringSpec({
         result.successful shouldBe true
     }
 
-    "should not add succesful tickets" {
+    "should not add successful tickets" {
         val executor = getMockExecutor(listOf(moduleRegistryMock))
 
         val result = executor.execute(dummyTimeframe, setOf("MC-1"))
@@ -90,7 +85,7 @@ class ExecutorTest : StringSpec({
         val executor =
             getMockExecutor(
                 listOf(moduleRegistryMock),
-                searchIssues = { _, _, _ -> throw RuntimeException("dummy exception") }
+                searchIssues = { throw RuntimeException("dummy exception") }
             )
 
         val result = executor.execute(dummyTimeframe, setOf("MC-1"))
@@ -102,18 +97,15 @@ class ExecutorTest : StringSpec({
 
 fun getMockExecutor(
     registries: List<ModuleRegistry>,
-    searchIssues: (String, Int, () -> Unit) -> List<Issue> =
-        { _, _, finishedCallback ->
-            finishedCallback()
-            listOf(mockIssue())
-        }
+    searchIssues: (String) -> List<Issue> = { _ -> listOf(mockIssue()) }
 ): Executor = Executor(
     getConfig(),
-    mockk(), // no real ProjectCache needed
-    mockk(), // no real HelperMessageService needed
-    mockk(), // no real Mapper needed
     registries,
-    searchIssues
+    object : IssueFetcher {
+        override fun fetchAllIssues(jql: String): List<Issue> {
+            return searchIssues(jql)
+        }
+    }
 )
 
 private fun getConfig() = Config { addSpec(Arisa) }

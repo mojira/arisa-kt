@@ -2,17 +2,16 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import arrow.core.right
-import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
+import io.github.mojira.arisa.IssueSearcher
+import io.github.mojira.arisa.JiraConnectionService
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.jira.getIssue
-import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
-import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 import io.github.mojira.arisa.modules.commands.arguments.StringWithFlag
@@ -20,6 +19,7 @@ import io.github.mojira.arisa.modules.commands.arguments.greedyStringWithFlag
 
 @Suppress("LongMethod")
 fun getCommandDispatcher(
+    connectionService: JiraConnectionService,
     projectCache: ProjectCache,
     prefix: String
 ): CommandDispatcher<CommandSource> {
@@ -30,16 +30,15 @@ fun getCommandDispatcher(
     val deleteLinksCommand = DeleteLinksCommand()
     val fixCapitalizationCommand = FixCapitalizationCommand()
     val fixedCommand = FixedCommand()
-    val listUserActivityCommand = ListUserActivityCommand(
-        ::getIssuesFromJql.partially1(jiraClient)
-    )
+    val issueSearcher = IssueSearcher.createSearcher(connectionService)
+    val listUserActivityCommand = ListUserActivityCommand(issueSearcher)
     val makePrivateCommand = MakePrivateCommand()
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val reopenCommand = ReopenCommand()
     val removeContentCommand = RemoveContentCommand(
-        ::getIssuesFromJql.partially1(jiraClient),
+        issueSearcher,
         {
-            when (val issue = getIssue(jiraClient, it)) {
+            when (val issue = getIssue(connectionService.getCurrentJiraClient(), it)) {
                 is Either.Left -> issue
                 is Either.Right -> (it to issue.b).right()
             }

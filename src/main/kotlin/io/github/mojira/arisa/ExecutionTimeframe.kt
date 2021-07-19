@@ -13,14 +13,14 @@ class ExecutionTimeframe(
     private val openEnded: Boolean
 ) {
     companion object {
-        const val MAX_TIMEFRAME_DURATION_IN_MINUTES = 10L
+        // Visible for testing
+        internal const val MAX_TIMEFRAME_DURATION_IN_MINUTES = 10L
 
         /**
          * @return An [ExecutionTimeframe] beginning at [LastRun], either until right now,
          * or until [MAX_TIMEFRAME_DURATION_IN_MINUTES] after [LastRun].
          */
         fun getTimeframeFromLastRun(lastRun: LastRun): ExecutionTimeframe {
-            // Save time before run, so nothing happening during the run is missed
             val currentTime = Instant.now().truncatedTo(ChronoUnit.MILLIS)
             val endOfMaxTimeframe = lastRun.time.plus(MAX_TIMEFRAME_DURATION_IN_MINUTES, ChronoUnit.MINUTES)
 
@@ -39,14 +39,29 @@ class ExecutionTimeframe(
         }
     }
 
-    fun duration(): Duration = Duration.between(lastRunTime, currentRunTime).abs()
+    /**
+     * Creates a JQL query for freshly updated issues.
+     */
+    fun getFreshlyUpdatedJql() =
+        "updated > ${lastRunTime.toEpochMilli()}${capIfNotOpenEnded()}"
+
+    /**
+     * Creates a JQL query for issues which have been updated in the execution timeframe, shifted to the past
+     * by [offset].
+     */
+    fun getDelayedUpdatedJql(offset: Duration): String {
+        require(!offset.isNegative)
+        val checkStart = lastRunTime.minus(offset)
+        val checkEnd = currentRunTime.minus(offset)
+        return "updated > ${checkStart.toEpochMilli()} AND updated <= ${checkEnd.toEpochMilli()}"
+    }
 
     /**
      * Adds a cap to a JQL query if this time frame is not open.
      *
      * @return If open ended: empty string. Otherwise: ` AND updated <= [currentRunTime]`
      */
-    fun capIfNotOpenEnded(): String =
+    private fun capIfNotOpenEnded(): String =
         if (openEnded) "" else " AND updated <= ${ currentRunTime.toEpochMilli() }"
 
     override fun toString(): String {

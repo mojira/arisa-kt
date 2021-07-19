@@ -2,8 +2,11 @@ package io.github.mojira.arisa
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class ExecutionTimeframeTest : StringSpec({
@@ -19,20 +22,26 @@ class ExecutionTimeframeTest : StringSpec({
 
         val timeframe = ExecutionTimeframe.getTimeframeFromLastRun(lastRun)
 
-        val timeframeEnd = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-
         timeframe.lastRunTime shouldBe lastRunTime
-        timeframe.currentRunTime.isAfter(timeframeEnd) shouldBe false
-        timeframe.capIfNotOpenEnded() shouldBe ""
-        timeframe.duration() shouldBe Duration.between(lastRunTime, timeframeEnd).abs()
+        timeframe.currentRunTime.isAfter(Instant.now()) shouldBe false
+        // Should not be capped
+        timeframe.getFreshlyUpdatedJql() shouldNotContain " AND updated <= "
+
+        val delayedStart = LocalDateTime.of(2021, 1, 1, 12, 0, 0)
+            .atZone(ZoneOffset.UTC)
+            .toInstant()
+        val delayedEnd = delayedStart.plus(Duration.between(timeframe.lastRunTime, timeframe.currentRunTime))
+        val offset = Duration.between(delayedStart, timeframe.lastRunTime)
+        // Shift timeframe to start at `offsetBaseInstant`
+        // Note: Cannot hardcode `delayedEnd` value in string because it depends on how fast
+        // `ExecutionTimeframe.getTimeframeFromLastRun` executes
+        timeframe.getDelayedUpdatedJql(offset) shouldBe "updated > 1609502400000 AND updated <= ${delayedEnd.toEpochMilli()}"
     }
 
     "getTimeframeFromLastRun should return the correct timeframe if last run was a while ago" {
-        val offsetInMinutes = 20L
-
-        val lastRunTime = Instant.now()
-            .minus(offsetInMinutes, ChronoUnit.MINUTES)
-            .truncatedTo(ChronoUnit.MILLIS)
+        val lastRunTime = LocalDateTime.of(2021, 1, 1, 12, 0, 0)
+            .atZone(ZoneOffset.UTC)
+            .toInstant()
 
         val timeframeEnd = lastRunTime
             .plus(ExecutionTimeframe.MAX_TIMEFRAME_DURATION_IN_MINUTES, ChronoUnit.MINUTES)
@@ -46,8 +55,8 @@ class ExecutionTimeframeTest : StringSpec({
         val timeframe = ExecutionTimeframe.getTimeframeFromLastRun(lastRun)
 
         timeframe.lastRunTime shouldBe lastRunTime
-        timeframe.currentRunTime.isAfter(timeframeEnd) shouldBe false
-        timeframe.capIfNotOpenEnded() shouldBe " AND updated <= ${ timeframeEnd.toEpochMilli() }"
-        timeframe.duration() shouldBe Duration.between(lastRunTime, timeframeEnd).abs()
+        timeframe.currentRunTime shouldBe timeframeEnd
+        timeframe.getFreshlyUpdatedJql() shouldBe "updated > 1609502400000 AND updated <= 1609503000000"
+        timeframe.getDelayedUpdatedJql(Duration.ofHours(1)) shouldBe "updated > 1609498800000 AND updated <= 1609499400000"
     }
 })

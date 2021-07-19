@@ -38,7 +38,7 @@ import io.github.mojira.arisa.modules.TransferVersionsModule
  */
 class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
     override fun getJql(timeframe: ExecutionTimeframe): String {
-        return "updated > ${ timeframe.lastRunTime.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
+        return timeframe.getFreshlyUpdatedJql()
     }
 
     init {

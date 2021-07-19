@@ -17,20 +17,24 @@ private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
 class FixedCommandTest : StringSpec({
     "should add version" {
         val command = FixedCommand()
+        var fixVersion: String? = null
 
+        val affectedVersion1 = getVersion(released = true, archived = false, "12w34a", releaseDate = TWO_YEARS_AGO)
+        val affectedVersion2 = getVersion(released = true, archived = false, "12w34b", releaseDate = TEN_SECONDS_AGO)
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(released = true, archived = false),
-                    getVersion(released = true, archived = false, "12w34b")
+                    affectedVersion1,
+                    affectedVersion2
                 )
             ),
-            affectedVersions = listOf(getVersion(released = true, archived = false))
+            affectedVersions = listOf(affectedVersion1),
+            markAsFixedInASpecificVersion = { fixVersion = it }
         )
 
-        val result = command(issue, "12w34b")
-
+        val result = command(issue, affectedVersion2.name, false)
         result shouldBe 1
+        fixVersion shouldBe affectedVersion2.name
     }
 
     "should throw ALREADY_FIXED_IN when ticket is already fixed in such version" {
@@ -48,7 +52,7 @@ class FixedCommandTest : StringSpec({
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
-            command(issue, "12w34b")
+            command(issue, "12w34b", false)
         }
         exception.message shouldBe "The ticket was already marked as fixed in 12w34b"
     }
@@ -66,7 +70,7 @@ class FixedCommandTest : StringSpec({
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
-            command(issue, "12w34b")
+            command(issue, "12w34b", false)
         }
         exception.message shouldBe "The version 12w34b doesn't exist in this project"
     }
@@ -86,28 +90,71 @@ class FixedCommandTest : StringSpec({
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
-            command(issue, "12w34b")
+            command(issue, "12w34b", false)
         }
         exception.message shouldBe "The ticket was already resolved as Cannot Reproduce"
     }
 
-    "should throw FIX_VERSION_BEFORE_FIRST_AFFECTED_VERSION when the fix version was released before the first affected version" {
+    "should throw FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION when the fix version is same as an affected version" {
         val command = FixedCommand()
 
+        val affectedVersion = getVersion(released = true, archived = false, "12w34a")
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(
-                    getVersion(released = true, archived = false, "12w34a", releaseDate = TWO_YEARS_AGO),
-                    getVersion(released = true, archived = false, "12w34b", releaseDate = TEN_SECONDS_AGO)
+                    affectedVersion
                 )
             ),
-            affectedVersions = listOf(getVersion(released = true, archived = false, "12w34b", releaseDate = TEN_SECONDS_AGO))
+            affectedVersions = listOf(affectedVersion)
         )
 
         val exception = shouldThrow<CommandSyntaxException> {
-            command(issue, "12w34a")
+            command(issue, affectedVersion.name, false)
         }
-        exception.message shouldBe "Cannot add fix version 12w34a because the first affected version of the issue was released after it"
+        exception.message shouldBe "Cannot add fix version 12w34a because the affected version 12w34a of the issue " +
+                "is the same or was released after it; run with `<version> force` to add the fix version anyways"
+    }
+
+    "should throw FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION when the fix version is before an affected version" {
+        val command = FixedCommand()
+
+        val affectedVersion1 = getVersion(released = true, archived = false, "12w34a", releaseDate = TWO_YEARS_AGO)
+        val affectedVersion2 = getVersion(released = true, archived = false, "12w34b", releaseDate = TEN_SECONDS_AGO)
+        val issue = mockIssue(
+            project = mockProject(
+                versions = listOf(
+                    affectedVersion1,
+                    affectedVersion2
+                )
+            ),
+            affectedVersions = listOf(affectedVersion2)
+        )
+
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, affectedVersion1.name, false)
+        }
+        exception.message shouldBe "Cannot add fix version 12w34a because the affected version 12w34b of the issue " +
+                "is the same or was released after it; run with `<version> force` to add the fix version anyways"
+    }
+
+    "should not throw when the fix version is same as an affected version, but 'force' is used" {
+        val command = FixedCommand()
+        var fixVersion: String? = null
+
+        val affectedVersion = getVersion(released = true, archived = false, "12w34a")
+        val issue = mockIssue(
+            project = mockProject(
+                versions = listOf(
+                    affectedVersion
+                )
+            ),
+            affectedVersions = listOf(affectedVersion),
+            markAsFixedInASpecificVersion = { fixVersion = it }
+        )
+
+        val result = command(issue, affectedVersion.name, true)
+        result shouldBe 1
+        fixVersion shouldBe affectedVersion.name
     }
 })
 

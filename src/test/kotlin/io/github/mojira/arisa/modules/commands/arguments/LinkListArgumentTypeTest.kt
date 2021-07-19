@@ -16,6 +16,7 @@ class LinkListArgumentTypeTest : StringSpec({
             "relates",
             listOf("MC-100", "MC-200")
         )
+        reader.remainingLength shouldBe 0
     }
 
     "should support URLs" {
@@ -28,6 +29,7 @@ class LinkListArgumentTypeTest : StringSpec({
             "relates",
             listOf("MC-100", "MC-200")
         )
+        reader.remainingLength shouldBe 0
     }
 
     "should support types with spaces" {
@@ -37,6 +39,7 @@ class LinkListArgumentTypeTest : StringSpec({
             "relates to",
             listOf("MC-100", "MC-200")
         )
+        reader.remainingLength shouldBe 0
     }
 
     "should support types case-insensitively" {
@@ -46,6 +49,7 @@ class LinkListArgumentTypeTest : StringSpec({
             "relAtes To",
             listOf("MC-100", "MC-200")
         )
+        reader.remainingLength shouldBe 0
     }
 
     "should support commas" {
@@ -55,6 +59,7 @@ class LinkListArgumentTypeTest : StringSpec({
             "relates",
             listOf("MC-100", "MC-200", "MC-300", "MC-400")
         )
+        reader.remainingLength shouldBe 0
     }
 
     "should support ticket keys case-insensitively" {
@@ -64,6 +69,7 @@ class LinkListArgumentTypeTest : StringSpec({
             "relates",
             listOf("mc-100")
         )
+        reader.remainingLength shouldBe 0
     }
 
     "should throw exception when there isn't enough segments" {

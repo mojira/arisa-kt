@@ -14,6 +14,8 @@ import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
 import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
+import io.github.mojira.arisa.modules.commands.arguments.StringWithFlag
+import io.github.mojira.arisa.modules.commands.arguments.greedyStringWithFlag
 
 @Suppress("LongMethod")
 fun getCommandDispatcher(
@@ -121,11 +123,13 @@ fun getCommandDispatcher(
             literal<CommandSource>("${prefix}_FIXED")
                 .requires(::sentByModerator)
                 .then(
-                    argument<CommandSource, String>("version", greedyString())
+                    argument<CommandSource, StringWithFlag>("version", greedyStringWithFlag("force"))
                         .executes {
+                            val (version, force) = it.getStringWithFlag("version")
                             fixedCommand(
                                 it.source.issue,
-                                it.getString("version")
+                                version,
+                                force
                             )
                         }
                 )
@@ -232,3 +236,4 @@ private fun sentByModerator(source: CommandSource) =
 private fun CommandContext<*>.getInt(name: String) = getArgument(name, Int::class.java)
 private fun CommandContext<*>.getLinkList(name: String) = getArgument(name, LinkList::class.java)
 private fun CommandContext<*>.getString(name: String) = getArgument(name, String::class.java)
+private fun CommandContext<*>.getStringWithFlag(name: String) = getArgument(name, StringWithFlag::class.java)

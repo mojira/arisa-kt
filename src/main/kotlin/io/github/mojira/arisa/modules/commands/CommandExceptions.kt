@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
 import com.mojang.brigadier.LiteralMessage
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 
@@ -21,9 +22,10 @@ object CommandExceptions {
         LiteralMessage("Could not query activity of user \"$it\"")
     }
 
-    val FIX_VERSION_BEFORE_FIRST_AFFECTED_VERSION = DynamicCommandExceptionType {
-        LiteralMessage("Cannot add fix version $it because the first affected " +
-                "version of the issue was released after it")
+    val FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION = Dynamic2CommandExceptionType {
+            fixVersionName, affectedVersionName -> LiteralMessage("Cannot add fix version $fixVersionName " +
+                "because the affected version $affectedVersionName of the issue is the same or was released after " +
+                "it; run with `<version> force` to add the fix version anyways")
     }
 
     val INVALID_LINK_TYPE = SimpleCommandExceptionType(
@@ -33,6 +35,10 @@ object CommandExceptions {
     val INVALID_TICKET_KEY = SimpleCommandExceptionType(
         LiteralMessage("Found invalid ticket key")
     )
+
+    val GREEDY_STRING_ONLY_FLAG = DynamicCommandExceptionType {
+        LiteralMessage("Argument consists only of flag '$it' but does not contain a string")
+    }
 
     val LEFT_EITHER = DynamicCommandExceptionType {
         LiteralMessage("Something went wrong, but I'm too lazy to interpret the details for you (>ω<): $it")

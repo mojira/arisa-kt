@@ -52,10 +52,16 @@ This command currently only exists because of a technical limitation. It will be
 Lowercases sentences in which the first letter of each word is capitalized.
 
 ## $ARISA_FIXED
-| Entry       | Value                    |
-| ----------- | ------------------------ |
-| Syntax      | `$ARISA_FIXED <version>` |
-| Permissions | Mod+                     |
+| Entry       | Value                            |
+| ----------- | -------------------------------- |
+| Syntax      | `$ARISA_FIXED <version> [force]` |
+| Permissions | Mod+                             |
+
+Resolves an issue as Fixed in the specified version. This command is useful when the version has already been
+archived, and the web interface does not allow choosing that version.
+
+When one of the affected versions of the issue was erroneously added and the fixed version is the same or an earlier
+version, the command fails. To skip this check, run with a trailing `force` literal, e.g. `$ARISA_FIXED 12w34a force`.
 
 ## $ARISA_LIST_USER_ACTIVITY
 | Entry       | Value                                  |

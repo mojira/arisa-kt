@@ -4,7 +4,7 @@ import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.UpdateLinkedModule
-import java.time.temporal.ChronoUnit
+import java.time.Duration
 
 /**
  * This class is the registry for the UpdateLinkedModule.
@@ -12,14 +12,11 @@ import java.time.temporal.ChronoUnit
  * This is done in order to avoid spam.
  */
 class LinkedModuleRegistry(config: Config) : ModuleRegistry(config) {
-    override fun getJql(timeframe: ExecutionTimeframe): String {
-        val freshlyUpdatedJql = "updated > ${ timeframe.lastRunTime.toEpochMilli() }${ timeframe.capIfNotOpenEnded() }"
+    private val delayOffset = Duration.ofHours(config[Arisa.Modules.UpdateLinked.updateIntervalHours])
 
-        val intervalEnd = timeframe.currentRunTime.minus(
-            config[Arisa.Modules.UpdateLinked.updateIntervalHours], ChronoUnit.HOURS
-        )
-        val intervalStart = intervalEnd.minus(timeframe.duration())
-        val delayedJql = "updated > ${ intervalStart.toEpochMilli() } AND updated <= ${ intervalEnd.toEpochMilli() }"
+    override fun getJql(timeframe: ExecutionTimeframe): String {
+        val freshlyUpdatedJql = timeframe.getFreshlyUpdatedJql()
+        val delayedJql = timeframe.getDelayedUpdatedJql(delayOffset)
 
         return "($freshlyUpdatedJql) OR ($delayedJql)"
     }

@@ -17,13 +17,14 @@ lateinit var jiraClient: JiraClient
 
 fun main() {
     val configService = ConfigService()
-    val webhookService = WebhookService(configService.config)
-    val connectionService = JiraConnectionService(configService.config)
-    val executionService = ExecutionService(configService.config, connectionService)
 
+    val webhookService = WebhookService(configService.config)
     webhookService.setLoggerWebhooks()
 
+    val connectionService = JiraConnectionService(configService.config)
     connectionService.connect()
+
+    val executionService = ExecutionService(configService.config, connectionService)
 
     while (true) {
         val secondsToSleep = executionService.runExecutionCycle()

@@ -68,10 +68,7 @@ class JiraConnectionService(
         return if (secondsSinceLastSuccessfulConnection > MAX_SECONDS_SINCE_LAST_SUCCESSFUL_CONNECTION) {
             log.info("Trying to relog")
 
-            val exception = establishConnection() ?: run {
-                notifyOfSuccessfulConnection()
-                return@tryRelog RelogResult.SuccessfulRelog()
-            }
+            val exception = establishConnection() ?: return RelogResult.SuccessfulRelog()
 
             val relogResult = RelogResult.UnsucessfulRelog()
             log.error(

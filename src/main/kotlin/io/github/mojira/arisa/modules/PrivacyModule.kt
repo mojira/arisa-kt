@@ -20,12 +20,12 @@ class PrivacyModule(
     private val sensitiveFileNames: List<String>
 ) : Module {
     private val patterns: List<Regex> = listOf(
-        """.*\(Session ID is token:.*""".toRegex(),
-        """.*--accessToken ey.*""".toRegex(),
-        """.*(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s]).*""".toRegex(),
+        """\(Session ID is token:""".toRegex(),
+        """--accessToken ey""".toRegex(),
+        """(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s])""".toRegex(),
         // At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
         // match if there are more chars as well
-        """.*\bbraintree:[a-f0-9]{6,12}\b.*""".toRegex()
+        """\bbraintree:[a-f0-9]{6,12}\b""".toRegex()
     )
 
     private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()
@@ -58,14 +58,14 @@ class PrivacyModule(
         }
     }
 
-    private fun containsSensitiveData(string: String) =
-        matchesEmail(string) || patterns.any { it.containsMatchIn(string) }
+    private fun containsSensitiveData(string: String): MatchResult? =
+        matchesEmail(string) ?: patterns.asSequence().mapNotNull { it.find(string) }.firstOrNull()
 
-    private fun matchesEmail(string: String): Boolean {
+    private fun matchesEmail(string: String): MatchResult? {
         return emailRegex
             .findAll(string)
             .filterNot { email -> allowedEmailsRegex.any { regex -> regex.matches(email.value) } }
-            .any()
+            .firstOrNull()
     }
 
     private data class AttachmentsCheckResult(
@@ -92,13 +92,29 @@ class PrivacyModule(
                 if (redacted == null) {
                     // No redaction necessary / possible; check if attachment contains sensitive data
                     if (!attachmentContainsSensitiveData) {
-                        attachmentContainsSensitiveData = containsSensitiveData(it.getTextContent())
+                        containsSensitiveData(it.getTextContent())?.let { matchResult ->
+                            attachmentContainsSensitiveData = true
+                            logFoundSensitiveData("in attachment with ID ${it.id}", matchResult)
+                        }
                     }
                     return@mapNotNull null
                 } else {
                     // Check if attachment content still contains sensitive data after redacting
-                    if (containsSensitiveData(redacted.redactedContent)) {
+                    if (containsSensitiveData(redacted.redactedContent) != null) {
+                        if (!attachmentContainsSensitiveData) {
+                            // Because attachment won't be redacted get match result in original attachment for logging
+                            containsSensitiveData(it.getTextContent())?.let { matchResult ->
+                                logFoundSensitiveData("in attachment with ID ${it.id}", matchResult)
+                            } ?: run {
+                                // Redactor might have produced malformed output, or sensitive data regex pattern
+                                // is imprecise; marking attachment as containing sensitive data nonetheless
+                                log.warn("$key: Sensitive data was detected in redacted content for attachment with " +
+                                        "ID ${it.id}, but original attachment content was not detect")
+                            }
+                        }
+
                         attachmentContainsSensitiveData = true
+                        // Don't redact if attachment content would still contain sensitive data
                         return@mapNotNull null
                     }
                     return@mapNotNull redacted
@@ -108,9 +124,21 @@ class PrivacyModule(
         return AttachmentsCheckResult(attachmentContainsSensitiveData, attachmentsToRedact)
     }
 
+    @Suppress("ReturnCount")
     private fun Issue.containsIssueSensitiveData(lastRun: Instant): Boolean {
-        if (created.isAfter(lastRun) && containsSensitiveData("$summary $environment $description")) {
-            return true
+        if (created.isAfter(lastRun)) {
+            summary?.let(::containsSensitiveData)?.let {
+                logFoundSensitiveData("in summary", it)
+                return true
+            }
+            environment?.let(::containsSensitiveData)?.let {
+                logFoundSensitiveData("in environment", it)
+                return true
+            }
+            description?.let(::containsSensitiveData)?.let {
+                logFoundSensitiveData("in description", it)
+                return true
+            }
         }
 
         return changeLog
@@ -118,22 +146,39 @@ class PrivacyModule(
             .filter { it.created.isAfter(lastRun) }
             .filter { it.field != "Attachment" }
             .filter { it.changedFromString == null }
-            .mapNotNull { it.changedToString }
-            .any(::containsSensitiveData)
+            .any {
+                it.changedToString?.let(::containsSensitiveData)?.let { matchResult ->
+                    logFoundSensitiveData("in change log item ${it.entryId}[${it.itemIndex}]", matchResult)
+                    return true
+                }
+                return false
+            }
     }
 
     private fun Issue.getRestrictCommentActions(lastRun: Instant) = comments
         .asSequence()
         .filter { it.created.isAfter(lastRun) }
         .filter { it.visibilityType == null }
-        .filter { it.body?.let(::containsSensitiveData) ?: false }
         .filterNot {
             it.getAuthorGroups()?.any { group ->
                 listOf("helper", "global-moderators", "staff").contains(group)
             } ?: false
         }
+        .filter {
+            it.body?.let(::containsSensitiveData)?.let { matchResult ->
+                logFoundSensitiveData("in comment with ID ${it.id}", matchResult)
+                return@filter true
+            }
+            return@filter false
+        }
         .map { { it.restrict("${it.body}$commentNote") } }
         .toList()
+
+    private fun Issue.logFoundSensitiveData(location: String, matchResult: MatchResult) {
+        val range = matchResult.range
+        // Important: Don't log value (i.e. sensitive data) of match result
+        log.info("$key: Found sensitive data $location at ${range.first}-${range.last}")
+    }
 
     private fun redactAttachments(issue: Issue, attachments: Collection<RedactedAttachment>): Boolean {
         var redactedAll = true

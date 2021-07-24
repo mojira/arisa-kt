@@ -408,3 +408,10 @@ fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion
 fun changeReporter(context: Lazy<IssueUpdateContext>, reporter: String) {
     context.value.update.field(Field.REPORTER, reporter)
 }
+
+// Allows some basic Jira formatting characters to be used by helper message arguments;
+// when used by malicious user they should at most cause text formatting errors
+private val sanitizationRegex = Regex("[^a-zA-Z0-9\\-+_#*?.,; ]")
+fun sanitizeCommentArg(arg: String): String {
+    return arg.replace(sanitizationRegex, "?")
+}

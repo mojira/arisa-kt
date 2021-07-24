@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
+import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
 import io.github.mojira.arisa.log
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
@@ -70,7 +71,7 @@ class RemoveContentCommand(
             .trimMargin().replace("[\n\r]", "")
 
         val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
-            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
+            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(sanitizeCommentArg(userName))
             is Either.Right -> either.b
         }
 
@@ -79,7 +80,7 @@ class RemoveContentCommand(
 
             issue.addRawRestrictedComment(
                 "Removed ${result.removedComments} comments " +
-                        "and ${result.removedAttachments} attachments from user \"$userName\".",
+                    "and ${result.removedAttachments} attachments from user \"${sanitizeCommentArg(userName)}\".",
                 "staff"
             )
         }

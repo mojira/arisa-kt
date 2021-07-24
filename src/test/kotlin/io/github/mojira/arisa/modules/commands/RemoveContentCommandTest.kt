@@ -8,6 +8,7 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.mockk
 import net.rcarz.jiraclient.Issue
 
@@ -82,9 +83,11 @@ fun mockRemoveContentCommand(
 
 class RemoveContentCommandTest : StringSpec({
     "should remove all matching comments" {
+        val evilUser = "evil\nUser"
+
         var calledSearch = false
         var comment: String? = null
-        var commentRestrictions: String? = null
+        var commentRestriction: String? = null
 
         var removedInnocentComments = 0
         var removedEvilComments = 0
@@ -94,12 +97,12 @@ class RemoveContentCommandTest : StringSpec({
             updateComment = { removedInnocentComments++ }
         )
         val evilComment = MockedComment(
-            author = "evilUser",
+            author = evilUser,
             updateComment = { removedEvilComments++ }
         )
         val restrictedComment = MockedComment(
             visibilityValue = "staff",
-            author = "evilUser",
+            author = evilUser,
             updateComment = { removedRestrictedComments++ }
         )
 
@@ -122,7 +125,7 @@ class RemoveContentCommandTest : StringSpec({
             removeAttachment = { removedInnocentAttachments++ }
         )
         val evilAttachment = MockedAttachment(
-            authorName = "evilUser",
+            authorName = evilUser,
             removeAttachment = { removedEvilAttachments++ }
         )
 
@@ -150,18 +153,18 @@ class RemoveContentCommandTest : StringSpec({
         )
 
         val issue = mockIssue(
-            addRawRestrictedComment = { body, restrictions ->
+            addRawRestrictedComment = { body, restriction ->
                 comment = body
-                commentRestrictions = restrictions
+                commentRestriction = restriction
             }
         )
 
-        val result = command(issue, "evilUser")
+        val result = command(issue, evilUser)
 
         result shouldBe 1
 
         calledSearch.shouldBeTrue()
-        queriedIssues.shouldContainExactlyInAnyOrder(issues.keys)
+        queriedIssues shouldContainExactlyInAnyOrder issues.keys
 
         removedInnocentComments shouldBe 0
         removedEvilComments shouldBe 4
@@ -171,6 +174,8 @@ class RemoveContentCommandTest : StringSpec({
         removedEvilAttachments shouldBe 2
 
         comment.shouldNotBeNull()
-        commentRestrictions.shouldBe("staff")
+        commentRestriction shouldBe "staff"
+        // Should contain sanitized user name
+        comment shouldContain "evil?User"
     }
 })

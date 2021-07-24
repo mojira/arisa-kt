@@ -6,6 +6,7 @@ import arrow.core.right
 import arrow.core.rightIfNotNull
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.KlaxonException
+import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
 import io.github.mojira.arisa.modules.openHttpGetInputStream
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -83,7 +84,7 @@ object HelperMessageService {
         return data.messages[key]?.find { isProjectMatch(project, it.project) }
             .rightIfNotNull { Error("Failed to find message for key $key under project $project") }
             .map { localizeValue(it.message, it.localizedMessages, lang) }
-            .map { resolvePlaceholder(it, filledText) }
+            .map { resolvePlaceholder(it, filledText?.let(::sanitizeCommentArg)) }
             .map { resolveVariables(it, project, lang) }
     }
 

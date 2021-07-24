@@ -127,7 +127,7 @@ fun mockIssue(
     addDupeMessage: (options: CommentOptions) -> Unit = { },
     addRestrictedComment: (options: CommentOptions) -> Unit = { },
     addNotEnglishComment: (language: String) -> Unit = { },
-    addRawRestrictedComment: (body: String, restrictions: String) -> Unit = { _, _ -> },
+    addRawRestrictedComment: (body: String, restriction: String) -> Unit = { _, _ -> },
     markAsFixedInASpecificVersion: (versionName: String) -> Unit = { },
     changeReporter: (reporter: String) -> Unit = { },
     addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }

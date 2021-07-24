@@ -2,6 +2,7 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
 
 /**
  * How many tickets should be listed at max.
@@ -20,19 +21,22 @@ class ListUserActivityCommand(
             | OR issueFunction IN fileAttached("by '$escapedUserName'")"""
             .trimMargin().replace("[\n\r]", "")
 
+        val sanitizedUserName = sanitizeCommentArg(userName)
+
         val tickets = when (val either = searchIssues(jql, ACTIVITY_LIST_CAP)) {
-            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(userName)
+            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(sanitizedUserName)
             is Either.Right -> either.b
         }
 
         if (tickets.isNotEmpty()) {
             issue.addRawRestrictedComment(
-                "User \"$userName\" left comments on the following tickets:\n* ${tickets.joinToString("\n* ")}",
+                "User \"$sanitizedUserName\" left comments on the following tickets:" +
+                    "\n* ${tickets.joinToString("\n* ")}",
                 "staff"
             )
         } else {
             issue.addRawRestrictedComment(
-                """No unrestricted comments from user "$userName" were found.""",
+                """No unrestricted comments from user "$sanitizedUserName" were found.""",
                 "staff"
             )
         }

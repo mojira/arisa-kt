@@ -198,6 +198,22 @@ class HelperMessagesTest : StringSpec({
         result.b shouldBe "With MC-4"
     }
 
+    "should sanitize filled text" {
+        val maliciousFilledText = "bad\n\r\n\u0000\"'\u202E"
+        val result = HelperMessageService.getSingleMessage("MC", "with-placeholder", maliciousFilledText)
+
+        result.shouldBeRight()
+        result.b shouldBe "With bad???????"
+    }
+
+    "should allow basic formatting for filled text" {
+        val filledText = "test *a* and _b_"
+        val result = HelperMessageService.getSingleMessage("MC", "with-placeholder", filledText)
+
+        result.shouldBeRight()
+        result.b shouldBe "With test *a* and _b_"
+    }
+
     "should use the original value when the lang doesn't exist" {
         val result = HelperMessageService.getSingleMessage("MC", "normal", lang = "cd")
 

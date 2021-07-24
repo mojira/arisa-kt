@@ -6,6 +6,7 @@ import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
 import java.time.Instant
 
 class AttachmentModule(
@@ -28,9 +29,11 @@ class AttachmentModule(
         }
     }
 
-    private fun List<Attachment>.getCommentInfo() = this
-        .map { "- [~${it.uploader!!.name}]: ${it.name}" }
-        .joinToString(separator = "\n")
+    private fun List<Attachment>.getCommentInfo() = this.joinToString(separator = "\n") {
+        val uploaderName = it.uploader!!.name?.let(::sanitizeCommentArg)
+        val attachmentName = sanitizeCommentArg(it.name)
+        "- [~$uploaderName]: $attachmentName"
+    }
 
     private fun endsWithBlacklistedExtensions(extensionBlackList: List<String>, name: String) =
         extensionBlackList.any { name.endsWith(it) }

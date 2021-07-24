@@ -180,6 +180,8 @@ class PrivacyModule(
         log.info("$key: Found sensitive data $location at ${range.first}-${range.last}")
     }
 
+    private fun Issue.hasAnyAttachmentName(name: String) = attachments.any { it.name == name }
+
     private fun redactAttachments(issue: Issue, attachments: Collection<RedactedAttachment>): Boolean {
         var redactedAll = true
         attachments
@@ -193,11 +195,11 @@ class PrivacyModule(
                     val fileName = "redacted_${attachment.name}"
                     val filePath = getSafeChildPath(tempDir, fileName)
 
-                    if (filePath == null || !fileNames.add(fileName)) {
+                    if (filePath == null || issue.hasAnyAttachmentName(fileName) || !fileNames.add(fileName)) {
                         redactedAll = false
                         // Note: Don't log file name to avoid log injection
-                        log.warn("Attachment with ID ${attachment.id} of issue ${issue.key} has malformed or " +
-                            "duplicate file name")
+                        log.warn("Cannot redact attachment with ID ${attachment.id} of issue ${issue.key}; file name " +
+                            "is malformed or would clash with other attachment")
                         tempDir.delete()
                     } else {
                         filePath.writeText(it.redactedContent)
@@ -213,7 +215,8 @@ class PrivacyModule(
                 }
 
                 if (fileNames.isNotEmpty()) {
-                    val fileNamesString = fileNames.joinToString(separator = "") {
+                    // Use postfix line break to prevent bot signature from appearing as part of last list item
+                    val fileNamesString = fileNames.joinToString(separator = "", postfix = "\n") {
                         // Use link for attachments
                         "\n- [^${sanitizeCommentArg(it)}]"
                     }

@@ -204,7 +204,9 @@ fun JiraUser.toDomain(jiraClient: JiraClient, config: Config) = User(
     name, displayName,
     ::getUserGroups.partially1(jiraClient).partially1(name),
     ::isNewUser.partially1(jiraClient).partially1(name),
-    { name == config[Arisa.Credentials.username] }
+    // Check case insensitively because it apparently does not matter when logging in, so `username` might have
+    // incorrect capitalization
+    { name.equals(config[Arisa.Credentials.username], ignoreCase = true) }
 )
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(

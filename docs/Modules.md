@@ -114,15 +114,20 @@ Resolves an empty report as `Incomplete`.
 | Name  | `FutureVersion`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/FutureVersionModule.kt) |
 
-Removes future versions from the ticket, and resolves it as `Invalid` when the future version is the only version
-the ticket has.
+Removes future versions from the ticket, and resolves it as `Awaiting Response` when the future version is the only version
+the ticket has. If a custom message is specified for a future version by `resolveAsInvalidMessages` in the
+[config](../config/config.yml), the ticket is resolved as `Invalid` instead.
 
 ### Checks
 - Get all the versions of the ticket that are added after last run by non-`staff` users.
 - Any of those versions is a future version.
 - The project of this ticket has a released version.
-- Adds the latest released version to `Affected Versions` and removes all the future versions. If the future version
-  was the only version the ticket has, resolves the ticket as `Invalid`.
+- If the affected versions also contain a released version:
+  - Then: The future version is removed and only a message is added telling the user that future versions may not
+    be selected.
+  - Else: The future version is removed and the latest released version is added to `Affected Versions` and the ticket
+    is resolved. If a custom message for the future version is specified by `resolveAsInvalidMessages` in the
+    [config](../config/config.yml), the ticket is resolved as `Invalid`, otherwise it is resolved as `Awaiting Response`.
 
 ## HideImpostors
 | Entry | Value                                                                            |

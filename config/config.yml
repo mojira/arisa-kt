@@ -190,6 +190,9 @@ arisa:
     futureVersion:
       message: provide-affected-versions
       panel: panel-future-version
+      resolveAsInvalidMessages:
+        # 1.18 experimental snapshots
+        "20215": experimental-snapshot
 
     chk:
       projects:

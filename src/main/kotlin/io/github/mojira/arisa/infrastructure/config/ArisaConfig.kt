@@ -46,7 +46,7 @@ object Arisa : ConfigSpec() {
         )
         val special by required<Map<String, String>>(
             description = "Some projects define their own security level. These projects need to be defined here with" +
-                    " their own ID.. Default is all projects use the default ID"
+                    " their own ID. Default is all projects use the default ID."
         )
     }
 
@@ -195,6 +195,13 @@ object Arisa : ConfigSpec() {
             )
             val panel by required<String>(
                 description = "The key of the message that is posted when there are more versions."
+            )
+            val resolveAsInvalidMessages by optional<Map<String, String>>(
+                description = "Map from future version Jira IDs to helper message keys. When an issue only has one " +
+                    "of the listed future versions as affected version the issue is resolved as Invalid (instead of " +
+                    "Awaiting Response) and the respective message is added as comment. By default no messages are " +
+                    "configured.",
+                default = emptyMap()
             )
         }
 

@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.modules
 
 import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockIssue
@@ -12,6 +13,7 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
@@ -26,7 +28,7 @@ private val ADD_FUTURE_VERSION = mockChangeLogItem(field = "Version", changedTo 
 
 class FutureVersionModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no change log" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -41,7 +43,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when there are no version changes" {
-        val module = FutureVersionModule("messgit age", "panel")
+        val module = FutureVersionModule("messgit age", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -61,7 +63,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the version change is before last run" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -83,7 +85,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the version change is an removal" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -104,7 +106,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the future version is added by a staff upon ticket creation" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("staff") }
@@ -121,7 +123,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when the future version is added by a staff via editing" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(FUTURE_VERSION),
@@ -143,7 +145,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when affected versions are empty" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             project = mockProject(
                 versions = listOf(RELEASED_VERSION)
@@ -156,7 +158,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when project versions are empty" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION)
@@ -168,7 +170,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when project versions are null" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION)
@@ -180,7 +182,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when project versions do not contain released versions" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION),
@@ -195,7 +197,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse if no future version is marked affected" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             affectedVersions = listOf(RELEASED_VERSION),
             changeLog = listOf(ADD_FUTURE_VERSION),
@@ -210,7 +212,7 @@ class FutureVersionModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse if only an archived version is marked affected" {
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             affectedVersions = listOf(ARCHIVED_VERSION),
             changeLog = listOf(ADD_ARCHIVED_VERSION),
@@ -242,13 +244,13 @@ class FutureVersionModuleTest : StringSpec({
             archived = false
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             affectedVersions = listOf(futureVersion),
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -281,7 +283,7 @@ class FutureVersionModuleTest : StringSpec({
             archived = false
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("user") }
@@ -290,7 +292,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -323,7 +325,7 @@ class FutureVersionModuleTest : StringSpec({
             archived = false
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
@@ -332,7 +334,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsInvalid = { preResolved = false },
+            resolveAsAwaitingResponse = { preResolved = false },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -365,7 +367,7 @@ class FutureVersionModuleTest : StringSpec({
             archived = false
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(futureVersion),
@@ -373,7 +375,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -406,7 +408,7 @@ class FutureVersionModuleTest : StringSpec({
             archived = false
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(futureVersion, releasedVersion),
@@ -414,7 +416,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -453,7 +455,7 @@ class FutureVersionModuleTest : StringSpec({
             archived = true
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("user") }
@@ -462,7 +464,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, archivedVersion, futureVersion)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = {
@@ -501,7 +503,7 @@ class FutureVersionModuleTest : StringSpec({
             archived = false
         )
 
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
             affectedVersions = listOf(futureVersion),
@@ -515,7 +517,7 @@ class FutureVersionModuleTest : StringSpec({
             project = mockProject(
                 versions = listOf(releasedVersion, futureVersion)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -536,22 +538,10 @@ class FutureVersionModuleTest : StringSpec({
         val versionsAdded = mutableListOf<String>()
         var addedComment = CommentOptions("")
 
-        val futureVersion = mockVersion(
-            id = "3",
-            released = false,
-            archived = false
-        )
-
-        val releasedVersion = mockVersion(
-            id = "2",
-            released = true,
-            archived = false
-        )
-
-        val module = FutureVersionModule("message", "panel")
+        val module = FutureVersionModule("message", "panel", emptyMap())
         val issue = mockIssue(
             created = FIVE_SECONDS_AGO,
-            affectedVersions = listOf(futureVersion),
+            affectedVersions = listOf(FUTURE_VERSION),
             changeLog = listOf(
                 mockChangeLogItem(
                     field = "Version",
@@ -560,9 +550,9 @@ class FutureVersionModuleTest : StringSpec({
                 )
             ),
             project = mockProject(
-                versions = listOf(releasedVersion, futureVersion)
+                versions = listOf(RELEASED_VERSION, FUTURE_VERSION)
             ),
-            resolveAsInvalid = { isResolved = true },
+            resolveAsAwaitingResponse = { isResolved = true },
             addComment = { addedComment = it },
             removeAffectedVersion = { isRemoved = it.id == "3" },
             addAffectedVersion = { if (it.id == "3") versionsAdded.add("future") else versionsAdded.add("released") }
@@ -575,5 +565,105 @@ class FutureVersionModuleTest : StringSpec({
         isResolved.shouldBeTrue()
         versionsAdded.shouldBe(mutableListOf("released"))
         addedComment shouldBe CommentOptions("message")
+    }
+
+    "should resolve as Invalid when only version with custom message exists" {
+        var isRemoved = false
+        var isResolvedAsAR = false
+        var isResolvedAsInvalid = false
+        val versionsAdded = mutableListOf<Version>()
+        var addedComment: CommentOptions? = null
+
+        val invalidMessage = "custom-message"
+        val resolveAsInvalidMessages = mapOf(FUTURE_VERSION.id to invalidMessage)
+
+        val module = FutureVersionModule("message", "panel", resolveAsInvalidMessages)
+        val issue = mockIssue(
+            reporter = mockUser(
+                getGroups = { listOf("user") }
+            ),
+            affectedVersions = listOf(FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION, FUTURE_VERSION)
+            ),
+            resolveAsAwaitingResponse = { isResolvedAsAR = true },
+            resolveAsInvalid = { isResolvedAsInvalid = true },
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == FUTURE_VERSION.id },
+            addAffectedVersion = { versionsAdded.add(it) }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolvedAsAR.shouldBeFalse()
+        isResolvedAsInvalid.shouldBeTrue()
+        versionsAdded.shouldContainExactly(RELEASED_VERSION)
+        addedComment shouldBe CommentOptions(invalidMessage)
+    }
+
+    // Covers the case where version has been released but Arisa config has not been updated yet
+    "should return OperationNotNeededModuleResponse when version with custom message has been released" {
+        val futureVersion = mockVersion(
+            id = FUTURE_VERSION.id,
+            // Future version has been released in the meantime
+            released = true,
+            archived = false
+        )
+
+        val invalidMessage = "custom-message"
+        val resolveAsInvalidMessages = mapOf(futureVersion.id to invalidMessage)
+
+        val module = FutureVersionModule("message", "panel", resolveAsInvalidMessages)
+        val issue = mockIssue(
+            reporter = mockUser(
+                getGroups = { listOf("user") }
+            ),
+            affectedVersions = listOf(futureVersion),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION, futureVersion)
+            )
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should not resolve as Invalid when future and released version are marked as affected" {
+        var isRemoved = false
+        var isResolvedAsAR = false
+        var isResolvedAsInvalid = false
+        var hasAddedVersion = false
+        var addedComment: CommentOptions? = null
+
+        val invalidMessage = "custom-message"
+        val resolveAsInvalidMessages = mapOf(FUTURE_VERSION.id to invalidMessage)
+
+        val module = FutureVersionModule("message", "panel", resolveAsInvalidMessages)
+        val issue = mockIssue(
+            reporter = mockUser(
+                getGroups = { listOf("user") }
+            ),
+            affectedVersions = listOf(RELEASED_VERSION, FUTURE_VERSION),
+            project = mockProject(
+                versions = listOf(RELEASED_VERSION, FUTURE_VERSION)
+            ),
+            resolveAsAwaitingResponse = { isResolvedAsAR = true },
+            resolveAsInvalid = { isResolvedAsInvalid = true },
+            addComment = { addedComment = it },
+            removeAffectedVersion = { isRemoved = it.id == FUTURE_VERSION.id },
+            addAffectedVersion = { hasAddedVersion = true }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        isRemoved.shouldBeTrue()
+        isResolvedAsAR.shouldBeFalse()
+        isResolvedAsInvalid.shouldBeFalse()
+        hasAddedVersion.shouldBeFalse()
+        addedComment shouldBe CommentOptions("panel")
     }
 })

@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import arrow.syntax.function.partially1
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.Version
@@ -10,32 +9,44 @@ import java.time.Instant
 
 class FutureVersionModule(
     private val messageFull: String,
-    private val messagePanel: String
+    private val messagePanel: String,
+    private val resolveAsInvalidMessages: Map<String, String>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val addedVersions = getVersionsLatelyAddedByNonStaff(lastRun)
-            val removeFutureVersions = affectedVersions
+            val futureVersionsToRemove = affectedVersions
                 .filter(::isFutureVersion)
                 .filter { it.id in addedVersions }
-                .map { issue.removeAffectedVersion.partially1(it) }
-            assertNotEmpty(removeFutureVersions).bind()
+            assertNotEmpty(futureVersionsToRemove).bind()
 
             val latestVersion = project.versions.lastOrNull(::isReleasedVersion)
             assertNotNull(latestVersion).bind()
 
-            if (affectedVersions.size > removeFutureVersions.size) {
+            if (affectedVersions.size > futureVersionsToRemove.size) {
                 addComment(CommentOptions(messagePanel))
             } else {
+                // Cannot leave affected versions empty so need to choose latest version, but prompt user
+                // to choose correct version
                 issue.addAffectedVersion(latestVersion!!)
                 if (resolution == null || resolution == "Unresolved") {
-                    resolveAsInvalid()
-                    addComment(CommentOptions(messageFull))
+                    val invalidMessage = futureVersionsToRemove.asSequence()
+                        .mapNotNull { resolveAsInvalidMessages[it.id] }
+                        .firstOrNull()
+
+                    if (invalidMessage == null) {
+                        resolveAsAwaitingResponse()
+                        addComment(CommentOptions(messageFull))
+                    } else {
+                        resolveAsInvalid()
+                        addComment(CommentOptions(invalidMessage))
+                    }
                 } else {
                     addComment(CommentOptions(messagePanel))
                 }
             }
-            removeFutureVersions.forEach(::run)
+
+            futureVersionsToRemove.forEach(removeAffectedVersion)
         }
     }
 

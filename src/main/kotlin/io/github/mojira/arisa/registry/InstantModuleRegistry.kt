@@ -194,7 +194,8 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.FutureVersion,
             FutureVersionModule(
                 config[Arisa.Modules.FutureVersion.message],
-                config[Arisa.Modules.FutureVersion.panel]
+                config[Arisa.Modules.FutureVersion.panel],
+                config[Arisa.Modules.FutureVersion.resolveAsInvalidMessages]
             )
         )
 

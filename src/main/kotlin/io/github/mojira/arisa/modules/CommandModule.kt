@@ -46,9 +46,7 @@ class CommandModule(
                 }
                 .filter { it.second.isNotEmpty() }
                 .onEach { invocation ->
-                    val commandResults = invocation.second
-                        .map { it.source.line to executeCommand(it) }
-                        .toMap()
+                    val commandResults = invocation.second.associate { it.source.line to executeCommand(it) }
                     editInvocationComment(invocation.first, commandResults)
                 }
             assertNotEmpty(commands).bind()
@@ -119,8 +117,15 @@ class CommandModule(
         """.trimMargin()
     }
 
-    private fun userIsVolunteer(comment: Comment) =
-        comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+    private fun userIsVolunteer(comment: Comment): Boolean {
+        // Ignore comments from the bot itself to prevent accidental infinite recursion and command
+        // injection by malicious user
+        if (comment.author.name == botUserName) {
+            return false
+        }
+
+        return comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+    }
 
     private fun isStaffRestricted(comment: Comment) =
         comment.visibilityType == "group" && (comment.visibilityValue == "staff" || comment.visibilityValue == "helper")

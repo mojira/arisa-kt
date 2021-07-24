@@ -58,7 +58,7 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt have correct group" {
+    "should return OperationNotNeededModuleResponse when comment doesn't have correct group" {
         val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             visibilityType = "notagroup"
@@ -72,7 +72,7 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt have correct value" {
+    "should return OperationNotNeededModuleResponse when comment doesn't have correct value" {
         val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             visibilityValue = "notagroup"
@@ -101,10 +101,27 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesnt start with ARISA_" {
+    "should return OperationNotNeededModuleResponse when comment doesn't start with ARISA_" {
         val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             body = "ARISA"
+        )
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should return OperationNotNeededModuleResponse when comment has been written by bot" {
+        val botName = "botName"
+        val module = CommandModule("ARISA", botName, ::getDispatcher)
+        val comment = getComment(
+            author = mockUser(
+                name = botName
+            )
         )
         val issue = mockIssue(
             comments = listOf(comment)

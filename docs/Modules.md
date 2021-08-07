@@ -6,6 +6,23 @@ When a module is invoked it checks whether any action is needed for an issue, it
 performs one specific task. The execution of a module can be customized through the
 [config file](../config/config.yml)
 
+## AffectedVersionMessage
+| Entry | Value                                                                                     |
+| ----- | ----------------------------------------------------------------------------------------- |
+| Name  | `AffectedVersionMessage`                                                                  |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/AffectedVersionMessageModule.kt) |
+
+Adds a message comment when an issue has a specific version as affected version. However, unlike other modules this
+module does not perform any other action, it neither removes the version nor resolves the issue. This module is
+intended for versions which are often erroneously added by users.
+
+The map from Jira version ID to message key is specified as `versionIdMessageMap` in the [config](../config/config.yml)
+(defaults to empty map).
+
+### Checks
+- The issue has been created after the last run.
+- The issue has not been created by a staff member (helper, moderator or Mojang employee).
+
 ## Attachment
 | Entry | Value                                                                         |
 | ----- | ----------------------------------------------------------------------------- |

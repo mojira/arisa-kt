@@ -11,7 +11,7 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-val YESTERDAY: Instant = RIGHT_NOW.minus(1, ChronoUnit.DAYS)
+private val YESTERDAY: Instant = RIGHT_NOW.minus(1, ChronoUnit.DAYS)
 
 class RemoveSpamModuleTest : StringSpec({
     val module = RemoveSpamModule(listOf(

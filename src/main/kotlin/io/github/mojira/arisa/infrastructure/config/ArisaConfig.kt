@@ -99,6 +99,14 @@ object Arisa : ConfigSpec() {
             )
         }
 
+        object AffectedVersionMessage : ModuleConfigSpec() {
+            val versionIdMessageMap by optional<Map<String, String>>(
+                description = "Map from Jira version ID to message key of the message to add when that version has " +
+                        "been selected as affected version.",
+                default = emptyMap()
+            )
+        }
+
         object Attachment : ModuleConfigSpec() {
             val extensionBlacklist by required<List<String>>(
                 description = "The extensions (including leading dots) that should be removed from issues. " +

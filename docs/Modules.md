@@ -420,7 +420,8 @@ Transfers versions from duplicated tickets to their parents.
 
 ### Checks
 - The ticket was linked as a duplicate after last run.
-- The version was released after the oldest version on the parent.
+- The Jira version ID is not listed in `notTransferredVersionIds` specified in the [config](../config/config.yml)
+  (defaults to empty list, i.e. all versions are transferred).
 - The version doesn't exist in the parent yet.
 
 ## UpdateLinked

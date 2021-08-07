@@ -335,7 +335,12 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object TransferVersions : ModuleConfigSpec()
+        object TransferVersions : ModuleConfigSpec() {
+            val notTransferredVersionIds by optional<List<String>>(
+                description = "List of Jira version IDs which should not be transferred.",
+                default = emptyList()
+            )
+        }
 
         object TransferLinks : ModuleConfigSpec()
 

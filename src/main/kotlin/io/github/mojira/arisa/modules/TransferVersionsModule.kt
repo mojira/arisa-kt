@@ -3,7 +3,9 @@ package io.github.mojira.arisa.modules
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.LinkedIssue
 
-class TransferVersionsModule : AbstractTransferFieldModule() {
+class TransferVersionsModule(
+    private val notTransferredVersionIds: List<String> = emptyList()
+) : AbstractTransferFieldModule() {
     override fun filterParents(linkedIssue: LinkedIssue, issue: Issue): Boolean {
         return linkedIssue.isSameProject(issue) && linkedIssue.isUnresolved()
     }
@@ -15,6 +17,7 @@ class TransferVersionsModule : AbstractTransferFieldModule() {
 
             issue.affectedVersions
                 .map { it.id }
+                .filter { it !in notTransferredVersionIds }
                 .filter { it !in parentVersionIds }
                 .map { { parent.addAffectedVersionById(it) } }
         }

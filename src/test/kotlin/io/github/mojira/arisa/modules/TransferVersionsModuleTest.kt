@@ -12,6 +12,7 @@ import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.Instant
@@ -182,9 +183,17 @@ class TransferVersionsModuleTest : StringSpec({
 
     "should transfer missing versions to open parents" {
         val module = TransferVersionsModule()
+        val addedVersions = mutableListOf<String>()
+
         val link = mockLink(
             issue = mockLinkedIssue(
-                key = "MC-1"
+                key = "MC-1",
+                getFullIssue = {
+                    mockIssue(
+                        affectedVersions = listOf(VERSION_1),
+                        addAffectedVersionById = { addedVersions.add(it) }
+                    ).right()
+                }
             )
         )
         val changeLogItem = mockChangeLogItem(
@@ -194,20 +203,29 @@ class TransferVersionsModuleTest : StringSpec({
         val issue = mockIssue(
             links = listOf(link),
             changeLog = listOf(changeLogItem),
-            affectedVersions = listOf(VERSION_1)
+            affectedVersions = listOf(VERSION_1, VERSION_2)
         )
 
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        // Note: VERSION_1 is already affected, should not be added
+        addedVersions shouldContainExactly listOf(VERSION_2.id)
     }
 
     "should transfer missing versions to reopened parents" {
         val module = TransferVersionsModule()
+        val addedVersions = mutableListOf<String>()
+
         val link = mockLink(
             issue = mockLinkedIssue(
                 key = "MC-1",
-                status = "Reopened"
+                status = "Reopened",
+                getFullIssue = {
+                    mockIssue(
+                        addAffectedVersionById = { addedVersions.add(it) }
+                    ).right()
+                }
             )
         )
         val changeLogItem = mockChangeLogItem(
@@ -223,6 +241,38 @@ class TransferVersionsModuleTest : StringSpec({
         val result = module(issue, A_SECOND_AGO)
 
         result.shouldBeRight(ModuleResponse)
+        addedVersions shouldContainExactly listOf(VERSION_1.id)
+    }
+
+    "should not transfer versions listed in notTransferredVersionIds" {
+        // Don't transfer VERSION_2
+        val module = TransferVersionsModule(listOf(VERSION_2.id))
+        val addedVersions = mutableListOf<String>()
+
+        val link = mockLink(
+            issue = mockLinkedIssue(
+                key = "MC-1",
+                getFullIssue = {
+                    mockIssue(
+                        addAffectedVersionById = { addedVersions.add(it) }
+                    ).right()
+                }
+            )
+        )
+        val changeLogItem = mockChangeLogItem(
+            created = RIGHT_NOW,
+            changedTo = "MC-1"
+        )
+        val issue = mockIssue(
+            links = listOf(link),
+            changeLog = listOf(changeLogItem),
+            affectedVersions = listOf(VERSION_1, VERSION_2)
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        addedVersions shouldContainExactly listOf(VERSION_1.id)
     }
 
     "should add all versions to parent" {

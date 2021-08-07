@@ -125,7 +125,12 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
-        register(Arisa.Modules.TransferVersions, TransferVersionsModule())
+        register(
+            Arisa.Modules.TransferVersions,
+            TransferVersionsModule(
+                config[Arisa.Modules.TransferVersions.notTransferredVersionIds]
+            )
+        )
 
         register(
             Arisa.Modules.TransferLinks,

@@ -411,6 +411,9 @@ arisa:
     transferVersions:
       resolutions:
         - Duplicate
+      notTransferredVersionIds:
+        # MCL version "1.6.93 (legacy)"; in most cases this is erroneously selected by the user
+        - '18613'
 
     transferLinks:
       resolutions:

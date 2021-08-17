@@ -5,6 +5,7 @@ import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.modules.AffectedVersionMessageModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
@@ -42,6 +43,13 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
     }
 
     init {
+        register(
+            Arisa.Modules.AffectedVersionMessage,
+            AffectedVersionMessageModule(
+                config[Arisa.Modules.AffectedVersionMessage.versionIdMessageMap]
+            )
+        )
+
         register(
             Arisa.Modules.Attachment,
             AttachmentModule(
@@ -117,7 +125,12 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
-        register(Arisa.Modules.TransferVersions, TransferVersionsModule())
+        register(
+            Arisa.Modules.TransferVersions,
+            TransferVersionsModule(
+                config[Arisa.Modules.TransferVersions.notTransferredVersionIds]
+            )
+        )
 
         register(
             Arisa.Modules.TransferLinks,

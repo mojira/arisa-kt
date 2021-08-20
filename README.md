@@ -15,7 +15,7 @@
   <h3>Arisa</h3>
 
   <p>
-    A JIRA bot for doing various moderation tasks on Mojang's bug tracker <a href="https://bugs.mojang.com/">Mojira</a>.
+    A JIRA bot for preforming various moderation tasks on Mojang's bug tracker <a href="https://bugs.mojang.com/">Mojira</a>.
     <br/>
     <a href="https://bugs.mojang.com/secure/ViewProfile.jspa?name=arisabot">Arisa's bug tracker profile</a>
     ·

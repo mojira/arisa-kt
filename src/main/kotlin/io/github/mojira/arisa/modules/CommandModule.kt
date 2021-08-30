@@ -107,7 +107,8 @@ class CommandModule(
         }
 
         val feedback = when (result) {
-            is Either.Left -> result.a.message
+            // Use exception message, or if not present (e.g. for NullPointerException) the string representation
+            is Either.Left -> result.a.message ?: result.a.toString()
             is Either.Right -> "Command was executed successfully, with ${result.b} affected element(s)"
         }
 

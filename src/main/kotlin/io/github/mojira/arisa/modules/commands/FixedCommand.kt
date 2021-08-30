@@ -17,11 +17,11 @@ class FixedCommand {
             throw CommandExceptions.ALREADY_RESOLVED.create(issue.resolution)
         }
 
-        if (!force) {
+        if (!force && fixVersion.releaseDate != null) {
             // Fail if any affected version is same or newer than fix version
             // Since archived fix versions cannot be removed again this prevents accidentally adding an incorrect
             // fix version
-            issue.affectedVersions.firstOrNull { it.releaseDate!!.isSameOrAfter(fixVersion.releaseDate!!) }?.let {
+            issue.affectedVersions.firstOrNull { it.releaseDate?.isSameOrAfter(fixVersion.releaseDate) == true }?.let {
                 throw CommandExceptions.FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION.create(fixVersionName, it.name)
             }
         }

@@ -382,7 +382,8 @@ class ReplaceTextModuleTest : StringSpec({
                     update = {
                         hasUpdatedComment0 = it
                         Unit.right()
-                    }),
+                    }
+                ),
                 mockComment(
                     body = "Check https://bugs.mojang.com/browse/MC-106013 too",
                     updated = RIGHT_NOW.plusSeconds(1),

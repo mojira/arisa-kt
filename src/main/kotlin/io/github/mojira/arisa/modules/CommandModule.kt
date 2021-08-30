@@ -10,11 +10,15 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.modules.commands.getCommandDispatcher
 import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Instant
 
 data class Command(val command: String, val source: CommandSource)
 
 private typealias CommandResult = Either<Throwable, Int>
+
+private val log: Logger = LoggerFactory.getLogger("CommandModule")
 
 class CommandModule(
     private val prefix: String,
@@ -46,7 +50,12 @@ class CommandModule(
                 }
                 .filter { it.second.isNotEmpty() }
                 .onEach { invocation ->
-                    val commandResults = invocation.second.associate { it.source.line to executeCommand(it) }
+                    val commandResults = invocation.second.associate { command ->
+                        val result = executeCommand(command)
+                        logCommandExecutionResult(issue, invocation.first, command, result)
+                        command.source.line to result
+                    }
+
                     editInvocationComment(invocation.first, commandResults)
                 }
             assertNotEmpty(commands).bind()
@@ -75,6 +84,29 @@ class CommandModule(
             .map { (lineNr, line) ->
                 Command(line, CommandSource(issue, comment, lineNr))
             }
+
+    private fun logCommandExecutionResult(
+        issue: Issue,
+        comment: Comment,
+        command: Command,
+        commandResult: CommandResult
+    ) {
+        val issueKey = issue.key
+        val commentId = comment.id
+        val user = comment.author.name
+        val commandStr = command.command
+        commandResult.fold(
+            { exception ->
+                log.error("$issueKey: Failed executing command of comment $commentId for user $user: $commandStr",
+                    exception)
+            },
+            { resultValue ->
+                // Include user name to be able to detect command misuse
+                log.info("$issueKey: Successfully executed command of comment $commentId for user " +
+                    "$user (result=$resultValue): $commandStr")
+            }
+        )
+    }
 
     /**
      * Edits the given comment (that was used to invoke some commands) with the given results.

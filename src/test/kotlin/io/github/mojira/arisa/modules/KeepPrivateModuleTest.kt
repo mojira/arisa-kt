@@ -38,7 +38,11 @@ private val REMOVE_SECURITY_STAFF = mockChangeLogItem(
 class KeepPrivateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when keep private tag is null" {
         val module = KeepPrivateModule(null, "message")
-        val comment = mockComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff")
+        val comment = mockComment(
+            body = "MEQS_KEEP_PRIVATE",
+            visibilityType = "group",
+            visibilityValue = "staff"
+        )
         val issue = mockIssue(
             comments = listOf(comment),
             changeLog = listOf(REMOVE_SECURITY)

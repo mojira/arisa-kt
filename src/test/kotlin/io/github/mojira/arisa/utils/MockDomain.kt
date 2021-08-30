@@ -60,6 +60,7 @@ fun mockChangeLogItem(
 )
 
 fun mockComment(
+    id: String = "0",
     body: String = "",
     author: User = mockUser(),
     getAuthorGroups: () -> List<String> = { emptyList() },
@@ -70,6 +71,7 @@ fun mockComment(
     restrict: (String) -> Unit = { },
     update: (String) -> Unit = { }
 ) = Comment(
+    id,
     body,
     author,
     getAuthorGroups,

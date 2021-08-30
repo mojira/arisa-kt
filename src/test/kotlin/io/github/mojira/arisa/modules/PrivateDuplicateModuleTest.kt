@@ -22,7 +22,11 @@ private val duplicatesLinkComment = mockLink(
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(
             securityLevel = "private",
-            comments = listOf(mockComment("MEQS_KEEP_PRIVATE", visibilityType = "group", visibilityValue = "staff"))
+            comments = listOf(mockComment(
+                body = "MEQS_KEEP_PRIVATE",
+                visibilityType = "group",
+                visibilityValue = "staff"
+            ))
         ).right() }
     )
 )

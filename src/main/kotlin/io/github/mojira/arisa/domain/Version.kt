@@ -7,5 +7,9 @@ data class Version(
     val name: String,
     val released: Boolean,
     val archived: Boolean,
+    /**
+     * **Important**: Even if [released]=true the release date may be `null`, examples are:
+     * "Minecraft 19w03c", "Minecraft 19w13b"
+     */
     val releaseDate: Instant?
 )

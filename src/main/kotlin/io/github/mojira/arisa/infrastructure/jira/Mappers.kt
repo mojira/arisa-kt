@@ -178,6 +178,7 @@ fun JiraComment.toDomain(
 ): Comment {
     val context = issue.getUpdateContext(jiraClient)
     return Comment(
+        id,
         body,
         author.toDomain(jiraClient),
         { getGroups(jiraClient, author.name).fold({ null }, { it }) },

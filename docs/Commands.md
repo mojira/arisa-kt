@@ -71,6 +71,14 @@ version, the command fails. To skip this check, run with a trailing `force` lite
 
 List all recent activity (up to 50 items) by the given user in a new mod+ comment.
 
+## $ARISA_MAKE_PRIVATE
+| Entry       | Value                       |
+| ----------- | --------------------------- |
+| Syntax      | `$ARISA_MAKE_PRIVATE` |
+| Permissions | Helper+                     |
+
+Marks the ticket as private.
+
 ## $ARISA_PURGE_ATTACHMENT
 | Entry       | Value                                                      |
 | ----------- | ---------------------------------------------------------- |

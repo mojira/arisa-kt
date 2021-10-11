@@ -33,6 +33,7 @@ import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
+import io.github.mojira.arisa.modules.RemoveBotCommentModule
 
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
@@ -233,6 +234,14 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 maxImageHeight = config[Arisa.Modules.Thumbnail.maxImageHeight],
                 maxImageReadBytes = config[Arisa.Modules.Thumbnail.maxImageReadBytes],
                 maxImagesCount = config[Arisa.Modules.Thumbnail.maxImagesCount]
+            )
+        )
+
+        register(
+            Arisa.Modules.RemoveBotComment,
+            RemoveBotCommentModule(
+                config[Arisa.Credentials.username],
+                config[Arisa.Modules.RemoveBotComment.removalTag]
             )
         )
     }

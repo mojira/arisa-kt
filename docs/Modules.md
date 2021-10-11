@@ -263,6 +263,20 @@ Transfers security level and MEQS comment to a report's duplicates.
 #### For Transferring MEQS Comment
 - Any of the comments on the linked report is restricted to `staff` and contains the keepPrivateTag.
 
+## RemoveBotComment
+| Entry | Value                                                                                  |
+|-------|----------------------------------------------------------------------------------------|
+| Name  | `RemoveBotComment`                                                                     |
+| Class | [link](../src/main/kotlin/io/github/mojira/arisa/modules/RemoveBotCommentModule.kt)    |
+
+Deletes any undesired comments that were created by the bot that now contain a removal tag (can be configured in [config](../config/config.yml)).
+
+### Checks
+- The comment was originally authored by the bot.
+- The comment has been updated since the last run.
+- The comment contains the removal tag.
+- The comment is restricted to `global-moderators` or `staff`.
+
 ## RemoveIdenticalLink
 | Entry | Value                                                                                  |
 | ----- | -------------------------------------------------------------------------------------- |

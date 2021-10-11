@@ -187,7 +187,8 @@ fun JiraComment.toDomain(
         visibility?.type,
         visibility?.value,
         ::restrictCommentToGroup.partially1(context).partially1(this).partially1("staff"),
-        ::updateCommentBody.partially1(context).partially1(this)
+        ::updateCommentBody.partially1(context).partially1(this),
+        ::deleteComment.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
     )
 }
 

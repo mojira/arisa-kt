@@ -69,7 +69,8 @@ fun mockComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     restrict: (String) -> Unit = { },
-    update: (String) -> Unit = { }
+    update: (String) -> Unit = { },
+    remove: () -> Unit = { }
 ) = Comment(
     id,
     body,
@@ -80,7 +81,8 @@ fun mockComment(
     visibilityType,
     visibilityValue,
     restrict,
-    update
+    update,
+    remove
 )
 
 fun mockIssue(

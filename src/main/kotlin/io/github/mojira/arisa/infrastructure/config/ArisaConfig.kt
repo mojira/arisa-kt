@@ -382,6 +382,12 @@ object Arisa : ConfigSpec() {
                 default = 10
             )
         }
+
+        object RemoveBotComment : ModuleConfigSpec() {
+            val removalTag by required<String>(
+                description = "The key to search for in a bot comment to trigger the removal of the comment"
+            )
+        }
     }
 }
 

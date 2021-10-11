@@ -276,6 +276,9 @@ arisa:
       onlyOPTag: ARISA_REOPEN_OP
       message: not-reopen-ar
 
+    removeBotComment:
+      removalTag: ARISA_DELETE
+
     removeNonStaffTags:
       removalReason: Comment was not properly staff-restricted.
       removablePrefixes:

@@ -43,7 +43,7 @@ dependencies {
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
-    implementation("com.urielsalis", "mc-crash-lib", "2.0.4")
+    implementation("com.urielsalis", "mc-crash-lib", "##PLACEHOLDER##")
     implementation("com.github.napstr", "logback-discord-appender", "a20617d401")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)
@@ -52,7 +52,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
     implementation("com.beust", "klaxon", "5.4")
-    implementation("com.mojang", "brigadier", "1.0.17")
+    implementation("com.mojang", "brigadier", "1.0.18")
     implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)

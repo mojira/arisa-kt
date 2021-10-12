@@ -6,26 +6,31 @@ import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
+import com.mojang.brigadier.arguments.StringArgumentType.string
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
+import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.jira.getIssue
 import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
 import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
 import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 import io.github.mojira.arisa.modules.commands.arguments.StringWithFlag
+import io.github.mojira.arisa.modules.commands.arguments.enumArgumentType
 import io.github.mojira.arisa.modules.commands.arguments.greedyStringWithFlag
 
 @Suppress("LongMethod")
 fun getCommandDispatcher(
-    prefix: String
+    prefix: String,
+    attachmentUtils: AttachmentUtils
 ): CommandDispatcher<CommandSource> {
     val addLinksCommand = AddLinksCommand()
     val addVersionCommand = AddVersionCommand()
     val clearProjectCacheCommand = ClearProjectCacheCommand()
     val deleteCommentsCommand = DeleteCommentsCommand()
     val deleteLinksCommand = DeleteLinksCommand()
+    val deobfuscateCommand = DeobfuscateCommand(attachmentUtils)
     val fixCapitalizationCommand = FixCapitalizationCommand()
     val fixedCommand = FixedCommand()
     val listUserActivityCommand = ListUserActivityCommand(
@@ -93,6 +98,46 @@ fun getCommandDispatcher(
             literal<CommandSource>("${prefix}_REMOVE_COMMENTS")
                 .requires(::sentByModerator)
                 .then(deleteCommentsCommandNodeChild)
+
+        val deobfuscateCommandNode = run {
+            val attachmentIdArg = "attachmentId"
+            val minecraftVersionIdArg = "minecraftVersionId"
+            val crashReportTypeArg = "crashReportType"
+            literal<CommandSource>("${prefix}_DEOBFUSCATE")
+                .then(
+                    argument<CommandSource, String>(attachmentIdArg, string())
+                        .executes {
+                            deobfuscateCommand.invoke(
+                                it.source.issue,
+                                it.getString(attachmentIdArg)
+                            )
+                        }
+                        .then(
+                            argument<CommandSource, String>(minecraftVersionIdArg, string())
+                                .executes {
+                                    deobfuscateCommand.invoke(
+                                        it.source.issue,
+                                        it.getString(attachmentIdArg),
+                                        it.getString(minecraftVersionIdArg)
+                                    )
+                                }
+                                .then(
+                                    argument<CommandSource, CrashReportType>(
+                                        crashReportTypeArg,
+                                        enumArgumentType<CrashReportType>()
+                                    )
+                                        .executes {
+                                            deobfuscateCommand.invoke(
+                                                it.source.issue,
+                                                it.getString(attachmentIdArg),
+                                                it.getString(minecraftVersionIdArg),
+                                                it.getArgument(crashReportTypeArg, CrashReportType::class.java)
+                                            )
+                                        }
+                                )
+                        )
+                )
+        }
 
         val deleteLinksCommandNodeChild =
             argument<CommandSource, LinkList>("linkList", LinkListArgumentType())
@@ -218,6 +263,7 @@ fun getCommandDispatcher(
         register(clearProjectCacheCommandNode)
         register(deleteCommentsCommandNode)
         register(deleteLinksCommandNode)
+        register(deobfuscateCommandNode)
         register(fixCapitalizationCommandNode)
         register(fixedCommandNode)
         register(listUserActivityCommandNode)

@@ -3,6 +3,7 @@ package io.github.mojira.arisa.registry
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.ExecutionTimeframe
+import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.AffectedVersionMessageModule
@@ -87,15 +88,18 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
+        val attachmentUtils = AttachmentUtils(
+            config[Arisa.Modules.Crash.crashExtensions],
+            CrashReader(),
+            config[Arisa.Credentials.username]
+        )
         register(
             Arisa.Modules.Crash,
             CrashModule(
-                config[Arisa.Modules.Crash.crashExtensions],
+                attachmentUtils,
                 config[Arisa.Modules.Crash.duplicates],
-                CrashReader(),
                 config[Arisa.Modules.Crash.duplicateMessage],
-                config[Arisa.Modules.Crash.moddedMessage],
-                config[Arisa.Credentials.username]
+                config[Arisa.Modules.Crash.moddedMessage]
             )
         )
 
@@ -222,7 +226,8 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.Command,
             CommandModule(
                 config[Arisa.Modules.Command.commandPrefix],
-                config[Arisa.Credentials.username]
+                config[Arisa.Credentials.username],
+                attachmentUtils
             )
         )
 

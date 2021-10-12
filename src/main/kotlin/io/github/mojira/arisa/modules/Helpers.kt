@@ -33,13 +33,6 @@ fun Collection<Either<Throwable, Any>>.toFailedModuleEither(): Either<ModuleErro
     }
 }
 
-fun Either<OperationNotNeededModuleResponse, ModuleResponse>.invert() =
-    if (isLeft()) {
-        Unit.right()
-    } else {
-        OperationNotNeededModuleResponse.left()
-    }
-
 fun assertContains(original: String?, match: String) = when {
     original.isNullOrEmpty() -> OperationNotNeededModuleResponse.left()
     original.contains(match, true) -> Unit.right()
@@ -66,7 +59,7 @@ fun <T> assertNotNull(e: T?) = when (e) {
     else -> Unit.right()
 }
 
-fun assertEither(vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
+fun assertAny(vararg list: Either<OperationNotNeededModuleResponse, ModuleResponse>) =
     if (list.any { it.isRight() }) {
         Unit.right()
     } else {

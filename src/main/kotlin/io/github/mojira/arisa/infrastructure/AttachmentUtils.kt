@@ -50,7 +50,7 @@ class AttachmentUtils(
         textDocuments
             .asSequence()
             .mapNotNull(::processCrash)
-            .filter { it.crash is Crash.Minecraft || it.crash is Crash.Java }
+            .filter { it.crash is Crash.Minecraft || it.crash is Crash.Jvm }
             .toList()
     }
 

@@ -114,18 +114,20 @@ class CrashModule(
         crash: Crash,
         crashDupeConfigs: List<CrashDupeConfig>
     ): String? {
-        val minecraftConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
-        val javaConfigs = crashDupeConfigs.filter { it.type == "java" }
+        val minecraftCrashConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
+        val jvmCrashConfigs = crashDupeConfigs.filter { it.type == "java" }
 
         return when (crash) {
-            is Crash.Minecraft -> minecraftConfigs
+            is Crash.Minecraft -> minecraftCrashConfigs
                 .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
                 .orNull()
                 ?.duplicates
-            is Crash.Java -> javaConfigs
-                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.code) }
-                .orNull()
-                ?.duplicates
+            is Crash.Jvm -> (crash.problematicFrame as? Crash.JvmFrame.CFrame)?.libraryName?.let { libraryName ->
+                jvmCrashConfigs
+                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(libraryName) }
+                    .orNull()
+                    ?.duplicates
+            }
             else -> null
         }
     }

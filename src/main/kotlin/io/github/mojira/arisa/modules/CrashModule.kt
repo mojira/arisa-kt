@@ -12,13 +12,16 @@ import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
-import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
+import io.github.mojira.arisa.infrastructure.config.JvmCrashDupeConfig
+import io.github.mojira.arisa.infrastructure.config.MinecraftCrashDupeConfig
 import java.nio.file.Files
 import java.time.Instant
 
+@Suppress("LongParameterList")
 class CrashModule(
     private val crashReportExtensions: List<String>,
-    private val crashDupeConfigs: List<CrashDupeConfig>,
+    private val minecraftCrashDupeConfigs: List<MinecraftCrashDupeConfig>,
+    private val jvmCrashDupeConfigs: List<JvmCrashDupeConfig>,
     private val crashReader: CrashReader,
     private val dupeMessage: String,
     private val moddedMessage: String,
@@ -46,7 +49,7 @@ class CrashModule(
             // Get parent bug report key
             val parentKey = crashes
                 .sortedByDescending { it.document.created } // newest crashes first
-                .mapNotNull { getDuplicateLink(it.crash, crashDupeConfigs) }
+                .mapNotNull { getDuplicateLink(it.crash) }
                 .firstOrNull()
 
             if (parentKey == null) {
@@ -110,21 +113,15 @@ class CrashModule(
      * Checks whether an analyzed crash report matches any of the specified known crash issues.
      * Returns the key of the parent bug report if one is found, and null otherwise.
      */
-    private fun getDuplicateLink(
-        crash: Crash,
-        crashDupeConfigs: List<CrashDupeConfig>
-    ): String? {
-        val minecraftCrashConfigs = crashDupeConfigs.filter { it.type == "minecraft" }
-        val jvmCrashConfigs = crashDupeConfigs.filter { it.type == "java" }
-
+    private fun getDuplicateLink(crash: Crash): String? {
         return when (crash) {
-            is Crash.Minecraft -> minecraftCrashConfigs
+            is Crash.Minecraft -> minecraftCrashDupeConfigs
                 .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
                 .orNull()
                 ?.duplicates
             is Crash.Jvm -> (crash.problematicFrame as? Crash.JvmFrame.CFrame)?.libraryName?.let { libraryName ->
-                jvmCrashConfigs
-                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(libraryName) }
+                jvmCrashDupeConfigs
+                    .firstOrNone { it.libraryNameRegex.toRegex().containsMatchIn(libraryName) }
                     .orNull()
                     ?.duplicates
             }
@@ -151,7 +148,7 @@ class CrashModule(
     }
 
     private fun assertNoValidCrash(crashes: List<AttachmentUtils.CrashAttachment>) =
-        if (crashes.all { isModded(it.crash) || getDuplicateLink(it.crash, crashDupeConfigs) != null })
+        if (crashes.all { isModded(it.crash) || getDuplicateLink(it.crash) != null })
             Unit.right()
         else
             OperationNotNeededModuleResponse.left()

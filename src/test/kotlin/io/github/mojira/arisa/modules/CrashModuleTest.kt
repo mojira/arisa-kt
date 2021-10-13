@@ -3,7 +3,8 @@ package io.github.mojira.arisa.modules
 import arrow.core.right
 import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.domain.CommentOptions
-import io.github.mojira.arisa.infrastructure.config.CrashDupeConfig
+import io.github.mojira.arisa.infrastructure.config.JvmCrashDupeConfig
+import io.github.mojira.arisa.infrastructure.config.MinecraftCrashDupeConfig
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockUser
@@ -156,7 +157,7 @@ Details:
 	Is Modded: Definitely; Client brand changed to 'fabric'
 """
 
-private const val JAVA_CRASH = """#
+private const val JVM_CRASH = """#
 # A fatal error has been detected by the Java Runtime Environment:
 #
 #  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x000000000c1c1c82, pid=2768, tid=2780
@@ -253,7 +254,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue does not contain any valid crash report" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -279,7 +281,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue body does not contain any recent crash" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -307,38 +310,12 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
             BOT_USER_NAME
         )
-        val issue = mockIssue(
-            attachments = emptyList(),
-            description = PIXEL_FORMAT_CRASH,
-            created = NOW,
-            confirmationStatus = UNCONFIRMED,
-            priority = NO_PRIORITY,
-            resolveAsInvalid = { Unit.right() },
-            resolveAsDuplicate = { Unit.right() },
-            createLink = { _, _, _ -> Unit.right() },
-            addComment = { Unit.right() }
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-    }
-
-    "should return OperationNotNeededModuleResponse when crash configuration has an invalid type and crash is not modded" {
-        val module = CrashModule(
-            listOf("txt"),
-            listOf(CrashDupeConfig("hytale", "The game has not yet been released", "HT-1")),
-            crashReader,
-            "duplicate-tech",
-            "modified-game",
-            BOT_USER_NAME
-        )
-
         val issue = mockIssue(
             attachments = emptyList(),
             description = PIXEL_FORMAT_CRASH,
@@ -359,7 +336,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when reported crash is not configured and not modded" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
+            listOf(MinecraftCrashDupeConfig("Unexpected loophole in Redstone implementation", "MC-108")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -386,7 +364,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when issue does not contain any recent crash as attachment" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -417,7 +396,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when attached crash is not configured and not modded" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Unexpected loophole in Redstone implementation", "MC-108")),
+            listOf(MinecraftCrashDupeConfig("Unexpected loophole in Redstone implementation", "MC-108")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -447,7 +427,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when attached crash does have a wrong mime type" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -479,6 +460,7 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -508,7 +490,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is both a modded crash and an unmodded one" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -542,7 +525,8 @@ class CrashModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is both a duped crash and one that should not get resolved" {
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -580,6 +564,7 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
+            emptyList(),
             emptyList(),
             crashReader,
             "duplicate-tech",
@@ -619,6 +604,7 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -657,6 +643,7 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             emptyList(),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -694,6 +681,7 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
+            emptyList(),
             emptyList(),
             crashReader,
             "duplicate-tech",
@@ -736,7 +724,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -774,7 +763,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -816,7 +806,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
+            emptyList(),
+            listOf(JvmCrashDupeConfig("ig75icd64\\.dll", "MC-32606")),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -824,7 +815,7 @@ class CrashModuleTest : StringSpec({
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = JAVA_CRASH,
+            description = JVM_CRASH,
             created = NOW,
             confirmationStatus = UNCONFIRMED,
             priority = NO_PRIORITY,
@@ -853,7 +844,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("java", "ig75icd64\\.dll", "MC-32606")),
+            emptyList(),
+            listOf(JvmCrashDupeConfig("ig75icd64\\.dll", "MC-32606")),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -889,7 +881,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("java", "ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")),
+            emptyList(),
+            listOf(JvmCrashDupeConfig("ig[0-9]{1,2}icd[0-9]{2}\\.dll", "MC-32606")),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -897,7 +890,7 @@ class CrashModuleTest : StringSpec({
         )
         val issue = mockIssue(
             attachments = emptyList(),
-            description = JAVA_CRASH,
+            description = JVM_CRASH,
             created = NOW,
             confirmationStatus = UNCONFIRMED,
             priority = NO_PRIORITY,
@@ -927,7 +920,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -969,7 +963,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -1016,7 +1011,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -1064,9 +1060,10 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(
-                CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
-                CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302")
+                MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297"),
+                MinecraftCrashDupeConfig("WGL: The driver does not appear to support OpenGL", "MC-128302")
             ),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -1120,9 +1117,10 @@ class CrashModuleTest : StringSpec({
         val module = CrashModule(
             listOf("txt"),
             listOf(
-                CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297"),
-                CrashDupeConfig("minecraft", "WGL: The driver does not appear to support OpenGL", "MC-128302")
+                MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297"),
+                MinecraftCrashDupeConfig("WGL: The driver does not appear to support OpenGL", "MC-128302")
             ),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -1173,7 +1171,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -1204,7 +1203,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",
@@ -1236,7 +1236,8 @@ class CrashModuleTest : StringSpec({
 
         val module = CrashModule(
             listOf("txt"),
-            listOf(CrashDupeConfig("minecraft", "Pixel format not accelerated", "MC-297")),
+            listOf(MinecraftCrashDupeConfig("Pixel format not accelerated", "MC-297")),
+            emptyList(),
             crashReader,
             "duplicate-tech",
             "modified-game",

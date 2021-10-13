@@ -130,7 +130,7 @@ class CrashModule(
     }
 
     private fun isModded(crash: Crash) =
-        crash is Crash.Minecraft && crash.modded
+        (crash is Crash.Minecraft && crash.modded) || (crash is Crash.Jvm && crash.isModded)
 
     private fun crashNewlyAdded(attachment: AttachmentUtils.CrashAttachment, lastRun: Instant) =
         attachment.document.created.isAfter(lastRun)

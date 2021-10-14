@@ -88,7 +88,8 @@ Detects the crash reports of the ticket and resolves it as Duplicate/Invalid acc
 - There are newly uploaded crash reports.
     - The extensions of the crash report can be defined in `crashExtensions` in the [config](../config/config.yml).
 - All of the crash reports are either modded or duplicates of other tickets.
-    - A list of the parents can be defined in `duplicates` in the [config](../config/config.yml).
+    - A list of the parents can be defined in `minecraftCrashDuplicates` and `jvmCrashDuplicates` in the
+      [config](../config/config.yml).
 
 ## DuplicateMessage
 | Entry | Value                                                                               |

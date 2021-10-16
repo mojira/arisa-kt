@@ -74,7 +74,7 @@ List all recent activity (up to 50 items) by the given user in a new mod+ commen
 ## $ARISA_MAKE_PRIVATE
 | Entry       | Value                       |
 | ----------- | --------------------------- |
-| Syntax      | `$ARISA_MAKE_PRIVATE` |
+| Syntax      | `$ARISA_MAKE_PRIVATE`       |
 | Permissions | Helper+                     |
 
 Causes Arisa to make the ticket private. This command allows helpers to quickly make a sensitive ticket private

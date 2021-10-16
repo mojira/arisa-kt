@@ -71,6 +71,18 @@ version, the command fails. To skip this check, run with a trailing `force` lite
 
 List all recent activity (up to 50 items) by the given user in a new mod+ comment.
 
+## $ARISA_MAKE_PRIVATE
+| Entry       | Value                       |
+| ----------- | --------------------------- |
+| Syntax      | `$ARISA_MAKE_PRIVATE`       |
+| Permissions | Helper+                     |
+
+Causes Arisa to make the ticket private. This command allows helpers to quickly make a sensitive ticket private
+without having to wait for a moderator. Moderators don't need to use this command, they can directly change
+the Security Level.
+
+This command only has an effect once; the reporter is able to make the ticket public afterwards again.
+
 ## $ARISA_PURGE_ATTACHMENT
 | Entry       | Value                                                      |
 | ----------- | ---------------------------------------------------------- |

@@ -97,7 +97,8 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.Crash,
             CrashModule(
                 attachmentUtils,
-                config[Arisa.Modules.Crash.duplicates],
+                config[Arisa.Modules.Crash.minecraftCrashDuplicates],
+                config[Arisa.Modules.Crash.jvmCrashDuplicates],
                 config[Arisa.Modules.Crash.duplicateMessage],
                 config[Arisa.Modules.Crash.moddedMessage]
             )

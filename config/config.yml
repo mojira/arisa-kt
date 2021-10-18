@@ -128,6 +128,7 @@ arisa:
         - ARISA_NO_DUPE_MSG
       resolutionMessages:
         Fixed: duplicate-fixed
+        Invalid: duplicate-invalid
         Works As Intended: duplicate-wai
         Won't Fix: duplicate-wf
 
@@ -321,33 +322,25 @@ arisa:
         - log
       duplicateMessage: duplicate-tech
       moddedMessage: modified-game
-      duplicates:
-        - type: minecraft
-          exceptionRegex: Pixel format not accelerated
+      minecraftCrashDuplicates:
+        - exceptionRegex: Pixel format not accelerated
           duplicates: MC-297
-        - type: minecraft
-          exceptionRegex: No OpenGL context found in the current thread
+        - exceptionRegex: No OpenGL context found in the current thread
           duplicates: MC-297
-        - type: minecraft
-          exceptionRegex: Could not create context
+        - exceptionRegex: Could not create context
           duplicates: MC-297
-        - type: minecraft
-          exceptionRegex: 'WGL: The driver does not appear to support OpenGL'
+        - exceptionRegex: 'WGL: The driver does not appear to support OpenGL'
           duplicates: MC-128302
-        - type: minecraft
-          exceptionRegex: failed to create a child event loop
+        - exceptionRegex: failed to create a child event loop
           duplicates: MC-34749
-        - type: minecraft
-          exceptionRegex: Failed to check session lock, aborting
+        - exceptionRegex: Failed to check session lock, aborting
           duplicates: MC-10167
-        - type: minecraft
-          exceptionRegex: Maybe try a lowerresolution texturepack
+        - exceptionRegex: Maybe try a lowerresolution texturepack
           duplicates: MC-29565
-        - type: minecraft
-          exceptionRegex: try a lowerresolution
+        - exceptionRegex: try a lowerresolution
           duplicates: MC-29565
-        - type: java
-          exceptionRegex: 'ig[0-9]{1,2}icd[0-9]{2}\.dll'
+      jvmCrashDuplicates:
+        - libraryNameRegex: 'ig[0-9]{1,2}icd[0-9]{2}\.dll'
           duplicates: MC-32606
 
     revokeConfirmation:

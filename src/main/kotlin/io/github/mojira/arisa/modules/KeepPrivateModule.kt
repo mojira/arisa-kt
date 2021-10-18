@@ -24,7 +24,7 @@ class KeepPrivateModule(
 
             val markedTime = comments.first(::isKeepPrivateTag).created
             val securityChange = changeLog
-                .lastOrNull() { isSecurityChangeToPublic(it, project.privateSecurity) }
+                .lastOrNull { isSecurityChangeToPublic(it, project.privateSecurity) }
             val changedTime = securityChange?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
                 if (

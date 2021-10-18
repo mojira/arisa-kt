@@ -67,7 +67,7 @@ class PrivacyModule(
                 .map { { it.restrict("${it.body}$commentNote") } }
                 .toList()
 
-            assertEither(
+            assertAny(
                 assertTrue(doesStringMatchPatterns),
                 assertTrue(doesEmailMatches),
                 assertTrue(doesAttachmentNameMatch),

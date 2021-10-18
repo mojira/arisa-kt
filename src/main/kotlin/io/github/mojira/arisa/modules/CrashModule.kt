@@ -7,31 +7,27 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially2
 import com.urielsalis.mccrashlib.Crash
-import com.urielsalis.mccrashlib.CrashReader
-import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.config.JvmCrashDupeConfig
 import io.github.mojira.arisa.infrastructure.config.MinecraftCrashDupeConfig
-import java.nio.file.Files
+import io.github.mojira.arisa.infrastructure.getDeobfName
 import java.time.Instant
 
 @Suppress("LongParameterList")
 class CrashModule(
-    private val crashReportExtensions: List<String>,
+    private val attachmentUtils: AttachmentUtils,
     private val minecraftCrashDupeConfigs: List<MinecraftCrashDupeConfig>,
     private val jvmCrashDupeConfigs: List<JvmCrashDupeConfig>,
-    private val crashReader: CrashReader,
     private val dupeMessage: String,
-    private val moddedMessage: String,
-    private val botUserName: String
+    private val moddedMessage: String
 ) : Module {
+
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             // Extract crashes from attachments
-            val crashes = AttachmentUtils(crashReportExtensions, crashReader, botUserName)
-                .extractCrashesFromAttachments(issue)
+            val crashes = attachmentUtils.extractCrashesFromAttachments(issue)
 
             // Only check crashes added since the last run
             val newCrashes = getNewCrashes(crashes, lastRun).bind()
@@ -74,17 +70,7 @@ class CrashModule(
             .toList()
 
         minecraftCrashesWithDeobf.forEach {
-            val tempDir = Files.createTempDirectory("arisa-crash-upload").toFile()
-            val safePath = getSafeChildPath(tempDir, it.name)
-            if (safePath == null) {
-                tempDir.delete()
-            } else {
-                safePath.writeText(it.deobfCrashReport)
-                issue.addAttachment(safePath) {
-                    // Once uploaded, delete the temp directory containing the crash report
-                    tempDir.deleteRecursively()
-                }
-            }
+            issue.addAttachment(it.name, it.deobfCrashReport)
         }
     }
 
@@ -106,8 +92,6 @@ class CrashModule(
             null
         }
     }
-
-    private fun getDeobfName(name: String): String = "deobf_$name"
 
     /**
      * Checks whether an analyzed crash report matches any of the specified known crash issues.

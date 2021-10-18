@@ -52,7 +52,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
     implementation("com.beust", "klaxon", "5.4")
-    implementation("com.mojang", "brigadier", "1.0.17")
+    implementation("com.mojang", "brigadier", "1.0.18")
     implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)

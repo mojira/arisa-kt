@@ -33,7 +33,7 @@ class ReopenAwaitingModule(
             val validComments = getValidComments(comments, reporter, resolveTime, lastRun)
             val validChangeLog = getValidChangeLog(changeLog, reporter, resolveTime)
 
-            assertEither(
+            assertAny(
                 assertNotEmpty(validComments),
                 assertNotEmpty(validChangeLog)
             ).bind()

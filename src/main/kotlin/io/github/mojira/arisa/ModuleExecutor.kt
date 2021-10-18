@@ -22,25 +22,26 @@ class ModuleExecutor(
         getIssuesForModule(allIssues)
             .map { it.key to execute(it) }
             .forEach { (issue, response) ->
+                val moduleName = response.first
                 response.second.fold(
                     {
                         when (it) {
                             is OperationNotNeededModuleResponse -> {
                                 if (config[Arisa.Debug.logOperationNotNeeded]) {
-                                    log.debug("[RESPONSE] [$issue] [${response.first}] Operation not needed")
+                                    log.debug("[RESPONSE] [$issue] [$moduleName] Operation not needed")
                                 }
                             }
                             is FailedModuleResponse -> {
                                 addFailedTicket(issue)
 
                                 for (exception in it.exceptions) {
-                                    log.error("[RESPONSE] [$issue] [${response.first}] Failed", exception)
+                                    log.error("[RESPONSE] [$issue] [$moduleName] Failed", exception)
                                 }
                             }
                         }
                     },
                     {
-                        log.info("[RESPONSE] [$issue] [${response.first}] Successful")
+                        log.info("[RESPONSE] [$issue] [$moduleName] Successful")
                     }
                 )
 

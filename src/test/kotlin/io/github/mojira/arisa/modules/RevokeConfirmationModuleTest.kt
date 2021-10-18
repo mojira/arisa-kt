@@ -188,7 +188,7 @@ class RevokeConfirmationModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem(value = "") { listOf("users") }
+        val changeLogItem = mockChangeLogItem(value = "") { listOf("users") }
         val issue = mockIssue(
             confirmationStatus = "",
             changeLog = listOf(changeLogItem),

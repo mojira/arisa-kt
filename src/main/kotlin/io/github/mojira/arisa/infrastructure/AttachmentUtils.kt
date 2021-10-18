@@ -3,10 +3,13 @@ package io.github.mojira.arisa.infrastructure
 import arrow.core.Either
 import com.urielsalis.mccrashlib.Crash
 import com.urielsalis.mccrashlib.CrashReader
+import com.urielsalis.mccrashlib.deobfuscator.getDeobfuscation
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.Issue
 import java.io.File
 import java.time.Instant
+
+fun getDeobfName(name: String): String = "deobf_$name"
 
 class AttachmentUtils(
     private val crashReportExtensions: List<String>,
@@ -50,14 +53,14 @@ class AttachmentUtils(
         textDocuments
             .asSequence()
             .mapNotNull(::processCrash)
-            .filter { it.crash is Crash.Minecraft || it.crash is Crash.Java }
+            .filter { it.crash is Crash.Minecraft || it.crash is Crash.Jvm }
             .toList()
     }
 
     private fun isCrashAttachment(fileName: String) =
         crashReportExtensions.any { it == fileName.substring(fileName.lastIndexOf(".") + 1) }
 
-    private fun fetchAttachment(attachment: Attachment): TextDocument {
+    fun fetchAttachment(attachment: Attachment): TextDocument {
         val getText = {
             val data = attachment.getContent()
             String(data)
@@ -66,13 +69,22 @@ class AttachmentUtils(
         return TextDocument(getText, attachment.created, attachment.name)
     }
 
-    // Processes the crash report in the text document.
-    // Returns null if it cannot be processed, otherwise data about the crash.
-    private fun processCrash(textDocument: TextDocument): CrashAttachment? {
+    /**
+     * Processes the crash report in the text document.
+     * Returns `null` if it cannot be processed, otherwise data about the crash.
+     */
+    fun processCrash(textDocument: TextDocument): CrashAttachment? {
         val processedCrash = crashReader.processCrash(textDocument.getContent().lines(), mappingsDir)
 
         if (processedCrash.isLeft()) return null
 
         return CrashAttachment(textDocument, (processedCrash as Either.Right<Crash>).b)
+    }
+
+    /**
+     * @throws IllegalArgumentException if no mappings exist for the version
+     */
+    fun deobfuscate(content: String, versionId: String, isClientCrash: Boolean): String {
+        return getDeobfuscation(versionId, content, isClientCrash, mappingsDir)
     }
 }

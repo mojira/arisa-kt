@@ -5,7 +5,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
+import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.modules.commands.CommandExceptions
 import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.utils.RIGHT_NOW
@@ -19,9 +21,14 @@ import io.kotest.matchers.shouldBe
 
 private val TWO_SECONDS_LATER = RIGHT_NOW.plusSeconds(2)
 
+private const val PREFIX = "ARISA"
+private const val BOT_USER_NAME = "botName"
+
 class CommandModuleTest : StringSpec({
+    val attachmentUtils = AttachmentUtils(emptyList(), CrashReader(), BOT_USER_NAME)
+    val module = CommandModule(PREFIX, BOT_USER_NAME, attachmentUtils, ::getDispatcher)
+
     "should return OperationNotNeededModuleResponse when no comments" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val issue = mockIssue()
 
         val result = module(issue, RIGHT_NOW)
@@ -30,7 +37,6 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when user doesn't has group staff" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             getAuthorGroups = { emptyList() }
         )
@@ -44,7 +50,6 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment has group users" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             visibilityType = "group",
             visibilityValue = "users"
@@ -59,7 +64,6 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesn't have correct group" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             visibilityType = "notagroup"
         )
@@ -73,7 +77,6 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment doesn't have correct value" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             visibilityValue = "notagroup"
         )
@@ -87,7 +90,6 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment is not restricted" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             visibilityType = null,
             visibilityValue = null
@@ -101,10 +103,10 @@ class CommandModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should return OperationNotNeededModuleResponse when comment doesn't start with ARISA_" {
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
+    "should return OperationNotNeededModuleResponse when comment has no underscore after prefix" {
         val comment = getComment(
-            body = "ARISA"
+            // No underscore ('_') after prefix
+            body = PREFIX
         )
         val issue = mockIssue(
             comments = listOf(comment)
@@ -116,11 +118,9 @@ class CommandModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when comment has been written by bot" {
-        val botName = "botName"
-        val module = CommandModule("ARISA", botName, ::getDispatcher)
         val comment = getComment(
             author = mockUser(
-                name = botName
+                name = BOT_USER_NAME
             )
         )
         val issue = mockIssue(
@@ -134,7 +134,6 @@ class CommandModuleTest : StringSpec({
 
     "should return successfully when comment matches a command and it returns successfully" {
         var updatedComment = ""
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
@@ -150,13 +149,12 @@ class CommandModuleTest : StringSpec({
         result.shouldBeRight()
         updatedComment shouldBe """
             |(/) ARISA_SUCCESS arg
-            |→ {{Command was executed successfully, with 1 affected element(s)}} ~??[~userName]??~
+            |→ {{Command was executed successfully, with 1 affected element(s)}} ~??[~botName]??~
         """.trimMargin()
     }
 
     "should return with given return value when command executes successfully" {
         var updatedComment = ""
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
@@ -173,13 +171,12 @@ class CommandModuleTest : StringSpec({
         result.shouldBeRight()
         updatedComment shouldBe """
             |(/) ARISA_VALUE 42
-            |→ {{Command was executed successfully, with 42 affected element(s)}} ~??[~userName]??~
+            |→ {{Command was executed successfully, with 42 affected element(s)}} ~??[~botName]??~
         """.trimMargin()
     }
 
     "should return successfully but append the exception message when comment matches a command and it returns failed" {
         var updatedComment = ""
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
@@ -196,13 +193,14 @@ class CommandModuleTest : StringSpec({
         result.shouldBeRight()
         updatedComment shouldBe """
             |(x) ARISA_FAIL arg
-            |→ {{Testing error message: java.lang.RuntimeException}} ~??[~userName]??~
+            |→ {{Testing error message: java.lang.RuntimeException}} ~??[~botName]??~
         """.trimMargin()
     }
 
     "should work for other prefixes" {
         var updatedComment = ""
-        val module = CommandModule("TESTING_COMMAND", "userName", ::getDispatcher)
+        @Suppress("NAME_SHADOWING")
+        val module = CommandModule("TESTING_COMMAND", "userName", attachmentUtils, ::getDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
@@ -225,7 +223,6 @@ class CommandModuleTest : StringSpec({
 
     "should be able to handle multiple commands in the same comment" {
         var updatedComment = ""
-        val module = CommandModule("ARISA", "userName", ::getDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"
@@ -251,15 +248,15 @@ class CommandModuleTest : StringSpec({
             |Hello Arisa please do the following commands
             |
             |(/) ARISA_SUCCESS arg1
-            |→ {{Command was executed successfully, with 1 affected element(s)}} ~??[~userName]??~
+            |→ {{Command was executed successfully, with 1 affected element(s)}} ~??[~botName]??~
             |
             |(x) ARISA_FAIL arg2
-            |→ {{Testing error message: java.lang.RuntimeException}} ~??[~userName]??~
+            |→ {{Testing error message: java.lang.RuntimeException}} ~??[~botName]??~
             |
             |and this one
             |
             |(/) ARISA_SUCCESS arg3
-            |→ {{Command was executed successfully, with 1 affected element(s)}} ~??[~userName]??~
+            |→ {{Command was executed successfully, with 1 affected element(s)}} ~??[~botName]??~
             |
             |Thank you!
         """.trimMargin()
@@ -270,7 +267,7 @@ private fun getComment(
     getAuthorGroups: () -> List<String> = { listOf("staff") },
     visibilityType: String? = "group",
     visibilityValue: String? = "staff",
-    body: String = "ARISA_SUCCESS arg",
+    body: String = "${PREFIX}_SUCCESS arg",
     author: User = mockUser(),
     update: (String) -> Unit = {}
 ) = mockComment(

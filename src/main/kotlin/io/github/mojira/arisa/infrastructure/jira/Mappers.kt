@@ -7,6 +7,7 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
+import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
@@ -25,6 +26,7 @@ import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
 import net.sf.json.JSONObject
+import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
@@ -83,6 +85,7 @@ fun JiraIssue.toDomain(
     config: Config
 ): Issue {
     val context = getUpdateContext(jiraClient)
+    val addAttachmentFromFile = ::addAttachmentFile.partially1(context)
     return Issue(
         key,
         summary,
@@ -160,7 +163,21 @@ fun JiraIssue.toDomain(
         addRawRestrictedComment = ::addRestrictedComment.partially1(context),
         ::markAsFixedWithSpecificVersion.partially1(context),
         ::changeReporter.partially1(context),
-        ::addAttachmentFile.partially1(context)
+        addAttachmentFromFile,
+        addAttachment = { name, content ->
+            val tempDir = Files.createTempDirectory("arisa-attachment-upload").toFile()
+            val safePath = getSafeChildPath(tempDir, name)
+            if (safePath == null) {
+                tempDir.delete()
+                throw IllegalArgumentException("Cannot create safe path name for '${sanitizeCommentArg(name)}'")
+            } else {
+                safePath.writeText(content)
+                addAttachmentFromFile(safePath) {
+                    // Once uploaded, delete the temp directory containing the attachment
+                    tempDir.deleteRecursively()
+                }
+            }
+        }
     )
 }
 

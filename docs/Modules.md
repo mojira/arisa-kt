@@ -270,12 +270,12 @@ Transfers security level and MEQS comment to a report's duplicates.
 | Name  | `RemoveBotComment`                                                                     |
 | Class | [link](../src/main/kotlin/io/github/mojira/arisa/modules/RemoveBotCommentModule.kt)    |
 
-Deletes any undesired comments that were created by the bot that now contain a removal tag (can be configured in [config](../config/config.yml)).
+Deletes any undesired comments that were created by the bot that now only contain a removal tag (can be configured in [config](../config/config.yml)).
 
 ### Checks
 - The comment was originally authored by the bot.
 - The comment has been updated since the last run.
-- The comment contains the removal tag.
+- The comment contains only the removal tag.
 - The comment is restricted to `global-moderators` or `staff`.
 
 ## RemoveIdenticalLink

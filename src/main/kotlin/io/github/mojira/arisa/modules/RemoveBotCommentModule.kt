@@ -16,13 +16,13 @@ class RemoveBotCommentModule(
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-            var performedRemoval = false
 
             // Only consider new comments
             val newComments = comments.filter {
                 it.updated.isAfter(lastRun)
             }
 
+            var performedRemoval = false
             newComments.forEach {
                 if (shouldBeRemoved(it)) {
                     it.remove()
@@ -41,5 +41,5 @@ class RemoveBotCommentModule(
     private fun shouldBeRemoved(comment: Comment) =
         comment.author.name == botUserName &&
                 isVolunteerRestricted(comment) &&
-                removalTag in comment.body!!
+                comment.body.equals(removalTag)
 }

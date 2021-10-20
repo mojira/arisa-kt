@@ -10,11 +10,13 @@ import io.kotest.core.spec.style.StringSpec
 
 private val A_SECOND_AGO = RIGHT_NOW.minusSeconds(1)
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
+private const val REMOVAL_TAG = "ARISA_DELETE"
+private const val BOT_USERNAME = "userName"
 
 class RemoveBotCommentModuleTest : StringSpec({
     val module = RemoveBotCommentModule(
-        botUserName = "userName",
-        removalTag = "ARISA_DELETE"
+        botUserName = BOT_USERNAME,
+        removalTag = REMOVAL_TAG
     )
 
     "should return OperationNotNeededModuleResponse when there is no comment" {
@@ -29,10 +31,10 @@ class RemoveBotCommentModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
-                    body = "ARISA_DELETE",
+                    body = REMOVAL_TAG,
                     created = TWO_SECONDS_AGO,
                     author = mockUser(
-                        name = "userName"
+                        name = BOT_USERNAME
                     ),
                     visibilityType = "group",
                     visibilityValue = "staff"
@@ -49,9 +51,9 @@ class RemoveBotCommentModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
-                    body = "DELETE",
+                    body = REMOVAL_TAG.substring(0, 5),
                     author = mockUser(
-                        name = "userName"
+                        name = BOT_USERNAME
                     ),
                     visibilityType = "group",
                     visibilityValue = "staff"
@@ -68,7 +70,7 @@ class RemoveBotCommentModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
-                    body = "ARISA_DELETE",
+                    body = REMOVAL_TAG,
                     author = mockUser(
                         name = "anotherUserName"
                     ),
@@ -87,9 +89,9 @@ class RemoveBotCommentModuleTest : StringSpec({
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
-                    body = "ARISA_DELETE",
+                    body = REMOVAL_TAG,
                     author = mockUser(
-                        name = "userName"
+                        name = BOT_USERNAME
                     )
                 )
             )
@@ -100,13 +102,32 @@ class RemoveBotCommentModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
-    "should remove comment if removal tag is present and the author of the comment is the bot" {
+    "should return OperationNotNeededModuleResponse when comment contains more than the removal tag" {
         val issue = mockIssue(
             comments = listOf(
                 mockComment(
-                    body = "ARISA_DELETE",
+                    body = "$REMOVAL_TAG.exe",
                     author = mockUser(
-                        name = "userName"
+                        name = BOT_USERNAME
+                    ),
+                    visibilityType = "group",
+                    visibilityValue = "staff"
+                )
+            )
+        )
+
+        val result = module(issue, A_SECOND_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
+    "should remove comment if removal tag is the only text in body and the author of the comment is the bot" {
+        val issue = mockIssue(
+            comments = listOf(
+                mockComment(
+                    body = REMOVAL_TAG,
+                    author = mockUser(
+                        name = BOT_USERNAME
                     ),
                     visibilityType = "group",
                     visibilityValue = "staff"

@@ -78,7 +78,7 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
                 amount
             )
         } catch (e: JiraException) {
-            log.error("Error while retreiving filter results", e)
+            log.error("Error while retrieving filter results", e)
             throw e
         }
 
@@ -317,6 +317,29 @@ fun addRestrictedComment(
                     is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
                 }
 
+                Unit
+            }
+        }
+    }
+}
+
+fun deleteComment(context: Lazy<IssueUpdateContext>, comment: Comment) {
+    context.value.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        context.value.jiraClient.restClient.delete(URI(comment.self))
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Tried to delete ${comment.id} when it was already deleted")
+                        } else {
+                            throw e
+                        }
+                    }
+                }
                 Unit
             }
         }

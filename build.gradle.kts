@@ -11,8 +11,30 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
-    maven("https://libraries.minecraft.net")
+    // Dependencies which can only be found in JitPack repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = uri("https://jitpack.io")
+            }
+        }
+        filter {
+            includeModule("com.github.rcarz", "jira-client")
+            includeModule("com.github.napstr", "logback-discord-appender")
+        }
+    }
+    // Dependencies which can only be found in Mojang Maven repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = uri("https://libraries.minecraft.net")
+            }
+        }
+        filter {
+            // Brigadier is not deployed to Maven Central yet, see https://github.com/Mojang/brigadier/issues/23
+            includeModule("com.mojang", "brigadier")
+        }
+    }
 }
 
 buildscript {

@@ -25,16 +25,17 @@ object CommandExceptions {
         LiteralMessage("The ticket was already resolved as $it")
     }
 
-    val CANNOT_QUERY_USER_ACTIVITY = { userName: String, queryString: String ->
-        DynamicCommandExceptionType {
-            LiteralMessage("Could not query activity of user \"$userName\". Query string: `$queryString`")
-        }
+    val CANNOT_QUERY_USER_ACTIVITY = Dynamic2CommandExceptionType { userName, queryString ->
+        LiteralMessage("Could not query activity of user \"$userName\". Query string: `$queryString`")
     }
 
     val FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION = Dynamic2CommandExceptionType {
-        fixVersionName, affectedVersionName -> LiteralMessage("Cannot add fix version $fixVersionName " +
-            "because the affected version $affectedVersionName of the issue is the same or was released after " +
-            "it; run with `<version> force` to add the fix version anyways")
+        fixVersionName, affectedVersionName ->
+        LiteralMessage(
+            "Cannot add fix version $fixVersionName " +
+                "because the affected version $affectedVersionName of the issue is the same or was released after " +
+                "it; run with `<version> force` to add the fix version anyways"
+        )
     }
 
     val INVALID_LINK_TYPE = SimpleCommandExceptionType(

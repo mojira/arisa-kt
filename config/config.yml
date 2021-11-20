@@ -385,6 +385,8 @@ arisa:
       patterns:
         - pattern: '\[~'
           threshold: 5
+        - pattern: 'bugsbugsbugs'
+          threshold: 1
 
     resolveTrash:
       projects:

@@ -8,6 +8,7 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 
 class ListUserActivityCommandTest : StringSpec({
     "should query user activity and post a comment with all tickets" {
@@ -72,6 +73,6 @@ class ListUserActivityCommandTest : StringSpec({
         commentRestriction shouldBe "staff"
 
         // Should contain sanitized user name
-        comment shouldBe "No unrestricted comments from user \"user?Name\" were found."
+        comment shouldStartWith "No unrestricted comments from user \"user?Name\" were found."
     }
 })

@@ -68,10 +68,12 @@ class RemoveContentCommand(
         val jql = """project != TRASH
             | AND issueFunction IN commented($issueFunctionInner)
             | OR issueFunction IN fileAttached($issueFunctionInner)"""
-            .trimMargin().replace("[\n\r]", "")
+            .trimMargin().replace(Regex("[\n\r]"), "")
+
+        val sanitizedUserName = sanitizeCommentArg(userName)
 
         val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
-            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(sanitizeCommentArg(userName))
+            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY(sanitizedUserName, jql).create(Unit)
             is Either.Right -> either.b
         }
 
@@ -80,7 +82,8 @@ class RemoveContentCommand(
 
             issue.addRawRestrictedComment(
                 "Removed ${result.removedComments} comments " +
-                    "and ${result.removedAttachments} attachments from user \"${sanitizeCommentArg(userName)}\".",
+                    "and ${result.removedAttachments} attachments from user \"$sanitizedUserName\"." +
+                    "\n\nQuery: {{$jql}}",
                 "staff"
             )
         }

@@ -25,7 +25,10 @@ class ListUserActivityCommand(
         val sanitizedUserName = sanitizeCommentArg(userName)
 
         val tickets = when (val either = searchIssues(jql, ACTIVITY_LIST_CAP)) {
-            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(sanitizedUserName, jql)
+            is Either.Left ->
+                throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY
+                    .create(sanitizedUserName, jql)
+                    .initCause(either.a)
             is Either.Right -> either.b
         }
 

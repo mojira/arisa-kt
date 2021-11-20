@@ -73,7 +73,10 @@ class RemoveContentCommand(
         val sanitizedUserName = sanitizeCommentArg(userName)
 
         val ticketIds = when (val either = searchIssues(jql, REMOVABLE_ACTIVITY_CAP)) {
-            is Either.Left -> throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY.create(sanitizedUserName, jql)
+            is Either.Left ->
+                throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY
+                    .create(sanitizedUserName, jql)
+                    .initCause(either.a)
             is Either.Right -> either.b
         }
 

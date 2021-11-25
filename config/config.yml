@@ -183,6 +183,7 @@ arisa:
         - launcher_accounts.json
         - launcher_msa_credentials.json
         - launcher_profiles.json
+        - .jfr
 
     removeTriagedMeqs:
       resolutions:

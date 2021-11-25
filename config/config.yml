@@ -107,7 +107,6 @@ arisa:
         - '.rtf'
         - '.pptx'
         - '.sys'
-        - '.jfr'
       comment: attach-new-attachment
 
     duplicateMessage:
@@ -184,6 +183,7 @@ arisa:
         - launcher_accounts.json
         - launcher_msa_credentials.json
         - launcher_profiles.json
+        - .jfr
 
     removeTriagedMeqs:
       resolutions:

@@ -107,6 +107,7 @@ arisa:
         - '.rtf'
         - '.pptx'
         - '.sys'
+        - '.jfr'
       comment: attach-new-attachment
 
     duplicateMessage:

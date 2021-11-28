@@ -301,8 +301,14 @@ object Arisa : ConfigSpec() {
             val moddedMessage by required<String>(
                 description = "The key of the message to be sent when resolving a duplicate."
             )
-            val duplicates by required<List<CrashDupeConfig>>(
-                description = "List of exception details that are resolved as duplicates for a specific ticket key."
+            val minecraftCrashDuplicates by optional<List<MinecraftCrashDupeConfig>>(
+                description = "List of Minecraft crash details that are resolved as duplicate for a specific ticket" +
+                    " key.",
+                default = emptyList()
+            )
+            val jvmCrashDuplicates by optional<List<JvmCrashDupeConfig>>(
+                description = "List of JVM crash details that are resolved as duplicate for a specific ticket key.",
+                default = emptyList()
             )
         }
 
@@ -382,12 +388,24 @@ object Arisa : ConfigSpec() {
                 default = 10
             )
         }
+
+        object RemoveBotComment : ModuleConfigSpec() {
+            val removalTag by required<String>(
+                description = "The key to search for in a bot comment to trigger the removal of the comment"
+            )
+        }
     }
 }
 
-data class CrashDupeConfig(
-    val type: String,
+data class MinecraftCrashDupeConfig(
     val exceptionRegex: String,
+    /** Issue key of the duplicated issue */
+    val duplicates: String
+)
+
+data class JvmCrashDupeConfig(
+    val libraryNameRegex: String,
+    /** Issue key of the duplicated issue */
     val duplicates: String
 )
 

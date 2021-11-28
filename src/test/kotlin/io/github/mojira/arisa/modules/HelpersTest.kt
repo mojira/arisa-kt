@@ -47,18 +47,6 @@ class HelpersTest : StringSpec({
         moduleEither shouldBeRight ModuleResponse
     }
 
-    "Either.invert when given ModuleResponse in Either should return OperationNotNeededModuleResponse in Either" {
-        val moduleEither = ModuleResponse.right().invert()
-
-        moduleEither shouldBeLeft OperationNotNeededModuleResponse
-    }
-
-    "Either.invert when given OperationNotNeededModuleResponse in Either should return ModuleResponse in Either" {
-        val moduleEither = OperationNotNeededModuleResponse.left().invert()
-
-        moduleEither shouldBeRight ModuleResponse
-    }
-
     "assertContains when given String that contains the other String should return ModuleResponse in Either" {
         val moduleEither = assertContains("testabctest", "abc")
 
@@ -132,13 +120,13 @@ class HelpersTest : StringSpec({
     }
 
     "assertEither when given arguments one of which returns ModuleResponse in Either it should return ModuleResponse in Either" {
-        val moduleEither = assertEither(OperationNotNeededModuleResponse.left(), ModuleResponse.right())
+        val moduleEither = assertAny(OperationNotNeededModuleResponse.left(), ModuleResponse.right())
 
         moduleEither shouldBeRight ModuleResponse
     }
 
     "assertEither when given arguments none of which return ModuleResponse in Either it should return OperationNotNeededModuleResponse in Either" {
-        val moduleEither = assertEither(OperationNotNeededModuleResponse.left(), OperationNotNeededModuleResponse.left())
+        val moduleEither = assertAny(OperationNotNeededModuleResponse.left(), OperationNotNeededModuleResponse.left())
 
         moduleEither shouldBeLeft OperationNotNeededModuleResponse
     }

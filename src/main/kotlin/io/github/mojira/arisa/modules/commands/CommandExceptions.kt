@@ -6,6 +6,13 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 
 object CommandExceptions {
+    // Most exceptions here are not actually command syntax related, but Brigadier currently has no
+    // exception for command execution failure, see https://github.com/Mojang/brigadier/issues/100
+    class CommandExecutionException : Exception {
+        constructor(message: String?) : super(message)
+        constructor(message: String?, cause: Throwable?) : super(message, cause)
+    }
+
     val ALREADY_FIXED_IN = DynamicCommandExceptionType {
         LiteralMessage("The ticket was already marked as fixed in $it")
     }
@@ -18,14 +25,17 @@ object CommandExceptions {
         LiteralMessage("The ticket was already resolved as $it")
     }
 
-    val CANNOT_QUERY_USER_ACTIVITY = DynamicCommandExceptionType {
-        LiteralMessage("Could not query activity of user \"$it\"")
+    val CANNOT_QUERY_USER_ACTIVITY = Dynamic2CommandExceptionType { userName, queryString ->
+        LiteralMessage("Could not query activity of user \"$userName\". Query string: `$queryString`")
     }
 
     val FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION = Dynamic2CommandExceptionType {
-            fixVersionName, affectedVersionName -> LiteralMessage("Cannot add fix version $fixVersionName " +
+        fixVersionName, affectedVersionName ->
+        LiteralMessage(
+            "Cannot add fix version $fixVersionName " +
                 "because the affected version $affectedVersionName of the issue is the same or was released after " +
-                "it; run with `<version> force` to add the fix version anyways")
+                "it; run with `<version> force` to add the fix version anyways"
+        )
     }
 
     val INVALID_LINK_TYPE = SimpleCommandExceptionType(
@@ -62,5 +72,13 @@ object CommandExceptions {
 
     val VERSION_ALREADY_AFFECTED = DynamicCommandExceptionType {
         LiteralMessage("The version $it was already marked as affected")
+    }
+
+    val NO_ATTACHMENT_WITH_ID = DynamicCommandExceptionType {
+        LiteralMessage("Attachment with ID '$it' does not exist")
+    }
+
+    val ATTACHMENT_ALREADY_EXISTS = DynamicCommandExceptionType {
+        LiteralMessage("Attachment with name '$it' already exists")
     }
 }

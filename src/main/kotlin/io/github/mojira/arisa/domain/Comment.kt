@@ -12,5 +12,6 @@ data class Comment(
     val visibilityType: String?,
     val visibilityValue: String?,
     val restrict: (String) -> Unit,
-    val update: (String) -> Unit
+    val update: (String) -> Unit,
+    val remove: () -> Unit
 )

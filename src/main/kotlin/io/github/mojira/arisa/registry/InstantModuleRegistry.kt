@@ -35,6 +35,7 @@ import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
+import io.github.mojira.arisa.modules.RemoveBotCommentModule
 
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
@@ -89,12 +90,16 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
-        val attachmentUtils = AttachmentUtils(config[Arisa.Modules.Crash.crashExtensions], CrashReader())
+        val attachmentUtils = AttachmentUtils(
+            config[Arisa.Modules.Crash.crashExtensions],
+            CrashReader()
+        )
         register(
             Arisa.Modules.Crash,
             CrashModule(
                 attachmentUtils,
-                config[Arisa.Modules.Crash.duplicates],
+                config[Arisa.Modules.Crash.minecraftCrashDuplicates],
+                config[Arisa.Modules.Crash.jvmCrashDuplicates],
                 config[Arisa.Modules.Crash.duplicateMessage],
                 config[Arisa.Modules.Crash.moddedMessage]
             )
@@ -224,7 +229,8 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.Command,
             CommandModule(
                 config[Arisa.Modules.Command.commandPrefix],
-                config[Arisa.Credentials.username]
+                config[Arisa.Credentials.username],
+                attachmentUtils
             )
         )
 
@@ -235,6 +241,14 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 maxImageHeight = config[Arisa.Modules.Thumbnail.maxImageHeight],
                 maxImageReadBytes = config[Arisa.Modules.Thumbnail.maxImageReadBytes],
                 maxImagesCount = config[Arisa.Modules.Thumbnail.maxImagesCount]
+            )
+        )
+
+        register(
+            Arisa.Modules.RemoveBotComment,
+            RemoveBotCommentModule(
+                config[Arisa.Credentials.username],
+                config[Arisa.Modules.RemoveBotComment.removalTag]
             )
         )
     }

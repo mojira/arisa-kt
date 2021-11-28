@@ -73,7 +73,8 @@ fun mockComment(
     visibilityType: String? = null,
     visibilityValue: String? = null,
     restrict: (String) -> Unit = { },
-    update: (String) -> Unit = { }
+    update: (String) -> Unit = { },
+    remove: () -> Unit = { }
 ) = Comment(
     id,
     body,
@@ -84,7 +85,8 @@ fun mockComment(
     visibilityType,
     visibilityValue,
     restrict,
-    update
+    update,
+    remove
 )
 
 fun mockIssue(
@@ -137,7 +139,8 @@ fun mockIssue(
     addRawBotComment: (rawBody: String) -> Unit = { },
     markAsFixedInASpecificVersion: (versionName: String) -> Unit = { },
     changeReporter: (reporter: String) -> Unit = { },
-    addAttachment: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
+    addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() },
+    addAttachment: (name: String, content: String) -> Unit = { _, _ -> }
 ) = Issue(
     key,
     summary,
@@ -188,6 +191,7 @@ fun mockIssue(
     addRawBotComment,
     markAsFixedInASpecificVersion,
     changeReporter,
+    addAttachmentFromFile,
     addAttachment
 )
 

@@ -121,7 +121,7 @@ class DuplicateMessageModule(
     }
 
     private fun assertNoneIsMentioned(comments: List<Comment>, parents: List<String>) =
-        assertTrue(parents.any(::hasBeenMentioned.partially1(comments))).invert()
+        assertFalse(parents.any(::hasBeenMentioned.partially1(comments)))
 
     private fun hasBeenMentioned(comments: List<Comment>, key: String) =
         comments.any { it.body?.contains(key) ?: false }

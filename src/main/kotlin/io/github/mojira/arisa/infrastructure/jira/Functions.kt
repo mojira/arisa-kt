@@ -20,6 +20,7 @@ import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.IssueLink
 import net.rcarz.jiraclient.JiraClient
 import net.rcarz.jiraclient.JiraException
+import net.rcarz.jiraclient.Resource
 import net.rcarz.jiraclient.RestException
 import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
@@ -36,7 +37,27 @@ import java.time.temporal.ChronoField
 
 fun connectToJira(username: String, password: String, url: String): JiraClient {
     val credentials = TokenCredentials(username, password)
-    return JiraClient(url, credentials)
+    val jiraClient = JiraClient(url, credentials)
+    val actualUsername = jiraClient.getCurrentUser().name
+
+    // Jira seems to allow login with different capitalization, however for checks such
+    // as whether an action was performed by Arisa itself, Arisa needs to know the correctly
+    // capitalized username
+    if (username != actualUsername) {
+        throw IncorrectlyCapitalizedUsernameException(actualUsername)
+    }
+    return jiraClient
+}
+
+class IncorrectlyCapitalizedUsernameException(expectedUsername: String) :
+    Exception("Username uses incorrect capitalization; expected: $expectedUsername")
+
+private fun JiraClient.getCurrentUser(): User {
+    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/myself-getUser
+    return object : User(
+        restClient,
+        restClient.get(Resource.getBaseUri() + "myself") as JSONObject
+    ) {}
 }
 
 @Suppress("ForbiddenComment")
@@ -57,7 +78,7 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
                 amount
             )
         } catch (e: JiraException) {
-            log.error("Error while retreiving filter results", e)
+            log.error("Error while retrieving filter results", e)
             throw e
         }
 
@@ -296,6 +317,29 @@ fun addRestrictedComment(
                     is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
                 }
 
+                Unit
+            }
+        }
+    }
+}
+
+fun deleteComment(context: Lazy<IssueUpdateContext>, comment: Comment) {
+    context.value.otherOperations.add {
+        runBlocking {
+            Either.catch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        context.value.jiraClient.restClient.delete(URI(comment.self))
+                    } catch (e: RestException) {
+                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Tried to delete ${comment.id} when it was already deleted")
+                        } else {
+                            throw e
+                        }
+                    }
+                }
                 Unit
             }
         }

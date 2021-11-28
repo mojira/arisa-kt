@@ -32,7 +32,7 @@ class ReplaceTextModule(
                 .filter { createdAfterLastRun(it.created, lastRun) }
                 .filter { needReplacement(it.body) }
 
-            assertEither(
+            assertAny(
                 assertTrue(needUpdateDescription),
                 assertNotEmpty(filteredComments)
             ).bind()

@@ -39,7 +39,7 @@ class PrivacyModule(
 
             val restrictCommentActions = getRestrictCommentActions(lastRun)
 
-            assertEither(
+            assertAny(
                 assertNotEmpty(attachmentsToRedact),
                 assertTrue(issueContainsSensitiveData),
                 assertNotEmpty(restrictCommentActions)
@@ -203,7 +203,7 @@ class PrivacyModule(
                         tempDir.delete()
                     } else {
                         filePath.writeText(it.redactedContent)
-                        issue.addAttachment(filePath) {
+                        issue.addAttachmentFromFile(filePath) {
                             // Once uploaded, delete the temp directory containing the attachment
                             tempDir.deleteRecursively()
                         }

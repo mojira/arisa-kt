@@ -43,6 +43,21 @@ on any bug report in order to force Arisa to clear its project cache.
 
 This command currently only exists because of a technical limitation. It will be removed in the future.
 
+## $ARISA_DEOBFUSCATE
+| Entry       | Value                                                                       |
+| ----------- | --------------------------------------------------------------------------- |
+| Syntax      | `$ARISA_DEOBFUSCATE <attachmentId> [<minecraftVersionId> [client\|server]]` |
+| Permissions | Helper+                                                                     |
+
+Deobfuscates a crash report attachment with the specified Jira attachment ID and attaches the deobfuscated crash report.
+The attachment ID can be found in the URL of the attachment.
+
+`<minecraftVersionId>` and crash report type (`client` or `server`) can be used to overwrite the values automatically
+detected by Arisa. They must be specified when Arisa is unable to detect them automatically.
+
+Note: The 'Crash' module automatically attaches deobfuscated crash reports. This command exists for cases where Arisa
+was unable to parse the crash report or detected the wrong Minecraft version.
+
 ## $ARISA_FIX_CAPITALIZATION
 | Entry       | Value                       |
 | ----------- | --------------------------- |
@@ -70,6 +85,18 @@ version, the command fails. To skip this check, run with a trailing `force` lite
 | Permissions | Mod+                                   |
 
 List all recent activity (up to 50 items) by the given user in a new mod+ comment.
+
+## $ARISA_MAKE_PRIVATE
+| Entry       | Value                       |
+| ----------- | --------------------------- |
+| Syntax      | `$ARISA_MAKE_PRIVATE`       |
+| Permissions | Helper+                     |
+
+Causes Arisa to make the ticket private. This command allows helpers to quickly make a sensitive ticket private
+without having to wait for a moderator. Moderators don't need to use this command, they can directly change
+the Security Level.
+
+This command only has an effect once; the reporter is able to make the ticket public afterwards again.
 
 ## $ARISA_PURGE_ATTACHMENT
 | Entry       | Value                                                      |

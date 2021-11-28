@@ -88,7 +88,8 @@ Detects the crash reports of the ticket and resolves it as Duplicate/Invalid acc
 - There are newly uploaded crash reports.
     - The extensions of the crash report can be defined in `crashExtensions` in the [config](../config/config.yml).
 - All of the crash reports are either modded or duplicates of other tickets.
-    - A list of the parents can be defined in `duplicates` in the [config](../config/config.yml).
+    - A list of the parents can be defined in `minecraftCrashDuplicates` and `jvmCrashDuplicates` in the
+      [config](../config/config.yml).
 
 ## DuplicateMessage
 | Entry | Value                                                                               |
@@ -131,7 +132,7 @@ Resolves an empty report as `Incomplete`.
 | Name  | `FutureVersion`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/FutureVersionModule.kt) |
 
-Removes future versions from the ticket, and resolves it as `Invalid` when the future version is the only version
+Removes future versions from the ticket, and resolves it as `Awaiting Response` when the future version is the only version
 the ticket has.
 
 ### Checks
@@ -139,7 +140,7 @@ the ticket has.
 - Any of those versions is a future version.
 - The project of this ticket has a released version.
 - Adds the latest released version to `Affected Versions` and removes all the future versions. If the future version
-  was the only version the ticket has, resolves the ticket as `Invalid`.
+  was the only version the ticket has, resolves the ticket as `Awaiting Response`.
 
 ## HideImpostors
 | Entry | Value                                                                            |
@@ -265,6 +266,20 @@ Transfers security level and MEQS comment to a report's duplicates.
 - The linked report is private.
 #### For Transferring MEQS Comment
 - Any of the comments on the linked report is restricted to `staff` and contains the keepPrivateTag.
+
+## RemoveBotComment
+| Entry | Value                                                                                  |
+|-------|----------------------------------------------------------------------------------------|
+| Name  | `RemoveBotComment`                                                                     |
+| Class | [link](../src/main/kotlin/io/github/mojira/arisa/modules/RemoveBotCommentModule.kt)    |
+
+Deletes any undesired comments that were created by the bot that now only contain a removal tag (can be configured in [config](../config/config.yml)).
+
+### Checks
+- The comment was originally authored by the bot.
+- The comment has been updated since the last run.
+- The comment contains only the removal tag.
+- The comment is restricted to `global-moderators` or `staff`.
 
 ## RemoveIdenticalLink
 | Entry | Value                                                                                  |

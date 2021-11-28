@@ -465,7 +465,7 @@ class PrivacyModuleTest : StringSpec({
                 )
             ),
             setPrivate = { hasSetPrivate = true },
-            addAttachment = { file, cleanupCallback ->
+            addAttachmentFromFile = { file, cleanupCallback ->
                 newAttachmentName = file.name
                 newAttachmentContent = file.readText()
                 cleanupCallback()
@@ -527,7 +527,7 @@ class PrivacyModuleTest : StringSpec({
                 )
             ),
             setPrivate = { hasSetPrivate = true },
-            addAttachment = { file, cleanupCallback ->
+            addAttachmentFromFile = { file, cleanupCallback ->
                 newAttachmentNames.add(file.name)
                 cleanupCallback()
             },
@@ -623,7 +623,7 @@ class PrivacyModuleTest : StringSpec({
                 )
             ),
             setPrivate = { hasSetPrivate = true },
-            addAttachment = { _, cleanupCallback ->
+            addAttachmentFromFile = { _, cleanupCallback ->
                 hasAddedNewAttachment = true
                 cleanupCallback()
             },
@@ -664,7 +664,7 @@ class PrivacyModuleTest : StringSpec({
                 )
             ),
             setPrivate = { hasSetPrivate = true },
-            addAttachment = { _, cleanupCallback ->
+            addAttachmentFromFile = { _, cleanupCallback ->
                 hasAddedNewAttachment = true
                 cleanupCallback()
             },
@@ -702,7 +702,7 @@ class PrivacyModuleTest : StringSpec({
                 )
             ),
             setPrivate = { hasSetPrivate = true },
-            addAttachment = { _, cleanupCallback ->
+            addAttachmentFromFile = { _, cleanupCallback ->
                 hasAddedNewAttachment = true
                 cleanupCallback()
             },
@@ -744,7 +744,7 @@ class PrivacyModuleTest : StringSpec({
                 )
             ),
             setPrivate = { hasSetPrivate = true },
-            addAttachment = { _, cleanupCallback ->
+            addAttachmentFromFile = { _, cleanupCallback ->
                 hasAddedNewAttachment = true
                 cleanupCallback()
             },

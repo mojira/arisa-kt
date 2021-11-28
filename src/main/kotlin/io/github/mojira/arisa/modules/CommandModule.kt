@@ -4,9 +4,11 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.right
 import arrow.syntax.function.partially1
+import arrow.syntax.function.partially2
 import com.mojang.brigadier.CommandDispatcher
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.modules.commands.getCommandDispatcher
 import kotlinx.coroutines.runBlocking
@@ -23,7 +25,9 @@ private val log: Logger = LoggerFactory.getLogger("CommandModule")
 class CommandModule(
     private val prefix: String,
     private val botUserName: String,
-    private val getDispatcher: (String) -> CommandDispatcher<CommandSource> = ::getCommandDispatcher
+    attachmentUtils: AttachmentUtils,
+    private val getDispatcher: (String) -> CommandDispatcher<CommandSource> =
+        ::getCommandDispatcher.partially2(attachmentUtils)
 ) : Module {
     /**
      * This is the command dispatcher.

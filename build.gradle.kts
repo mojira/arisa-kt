@@ -11,8 +11,30 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
-    maven("https://libraries.minecraft.net")
+    // Dependencies which can only be found in JitPack repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = uri("https://jitpack.io")
+            }
+        }
+        filter {
+            includeModule("com.github.rcarz", "jira-client")
+            includeModule("com.github.napstr", "logback-discord-appender")
+        }
+    }
+    // Dependencies which can only be found in Mojang Maven repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = uri("https://libraries.minecraft.net")
+            }
+        }
+        filter {
+            // Brigadier is not deployed to Maven Central yet, see https://github.com/Mojang/brigadier/issues/23
+            includeModule("com.mojang", "brigadier")
+        }
+    }
 }
 
 buildscript {
@@ -43,7 +65,7 @@ dependencies {
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
-    implementation("com.urielsalis", "mc-crash-lib", "2.0.4")
+    implementation("com.urielsalis", "mc-crash-lib", "2.0.5")
     implementation("com.github.napstr", "logback-discord-appender", "a20617d401")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)
@@ -52,7 +74,7 @@ dependencies {
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
     implementation("com.beust", "klaxon", "5.4")
-    implementation("com.mojang", "brigadier", "1.0.17")
+    implementation("com.mojang", "brigadier", "1.0.18")
     implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)

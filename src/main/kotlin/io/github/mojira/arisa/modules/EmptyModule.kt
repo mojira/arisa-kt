@@ -8,7 +8,7 @@ import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
-const val DESC_DEFAULT = """Put the summary of the bug you're having here
+internal const val DESC_DEFAULT = """Put the summary of the bug you're having here
 
 *What I expected to happen was...:*
 Describe what you thought should happen here
@@ -20,8 +20,9 @@ Describe what happened here
 1. Put a step by step guide on how to trigger the bug here
 2. ...
 3. ..."""
-const val ENV_DEFAULT = "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
-const val MIN_LENGTH = 5
+internal const val ENV_DEFAULT =
+    "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
+private const val MIN_LENGTH = 5
 
 class EmptyModule(
     private val message: String
@@ -33,8 +34,8 @@ class EmptyModule(
                 assertNotBigger(description, MIN_LENGTH).bind()
                 assertNotBigger(environment, MIN_LENGTH).bind()
             } else {
-                assertNotEqual(description, DESC_DEFAULT).bind()
-                assertNotEqual(environment, ENV_DEFAULT).bind()
+                assertEqualsOrBlank(description, DESC_DEFAULT).bind()
+                assertEqualsOrBlank(environment, ENV_DEFAULT).bind()
             }
             assertEmpty(attachments).bind()
             resolveAsIncomplete()
@@ -48,9 +49,9 @@ class EmptyModule(
         else -> Unit.right()
     }
 
-    private fun assertNotEqual(s: String?, default: String) = when {
+    private fun assertEqualsOrBlank(s: String?, default: String) = when {
         s.isNullOrBlank() -> Unit.right()
-        s != default -> OperationNotNeededModuleResponse.left()
-        else -> Unit.right()
+        s == default -> Unit.right()
+        else -> OperationNotNeededModuleResponse.left()
     }
 }

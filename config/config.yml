@@ -176,14 +176,23 @@ arisa:
 
         ----
         Restricted by PrivacyModule ??[~arisabot]??
-      allowedEmailRegex:
-        - '^(mailer-daemon|postmaster|nobody|noreply|no-reply|hostmaster|usenet|news|webmaster|www|abuse|noc|security|info|support|uucp|ftp|news|admin|root)@.*'
-        - '.*@(mojang.com|microsoft.com|minecraft.net|zendesk.com)$'
-      sensitiveFileNames:
-        - launcher_accounts.json
-        - launcher_msa_credentials.json
-        - launcher_profiles.json
-        - .jfr
+      # Important: These email regex patterns must match the email address completely
+      allowedEmailRegexes:
+        - '(mailer-daemon|postmaster|nobody|noreply|no-reply|hostmaster|usenet|news|webmaster|www|abuse|noc|security|info|support|uucp|ftp|news|admin|root)@.*'
+        - '.*@(mojang\.com|microsoft\.com|minecraft\.net|zendesk\.com)'
+      sensitiveTextRegexes:
+        - '\(Session ID is token:'
+        - '--accessToken ey'
+        - '(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s])'
+        # At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
+        # match if there are more chars as well
+        - '\bbraintree:[a-f0-9]{6,12}\b'
+      sensitiveFileNameRegexes:
+        - 'launcher_accounts\.json'
+        - 'launcher_msa_credentials\.json'
+        - 'launcher_profiles\.json'
+        # Java Flight Recorder files contain session token in some Minecraft versions
+        - '.*\.jfr'
 
     removeTriagedMeqs:
       resolutions:

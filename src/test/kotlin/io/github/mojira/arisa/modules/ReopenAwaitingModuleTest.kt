@@ -28,8 +28,8 @@ private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
 
 private val MODULE = ReopenAwaitingModule(
-    listOf("staff", "global-moderators"),
-    listOf("helper", "staff", "global-moderators"),
+    setOf("staff", "global-moderators"),
+    setOf("helper", "staff", "global-moderators"),
     365,
     "MEQS_KEEP_AR",
     "ARISA_REOPEN_OP",

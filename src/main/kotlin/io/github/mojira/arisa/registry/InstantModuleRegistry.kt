@@ -195,8 +195,8 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
         register(
             Arisa.Modules.ReopenAwaiting,
             ReopenAwaitingModule(
-                config[Arisa.Modules.ReopenAwaiting.blacklistedRoles],
-                config[Arisa.Modules.ReopenAwaiting.blacklistedVisibilities],
+                config[Arisa.Modules.ReopenAwaiting.blacklistedRoles].toSetNoDuplicates(),
+                config[Arisa.Modules.ReopenAwaiting.blacklistedVisibilities].toSetNoDuplicates(),
                 config[Arisa.Modules.ReopenAwaiting.softARDays],
                 config[Arisa.Modules.ReopenAwaiting.keepARTag],
                 config[Arisa.Modules.ReopenAwaiting.onlyOPTag],
@@ -251,5 +251,21 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Modules.RemoveBotComment.removalTag]
             )
         )
+    }
+
+    private fun <T> List<T>.toSetNoDuplicates(): Set<T> {
+        val result = toMutableSet()
+        if (result.size != size) {
+            val duplicates = mutableSetOf<T>()
+            for (element in this) {
+                // If removal fails it is a duplicate element because it has already been removed
+                if (!result.remove(element)) {
+                    duplicates.add(element)
+                }
+            }
+            throw IllegalArgumentException("Contains these duplicate elements: $duplicates")
+        }
+
+        return result
     }
 }

@@ -16,7 +16,9 @@ private enum class MyEnum {
     WORLD
 }
 
+@Suppress("unused")
 private enum class EnumWithNameClashes {
+    @Suppress("EnumEntryName")
     a,
     A
 }

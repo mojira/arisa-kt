@@ -494,7 +494,9 @@ class PrivacyModuleTest : StringSpec({
         val uploader1User = mockUser(
             name = uploader1
         )
+        @Suppress("LocalVariableName")
         val attachmentName1_1 = "my-attachment.txt"
+        @Suppress("LocalVariableName")
         val attachmentName1_2 = "my-attachment2.txt"
 
         val uploader2 = "some-other-user"

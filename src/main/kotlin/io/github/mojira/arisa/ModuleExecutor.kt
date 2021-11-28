@@ -62,6 +62,6 @@ class ModuleExecutor(
         return allIssues
             .filter { it.project.key in projects }
             .filter { it.status.toLowerCase() !in excludedStatuses }
-            .filter { it.resolution?.toLowerCase() ?: "unresolved" in resolutions }
+            .filter { (it.resolution?.toLowerCase() ?: "unresolved") in resolutions }
     }
 }

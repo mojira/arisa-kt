@@ -64,11 +64,7 @@ class KeepPlatformModule(
             val userChange = firstOrNull {
                 it.created.isAfter(markedTime)
             }
-            if (userChange != null) {
-                userChange.changedFromString.getOrDefault("None")
-            } else {
-                null
-            }
+            userChange?.changedFromString?.getOrDefault("None")
         }
     }
 }

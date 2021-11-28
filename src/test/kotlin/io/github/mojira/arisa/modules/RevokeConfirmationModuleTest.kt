@@ -12,6 +12,18 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class RevokeConfirmationModuleTest : StringSpec({
+    fun mockChangeLogItem(
+        created: Instant = RIGHT_NOW,
+        field: String = "Confirmation Status",
+        value: String = "Confirmed",
+        getAuthorGroups: () -> List<String>? = { emptyList() }
+    ) = mockChangeLogItem(
+        created = created,
+        field = field,
+        changedToString = value,
+        getAuthorGroups = getAuthorGroups
+    )
+
     "should return OperationNotNeededModuleResponse when Ticket is unconfirmed and confirmation was never changed" {
         val module = RevokeConfirmationModule()
         val issue = mockIssue(
@@ -25,7 +37,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by staff" {
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val changeLogItem = mockChangeLogItem { listOf("staff") }
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem)
@@ -38,7 +50,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by helper" {
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("helper") }
+        val changeLogItem = mockChangeLogItem { listOf("helper") }
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem)
@@ -51,7 +63,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and was changed by global-moderator" {
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("global-moderators") }
+        val changeLogItem = mockChangeLogItem { listOf("global-moderators") }
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem)
@@ -64,7 +76,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when Ticket was confirmed more than a day ago by a user who is no longer staff" {
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
+        val changeLogItem = mockChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem)
@@ -77,7 +89,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when Ticket is confirmed and groups are unknown" {
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem { null }
+        val changeLogItem = mockChangeLogItem { null }
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem)
@@ -90,7 +102,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when multiple volunteers changed the confirmation status" {
         val module = RevokeConfirmationModule()
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val volunteerChange = mockChangeLogItem { listOf("staff") }
         val otherVolunteerChange = mockChangeLogItem(value = "Unconfirmed") { listOf("helper") }
         val issue = mockIssue(
             confirmationStatus = "Unconfirmed",
@@ -106,7 +118,7 @@ class RevokeConfirmationModuleTest : StringSpec({
         var changedConfirmation = "Unconfirmed"
 
         val module = RevokeConfirmationModule()
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val volunteerChange = mockChangeLogItem { listOf("staff") }
         val otherVolunteerChange = mockChangeLogItem(value = "") { listOf("helper") }
         val issue = mockIssue(
             confirmationStatus = "Unconfirmed",
@@ -122,7 +134,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when confirmation status is empty and was unset" {
         val module = RevokeConfirmationModule()
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val volunteerChange = mockChangeLogItem { listOf("staff") }
         val otherVolunteerChange = mockChangeLogItem(value = "") { listOf("helper") }
         val issue = mockIssue(
             confirmationStatus = "",
@@ -154,7 +166,7 @@ class RevokeConfirmationModuleTest : StringSpec({
 
         val module = RevokeConfirmationModule()
         val changeLogItem =
-            io.github.mojira.arisa.modules.mockChangeLogItem(field = "Totally Not Confirmation Status") { listOf("staff") }
+            mockChangeLogItem(field = "Totally Not Confirmation Status") { listOf("staff") }
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem),
@@ -171,7 +183,7 @@ class RevokeConfirmationModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = RevokeConfirmationModule()
-        val changeLogItem = io.github.mojira.arisa.modules.mockChangeLogItem()
+        val changeLogItem = mockChangeLogItem()
         val issue = mockIssue(
             confirmationStatus = "Confirmed",
             changeLog = listOf(changeLogItem),
@@ -205,7 +217,7 @@ class RevokeConfirmationModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = RevokeConfirmationModule()
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem { listOf("staff") }
+        val volunteerChange = mockChangeLogItem { listOf("staff") }
         val userChange = mockChangeLogItem(value = "Unconfirmed") { listOf("users") }
         val issue = mockIssue(
             confirmationStatus = "Unconfirmed",
@@ -223,7 +235,7 @@ class RevokeConfirmationModuleTest : StringSpec({
         var changedConfirmation = ""
 
         val module = RevokeConfirmationModule()
-        val volunteerChange = io.github.mojira.arisa.modules.mockChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
+        val volunteerChange = mockChangeLogItem(Instant.now().minus(2, ChronoUnit.DAYS))
         val userChange = mockChangeLogItem(value = "Unconfirmed") { listOf("users") }
         val issue = mockIssue(
             confirmationStatus = "Unconfirmed",
@@ -237,15 +249,3 @@ class RevokeConfirmationModuleTest : StringSpec({
         changedConfirmation.shouldBe("Confirmed")
     }
 })
-
-private fun mockChangeLogItem(
-    created: Instant = RIGHT_NOW,
-    field: String = "Confirmation Status",
-    value: String = "Confirmed",
-    getAuthorGroups: () -> List<String>? = { emptyList() }
-) = mockChangeLogItem(
-    created = created,
-    field = field,
-    changedToString = value,
-    getAuthorGroups = getAuthorGroups
-)

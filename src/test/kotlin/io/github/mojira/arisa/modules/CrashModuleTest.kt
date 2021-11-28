@@ -273,8 +273,6 @@ private val A_MINUTE_AGO = NOW.minusSeconds(60)
 private const val UNCONFIRMED = "Unconfirmed"
 private val NO_PRIORITY = null
 
-private const val BOT_USER_NAME = "testBot"
-
 class CrashModuleTest : StringSpec({
     val crashReader = CrashReader()
     val attachmentUtils = AttachmentUtils(listOf("txt"), crashReader)

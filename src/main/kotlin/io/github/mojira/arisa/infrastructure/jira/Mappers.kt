@@ -52,7 +52,7 @@ fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, config: Co
 )
 
 fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.changeLog.entries
-    .filter { it.items.any { it.field == "Attachment" && it.to == id } }
+    .filter { changeLogEntry -> changeLogEntry.items.any { it.field == "Attachment" && it.to == id } }
     .maxByOrNull { it.created }
     ?.created
     ?.toInstant() ?: default
@@ -221,11 +221,12 @@ fun JiraComment.toDomain(
 fun JiraUser.toDomain(jiraClient: JiraClient, config: Config) = User(
     name, displayName,
     ::getUserGroups.partially1(jiraClient).partially1(name),
-    ::isNewUser.partially1(jiraClient).partially1(name),
+    ::isNewUser.partially1(jiraClient).partially1(name)
+) {
     // Check case insensitively because it apparently does not matter when logging in, so `username` might have
     // incorrect capitalization
-    { name.equals(config[Arisa.Credentials.username], ignoreCase = true) }
-)
+    name.equals(config[Arisa.Credentials.username], ignoreCase = true)
+}
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
     jiraClient,

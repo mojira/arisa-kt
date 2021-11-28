@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.Either
 import arrow.core.extensions.fx
-import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
@@ -15,13 +14,6 @@ class ReplaceTextModule(
         "(http://i.imgur.com)".toRegex() to "https://i.imgur.com"
     )
 ) : Module {
-    data class Request(
-        val lastRun: Instant,
-        val description: String?,
-        val comments: List<Comment>,
-        val updateDescription: (description: String) -> Either<Throwable, Unit>
-    )
-
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val needUpdateDescription = created.isAfter(lastRun) &&
@@ -52,7 +44,6 @@ class ReplaceTextModule(
     private fun needReplacement(text: String?) = replacements.any { (regex, _) -> text?.contains(regex) ?: false }
 
     private fun replace(text: String): String = replacements.fold(
-        text,
-        { str, (regex, replacement) -> str.replace(regex, replacement) }
-    )
+        text
+    ) { str, (regex, replacement) -> str.replace(regex, replacement) }
 }

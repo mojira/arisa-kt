@@ -1,6 +1,7 @@
 package io.github.mojira.arisa.infrastructure
 
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.Feature
 import com.uchuhimo.konf.source.yaml
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.kotest.core.spec.style.StringSpec
@@ -10,14 +11,16 @@ import java.io.File
 class IntegrationTest : StringSpec({
     "should be able to read the main config file correctly" {
         val config = Config { addSpec(Arisa) }
-            .from.map.flat(
+            // Only enable strict config parsing for map and YAML files; environment variables and system properties
+            // likely contain entries completely unrelated to Arisa
+            .from.enabled(Feature.FAIL_ON_UNKNOWN_PATH).map.flat(
                 mapOf(
                     "arisa.credentials.username" to "test",
                     "arisa.credentials.password" to "test",
                     "arisa.credentials.dandelionToken" to "test"
                 )
             )
-            .from.yaml.watchFile("config/config.yml")
+            .from.enabled(Feature.FAIL_ON_UNKNOWN_PATH).yaml.watchFile("config/config.yml")
             .from.env()
             .from.systemProperties()
 

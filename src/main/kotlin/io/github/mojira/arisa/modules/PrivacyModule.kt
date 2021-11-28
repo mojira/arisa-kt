@@ -7,21 +7,16 @@ import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 
+private fun Iterable<Regex>.anyMatches(string: String) = any { it.matches(string) }
+
 class PrivacyModule(
     private val message: String,
     private val commentNote: String,
-    private val allowedEmailsRegex: List<Regex>,
-    private val sensitiveFileNames: List<String>
+    private val allowedEmailRegexes: List<Regex>,
+    private val sensitiveTextRegexes: List<Regex>,
+    private val sensitiveFileNameRegexes: List<Regex>
 ) : Module {
-    private val patterns: List<Regex> = listOf(
-        """.*\(Session ID is token:.*""".toRegex(),
-        """.*--accessToken ey.*""".toRegex(),
-        """.*(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s]).*""".toRegex(),
-        // At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
-        // match if there are more chars as well
-        """.*\bbraintree:[a-f0-9]{6,12}\b.*""".toRegex()
-    )
-
+    // Matches an email address, which is not part of a user mention ([~name])
     private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -34,9 +29,9 @@ class PrivacyModule(
                 string += "$summary $environment $description "
             }
 
-            attachments
+            val newAttachments = attachments.filter { it.created.isAfter(lastRun) }
+            newAttachments
                 .asSequence()
-                .filter { it.created.isAfter(lastRun) }
                 .filter { it.mimeType.startsWith("text/") }
                 .forEach { string += "${String(it.getContent())} " }
 
@@ -46,19 +41,19 @@ class PrivacyModule(
                 .filter { it.changedFromString == null }
                 .forEach { string += "${it.changedToString} " }
 
-            val doesStringMatchPatterns = string.matches(patterns)
+            val doesStringMatchPatterns = string.containsMatch(sensitiveTextRegexes)
             val doesEmailMatches = matchesEmail(string)
 
-            val doesAttachmentNameMatch = attachments
+            val doesAttachmentNameMatch = newAttachments
                 .asSequence()
                 .map(Attachment::name)
-                .any(sensitiveFileNames::contains)
+                .any(sensitiveFileNameRegexes::anyMatches)
 
             val restrictCommentFunctions = comments
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
                 .filter { it.visibilityType == null }
-                .filter { it.body?.matches(patterns) ?: false || matchesEmail(it.body ?: "") }
+                .filter { it.body?.containsMatch(sensitiveTextRegexes) ?: false || matchesEmail(it.body ?: "") }
                 .filterNot {
                     it.getAuthorGroups()?.any { group ->
                         listOf("helper", "global-moderators", "staff").contains(group)
@@ -86,9 +81,10 @@ class PrivacyModule(
     private fun matchesEmail(string: String): Boolean {
         return emailRegex
             .findAll(string)
-            .filterNot { email -> allowedEmailsRegex.any { regex -> regex.matches(email.value) } }
+            .map(MatchResult::value)
+            .filterNot(allowedEmailRegexes::anyMatches)
             .any()
     }
 
-    private fun String.matches(patterns: List<Regex>) = patterns.any { it.containsMatchIn(this) }
+    private fun String.containsMatch(patterns: List<Regex>) = patterns.any { it.containsMatchIn(this) }
 }

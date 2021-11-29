@@ -156,9 +156,10 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             PrivacyModule(
                 config[Arisa.Modules.Privacy.message],
                 config[Arisa.Modules.Privacy.commentNote],
-                config[Arisa.Modules.Privacy.allowedEmailRegex].map(String::toRegex),
+                config[Arisa.Modules.Privacy.allowedEmailRegexes].map(String::toRegex),
+                config[Arisa.Modules.Privacy.sensitiveTextRegexes].map(String::toRegex),
                 AccessTokenRedactor,
-                config[Arisa.Modules.Privacy.sensitiveFileNames]
+                config[Arisa.Modules.Privacy.sensitiveFileNameRegexes].map(String::toRegex)
             )
         )
 

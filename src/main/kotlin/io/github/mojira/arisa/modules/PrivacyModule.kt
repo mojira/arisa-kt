@@ -3,6 +3,7 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
@@ -10,24 +11,19 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.time.Instant
 
+private fun Iterable<Regex>.anyMatches(string: String) = any { it.matches(string) }
+
 private val log = LoggerFactory.getLogger("PrivacyModule")
 
 class PrivacyModule(
     private val message: String,
     private val commentNote: String,
-    private val allowedEmailsRegex: List<Regex>,
+    private val allowedEmailRegexes: List<Regex>,
+    private val sensitiveTextRegexes: List<Regex>,
     private val attachmentRedactor: AttachmentRedactor,
-    private val sensitiveFileNames: List<String>
+    private val sensitiveFileNameRegexes: List<Regex>
 ) : Module {
-    private val patterns: List<Regex> = listOf(
-        """\(Session ID is token:""".toRegex(),
-        """--accessToken ey""".toRegex(),
-        """(?<![^\s])(?=[^\s]*[A-Z])(?=[^\s]*[0-9])[A-Z0-9]{17}(?![^\s])""".toRegex(),
-        // At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
-        // match if there are more chars as well
-        """\bbraintree:[a-f0-9]{6,12}\b""".toRegex()
-    )
-
+    // Matches an email address, which is not part of a user mention ([~name])
     private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -59,12 +55,12 @@ class PrivacyModule(
     }
 
     private fun containsSensitiveData(string: String): MatchResult? =
-        matchesEmail(string) ?: patterns.asSequence().mapNotNull { it.find(string) }.firstOrNull()
+        matchesEmail(string) ?: sensitiveTextRegexes.asSequence().mapNotNull { it.find(string) }.firstOrNull()
 
     private fun matchesEmail(string: String): MatchResult? {
         return emailRegex
             .findAll(string)
-            .filterNot { email -> allowedEmailsRegex.any { regex -> regex.matches(email.value) } }
+            .filterNot { match -> allowedEmailRegexes.anyMatches(match.value) }
             .firstOrNull()
     }
 
@@ -78,9 +74,9 @@ class PrivacyModule(
         var attachmentContainsSensitiveData: Boolean
         val newAttachments = attachments.filter { it.created.isAfter(lastRun) }
 
-        attachmentContainsSensitiveData = newAttachments.any {
-            sensitiveFileNames.contains(it.name)
-        }
+        attachmentContainsSensitiveData = newAttachments
+            .map(Attachment::name)
+            .any(sensitiveFileNameRegexes::anyMatches)
 
         val attachmentsToRedact = newAttachments
             .filter { it.hasTextContent() }

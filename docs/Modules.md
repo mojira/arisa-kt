@@ -241,14 +241,18 @@ reuploading it with redacted content and its name prefixed with `redacted_` and 
 ### Checks
 - The ticket is not set to private.
 #### For Setting Tickets to Private
-- Any of the fields and/or text attachments added after last run contains session ID or Email, and for attachments the
-  module was not able to redact sensitive data.
-- Or any of the attachments has a name specified by `sensitiveFileNames` in the [config](../config/config.yml)
-  (defaults to empty list)
+- Any of the following matches one of the regex patterns specified by `sensitiveTextRegexes` in the
+  [config](../config/config.yml), or contains an email address which does not match one of the `allowedEmailRegexes`:
+  - summary, environment, description (if ticket was created after last run)
+  - text attachment (if it was created after last run), and the module was unable to redact the sensitive data
+  - changelog entry string value (if it was created after last run)
+- Or any of the attachments created after the last run has a name which matches one of `sensitiveFileNameRegexes` in
+  the [config](../config/config.yml).
 #### For Restricting Comments to `staff`
 - The comment was added after last run.
 - The comment is not restricted.
-- The comment contains session ID or Email.
+- The comment matches one of the regex patterns specified by `sensitiveTextRegexes` in the
+  [config](../config/config.yml), or contains an email address which does not match one of the `allowedEmailRegexes`.
 
 ## PrivateDuplicate
 | Entry | Value                                                                               |

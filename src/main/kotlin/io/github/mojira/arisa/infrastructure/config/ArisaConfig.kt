@@ -160,13 +160,21 @@ object Arisa : ConfigSpec() {
                 "",
                 description = "The text which will be appended at the comments that are restricted by this module."
             )
-            val allowedEmailRegex by optional<List<String>>(
+            val allowedEmailRegexes by optional<List<String>>(
                 default = emptyList(),
-                description = "List of regex for allowed emails"
+                description = "Regex patterns matching allowed email addresses, that is, email addresses which may" +
+                    " be public. The patterns must match the complete email address; partial matches won't have any" +
+                    " effect."
             )
-            val sensitiveFileNames by optional<List<String>>(
+            val sensitiveTextRegexes by optional<List<String>>(
                 default = emptyList(),
-                description = "Names of attachment files containing sensitive information"
+                description = "Regex patterns matching sensitive text. The patterns do not have to match the" +
+                    " complete text; partial matches will be detected as well."
+            )
+            val sensitiveFileNameRegexes by optional<List<String>>(
+                default = emptyList(),
+                description = "Regex patterns matching names of attachment files containing sensitive information." +
+                    " The patterns must match the complete file name; partial matches won't have any effect."
             )
         }
 

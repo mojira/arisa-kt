@@ -7,6 +7,6 @@ arisa:
     # These configs are optional and can be omitted
     dandelionToken: <Dandelion token>
     discordLogWebhook: <Discord log webhook>
-    discordErrorWebhook: <Discord error webhook>
+    discordErrorLogWebhook: <Discord error webhook>
   debug:
     # You can add some debug options here, see `ArisaConfig.kt` for details

@@ -229,10 +229,10 @@ Resolves tickets about pirated games as `Invalid`.
 - Any of the description, environment, and/or summary contains any of the `piracySignatures` defined in the [config](../config/config.yml).
 
 ## Privacy
-| Entry | Value                                                                      |
-| ----- | -------------------------------------------------------------------------- |
-| Name  | `Privacy`                                                                  |
-| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/PrivacyModule.kt) |
+| Entry | Value                                                                              |
+| ----- | ---------------------------------------------------------------------------------- |
+| Name  | `Privacy`                                                                          |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/privacy/PrivacyModule.kt) |
 
 Makes tickets and comments, which contain sensitive data like Email addresses, private.
 Additionally in some cases it redacts sensitive data from attachments by deleting the original attachment,

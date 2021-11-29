@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.privacy
 
 import arrow.core.Either
 import arrow.core.extensions.fx
@@ -7,6 +7,13 @@ import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
+import io.github.mojira.arisa.modules.Module
+import io.github.mojira.arisa.modules.ModuleError
+import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.assertAny
+import io.github.mojira.arisa.modules.assertNotEmpty
+import io.github.mojira.arisa.modules.assertNull
+import io.github.mojira.arisa.modules.assertTrue
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.time.Instant
@@ -54,13 +61,18 @@ class PrivacyModule(
         }
     }
 
-    private fun containsSensitiveData(string: String): MatchResult? =
-        matchesEmail(string) ?: sensitiveTextRegexes.asSequence().mapNotNull { it.find(string) }.firstOrNull()
+    private fun containsSensitiveData(string: String): TextRangeLocation? =
+        containsEmailMatch(string)
+            ?: sensitiveTextRegexes.asSequence()
+                .mapNotNull { it.find(string) }
+                .map { TextRangeLocation.fromMatchResult(string, it) }
+                .firstOrNull()
 
-    private fun matchesEmail(string: String): MatchResult? {
+    private fun containsEmailMatch(string: String): TextRangeLocation? {
         return emailRegex
             .findAll(string)
             .filterNot { match -> allowedEmailRegexes.anyMatches(match.value) }
+            .map { TextRangeLocation.fromMatchResult(string, it) }
             .firstOrNull()
     }
 
@@ -170,10 +182,9 @@ class PrivacyModule(
         .map { { it.restrict("${it.body}$commentNote") } }
         .toList()
 
-    private fun Issue.logFoundSensitiveData(location: String, matchResult: MatchResult) {
-        val range = matchResult.range
+    private fun Issue.logFoundSensitiveData(location: String, matchResult: TextRangeLocation) {
         // Important: Don't log value (i.e. sensitive data) of match result
-        log.info("$key: Found sensitive data $location at ${range.first}-${range.last}")
+        log.info("$key: Found sensitive data $location at ${matchResult.getLocationDescription()}")
     }
 
     private fun Issue.hasAnyAttachmentName(name: String) = attachments.any { it.name == name }
@@ -198,14 +209,14 @@ class PrivacyModule(
                             "is malformed or would clash with other attachment")
                         tempDir.delete()
                     } else {
+                        log.info("Redacting attachment with ID ${attachment.id} of issue ${issue.key} because it " +
+                            "contains sensitive data")
                         filePath.writeText(it.redactedContent)
                         issue.addAttachmentFromFile(filePath) {
                             // Once uploaded, delete the temp directory containing the attachment
                             tempDir.deleteRecursively()
                         }
                         // Remove the original attachment
-                        log.info("Deleting attachment with ID ${attachment.id} of issue ${issue.key} because it " +
-                            "contains sensitive data")
                         attachment.remove()
                     }
                 }

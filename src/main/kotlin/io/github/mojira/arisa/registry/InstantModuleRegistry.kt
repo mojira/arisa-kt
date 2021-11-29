@@ -6,7 +6,7 @@ import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.modules.AccessTokenRedactor
+import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
 import io.github.mojira.arisa.modules.AffectedVersionMessageModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -21,7 +21,7 @@ import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
-import io.github.mojira.arisa.modules.PrivacyModule
+import io.github.mojira.arisa.modules.privacy.PrivacyModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffTagsModule

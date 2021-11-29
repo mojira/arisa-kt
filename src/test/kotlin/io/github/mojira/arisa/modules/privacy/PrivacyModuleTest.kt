@@ -1,7 +1,9 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.privacy
 
 import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockChangeLogItem

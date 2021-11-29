@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.privacy
 
 import io.github.mojira.arisa.domain.Attachment
 

@@ -47,7 +47,7 @@ data class TextRangeLocation(
         var relativeEndIndex = 0
 
         @Suppress("LoopWithTooManyJumpStatements")
-        while (true) {
+        while (currentLineStartIndex < completeText.length) {
             val previousLineStartIndex = currentLineStartIndex
             currentLineStartIndex = getIndexBehindNextLineTerminator(completeText, previousLineStartIndex)
                 ?: break // reached end of last line

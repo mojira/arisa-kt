@@ -39,7 +39,7 @@ class ExecutionTimeframe(
             return ExecutionTimeframe(
                 lastRun.time,
                 currentRunTime,
-                lastRun.getCurrentlyShadowbannedUsers(),
+                lastRun.getShadowbannedUsers(),
                 runOpenEnded
             )
         }

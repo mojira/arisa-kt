@@ -407,6 +407,8 @@ object Arisa : ConfigSpec() {
                 description = "The key to search for in a bot comment to trigger the removal of the comment"
             )
         }
+
+        object Shadowban : ModuleConfigSpec()
     }
 }
 

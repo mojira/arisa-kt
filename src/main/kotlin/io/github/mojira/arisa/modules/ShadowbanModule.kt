@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.extensions.fx
 import arrow.core.right
 import io.github.mojira.arisa.ExecutionTimeframe
+import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
 import org.slf4j.LoggerFactory
@@ -51,6 +52,7 @@ class ShadowbanModule : Module {
 
     private fun Issue.checkCommentsForShadowban(timeframe: ExecutionTimeframe): Int =
         comments
+            .filter { it.isNotStaffRestricted() }
             .filter { it.author.isNotVolunteer() }
             .filter {
                 timeframe.shadowbans[it.author.name]?.banTimeContains(it.created) ?: false
@@ -71,6 +73,9 @@ class ShadowbanModule : Module {
 
     private fun User.isNotVolunteer() =
         getGroups()?.none { it -> listOf("helper", "global-moderators", "staff").contains(it) } ?: true
+
+    private fun Comment.isNotStaffRestricted() =
+        visibilityType != "group" || visibilityValue != "staff"
 
     private fun Issue.putInSpamBin() {
         changeReporter("SpamBin")

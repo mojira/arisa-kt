@@ -230,6 +230,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             CommandModule(
                 config[Arisa.Modules.Command.commandPrefix],
                 config[Arisa.Credentials.username],
+                config[Arisa.Debug.ignoreOwnCommands],
                 attachmentUtils
             )
         )

@@ -10,9 +10,6 @@ import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-private const val DEFAULT_START_TIME_MINUTES_BEFORE_NOW = 5L
-private const val SHADOWBAN_DURATION_IN_HOURS = 24L
-
 class EpochMilliInstantConverter : Converter {
     override fun canConvert(cls: Class<*>) = cls == Instant::class.java
     override fun toJson(value: Any) = (value as Instant).toEpochMilli().toString()
@@ -26,7 +23,7 @@ val instantConverter = EpochMilliInstantConverter()
 data class Shadowban(
     val user: String,
     val since: Instant,
-    val until: Instant,
+    val until: Instant
 ) {
     fun banTimeContains(instant: Instant): Boolean = instant in since..until
 }
@@ -38,7 +35,7 @@ data class LastRunFile(
 ) {
     companion object {
         fun defaultTime(): Instant =
-            Instant.now().minus(DEFAULT_START_TIME_MINUTES_BEFORE_NOW, ChronoUnit.MINUTES)
+            Instant.now().minus(LastRun.DEFAULT_START_TIME_MINUTES_BEFORE_NOW, ChronoUnit.MINUTES)
 
         fun read(readFromFile: () -> String): LastRunFile {
             val result = Klaxon().converter(instantConverter).parse<LastRunFile>(readFromFile())
@@ -65,6 +62,9 @@ class LastRun(
     private val writeToFile: (String) -> Unit
 ) {
     companion object {
+        const val DEFAULT_START_TIME_MINUTES_BEFORE_NOW = 5L
+        const val SHADOWBAN_DURATION_IN_HOURS = 24L
+
         fun getLastRun(config: Config): LastRun {
             val lastRunFile = File("lastrun.json")
             if (!lastRunFile.exists()) migrateLegacyFile()

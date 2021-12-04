@@ -64,7 +64,7 @@ class Executor(
 
         registry.getEnabledModules().forEach { (moduleName, _, execute, moduleExecutor) ->
             log.debug("Executing module $moduleName")
-            moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, timeframe.lastRunTime) }
+            moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, timeframe) }
         }
     }
 

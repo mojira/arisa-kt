@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit
 class ExecutionTimeframe(
     val lastRunTime: Instant,
     val currentRunTime: Instant,
+    val shadowbans: Map<String, Shadowban>,
     private val openEnded: Boolean
 ) {
     companion object {
@@ -35,7 +36,12 @@ class ExecutionTimeframe(
                 endOfMaxTimeframe
             }
 
-            return ExecutionTimeframe(lastRun.time, currentRunTime, runOpenEnded)
+            return ExecutionTimeframe(
+                lastRun.time,
+                currentRunTime,
+                lastRun.getCurrentlyShadowbannedUsers(),
+                runOpenEnded
+            )
         }
     }
 
@@ -55,6 +61,8 @@ class ExecutionTimeframe(
         val checkEnd = currentRunTime.minus(offset)
         return "updated > ${checkStart.toEpochMilli()} AND updated <= ${checkEnd.toEpochMilli()}"
     }
+
+    fun contains(instant: Instant): Boolean = instant in lastRunTime..currentRunTime
 
     /**
      * Adds a cap to a JQL query if this time frame is not open.

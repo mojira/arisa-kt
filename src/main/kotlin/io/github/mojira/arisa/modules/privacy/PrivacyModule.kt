@@ -37,8 +37,8 @@ class PrivacyModule(
         Either.fx {
             assertNull(securityLevel).bind()
 
-            val (attachmentContainsSensitiveData, attachmentsToRedact) = checkAttachments(lastRun)
-            val issueContainsSensitiveData = attachmentContainsSensitiveData || containsIssueSensitiveData(lastRun)
+            val (foundNonRedactableSensitiveData, attachmentsToRedact) = checkAttachments(lastRun)
+            val issueContainsSensitiveData = foundNonRedactableSensitiveData || containsIssueSensitiveData(lastRun)
 
             val restrictCommentActions = getRestrictCommentActions(lastRun)
 
@@ -49,10 +49,10 @@ class PrivacyModule(
             ).bind()
 
             // Always try to redact attachments, even if issue would be made private anyways
-            // So in case issue was made private erroneously it can easily be made public
-            val redactedAll = redactAttachments(issue, attachmentsToRedact)
+            // So in case issue was made private erroneously, it can easily be made public manually
+            val redactingSucceeded = redactAttachments(issue, attachmentsToRedact)
 
-            if (!redactedAll || issueContainsSensitiveData) {
+            if (!redactingSucceeded || issueContainsSensitiveData) {
                 setPrivate()
                 addComment(CommentOptions(message))
             }
@@ -78,15 +78,15 @@ class PrivacyModule(
 
     private data class AttachmentsCheckResult(
         /** Whether any of the attachments contains sensitive data which cannot be redacted */
-        val attachmentContainsSensitiveData: Boolean,
+        val foundNonRedactableSensitiveData: Boolean,
         val attachmentsToRedact: List<RedactedAttachment>
     )
 
     private fun Issue.checkAttachments(lastRun: Instant): AttachmentsCheckResult {
-        var attachmentContainsSensitiveData: Boolean
+        var foundNonRedactableSensitiveData: Boolean
         val newAttachments = attachments.filter { it.created.isAfter(lastRun) }
 
-        attachmentContainsSensitiveData = newAttachments
+        foundNonRedactableSensitiveData = newAttachments
             .map(Attachment::name)
             .any(sensitiveFileNameRegexes::anyMatches)
 
@@ -99,37 +99,37 @@ class PrivacyModule(
                 val redacted = if (it.uploader?.isBotUser?.invoke() == true) null else attachmentRedactor.redact(it)
                 if (redacted == null) {
                     // No redaction necessary / possible; check if attachment contains sensitive data
-                    if (!attachmentContainsSensitiveData) {
+                    if (!foundNonRedactableSensitiveData) {
                         containsSensitiveData(it.getTextContent())?.let { matchResult ->
-                            attachmentContainsSensitiveData = true
+                            foundNonRedactableSensitiveData = true
                             logFoundSensitiveData("in attachment with ID ${it.id}", matchResult)
                         }
                     }
                     return@mapNotNull null
-                } else {
-                    // Check if attachment content still contains sensitive data after redacting
-                    if (containsSensitiveData(redacted.redactedContent) != null) {
-                        if (!attachmentContainsSensitiveData) {
-                            // Because attachment won't be redacted get match result in original attachment for logging
-                            containsSensitiveData(it.getTextContent())?.let { matchResult ->
-                                logFoundSensitiveData("in attachment with ID ${it.id}", matchResult)
-                            } ?: run {
-                                // Redactor might have produced malformed output, or sensitive data regex pattern
-                                // is imprecise; marking attachment as containing sensitive data nonetheless
-                                log.warn("$key: Sensitive data was detected in redacted content for attachment with " +
-                                        "ID ${it.id}, but original attachment content was not detect")
-                            }
+                }
+                // Check if attachment content still contains sensitive data after redacting
+                else if (containsSensitiveData(redacted.redactedContent) != null) {
+                    if (!foundNonRedactableSensitiveData) {
+                        // Because attachment won't be redacted get match result in original attachment for logging
+                        containsSensitiveData(it.getTextContent())?.let { matchResult ->
+                            logFoundSensitiveData("in attachment with ID ${it.id}", matchResult)
+                        } ?: run {
+                            // Redactor might have produced malformed output, or sensitive data regex pattern
+                            // is imprecise; marking attachment as containing sensitive data nonetheless
+                            log.warn("$key: Sensitive data was detected in redacted content for attachment with " +
+                                    "ID ${it.id}, but original attachment content was not detect")
                         }
-
-                        attachmentContainsSensitiveData = true
-                        // Don't redact if attachment content would still contain sensitive data
-                        return@mapNotNull null
                     }
+
+                    foundNonRedactableSensitiveData = true
+                    // Don't redact if attachment content would still contain sensitive data
+                    return@mapNotNull null
+                } else {
                     return@mapNotNull redacted
                 }
             }
 
-        return AttachmentsCheckResult(attachmentContainsSensitiveData, attachmentsToRedact)
+        return AttachmentsCheckResult(foundNonRedactableSensitiveData, attachmentsToRedact)
     }
 
     @Suppress("ReturnCount")
@@ -189,6 +189,10 @@ class PrivacyModule(
 
     private fun Issue.hasAnyAttachmentName(name: String) = attachments.any { it.name == name }
 
+    /**
+     * @return true if all provided attachments have been redacted; false if at least one attachment
+     *      still contains sensitive data
+     */
     private fun redactAttachments(issue: Issue, attachments: Collection<RedactedAttachment>): Boolean {
         var redactedAll = true
         attachments

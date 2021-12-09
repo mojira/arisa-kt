@@ -16,7 +16,7 @@ class ExecutionTimeframeTest : StringSpec({
             .truncatedTo(ChronoUnit.MILLIS)
 
         val lastRun = LastRun(
-            { lastRunTime.toEpochMilli().toString() },
+            { LastRunFile(lastRunTime, emptySet(), emptyList()) },
             { }
         )
 
@@ -48,7 +48,7 @@ class ExecutionTimeframeTest : StringSpec({
             .truncatedTo(ChronoUnit.MILLIS)
 
         val lastRun = LastRun(
-            { lastRunTime.toEpochMilli().toString() },
+            { LastRunFile(lastRunTime, emptySet(), emptyList()) },
             { }
         )
 

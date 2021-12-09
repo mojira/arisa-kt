@@ -155,3 +155,15 @@ Keys and type are case insensitive
 
 Reopens tickets resolved as Awaiting Response
 
+## $ARISA_SHADOWBAN
+| Entry       | Value                         |
+| ----------- | ----------------------------- |
+| Syntax      | `$ARISA_SHADOWBAN <username>` |
+| Permissions | Mod+                          |
+
+Shadowbans a user for the next 24 hours.
+
+Note: The user's previous actions still need to be reverted manually (or e.g. via `$ARISA_REMOVE_CONTENT` and bulk change),
+as running this command will only cause the bot auto-undo actions done by the shadowbanned user in the future.
+
+For more information on how shadowbans work, see "Modules → Shadowban".

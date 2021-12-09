@@ -450,7 +450,7 @@ fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersion
 }
 
 fun changeReporter(context: Lazy<IssueUpdateContext>, reporter: String) {
-    context.value.update.field(Field.REPORTER, reporter)
+    context.value.edit.field(Field.REPORTER, reporter)
 }
 
 // Allows some basic Jira formatting characters to be used by helper message arguments;

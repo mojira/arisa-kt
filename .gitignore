@@ -14,5 +14,6 @@ arisa.yml
 # Files and folders created when running Arisa
 /logs/
 last-run
+lastrun.json
 helper-messages.json
 mc-mappings/

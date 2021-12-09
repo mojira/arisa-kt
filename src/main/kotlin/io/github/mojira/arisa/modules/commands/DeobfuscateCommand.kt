@@ -33,8 +33,7 @@ class DeobfuscateCommand(private val attachmentUtils: AttachmentUtils) {
             throw CommandExceptions.ATTACHMENT_ALREADY_EXISTS.create(deobfuscatedName)
         }
 
-        @Suppress("VariableNaming")
-        var minecraftVersionId_ = minecraftVersionId
+        var resolvedMinecraftVersionId = minecraftVersionId
         var isClientCrash = when (crashReportType) {
             CrashReportType.CLIENT -> true
             CrashReportType.SERVER -> false
@@ -42,13 +41,13 @@ class DeobfuscateCommand(private val attachmentUtils: AttachmentUtils) {
         }
 
         // If version or crash report type are not specified try to obtain them from crash report
-        if (minecraftVersionId_ == null || isClientCrash == null) {
+        if (resolvedMinecraftVersionId == null || isClientCrash == null) {
             val parsedCrashReport = attachmentUtils.processCrash(attachmentUtils.fetchAttachment(attachment))
                 ?.crash as? Crash.Minecraft
                 ?: throw MISSING_DEOBFUSCATION_ARGUMENTS.create()
 
-            if (minecraftVersionId_ == null) {
-                minecraftVersionId_ = parsedCrashReport.minecraftVersion
+            if (resolvedMinecraftVersionId == null) {
+                resolvedMinecraftVersionId = parsedCrashReport.minecraftVersion
                     ?: throw MISSING_DEOBFUSCATION_ARGUMENTS.create()
             }
             if (isClientCrash == null) {
@@ -59,7 +58,7 @@ class DeobfuscateCommand(private val attachmentUtils: AttachmentUtils) {
         val deobfuscated = try {
             attachmentUtils.deobfuscate(
                 String(attachment.getContent()),
-                minecraftVersionId_,
+                resolvedMinecraftVersionId,
                 isClientCrash
             )
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {

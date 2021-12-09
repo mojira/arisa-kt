@@ -246,4 +246,10 @@ class HelperMessagesTest : StringSpec({
 
         result shouldBe "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
+
+    "should append the bot signature to raw message correctly" {
+        val result = HelperMessageService.getRawMessageWithBotSignature("some message")
+
+        result shouldBe "some message\n~{color:#888}-- I am a bot.{color}~"
+    }
 })

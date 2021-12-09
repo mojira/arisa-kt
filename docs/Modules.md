@@ -229,12 +229,14 @@ Resolves tickets about pirated games as `Invalid`.
 - Any of the description, environment, and/or summary contains any of the `piracySignatures` defined in the [config](../config/config.yml).
 
 ## Privacy
-| Entry | Value                                                                      |
-| ----- | -------------------------------------------------------------------------- |
-| Name  | `Privacy`                                                                  |
-| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/PrivacyModule.kt) |
+| Entry | Value                                                                              |
+| ----- | ---------------------------------------------------------------------------------- |
+| Name  | `Privacy`                                                                          |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/privacy/PrivacyModule.kt) |
 
-Hides privacy information like Email addresses in tickets or comments.
+Makes tickets and comments, which contain sensitive data like Email addresses, private.
+Additionally in some cases it redacts sensitive data from attachments by deleting the original attachment,
+reuploading it with redacted content and its name prefixed with `redacted_` and adding a comment informing the uploader.
 
 ### Checks
 - The ticket is not set to private.
@@ -242,7 +244,7 @@ Hides privacy information like Email addresses in tickets or comments.
 - Any of the following matches one of the regex patterns specified by `sensitiveTextRegexes` in the
   [config](../config/config.yml), or contains an email address which does not match one of the `allowedEmailRegexes`:
   - summary, environment, description (if ticket was created after last run)
-  - text attachment (if it was created after last run)
+  - text attachment (if it was created after last run), and the module was unable to redact the sensitive data
   - changelog entry string value (if it was created after last run)
 - Or any of the attachments created after the last run has a name which matches one of `sensitiveFileNameRegexes` in
   the [config](../config/config.yml).

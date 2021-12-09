@@ -25,7 +25,7 @@ private const val PREFIX = "ARISA"
 private const val BOT_USER_NAME = "botName"
 
 class CommandModuleTest : StringSpec({
-    val attachmentUtils = AttachmentUtils(emptyList(), CrashReader(), BOT_USER_NAME)
+    val attachmentUtils = AttachmentUtils(emptyList(), CrashReader())
     val module = CommandModule(PREFIX, BOT_USER_NAME, true, attachmentUtils, ::getDispatcher)
 
     "should return OperationNotNeededModuleResponse when no comments" {

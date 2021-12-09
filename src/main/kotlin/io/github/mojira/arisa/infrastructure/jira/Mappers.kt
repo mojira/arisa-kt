@@ -39,19 +39,20 @@ import net.rcarz.jiraclient.Project as JiraProject
 import net.rcarz.jiraclient.User as JiraUser
 import net.rcarz.jiraclient.Version as JiraVersion
 
-fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue) = Attachment(
+fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, config: Config) = Attachment(
     id,
     fileName,
     getCreationDate(issue, id, issue.createdDate.toInstant()),
     mimeType,
     ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
     { openAttachmentStream(jiraClient, this) },
-    this::download,
-    author?.toDomain(jiraClient)
+    // Cache attachment content once it has been downloaded
+    lazy { this.download() }::value,
+    author?.toDomain(jiraClient, config)
 )
 
 fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.changeLog.entries
-    .filter { it.items.any { it.field == "Attachment" && it.to == id } }
+    .filter { changeLogEntry -> changeLogEntry.items.any { it.field == "Attachment" && it.to == id } }
     .maxByOrNull { it.created }
     ?.created
     ?.toInstant() ?: default
@@ -93,7 +94,7 @@ fun JiraIssue.toDomain(
         description,
         getEnvironment(),
         security?.id,
-        reporter?.toDomain(jiraClient),
+        reporter?.toDomain(jiraClient, config),
         resolution?.name,
         createdDate.toInstant(),
         updatedDate.toInstant(),
@@ -108,10 +109,10 @@ fun JiraIssue.toDomain(
         getDungeonsPlatform(config),
         mapVersions(),
         mapFixVersions(),
-        mapAttachments(jiraClient),
-        mapComments(jiraClient),
+        mapAttachments(jiraClient, config),
+        mapComments(jiraClient, config),
         mapLinks(jiraClient, config),
-        getChangeLogEntries(jiraClient),
+        getChangeLogEntries(jiraClient, config),
         ::reopen.partially1(context),
         ::resolveAs.partially1(context).partially1("Awaiting Response"),
         ::resolveAs.partially1(context).partially1("Invalid"),
@@ -155,12 +156,19 @@ fun JiraIssue.toDomain(
         },
         addNotEnglishComment = { language ->
             createComment(
-                context, HelperMessageService.getMessageWithBotSignature(
+                context,
+                HelperMessageService.getMessageWithBotSignature(
                     project.key, config[Arisa.Modules.Language.message], lang = language
                 )
             )
         },
         addRawRestrictedComment = ::addRestrictedComment.partially1(context),
+        addRawBotComment = { rawMessage ->
+            createComment(
+                context,
+                HelperMessageService.getRawMessageWithBotSignature(rawMessage)
+            )
+        },
         ::markAsFixedWithSpecificVersion.partially1(context),
         ::changeReporter.partially1(context),
         addAttachmentFromFile,
@@ -191,13 +199,14 @@ fun JiraProject.toDomain(
 
 fun JiraComment.toDomain(
     jiraClient: JiraClient,
-    issue: JiraIssue
+    issue: JiraIssue,
+    config: Config
 ): Comment {
     val context = issue.getUpdateContext(jiraClient)
     return Comment(
         id,
         body,
-        author.toDomain(jiraClient),
+        author.toDomain(jiraClient, config),
         { getGroups(jiraClient, author.name).fold({ null }, { it }) },
         createdDate.toInstant(),
         updatedDate.toInstant(),
@@ -209,11 +218,15 @@ fun JiraComment.toDomain(
     )
 }
 
-fun JiraUser.toDomain(jiraClient: JiraClient) = User(
+fun JiraUser.toDomain(jiraClient: JiraClient, config: Config) = User(
     name, displayName,
     ::getUserGroups.partially1(jiraClient).partially1(name),
     ::isNewUser.partially1(jiraClient).partially1(name)
-)
+) {
+    // Check case insensitively because it apparently does not matter when logging in, so `username` might have
+    // incorrect capitalization
+    name.equals(config[Arisa.Credentials.username], ignoreCase = true)
+}
 
 private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
     jiraClient,
@@ -265,14 +278,21 @@ fun JiraIssueLink.toDomain(
     ::deleteLink.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
 )
 
-fun JiraChangeLogItem.toDomain(jiraClient: JiraClient, entry: JiraChangeLogEntry) = ChangeLogItem(
+fun JiraChangeLogItem.toDomain(
+    jiraClient: JiraClient,
+    entry: JiraChangeLogEntry,
+    itemIndex: Int,
+    config: Config
+) = ChangeLogItem(
+    entry.id,
+    itemIndex,
     entry.created.toInstant(),
     field,
     from,
     fromString,
     to,
     toString,
-    entry.author.toDomain(jiraClient),
+    entry.author.toDomain(jiraClient, config),
     ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
 )
 
@@ -284,11 +304,11 @@ private fun JiraIssue.mapLinks(
     it.toDomain(jiraClient, this, config)
 }
 
-private fun JiraIssue.mapComments(jiraClient: JiraClient) =
-    comments.map { it.toDomain(jiraClient, this) }
+private fun JiraIssue.mapComments(jiraClient: JiraClient, config: Config) =
+    comments.map { it.toDomain(jiraClient, this, config) }
 
-private fun JiraIssue.mapAttachments(jiraClient: JiraClient) =
-    attachments.map { it.toDomain(jiraClient, this) }
+private fun JiraIssue.mapAttachments(jiraClient: JiraClient, config: Config) =
+    attachments.map { it.toDomain(jiraClient, this, config) }
 
 private fun JiraIssue.mapVersions() =
     versions.map { it.toDomain() }
@@ -296,10 +316,10 @@ private fun JiraIssue.mapVersions() =
 private fun JiraIssue.mapFixVersions() =
     fixVersions.map { it.toDomain() }
 
-private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient) =
+private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient, config: Config) =
     changeLog.entries.flatMap { e ->
-        e.items.map { i ->
-            i.toDomain(jiraClient, e)
+        e.items.mapIndexed { index, item ->
+            item.toDomain(jiraClient, e, index, config)
         }
     }
 

@@ -6,6 +6,7 @@ import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
 import io.github.mojira.arisa.modules.AffectedVersionMessageModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
@@ -20,7 +21,7 @@ import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
-import io.github.mojira.arisa.modules.PrivacyModule
+import io.github.mojira.arisa.modules.privacy.PrivacyModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffTagsModule
@@ -92,8 +93,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
 
         val attachmentUtils = AttachmentUtils(
             config[Arisa.Modules.Crash.crashExtensions],
-            CrashReader(),
-            config[Arisa.Credentials.username]
+            CrashReader()
         )
         register(
             Arisa.Modules.Crash,
@@ -159,6 +159,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Modules.Privacy.commentNote],
                 config[Arisa.Modules.Privacy.allowedEmailRegexes].map(String::toRegex),
                 config[Arisa.Modules.Privacy.sensitiveTextRegexes].map(String::toRegex),
+                AccessTokenRedactor,
                 config[Arisa.Modules.Privacy.sensitiveFileNameRegexes].map(String::toRegex)
             )
         )
@@ -196,8 +197,8 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
         register(
             Arisa.Modules.ReopenAwaiting,
             ReopenAwaitingModule(
-                config[Arisa.Modules.ReopenAwaiting.blacklistedRoles],
-                config[Arisa.Modules.ReopenAwaiting.blacklistedVisibilities],
+                config[Arisa.Modules.ReopenAwaiting.blacklistedRoles].toSetNoDuplicates(),
+                config[Arisa.Modules.ReopenAwaiting.blacklistedVisibilities].toSetNoDuplicates(),
                 config[Arisa.Modules.ReopenAwaiting.softARDays],
                 config[Arisa.Modules.ReopenAwaiting.keepARTag],
                 config[Arisa.Modules.ReopenAwaiting.onlyOPTag],
@@ -258,5 +259,21 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.Shadowban,
             ShadowbanModule()
         )
+    }
+
+    private fun <T> List<T>.toSetNoDuplicates(): Set<T> {
+        val result = toMutableSet()
+        if (result.size != size) {
+            val duplicates = mutableSetOf<T>()
+            for (element in this) {
+                // If removal fails it is a duplicate element because it has already been removed
+                if (!result.remove(element)) {
+                    duplicates.add(element)
+                }
+            }
+            throw IllegalArgumentException("Contains these duplicate elements: $duplicates")
+        }
+
+        return result
     }
 }

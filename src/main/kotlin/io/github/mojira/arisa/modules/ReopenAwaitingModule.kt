@@ -17,8 +17,8 @@ import java.time.temporal.ChronoUnit
 const val TWO_SECONDS_IN_MILLIS = 2000
 
 class ReopenAwaitingModule(
-    private val blacklistedRoles: List<String>,
-    private val blacklistedVisibilities: List<String>,
+    private val blacklistedRoles: Set<String>,
+    private val blacklistedVisibilities: Set<String>,
     private val softArPeriod: Long,
     private val keepARTag: String,
     private val onlyOPTag: String,

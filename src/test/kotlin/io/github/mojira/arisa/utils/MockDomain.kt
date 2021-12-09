@@ -40,6 +40,8 @@ fun mockAttachment(
 )
 
 fun mockChangeLogItem(
+    entryId: String = "1",
+    itemIndex: Int = 0,
     created: Instant = RIGHT_NOW,
     field: String = "",
     changedFrom: String? = null,
@@ -49,6 +51,8 @@ fun mockChangeLogItem(
     author: User = mockUser(),
     getAuthorGroups: () -> List<String>? = { emptyList() }
 ) = ChangeLogItem(
+    entryId,
+    itemIndex,
     created,
     field,
     changedFrom,
@@ -132,6 +136,7 @@ fun mockIssue(
     addRestrictedComment: (options: CommentOptions) -> Unit = { },
     addNotEnglishComment: (language: String) -> Unit = { },
     addRawRestrictedComment: (body: String, restriction: String) -> Unit = { _, _ -> },
+    addRawBotComment: (rawBody: String) -> Unit = { },
     markAsFixedInASpecificVersion: (versionName: String) -> Unit = { },
     changeReporter: (reporter: String) -> Unit = { },
     addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() },
@@ -183,6 +188,7 @@ fun mockIssue(
     addRestrictedComment,
     addNotEnglishComment,
     addRawRestrictedComment,
+    addRawBotComment,
     markAsFixedInASpecificVersion,
     changeReporter,
     addAttachmentFromFile,
@@ -227,12 +233,14 @@ fun mockUser(
     name: String = "user",
     displayName: String = "User",
     getGroups: () -> List<String>? = { null },
-    isNewUser: () -> Boolean = { false }
+    isNewUser: () -> Boolean = { false },
+    isBotUser: () -> Boolean = { false }
 ) = User(
     name,
     displayName,
     getGroups,
-    isNewUser
+    isNewUser,
+    isBotUser
 )
 
 fun mockVersion(

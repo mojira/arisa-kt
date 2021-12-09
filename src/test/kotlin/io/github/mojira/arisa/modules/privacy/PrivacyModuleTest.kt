@@ -1,14 +1,19 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.privacy
 
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
+import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
 import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 
 private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
@@ -17,17 +22,25 @@ private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private const val MADE_PRIVATE_MESSAGE = "made-private"
 private const val COMMENT_NOTE = "\n----\nRestricted by PrivacyModule ??[~arisabot]??"
 
+private val NOOP_REDACTOR = object : AttachmentRedactor {
+    override fun redact(attachment: Attachment): RedactedAttachment? {
+        return null
+    }
+}
+
 private fun createModule(
     message: String = MADE_PRIVATE_MESSAGE,
     commentNote: String = COMMENT_NOTE,
     allowedEmailRegexes: List<Regex> = emptyList(),
     sensitiveTextRegexes: List<Regex> = emptyList(),
+    attachmentRedactor: AttachmentRedactor = NOOP_REDACTOR,
     sensitiveFileNameRegexes: List<Regex> = emptyList()
 ) = PrivacyModule(
     message,
     commentNote,
     allowedEmailRegexes,
     sensitiveTextRegexes,
+    attachmentRedactor,
     sensitiveFileNameRegexes
 )
 
@@ -521,6 +534,321 @@ class PrivacyModuleTest : FunSpec({
             result.shouldBeRight(ModuleResponse)
             hasSetPrivate shouldBe true
             addedComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
+        }
+    }
+
+    context("attachment redaction") {
+        // Example JWT token from https://jwt.io/
+        val accessTokenText = "... --accessToken " +
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" +
+            " ..."
+        val otherSensitiveText = "sensitive"
+        val module = createModule(
+            sensitiveTextRegexes = listOf(Regex.fromLiteral("--accessToken ey"), Regex.fromLiteral(otherSensitiveText)),
+            attachmentRedactor = AccessTokenRedactor
+        )
+
+        test("should redact access tokens") {
+            val uploader = "some-\n-user"
+            val attachmentName = "my-\u202E-attachment.txt"
+
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+            var newAttachmentName: String? = null
+            var newAttachmentContent: String? = null
+            var addedComment: String? = null
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        name = attachmentName,
+                        uploader = mockUser(
+                            name = uploader
+                        ),
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true },
+                addAttachmentFromFile = { file, cleanupCallback ->
+                    newAttachmentName = file.name
+                    newAttachmentContent = file.readText()
+                    cleanupCallback()
+                },
+                addRawBotComment = { addedComment = it }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            // Attachment was redacted; issue should not have been made private
+            hasSetPrivate shouldBe false
+            hasDeletedAttachment shouldBe true
+            newAttachmentName shouldBe "redacted_$attachmentName"
+            newAttachmentContent shouldBe "... --accessToken ###REDACTED### ..."
+
+            // Should also have sanitized user name and attachment name
+            addedComment shouldBe "@[~some-?-user], sensitive data has been removed from your attachment(s) and they have " +
+                "been re-uploaded as:\n" +
+                "- [^redacted_my-?-attachment.txt]\n"
+        }
+
+        test("should add multiple comments when redacting attachments of multiple users") {
+            val uploader1 = "some-user"
+            val uploader1User = mockUser(
+                name = uploader1
+            )
+            @Suppress("LocalVariableName")
+            val attachmentName1_1 = "my-attachment.txt"
+            @Suppress("LocalVariableName")
+            val attachmentName1_2 = "my-attachment2.txt"
+
+            val uploader2 = "some-other-user"
+            val attachmentName2 = "other-attachment.txt"
+
+            var hasSetPrivate = false
+            val deletedAttachmentNames = mutableListOf<String>()
+            val newAttachmentNames = mutableListOf<String>()
+            val addedComments = mutableListOf<String>()
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        name = attachmentName1_1,
+                        uploader = uploader1User,
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { deletedAttachmentNames.add(attachmentName1_1) }
+                    ),
+                    mockAttachment(
+                        name = attachmentName1_2,
+                        uploader = uploader1User,
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { deletedAttachmentNames.add(attachmentName1_2) }
+                    ),
+                    mockAttachment(
+                        name = attachmentName2,
+                        uploader = mockUser(name = uploader2),
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { deletedAttachmentNames.add(attachmentName2) }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true },
+                addAttachmentFromFile = { file, cleanupCallback ->
+                    newAttachmentNames.add(file.name)
+                    cleanupCallback()
+                },
+                addRawBotComment = { addedComments.add(it) }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            // Attachment was redacted; issue should not have been made private
+            hasSetPrivate shouldBe false
+            val expectedDeletedAttachmentNames = listOf(attachmentName1_1, attachmentName1_2, attachmentName2)
+            deletedAttachmentNames shouldContainExactlyInAnyOrder expectedDeletedAttachmentNames
+            newAttachmentNames shouldContainExactlyInAnyOrder expectedDeletedAttachmentNames.map { "redacted_$it" }
+
+            addedComments shouldContainExactlyInAnyOrder listOf(
+                "@[~some-user], sensitive data has been removed from your attachment(s) and they " +
+                    "have been re-uploaded as:\n" +
+                    "- [^redacted_my-attachment.txt]\n" +
+                    "- [^redacted_my-attachment2.txt]\n",
+                "@[~some-other-user], sensitive data has been removed from your attachment(s) " +
+                    "and they have been re-uploaded as:\n" +
+                    "- [^redacted_other-attachment.txt]\n"
+            )
+        }
+
+        test("should not redact bot attachments") {
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        uploader = mockUser(
+                            isBotUser = { true }
+                        ),
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            hasSetPrivate shouldBe true
+            hasDeletedAttachment shouldBe false
+        }
+
+        test("should not redact attachments with non-redactable content") {
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        // Redactor does not handle this; but it represents sensitive data
+                        getContent = { "some $otherSensitiveText and more text".toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            hasSetPrivate shouldBe true
+            hasDeletedAttachment shouldBe false
+        }
+
+        test("should redact attachments even if issue is made private") {
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+            var hasAddedNewAttachment = false
+            var privateComment: CommentOptions? = null
+            var hasAddedRedactionComment = false
+
+            val issue = mockIssue(
+                // Issue description cannot be redacted (would still be in history)
+                description = "some $otherSensitiveText and more text",
+                attachments = listOf(
+                    mockAttachment(
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true },
+                addAttachmentFromFile = { _, cleanupCallback ->
+                    hasAddedNewAttachment = true
+                    cleanupCallback()
+                },
+                addComment = { privateComment = it },
+                addRawBotComment = { hasAddedRedactionComment = true }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            hasSetPrivate shouldBe true
+            privateComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
+            // Issue was made private, but attachment should have been redacted anyways
+            hasDeletedAttachment shouldBe true
+            hasAddedNewAttachment shouldBe true
+            hasAddedRedactionComment shouldBe true
+        }
+
+        test("should make private if redacting does not remove all sensitive data") {
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+            var hasAddedNewAttachment = false
+            var privateComment: CommentOptions? = null
+            var hasAddedRedactionComment = false
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        // Other sensitive text cannot be redacted
+                        getContent = { "$accessTokenText \n $otherSensitiveText".toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true },
+                addAttachmentFromFile = { _, cleanupCallback ->
+                    hasAddedNewAttachment = true
+                    cleanupCallback()
+                },
+                addComment = { privateComment = it },
+                addRawBotComment = { hasAddedRedactionComment = true }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            hasSetPrivate shouldBe true
+            privateComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
+            hasDeletedAttachment shouldBe false
+            hasAddedNewAttachment shouldBe false
+            hasAddedRedactionComment shouldBe false
+        }
+
+        test("should make private if attachment to redact has malformed name") {
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+            var hasAddedNewAttachment = false
+            var privateComment: CommentOptions? = null
+            var hasAddedRedactionComment = false
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        // Malformed name
+                        name = "../../text.txt",
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true },
+                addAttachmentFromFile = { _, cleanupCallback ->
+                    hasAddedNewAttachment = true
+                    cleanupCallback()
+                },
+                addComment = { privateComment = it },
+                addRawBotComment = { hasAddedRedactionComment = true }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            hasSetPrivate shouldBe true
+            privateComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
+            hasDeletedAttachment shouldBe false
+            hasAddedNewAttachment shouldBe false
+            hasAddedRedactionComment shouldBe false
+        }
+
+        test("should make private if attachment to redact has name clash") {
+            val attachmentName = "text.txt"
+
+            var hasSetPrivate = false
+            var hasDeletedAttachment = false
+            var hasAddedNewAttachment = false
+            var privateComment: CommentOptions? = null
+            var hasAddedRedactionComment = false
+
+            val issue = mockIssue(
+                attachments = listOf(
+                    mockAttachment(
+                        name = "redacted_$attachmentName"
+                    ),
+                    mockAttachment(
+                        // Name would clash with other attachment name
+                        name = attachmentName,
+                        getContent = { accessTokenText.toByteArray() },
+                        remove = { hasDeletedAttachment = true }
+                    )
+                ),
+                setPrivate = { hasSetPrivate = true },
+                addAttachmentFromFile = { _, cleanupCallback ->
+                    hasAddedNewAttachment = true
+                    cleanupCallback()
+                },
+                addComment = { privateComment = it },
+                addRawBotComment = { hasAddedRedactionComment = true }
+            )
+
+            val result = module(issue, TWO_SECONDS_AGO)
+            result.shouldBeRight(ModuleResponse)
+
+            hasSetPrivate shouldBe true
+            privateComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
+            hasDeletedAttachment shouldBe false
+            hasAddedNewAttachment shouldBe false
+            hasAddedRedactionComment shouldBe false
         }
     }
 })

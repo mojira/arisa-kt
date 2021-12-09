@@ -134,7 +134,7 @@ Details:
 """.trim()
 
 class DeobfuscateCommandTest : StringSpec({
-    val command = DeobfuscateCommand(AttachmentUtils(emptyList(), CrashReader(), "bot"))
+    val command = DeobfuscateCommand(AttachmentUtils(emptyList(), CrashReader()))
 
     "should throw for unknown attachment ID" {
         val issue = mockIssue()

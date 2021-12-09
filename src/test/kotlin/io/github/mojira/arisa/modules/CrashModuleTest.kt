@@ -273,11 +273,9 @@ private val A_MINUTE_AGO = NOW.minusSeconds(60)
 private const val UNCONFIRMED = "Unconfirmed"
 private val NO_PRIORITY = null
 
-private const val BOT_USER_NAME = "testBot"
-
 class CrashModuleTest : StringSpec({
     val crashReader = CrashReader()
-    val attachmentUtils = AttachmentUtils(listOf("txt"), crashReader, BOT_USER_NAME)
+    val attachmentUtils = AttachmentUtils(listOf("txt"), crashReader)
 
     "should return OperationNotNeededModuleResponse when issue does not contain any valid crash report" {
         val module = CrashModule(
@@ -1245,7 +1243,7 @@ class CrashModuleTest : StringSpec({
         val issue = mockIssue(
             attachments = listOf(
                 getAttachment(OBFUSCATED_CRASH, "obfuscated.txt", A_MINUTE_AGO),
-                getAttachment(OBFUSCATED_CRASH, "deobf_obfuscated.txt", A_SECOND_AGO, uploader = BOT_USER_NAME)
+                getAttachment(OBFUSCATED_CRASH, "deobf_obfuscated.txt", A_SECOND_AGO, isUploadedByBot = true)
             ),
             description = "hello please verify my crash thanks",
             created = A_MINUTE_AGO,
@@ -1274,11 +1272,15 @@ private fun getAttachment(
     name: String = "crash.txt",
     created: Instant = NOW,
     remove: () -> Unit = { },
-    uploader: String = "someRandomUser"
+    uploader: String = "someRandomUser",
+    isUploadedByBot: Boolean = false
 ) = mockAttachment(
     name = name,
     created = created,
     remove = remove,
     getContent = { content.toByteArray() },
-    uploader = mockUser(uploader)
+    uploader = mockUser(
+        name = uploader,
+        isBotUser = { isUploadedByBot }
+    )
 )

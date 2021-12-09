@@ -50,6 +50,7 @@ data class Issue(
     val addRestrictedComment: (options: CommentOptions) -> Unit,
     val addNotEnglishComment: (language: String) -> Unit,
     val addRawRestrictedComment: (body: String, restriction: String) -> Unit,
+    val addRawBotComment: (rawMessage: String) -> Unit,
     val markAsFixedWithSpecificVersion: (fixVersionName: String) -> Unit,
     val changeReporter: (reporter: String) -> Unit,
     val addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit,

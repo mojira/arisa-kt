@@ -26,7 +26,7 @@ private const val BOT_USER_NAME = "botName"
 
 class CommandModuleTest : StringSpec({
     val attachmentUtils = AttachmentUtils(emptyList(), CrashReader())
-    val module = CommandModule(PREFIX, BOT_USER_NAME, attachmentUtils, ::getDispatcher)
+    val module = CommandModule(PREFIX, BOT_USER_NAME, true, attachmentUtils, ::getDispatcher)
 
     "should return OperationNotNeededModuleResponse when no comments" {
         val issue = mockIssue()
@@ -200,7 +200,7 @@ class CommandModuleTest : StringSpec({
     "should work for other prefixes" {
         var updatedComment = ""
         @Suppress("NAME_SHADOWING")
-        val module = CommandModule("TESTING_COMMAND", "userName", attachmentUtils, ::getDispatcher)
+        val module = CommandModule("TESTING_COMMAND", "userName", true, attachmentUtils, ::getDispatcher)
         val comment = getComment(
             author = mockUser(
                 name = "SPTesting"

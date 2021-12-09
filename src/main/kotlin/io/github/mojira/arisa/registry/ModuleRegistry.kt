@@ -12,7 +12,6 @@ import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.Module
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
-import java.time.Instant
 
 // All defined module registries
 val getModuleRegistries = { config: Config ->
@@ -27,7 +26,7 @@ abstract class ModuleRegistry(protected val config: Config) {
     data class Entry(
         val name: String,
         val config: ModuleConfigSpec,
-        val execute: (issue: Issue, lastRun: Instant) -> Pair<String, Either<ModuleError, ModuleResponse>>,
+        val execute: (issue: Issue, timeframe: ExecutionTimeframe) -> Pair<String, Either<ModuleError, ModuleResponse>>,
         val executor: ModuleExecutor
     )
 
@@ -60,8 +59,9 @@ abstract class ModuleRegistry(protected val config: Config) {
         )
     }
 
-    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, lastRun: Instant ->
-        moduleName to tryExecuteModule { module(issue, lastRun) }
+    private fun getModuleResult(moduleName: String, module: Module) = {
+        issue: Issue, timeframe: ExecutionTimeframe ->
+        moduleName to tryExecuteModule { module(issue, timeframe) }
     }
 
     private fun getJqlWithDebug(timeframe: ExecutionTimeframe): String {

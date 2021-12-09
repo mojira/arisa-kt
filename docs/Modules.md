@@ -432,6 +432,33 @@ instead.
 - At most `maxImagesCount` as specified in the [config](../config/config.yml) (defaults to 10) will be processed per
   issue description respectively per comment
 
+## Shadowban
+| Entry | Value                                                                        |
+| ----- | ---------------------------------------------------------------------------- |
+| Name  | `Shadowban`                                                                  |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/ShadowbanModule.kt) |
+
+Revert all bug reports, comments, and attachments that have been
+created by shadowbanned users (via `$ARISA_SHADOWBAN`).
+
+- Bug reports are resolved as invalid, are made private, and the reporter is changed to `SpamBin`.
+- Comments are restricted to `staff`.
+- Attachments are immediately deleted.
+
+### Checks
+- The bug report
+  - was reported by someone who is currently shadowbanned
+  - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
+- The comment
+  - was created by someone who is currently shadowbanned
+  - has been created while that user was banned
+  - is not restricted already
+  - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
+- The attachment
+  - was uploaded by someone who is currently shadowbanned
+  - has been uploaded while that user was banned
+  - was not uploaded by someone in the `helper`, `staff`, or `global-moderators` group
+
 ## TransferLinks
 | Entry | Value                                                                               |
 | ----- | ----------------------------------------------------------------------------------- |

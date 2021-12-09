@@ -25,6 +25,7 @@ private val log: Logger = LoggerFactory.getLogger("CommandModule")
 class CommandModule(
     private val prefix: String,
     private val botUserName: String,
+    private val ignoreOwnCommands: Boolean,
     attachmentUtils: AttachmentUtils,
     private val getDispatcher: (String) -> CommandDispatcher<CommandSource> =
         ::getCommandDispatcher.partially2(attachmentUtils)
@@ -157,7 +158,7 @@ class CommandModule(
     private fun userIsVolunteer(comment: Comment): Boolean {
         // Ignore comments from the bot itself to prevent accidental infinite recursion and command
         // injection by malicious user
-        if (comment.author.name == botUserName) {
+        if (ignoreOwnCommands && comment.author.name == botUserName) {
             return false
         }
 

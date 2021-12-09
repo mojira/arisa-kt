@@ -49,6 +49,7 @@ fun getCommandDispatcher(
         },
         { Thread(it).start() }
     )
+    val shadowbanCommand = ShadowbanCommand()
 
     return CommandDispatcher<CommandSource>().apply {
         val addLinksCommandNode =
@@ -258,6 +259,18 @@ fun getCommandDispatcher(
                     )
                 }
 
+        val shadowbanCommandNode =
+            literal<CommandSource>("${prefix}_SHADOWBAN")
+                .requires(::sentByModerator)
+                .then(
+                    argument<CommandSource, String>("username", greedyString())
+                        .executes {
+                            shadowbanCommand(
+                                it.getString("username")
+                            )
+                        }
+                )
+
         register(addLinksCommandNode)
         register(addVersionCommandNode)
         register(clearProjectCacheCommandNode)
@@ -273,6 +286,7 @@ fun getCommandDispatcher(
         register(removeLinksCommandNode)
         register(removeContentCommandNode)
         register(reopenCommandNode)
+        register(shadowbanCommandNode)
     }
 }
 

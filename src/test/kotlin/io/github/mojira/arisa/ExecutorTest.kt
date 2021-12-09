@@ -23,7 +23,7 @@ private val failedModuleRegistryMock = mockk<ModuleRegistry>()
 private val moduleExecutorMock = mockk<ModuleExecutor>()
 private val failedModuleExecutorMock = mockk<ModuleExecutor>()
 
-private val dummyTimeframe = ExecutionTimeframe(Instant.now(), Instant.now(), true)
+private val dummyTimeframe = ExecutionTimeframe(Instant.now(), Instant.now(), mapOf(), true)
 
 class ExecutorTest : StringSpec({
     every { moduleRegistryMock.getEnabledModules() } returns listOf(

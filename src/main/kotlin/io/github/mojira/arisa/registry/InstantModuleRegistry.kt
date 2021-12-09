@@ -36,6 +36,7 @@ import io.github.mojira.arisa.modules.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.RemoveBotCommentModule
+import io.github.mojira.arisa.modules.ShadowbanModule
 
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
@@ -231,6 +232,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             CommandModule(
                 config[Arisa.Modules.Command.commandPrefix],
                 config[Arisa.Credentials.username],
+                config[Arisa.Debug.ignoreOwnCommands],
                 attachmentUtils
             )
         )
@@ -251,6 +253,11 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Credentials.username],
                 config[Arisa.Modules.RemoveBotComment.removalTag]
             )
+        )
+
+        register(
+            Arisa.Modules.Shadowban,
+            ShadowbanModule()
         )
     }
 

@@ -74,6 +74,11 @@ object Arisa : ConfigSpec() {
             description = "Whether or not the lastRun file should be saved after each run. " +
                     "Do not disable this unless you've enabled the ticket whitelist."
         )
+
+        val ignoreOwnCommands by optional(
+            true,
+            description = "Whether to ignore commands from the bot user itself."
+        )
     }
 
     object Modules : ConfigSpec() {
@@ -402,6 +407,8 @@ object Arisa : ConfigSpec() {
                 description = "The key to search for in a bot comment to trigger the removal of the comment"
             )
         }
+
+        object Shadowban : ModuleConfigSpec()
     }
 }
 

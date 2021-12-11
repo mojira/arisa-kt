@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.thumbnail
 
 import java.io.IOException
 import java.io.InputStream

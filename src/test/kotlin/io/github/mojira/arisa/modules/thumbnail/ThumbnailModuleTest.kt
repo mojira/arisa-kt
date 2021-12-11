@@ -1,6 +1,8 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.thumbnail
 
 import arrow.core.right
+import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockComment

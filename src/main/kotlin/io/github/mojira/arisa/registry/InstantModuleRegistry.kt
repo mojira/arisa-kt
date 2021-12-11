@@ -32,7 +32,7 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
-import io.github.mojira.arisa.modules.ThumbnailModule
+import io.github.mojira.arisa.modules.thumbnail.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.RemoveBotCommentModule

@@ -1,8 +1,12 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.thumbnail
 
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.modules.Module
+import io.github.mojira.arisa.modules.ModuleError
+import io.github.mojira.arisa.modules.ModuleResponse
+import io.github.mojira.arisa.modules.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.imaging.ImageReadException

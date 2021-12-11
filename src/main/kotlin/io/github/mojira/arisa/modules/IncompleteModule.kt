@@ -24,7 +24,7 @@ internal const val ENV_DEFAULT =
     "Put your operating system (Windows 7, Windows XP, OSX) and Java version if you know it here"
 private const val MIN_LENGTH = 5
 
-class EmptyModule(
+class IncompleteModule(
     private val message: String
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {

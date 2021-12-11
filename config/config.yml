@@ -296,7 +296,7 @@ arisa:
         - MEQS
         - ARISA
 
-    empty:
+    incomplete:
       projects:
         - MC
         - MCL

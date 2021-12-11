@@ -13,7 +13,7 @@ import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
-import io.github.mojira.arisa.modules.EmptyModule
+import io.github.mojira.arisa.modules.IncompleteModule
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
@@ -106,7 +106,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
-        register(Arisa.Modules.Empty, EmptyModule(config[Arisa.Modules.Empty.message]))
+        register(Arisa.Modules.Incomplete, IncompleteModule(config[Arisa.Modules.Incomplete.message]))
 
         register(Arisa.Modules.HideImpostors, HideImpostorsModule())
 

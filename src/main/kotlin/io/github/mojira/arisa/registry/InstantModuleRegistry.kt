@@ -48,6 +48,11 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
 
     init {
         register(
+            Arisa.Modules.Shadowban,
+            ShadowbanModule()
+        )
+
+        register(
             Arisa.Modules.AffectedVersionMessage,
             AffectedVersionMessageModule(
                 config[Arisa.Modules.AffectedVersionMessage.versionIdMessageMap]
@@ -253,11 +258,6 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Credentials.username],
                 config[Arisa.Modules.RemoveBotComment.removalTag]
             )
-        )
-
-        register(
-            Arisa.Modules.Shadowban,
-            ShadowbanModule()
         )
     }
 

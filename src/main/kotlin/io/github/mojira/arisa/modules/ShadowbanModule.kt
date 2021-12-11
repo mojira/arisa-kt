@@ -28,9 +28,15 @@ class ShadowbanModule : Module {
             val removedComments = checkCommentsForShadowban(timeframe)
             val removedAttachments = checkAttachmentsForShadowban(timeframe)
 
-            if (bugReportRemoved) log.info("[ShadowbanModule] Put $key into the spam bin")
-            if (removedComments > 0) log.info("[ShadowbanModule] Removed $removedComments comments from $key")
-            if (removedAttachments > 0) log.info("[ShadowbanModule] Removed $removedAttachments attachments from $key")
+            if (bugReportRemoved) {
+                log.info("[ShadowbanModule] Put $key into the spam bin")
+            }
+            if (removedComments > 0) {
+                log.info("[ShadowbanModule] Removed $removedComments comment(s) from $key")
+            }
+            if (removedAttachments > 0) {
+                log.info("[ShadowbanModule] Removed $removedAttachments attachment(s) from $key")
+            }
 
             val actionTaken = bugReportRemoved || removedComments > 0 || removedAttachments > 0
 
@@ -79,7 +85,7 @@ class ShadowbanModule : Module {
 
     private fun Issue.putInSpamBin() {
         changeReporter("SpamBin")
-        setPrivate()
-        resolveAsInvalid()
+        if (securityLevel == null) setPrivate()
+        if (resolution == null || resolution == "Unresolved") resolveAsInvalid()
     }
 }

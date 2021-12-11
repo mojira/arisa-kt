@@ -60,6 +60,28 @@ class ShadowbanModuleTest : StringSpec({
         resolution shouldBe "Invalid"
     }
 
+    "should not resolve resolved bug reports" {
+        var reporter = "shadowbanned"
+        var setPrivate = false
+        var resolution = "Incomplete"
+
+        val issue = mockIssue(
+            reporter = shadowbannedUser,
+            changeReporter = { reporter = it },
+            setPrivate = { setPrivate = true },
+            resolveAsInvalid = { resolution = "Invalid" },
+            created = Instant.ofEpochMilli(800),
+            resolution = resolution,
+            securityLevel = "private"
+        )
+
+        val result = module(issue, timeframe)
+        result.shouldBeRight(ModuleResponse)
+        reporter shouldBe "SpamBin"
+        setPrivate shouldBe false
+        resolution shouldBe "Incomplete"
+    }
+
     "should not remove bug reports created outside of shadowban duration" {
         var reporter = "shadowbanned"
         var isPrivate = false

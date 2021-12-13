@@ -298,7 +298,7 @@ object Arisa : ConfigSpec() {
             )
         }
 
-        object Empty : ModuleConfigSpec() {
+        object Incomplete : ModuleConfigSpec() {
             val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )

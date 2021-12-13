@@ -13,7 +13,7 @@ import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
-import io.github.mojira.arisa.modules.EmptyModule
+import io.github.mojira.arisa.modules.IncompleteModule
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
@@ -32,7 +32,7 @@ import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
-import io.github.mojira.arisa.modules.ThumbnailModule
+import io.github.mojira.arisa.modules.thumbnail.ThumbnailModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
 import io.github.mojira.arisa.modules.RemoveBotCommentModule
@@ -47,6 +47,11 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
     }
 
     init {
+        register(
+            Arisa.Modules.Shadowban,
+            ShadowbanModule()
+        )
+
         register(
             Arisa.Modules.AffectedVersionMessage,
             AffectedVersionMessageModule(
@@ -106,7 +111,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             )
         )
 
-        register(Arisa.Modules.Empty, EmptyModule(config[Arisa.Modules.Empty.message]))
+        register(Arisa.Modules.Incomplete, IncompleteModule(config[Arisa.Modules.Incomplete.message]))
 
         register(Arisa.Modules.HideImpostors, HideImpostorsModule())
 
@@ -253,11 +258,6 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Credentials.username],
                 config[Arisa.Modules.RemoveBotComment.removalTag]
             )
-        )
-
-        register(
-            Arisa.Modules.Shadowban,
-            ShadowbanModule()
         )
     }
 

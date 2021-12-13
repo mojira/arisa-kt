@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.modules
+package io.github.mojira.arisa.modules.thumbnail
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec

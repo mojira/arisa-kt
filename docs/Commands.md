@@ -26,6 +26,8 @@ Keys and type are case insensitive
 | Syntax      | `$ARISA_ADD_VERSION <version>` |
 | Permissions | Helper+                        |
 
+- `<version>`: Put the name of the version on Mojira as-is, including potential spaces. Do not put quotes around it.
+
 ## $ARISA_CLEAR_PROJECT_CACHE
 | Entry       | Value                          |
 | ----------- | ------------------------------ |
@@ -72,6 +74,8 @@ Lowercases sentences in which the first letter of each word is capitalized.
 | Syntax      | `$ARISA_FIXED <version> [force]` |
 | Permissions | Mod+                             |
 
+- `<version>`: Put the name of the version on Mojira as-is, including potential spaces. Do not put quotes around it.
+
 Resolves an issue as Fixed in the specified version. This command is useful when the version has already been
 archived, and the web interface does not allow choosing that version.
 
@@ -83,6 +87,8 @@ version, the command fails. To skip this check, run with a trailing `force` lite
 | ----------- | -------------------------------------- |
 | Syntax      | `$ARISA_LIST_USER_ACTIVITY <username>` |
 | Permissions | Mod+                                   |
+
+- `<username>`: Put the username of the user on Mojira as-is, including potential spaces. Do not encode spaces with the plus sign (`+`). Do not put quotes around it.
 
 List all recent activity (up to 50 items) by the given user in a new mod+ comment.
 
@@ -104,6 +110,8 @@ This command only has an effect once; the reporter is able to make the ticket pu
 | Syntax      | `$ARISA_PURGE_ATTACHMENT <username> [<min ID>] [<max ID>]` |
 | Permissions | Mod+                                                       |
 
+- `<username>`: Put the username of the user on Mojira as-is, including potential spaces. Do not encode spaces with the plus sign (`+`). Do not put quotes around it.
+
 Deletes all attachments on the ticket by user with the username if the attachment ID is between min ID and max ID.
 
 Without specifying min/max ID, all attachments by that user are deleted.
@@ -116,7 +124,9 @@ Note: the numeric ID of an attachment can be found in the change log or in the l
 | Syntax      | `$ARISA_REMOVE_COMMENTS <username>` |
 | Permissions | Mod+                                |
 
-Finds all comments created by the user on a specific report and restricts them
+- `<username>`: Put the username of the user on Mojira as-is, including potential spaces. Do not encode spaces with the plus sign (`+`). Do not put quotes around it.
+
+Finds all comments created by the user on the current report and restricts them
 
 Note: the command is successful regardless of whether any comments by that user exist
 
@@ -127,6 +137,8 @@ Note: the command is successful regardless of whether any comments by that user 
 | Permissions | Mod+                               |
 
 (Formerly `$ARISA_REMOVE_USER`)
+
+- `<username>`: Put the username of the user on Mojira as-is, including potential spaces. Do not encode spaces with the plus sign (`+`). Do not put quotes around it.
 
 Finds all comments and attachments created by the user on any report and restricts or deletes them, respectively.
 
@@ -160,6 +172,8 @@ Reopens tickets resolved as Awaiting Response
 | ----------- | ----------------------------- |
 | Syntax      | `$ARISA_SHADOWBAN <username>` |
 | Permissions | Mod+                          |
+
+- `<username>`: Put the username of the user on Mojira as-is, including potential spaces. Do not encode spaces with the plus sign (`+`). Do not put quotes around it.
 
 Shadowbans a user for the next 24 hours.
 

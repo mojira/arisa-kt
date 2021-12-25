@@ -316,13 +316,21 @@ Removes specified tags added by non-volunteer users.
 | Name  | `RemoveSpam`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/RemoveSpamModule.kt) |
 
-Restricts comments that follow certain patterns (can be configured in [config](../config/config.yml)).
+Restricts comments that follow certain patterns (can be configured in [config](../config/config.yml),
+if hidden from the public in `local.yml`).
+
+Bug reports that match these patterns are resolved as invalid, are made private,
+and the reporter is changed to `SpamBin`.
 
 ### Checks
 - The comment
     - is new (created after the last bot run)
     - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
     - is not restricted already
+- The bug report
+    - is new (created after the last bot run)
+    - was not created by someone in the `helper`, `staff`, or `global-moderators` group
+    - matches any spam pattern either in the description, the environment, or the summary
 
 ## RemoveTriagedMeqs
 | Entry | Value                                                                                |

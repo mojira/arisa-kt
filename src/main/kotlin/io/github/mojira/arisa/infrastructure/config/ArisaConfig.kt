@@ -428,5 +428,5 @@ data class SpamPatternConfig(
     val pattern: String,
     val threshold: Int
 ) {
-    val regex = pattern.toRegex()
+    val regex = pattern.toRegex(RegexOption.IGNORE_CASE)
 }

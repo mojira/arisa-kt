@@ -392,11 +392,8 @@ arisa:
     hideImpostors:
 
     removeSpam:
-      patterns:
-        - pattern: '\[~'
-          threshold: 5
-        - pattern: 'bugsbugsbugs'
-          threshold: 1
+      # Add patterns in `local.yml` to hide them from the public
+      patterns: []
 
     resolveTrash:
       projects:

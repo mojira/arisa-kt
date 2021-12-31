@@ -189,6 +189,8 @@ arisa:
         - '\bbraintree:[a-f0-9]{6,12}\b'
       sensitiveFileNameRegexes:
         - 'launcher_accounts\.json'
+        - 'launcher_entitlements\.json'
+        - 'launcher_msa_credentials\.bin'
         - 'launcher_msa_credentials\.json'
         - 'launcher_profiles\.json'
         # Java Flight Recorder files contain session token in some Minecraft versions

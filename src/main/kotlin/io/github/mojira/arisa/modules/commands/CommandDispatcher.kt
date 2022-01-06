@@ -204,37 +204,110 @@ fun getCommandDispatcher(
         val purgeAttachmentCommandNode =
             literal<CommandSource>("${prefix}_PURGE_ATTACHMENT")
                 .requires(::sentByModerator)
+                .executes {
+                    purgeAttachmentCommand(
+                        it.source.issue,
+                        null,
+                        0,
+                        Int.MAX_VALUE
+                    )
+                }
                 .then(
-                    argument<CommandSource, String>("username", greedyString())
-                        .executes {
-                            purgeAttachmentCommand(
-                                it.source.issue,
-                                it.getString("username"),
-                                0,
-                                Int.MAX_VALUE
-                            )
-                        }
+                    literal<CommandSource>("from")
                         .then(
                             argument<CommandSource, Int>("minId", integer(0))
                                 .executes {
                                     purgeAttachmentCommand(
                                         it.source.issue,
-                                        it.getString("username"),
+                                        null,
                                         it.getInt("minId"),
                                         Int.MAX_VALUE
                                     )
                                 }
                                 .then(
-                                    argument<CommandSource, Int>("maxId", integer(0))
-                                        .executes {
-                                            purgeAttachmentCommand(
-                                                it.source.issue,
-                                                it.getString("username"),
-                                                it.getInt("minId"),
-                                                it.getInt("maxId")
-                                            )
-                                        }
+                                    literal<CommandSource>("to")
+                                        .then(
+                                            argument<CommandSource, Int>("maxId", integer(0))
+                                                .executes {
+                                                    purgeAttachmentCommand(
+                                                        it.source.issue,
+                                                        null,
+                                                        it.getInt("minId"),
+                                                        it.getInt("maxId")
+                                                    )
+                                                }
+                                                .then(
+                                                    literal<CommandSource>("by")
+                                                        .then(
+                                                            argument<CommandSource, String>("username", greedyString())
+                                                                .executes {
+                                                                    purgeAttachmentCommand(
+                                                                        it.source.issue,
+                                                                        it.getString("username"),
+                                                                        it.getInt("minId"),
+                                                                        it.getInt("maxId")
+                                                                    )
+                                                                }
+                                                        )
+                                                )
+                                        )
                                 )
+                                .then(
+                                    literal<CommandSource>("by")
+                                        .then(
+                                            argument<CommandSource, String>("username", greedyString())
+                                                .executes {
+                                                    purgeAttachmentCommand(
+                                                        it.source.issue,
+                                                        it.getString("username"),
+                                                        it.getInt("minId"),
+                                                        Int.MAX_VALUE
+                                                    )
+                                                }
+                                        )
+                                )
+                        )
+                )
+                .then(
+                    literal<CommandSource>("to")
+                        .then(
+                            argument<CommandSource, Int>("maxId", integer(0))
+                                .executes {
+                                    purgeAttachmentCommand(
+                                        it.source.issue,
+                                        null,
+                                        0,
+                                        it.getInt("maxId")
+                                    )
+                                }
+                                .then(
+                                    literal<CommandSource>("by")
+                                        .then(
+                                            argument<CommandSource, String>("username", greedyString())
+                                                .executes {
+                                                    purgeAttachmentCommand(
+                                                        it.source.issue,
+                                                        it.getString("username"),
+                                                        0,
+                                                        it.getInt("maxId")
+                                                    )
+                                                }
+                                        )
+                                )
+                        )
+                )
+                .then(
+                    literal<CommandSource>("by")
+                        .then(
+                            argument<CommandSource, String>("username", greedyString())
+                                .executes {
+                                    purgeAttachmentCommand(
+                                        it.source.issue,
+                                        it.getString("username"),
+                                        0,
+                                        Int.MAX_VALUE
+                                    )
+                                }
                         )
                 )
 

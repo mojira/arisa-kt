@@ -105,10 +105,10 @@ the Security Level.
 This command only has an effect once; the reporter is able to make the ticket public afterwards again.
 
 ## $ARISA_PURGE_ATTACHMENT
-| Entry       | Value                                                                   |
-| ----------- | ----------------------------------------------------------------------- |
+| Entry       | Value                                                                 |
+| ----------- | --------------------------------------------------------------------- |
 | Syntax      | `$ARISA_PURGE_ATTACHMENT [from <minId>] [to <maxId>] [by <username>]` |
-| Permissions | Mod+                                                                    |
+| Permissions | Mod+                                                                  |
 
 - `<minId>` and `<maxId>`: The numeric ID of an attachment that can be found in the change log or in the link of it.
 - `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you can leave it in the command as Arisa doesn't mind it.

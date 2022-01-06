@@ -111,21 +111,6 @@ This module is triggered after the tickets are updated for `commentDelayMinutes`
 - The ticket currently has parents.
 - Adds the comment corresponding to the parents' security levels/resolutions/keys according to all the [config](../config/config.yml).
 
-## EmptyModule
-| Entry | Value                                                                    |
-| ----- | ------------------------------------------------------------------------ |
-| Name  | `EmptyModule`                                                            |
-| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/EmptyModule.kt) |
-
-Resolves an empty report as `Incomplete`.
-
-### Checks
-- The ticket was created after last run.
-- The ticket is empty by either
-    - Both description and environment are the built-in placeholder texts provided by Mojira; OR
-    - Both description and environment are shorter than 5 characters.
-- The ticket doesn't have any attachments.
-
 ## FutureVersion
 | Entry | Value                                                                            |
 | ----- | -------------------------------------------------------------------------------- |
@@ -156,6 +141,21 @@ Hides the comments created by users who look like an impostor.
   and some texts after the brackets. e.g. `[dev] foo`.
 - The comment is not restricted to `staff`.
 - The comment's author is not a `helper`, `global-moderators`, nor `staff`.
+
+## IncompleteModule
+| Entry | Value                                                                         |
+| ----- | ----------------------------------------------------------------------------- |
+| Name  | `IncompleteModule`                                                            |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/IncompleteModule.kt) |
+
+Resolves an empty report as `Incomplete`.
+
+### Checks
+- The ticket was created after last run.
+- The ticket is empty by either
+  - Both description and environment are the built-in placeholder texts provided by Mojira; OR
+  - Both description and environment are shorter than 5 characters.
+- The ticket doesn't have any attachments.
 
 ## KeepPlatform
 | Entry | Value                                                                           |
@@ -421,10 +421,10 @@ Revokes changes to `Confirmation Status` done by non-volunteers.
   `helper`, `global-moderators`, or `staff`.
 
 ## Thumbnail
-| Entry | Value                                                                        |
-| ----- | ---------------------------------------------------------------------------- |
-| Name  | `Thumbnail`                                                                  |
-| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/ThumbnailModule.kt) |
+| Entry | Value                                                                                  |
+| ----- | -------------------------------------------------------------------------------------- |
+| Name  | `Thumbnail`                                                                            |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/thumbnail/ThumbnailModule.kt) |
 
 Edits embedded image references to large images in the issue description and comments to use a thumbnail reference
 instead.

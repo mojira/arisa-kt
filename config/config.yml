@@ -296,6 +296,7 @@ arisa:
       removalReason: Comment was not properly staff-restricted.
       removablePrefixes:
         - MEQS
+        - $ARISA
         - ARISA
 
     incomplete:

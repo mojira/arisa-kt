@@ -124,4 +124,38 @@ class PurgeAttachmentCommandTest : StringSpec({
         attachment1Removed.shouldBeFalse()
         attachment2Removed.shouldBeTrue()
     }
+
+    "should purge attachments by all users when user argument is null" {
+        var attachment0Removed = false
+        var attachment1Removed = false
+        var attachment2Removed = false
+        val command = PurgeAttachmentCommand()
+
+        val issue = mockIssue(
+            attachments = listOf(
+                mockAttachment(
+                    id = "0",
+                    remove = { attachment0Removed = true },
+                    uploader = mockUser(name = "annoyingUser1")
+                ),
+                mockAttachment(
+                    id = "1",
+                    remove = { attachment1Removed = true },
+                    uploader = mockUser(name = "annoyingUser2")
+                ),
+                mockAttachment(
+                    id = "2",
+                    remove = { attachment2Removed = true },
+                    uploader = mockUser(name = "annoyingUser3")
+                )
+            )
+        )
+
+        val result = command(issue, null, 0, Int.MAX_VALUE)
+
+        result shouldBe 3
+        attachment0Removed.shouldBeTrue()
+        attachment1Removed.shouldBeTrue()
+        attachment2Removed.shouldBeTrue()
+    }
 })

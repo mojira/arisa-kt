@@ -53,6 +53,13 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
         )
 
         register(
+            Arisa.Modules.RemoveSpam,
+            RemoveSpamModule(
+                config[Arisa.Modules.RemoveSpam.patterns]
+            )
+        )
+
+        register(
             Arisa.Modules.AffectedVersionMessage,
             AffectedVersionMessageModule(
                 config[Arisa.Modules.AffectedVersionMessage.versionIdMessageMap]
@@ -114,13 +121,6 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
         register(Arisa.Modules.Incomplete, IncompleteModule(config[Arisa.Modules.Incomplete.message]))
 
         register(Arisa.Modules.HideImpostors, HideImpostorsModule())
-
-        register(
-            Arisa.Modules.RemoveSpam,
-            RemoveSpamModule(
-                config[Arisa.Modules.RemoveSpam.patterns]
-            )
-        )
 
         register(
             Arisa.Modules.KeepPrivate,

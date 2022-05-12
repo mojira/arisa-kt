@@ -121,6 +121,7 @@ fun JiraIssue.toDomain(
         ::updateDescription.partially1(context),
         ::updateCHK.partially1(context).partially1(config[Arisa.CustomFields.chkField]),
         ::updateConfirmation.partially1(context).partially1(config[Arisa.CustomFields.confirmationField]),
+        ::updatePriority.partially1(context).partially1(config[Arisa.CustomFields.mojangPriorityField]),
         ::updatePlatform.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
         ::updateDungeonsPlatform.partially1(context).partially1(config[Arisa.CustomFields.dungeonsPlatformField]),
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),

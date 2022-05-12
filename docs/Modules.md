@@ -420,6 +420,18 @@ Revokes changes to `Confirmation Status` done by non-volunteers.
 - The `Confirmation Status` is not the same as the last one changed by users with group
   `helper`, `global-moderators`, or `staff`.
 
+## RevokePriority
+| Entry | Value                                                                                 |
+| ----- | ------------------------------------------------------------------------------------- |
+| Name  | `RevokePriority`                                                                  |
+| Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/RevokePriorityModule.kt) |
+
+Revokes changes to `Mojang Priority` done by non-volunteers.
+
+### Checks
+- The `Mojang Priority` is not the same as the last one changed by users with group
+  `helper`, `global-moderators`, or `staff`.
+
 ## Thumbnail
 | Entry | Value                                                                                  |
 | ----- | -------------------------------------------------------------------------------------- |

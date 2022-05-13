@@ -430,7 +430,7 @@ Revokes changes to `Mojang Priority` done by non-volunteers.
 
 ### Checks
 - The `Mojang Priority` is not the same as the last one changed by users with group
-  `helper`, `global-moderators`, or `staff`.
+  `global-moderators` or `staff`.
 
 ## Thumbnail
 | Entry | Value                                                                                  |

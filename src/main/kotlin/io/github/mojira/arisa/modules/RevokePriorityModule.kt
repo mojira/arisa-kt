@@ -12,7 +12,7 @@ class RevokePriorityModule : Module {
         Either.fx {
             val originalPriority = changeLog
                 .filter(::isPriorityChange)
-                .lastOrNull(::changedByVolunteer)
+                .lastOrNull(::changedByStaff)
                 ?.changedTo.getOrDefaultNull("-1")
 
             assertNotEquals(getId(priority), originalPriority).bind()
@@ -32,8 +32,8 @@ class RevokePriorityModule : Module {
     private fun isPriorityChange(item: ChangeLogItem) =
         item.field == "Mojang Priority"
 
-    private fun changedByVolunteer(item: ChangeLogItem) = !updateIsRecent(item) ||
-            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: true
+    private fun changedByStaff(item: ChangeLogItem) = !updateIsRecent(item) ||
+            item.getAuthorGroups()?.any { it == "global-moderators" || it == "staff" } ?: true
 
     private fun updateIsRecent(item: ChangeLogItem) =
         item

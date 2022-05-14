@@ -77,6 +77,6 @@ class RevokePriorityModule : Module {
     private fun updateIsRecent(item: ChangeLogItem) =
         item
             .created
-            .plus(1, ChronoUnit.DAYS)
+            .plus(1, ChronoUnit.YEARS)
             .isAfter(Instant.now())
 }

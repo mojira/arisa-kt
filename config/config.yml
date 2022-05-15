@@ -406,6 +406,9 @@ arisa:
       excludedStatuses:
         - Postponed
 
+    revokePriority:
+      enabled: false
+
     updateLinked:
       projects:
         - MC

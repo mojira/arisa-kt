@@ -130,7 +130,7 @@ class DuplicateMessageModule(
         comment.visibilityType == null
 
     private fun isDuplicatesLink(link: Link) =
-        link.type.toLowerCase() == "duplicate" && link.outwards
+        link.type.lowercase() == "duplicate" && link.outwards
 
     private fun isPreventMessageTag(comment: Comment) = comment.visibilityType == "group" &&
             comment.visibilityValue == "staff" &&

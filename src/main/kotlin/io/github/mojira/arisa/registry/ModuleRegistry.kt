@@ -3,8 +3,8 @@ package io.github.mojira.arisa.registry
 import arrow.core.Either
 import arrow.core.left
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.ModuleExecutor
 import io.github.mojira.arisa.ExecutionTimeframe
+import io.github.mojira.arisa.ModuleExecutor
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec

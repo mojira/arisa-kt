@@ -50,7 +50,7 @@ class FutureVersionModule(
             changeLog
                 .asSequence()
                 .filter { it.created.isAfter(lastRun) }
-                .filter { it.field.toLowerCase() == "version" }
+                .filter { it.field.lowercase() == "version" }
                 .filterNot { isStaff(it.getAuthorGroups()) }
                 .mapNotNull { it.changedTo }
                 .toList()

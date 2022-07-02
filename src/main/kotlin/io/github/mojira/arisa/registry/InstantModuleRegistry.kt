@@ -6,23 +6,22 @@ import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
 import io.github.mojira.arisa.modules.AffectedVersionMessageModule
 import io.github.mojira.arisa.modules.AttachmentModule
 import io.github.mojira.arisa.modules.CHKModule
 import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.ConfirmParentModule
 import io.github.mojira.arisa.modules.CrashModule
-import io.github.mojira.arisa.modules.IncompleteModule
 import io.github.mojira.arisa.modules.FutureVersionModule
 import io.github.mojira.arisa.modules.HideImpostorsModule
+import io.github.mojira.arisa.modules.IncompleteModule
 import io.github.mojira.arisa.modules.KeepPlatformModule
 import io.github.mojira.arisa.modules.KeepPrivateModule
 import io.github.mojira.arisa.modules.LanguageModule
 import io.github.mojira.arisa.modules.MultiplePlatformsModule
 import io.github.mojira.arisa.modules.PiracyModule
-import io.github.mojira.arisa.modules.privacy.PrivacyModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
+import io.github.mojira.arisa.modules.RemoveBotCommentModule
 import io.github.mojira.arisa.modules.RemoveIdenticalLinkModule
 import io.github.mojira.arisa.modules.RemoveNonStaffTagsModule
 import io.github.mojira.arisa.modules.RemoveSpamModule
@@ -33,11 +32,12 @@ import io.github.mojira.arisa.modules.ReplaceTextModule
 import io.github.mojira.arisa.modules.ResolveTrashModule
 import io.github.mojira.arisa.modules.RevokeConfirmationModule
 import io.github.mojira.arisa.modules.RevokePriorityModule
-import io.github.mojira.arisa.modules.thumbnail.ThumbnailModule
+import io.github.mojira.arisa.modules.ShadowbanModule
 import io.github.mojira.arisa.modules.TransferLinksModule
 import io.github.mojira.arisa.modules.TransferVersionsModule
-import io.github.mojira.arisa.modules.RemoveBotCommentModule
-import io.github.mojira.arisa.modules.ShadowbanModule
+import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
+import io.github.mojira.arisa.modules.privacy.PrivacyModule
+import io.github.mojira.arisa.modules.thumbnail.ThumbnailModule
 
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.

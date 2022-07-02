@@ -173,6 +173,28 @@ class PrivacyModuleTest : FunSpec({
                     addedComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
                 }
 
+                test("should mark as private when JSON attachment contains sensitive data") {
+                    var hasSetPrivate = false
+                    var addedComment: CommentOptions? = null
+
+                    val issue = mockIssue(
+                        attachments = listOf(
+                            mockAttachment(
+                                mimeType = "application/json",
+                                getContent = { "{\"data\":\"${testData.sensitiveText}\"}".toByteArray() }
+                            )
+                        ),
+                        setPrivate = { hasSetPrivate = true },
+                        addComment = { addedComment = it }
+                    )
+
+                    val result = testData.module(issue, TWO_SECONDS_AGO)
+
+                    result.shouldBeRight(ModuleResponse)
+                    hasSetPrivate shouldBe true
+                    addedComment shouldBe CommentOptions(MADE_PRIVATE_MESSAGE)
+                }
+
                 test("should mark as private when the summary contains sensitive data") {
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null

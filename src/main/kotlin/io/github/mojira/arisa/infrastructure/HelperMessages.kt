@@ -177,7 +177,7 @@ object HelperMessageService {
 
     private fun isProjectMatch(project: String, filter: ProjectFilter): Boolean = when (filter) {
         is String -> project.equals(filter, ignoreCase = true)
-        is List<*> -> project.toLowerCase() in filter.map { (it as String).toLowerCase() }
+        is List<*> -> project.lowercase() in filter.map { (it as String).lowercase() }
         else -> false
     }
 

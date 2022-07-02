@@ -7,7 +7,6 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import java.util.Locale
 import java.util.concurrent.CompletableFuture
 
 inline fun <reified E : Enum<E>> enumArgumentType() = EnumArgumentType(E::class.java)
@@ -21,7 +20,7 @@ class EnumArgumentType<E : Enum<E>>(enumClass: Class<E>) : ArgumentType<E> {
     init {
         val mapping = mutableMapOf<String, E>()
         enumClass.enumConstants
-            .map { it.name.toLowerCase(Locale.ROOT) to it }
+            .map { it.name.lowercase() to it }
             .forEach {
                 val name = it.first
                 if (!name.all(StringReader::isAllowedInUnquotedString)) {

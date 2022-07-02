@@ -57,5 +57,5 @@ abstract class AbstractTransferFieldModule : Module {
     ): Collection<() -> Unit>
 
     protected fun isDuplicatesLink(link: Link) =
-        link.type.toLowerCase() == "duplicate" && link.outwards
+        link.type.lowercase() == "duplicate" && link.outwards
 }

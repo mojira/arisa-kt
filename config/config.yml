@@ -187,6 +187,9 @@ arisa:
         # At the moment braintree transaction IDs seem to have 8 chars, but to be future-proof
         # match if there are more chars as well
         - '\bbraintree:[a-f0-9]{6,12}\b'
+        # Used in profilekeys JSON files
+        - 'private_key'
+        - 'BEGIN RSA PRIVATE KEY'
       sensitiveFileNameRegexes:
         - 'launcher_accounts\.json'
         - 'launcher_entitlements\.json'

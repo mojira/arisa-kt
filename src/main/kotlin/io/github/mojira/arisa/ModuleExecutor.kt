@@ -55,13 +55,13 @@ class ModuleExecutor(
         val projects = config[moduleConfig.projects] ?: config[Arisa.Issues.projects]
 
         val resolutions = (config[moduleConfig.resolutions] ?: config[Arisa.Issues.resolutions])
-            .map(String::toLowerCase)
+            .map(String::lowercase)
 
-        val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::toLowerCase)
+        val excludedStatuses = config[moduleConfig.excludedStatuses].map(String::lowercase)
 
         return allIssues
             .filter { it.project.key in projects }
-            .filter { it.status.toLowerCase() !in excludedStatuses }
-            .filter { (it.resolution?.toLowerCase() ?: "unresolved") in resolutions }
+            .filter { it.status.lowercase() !in excludedStatuses }
+            .filter { (it.resolution?.lowercase() ?: "unresolved") in resolutions }
     }
 }

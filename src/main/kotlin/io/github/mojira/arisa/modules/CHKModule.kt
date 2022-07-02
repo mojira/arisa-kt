@@ -17,7 +17,7 @@ class CHKModule : Module {
     }
 
     private fun assertConfirmed(confirmationField: String?) =
-        when (confirmationField?.toLowerCase()) {
+        when (confirmationField?.lowercase()) {
             null -> OperationNotNeededModuleResponse.left()
             "undefined" -> OperationNotNeededModuleResponse.left()
             "unconfirmed" -> OperationNotNeededModuleResponse.left()

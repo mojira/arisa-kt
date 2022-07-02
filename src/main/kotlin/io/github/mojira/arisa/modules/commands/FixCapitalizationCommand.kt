@@ -19,11 +19,13 @@ class FixCapitalizationCommand {
         matchesDescription
             .map { it.groupValues[0] }
             .forEach {
-                newDescription = newDescription.replace(it, it.toLowerCase().capitalize())
+                newDescription = newDescription.replace(it,
+                    // Uppercase only the first character of the sentence
+                    it.lowercase().replaceFirstChar { c -> if (c.isLowerCase()) c.titlecase() else c.toString() })
             }
         exceptions
             .forEach {
-                newDescription = newDescription.replace("\\b${it.toLowerCase()}\\b".toRegex(), it)
+                newDescription = newDescription.replace("\\b${it.lowercase()}\\b".toRegex(), it)
             }
         if (newDescription == issue.description) {
             throw CommandExceptions.NO_CAPITALIZATION_MATCHES.create()

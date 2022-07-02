@@ -33,6 +33,7 @@ class EnumArgumentTypeTest : StringSpec({
             register(literal<Void?>("test").then(argument("arg", enumArgumentType<MyEnum>())))
         }
         val parseResults = dispatcher.parse("test wo", null)
+        @Suppress("BlockingMethodInNonBlockingContext")
         val suggestionTexts = dispatcher.getCompletionSuggestions(parseResults).get().list.map(Suggestion::getText)
         suggestionTexts shouldBe listOf("world")
     }

@@ -45,8 +45,7 @@ class CrashModule(
             // Get parent bug report key
             val parentKey = crashes
                 .sortedByDescending { it.document.created } // newest crashes first
-                .mapNotNull { getDuplicateLink(it.crash) }
-                .firstOrNull()
+                .firstNotNullOfOrNull { getDuplicateLink(it.crash) }
 
             if (parentKey == null) {
                 resolveAsInvalid()

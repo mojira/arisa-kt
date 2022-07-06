@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.6.21"
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    kotlin("jvm")
+    id("org.jlleitschuh.gradle.ktlint")
     application
-    id("io.gitlab.arturbosch.detekt") version "1.17.0"
-    id("info.solidsoft.pitest") version "1.5.1"
+    id("io.gitlab.arturbosch.detekt")
+    id("info.solidsoft.pitest")
 }
 
 group = "io.github.mojira"
@@ -42,7 +42,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.1")
+        classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:_")
     }
 }
 
@@ -51,32 +51,28 @@ val arrowVersion = "0.10.4"
 val kotestVersion = "4.4.3"
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8") as String) {
-        isChanging = true
-    }
-    implementation(kotlin("reflect") as String) {
-        isChanging = true
-    }
+    implementation(Kotlin.stdlib.jdk8)
+    implementation(kotlin("reflect"))
 
-    implementation("com.uchuhimo", "konf", "0.22.1")
-    implementation("com.github.rcarz", "jira-client", "868a5ca897")
-    implementation("com.urielsalis", "mc-crash-lib", "2.0.7")
-    implementation("com.github.napstr", "logback-discord-appender", "a20617d401")
-    implementation("org.slf4j", "slf4j-api", "1.7.25")
-    implementation("ch.qos.logback", "logback-classic", logBackVersion)
-    implementation("ch.qos.logback", "logback-core", logBackVersion)
-    implementation("io.arrow-kt", "arrow-core", arrowVersion)
-    implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
-    implementation("io.arrow-kt", "arrow-fx", arrowVersion)
-    implementation("com.beust", "klaxon", "5.4")
-    implementation("com.mojang", "brigadier", "1.0.18")
-    implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
+    implementation(Libs.konf)
+    implementation(Libs.jiraClient)
+    implementation(Libs.mcCrashLib)
+    implementation(Libs.slf4j)
+    implementation(Libs.klaxon)
+    implementation(Libs.brigadier)
+    implementation(Libs.commonsImaging)
+    implementation(Libs.Logback.discordAppender)
+    implementation(Libs.Logback.core)
+    implementation(Libs.Logback.classic)
+    implementation(Libs.Arrow.core)
+    implementation(Libs.Arrow.fx)
+    implementation(Libs.Arrow.syntax)
 
-    testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
-    testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
-    testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
-    testImplementation("io.mockk", "mockk", "1.9.3")
-    testImplementation("org.reflections", "reflections", "0.9.12")
+    testImplementation(Testing.Kotest.assertions.core)
+    testImplementation(Testing.Kotest.assertions.arrow)
+    testImplementation(Testing.Kotest.runner.junit5)
+    testImplementation(Testing.MockK)
+    testImplementation(Libs.reflections)
 }
 
 tasks {

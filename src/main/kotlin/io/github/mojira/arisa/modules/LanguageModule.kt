@@ -23,7 +23,7 @@ class LanguageModule(
             assertAfter(created, lastRun).bind()
             assertIsPublic(securityLevel, project.privateSecurity).bind()
 
-            val combinedText = combineSummaryAndDescription(summary ?: "", description ?: "")
+            val combinedText = combineSummaryAndDescription(summary, description ?: "")
             assertExceedLengthThreshold(combinedText).bind()
 
             val detectedLanguage = getDetectedLanguage(getLanguage, combinedText)
@@ -58,7 +58,7 @@ class LanguageModule(
     }
 
     private fun String.stripUrls() =
-        this.replace("""(?:https?://|www\.)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+\S*""".toRegex(), "")
+        this.replace("""(?:https?://|www\.)[a-zA-Z\d_-]+(?:\.[a-zA-Z\d_-]+)+\S*""".toRegex(), "")
 
     private fun getDetectedLanguage(
         getLanguage: (String) -> Map<String, Double>,

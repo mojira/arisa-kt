@@ -17,7 +17,7 @@ class PiracyModule(
             assertAfter(issue.created, lastRun).bind()
             assertContainsSignatures(
                 piracySignatures,
-                "${description ?: ""} ${environment ?: ""} ${summary ?: ""}"
+                "${description ?: ""} ${environment ?: ""} $summary"
             ).bind()
             resolveAsInvalid()
             addComment(CommentOptions(message))

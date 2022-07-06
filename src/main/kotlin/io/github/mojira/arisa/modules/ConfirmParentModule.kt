@@ -22,17 +22,17 @@ class ConfirmParentModule(
     }
 
     private fun isDuplicatedEnough(issue: Issue): Either<ModuleError, Boolean> = Either.fx {
-        val reporters = mutableSetOf(issue.reporter?.name)
+        val reporters = mutableSetOf(issue.reporter.name)
         var amount = 0
         issue.links
             .filter(::isDuplicatedLink)
             .forEach {
                 val child = it.issue.getFullIssue().toFailedModuleEither().bind()
-                if (child.reporter?.name !in reporters) {
+                if (child.reporter.name !in reporters) {
                     if (++amount >= linkedThreshold) {
                         return@fx true
                     }
-                    reporters.add(child.reporter?.name)
+                    reporters.add(child.reporter.name)
                 }
             }
         false

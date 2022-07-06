@@ -139,11 +139,11 @@ fun MutableList<String>.splitElemsByCommas() {
 }
 
 fun String.isTicketKey(): Boolean {
-    return this.matches(Regex("[A-Za-z]+-[0-9]+"))
+    return this.matches(Regex("[A-Za-z]+-\\d+"))
 }
 
 fun String.isTicketLink(): Boolean {
-    return this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-[0-9]+"))
+    return this.matches(Regex("https://bugs.mojang.com/browse/[A-Z]+-\\d+"))
 }
 
 const val MAX_LINK_TYPE_LENGTH = 3

@@ -10,7 +10,7 @@ import io.github.mojira.arisa.domain.Issue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-[0-9]+""".toRegex()
+val DUPLICATE_REGEX = """This issue is duplicated by [A-Z]+-\d+""".toRegex()
 
 class UpdateLinkedModule(
     private val updateInterval: Long

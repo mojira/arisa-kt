@@ -47,9 +47,9 @@ class ShadowbanModule : Module {
     }
 
     private fun Issue.checkReporterForShadowban(timeframe: ExecutionTimeframe): Boolean {
-        val reporterIsShadowbanned = reporter?.let { user ->
+        val reporterIsShadowbanned = reporter.let { user ->
             user.isNotVolunteer() && (timeframe.shadowbans[user.name]?.banTimeContains(created) ?: false)
-        } ?: false
+        }
 
         if (reporterIsShadowbanned) putInSpamBin()
 

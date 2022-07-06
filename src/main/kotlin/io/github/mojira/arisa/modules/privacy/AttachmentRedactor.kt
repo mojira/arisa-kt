@@ -25,7 +25,7 @@ interface AttachmentRedactor {
 /** Redacts access tokens passed as command line argument, as found in JVM crash reports. */
 object AccessTokenRedactor : AttachmentRedactor {
     // Use lookbehind to only redact the token itself
-    private val pattern = Regex("""(?<=(^|\s)--accessToken )[a-zA-Z0-9.+/=\-_]+(?=(\s|$))""")
+    private val pattern = Regex("""(?<=(^|\s)--accessToken )[a-zA-Z\d.+/=\-_]+(?=(\s|$))""")
 
     override fun redact(attachment: Attachment): RedactedAttachment? {
         if (attachment.hasTextContent()) {

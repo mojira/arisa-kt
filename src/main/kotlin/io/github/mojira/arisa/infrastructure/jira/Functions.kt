@@ -24,7 +24,6 @@ import net.rcarz.jiraclient.Resource
 import net.rcarz.jiraclient.RestException
 import net.rcarz.jiraclient.TokenCredentials
 import net.rcarz.jiraclient.User
-import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
 import org.apache.http.client.methods.HttpGet
@@ -161,11 +160,6 @@ fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
     context.value.edit.field(Field.SECURITY, Field.valueById(levelId))
 }
 
-fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
-    context.value.hasEdits = true
-    context.value.edit.fieldRemove("versions", version)
-}
-
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
     context.value.edit.fieldAdd("versions", Field.valueById(id))
@@ -174,11 +168,6 @@ fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
     context.value.edit.fieldRemove("versions", Field.valueById(id))
-}
-
-fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
-    context.value.hasEdits = true
-    context.value.edit.fieldAdd("versions", version)
 }
 
 fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
@@ -463,7 +452,7 @@ fun changeReporter(context: Lazy<IssueUpdateContext>, reporter: String) {
 
 // Allows some basic Jira formatting characters to be used by helper message arguments;
 // when used by malicious user they should at most cause text formatting errors
-private val sanitizationRegex = Regex("[^a-zA-Z0-9\\-+_#*?.,; ]")
+private val sanitizationRegex = Regex("[^a-zA-Z\\d\\-+_#*?.,; ]")
 fun sanitizeCommentArg(arg: String): String {
     return arg.replace(sanitizationRegex, "?")
 }

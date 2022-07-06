@@ -42,31 +42,29 @@ class CommandModule(
             commandDispatcher = getDispatcher(prefix)
         }
 
-        with(issue) {
-            val staffComments = comments
-                .filter(::isUpdatedAfterLastRun.partially1(lastRun))
-                .filter(::isStaffRestricted)
-                .filter(::userIsVolunteer)
-            assertNotEmpty(staffComments).bind()
+        val staffComments = issue.comments
+            .filter(::isUpdatedAfterLastRun.partially1(lastRun))
+            .filter(::isStaffRestricted)
+            .filter(::userIsVolunteer)
+        assertNotEmpty(staffComments).bind()
 
-            val commands = staffComments
-                .map { comment ->
-                    comment to extractCommands(issue, comment)
+        val commands = staffComments
+            .map { comment ->
+                comment to extractCommands(issue, comment)
+            }
+            .filter { it.second.isNotEmpty() }
+            .onEach { invocation ->
+                val commandResults = invocation.second.associate { command ->
+                    val result = executeCommand(command)
+                    logCommandExecutionResult(issue, invocation.first, command, result)
+                    command.source.line to result
                 }
-                .filter { it.second.isNotEmpty() }
-                .onEach { invocation ->
-                    val commandResults = invocation.second.associate { command ->
-                        val result = executeCommand(command)
-                        logCommandExecutionResult(issue, invocation.first, command, result)
-                        command.source.line to result
-                    }
 
-                    editInvocationComment(invocation.first, commandResults)
-                }
-            assertNotEmpty(commands).bind()
+                editInvocationComment(invocation.first, commandResults)
+            }
+        assertNotEmpty(commands).bind()
 
-            ModuleResponse.right().bind()
-        }
+        ModuleResponse.right().bind()
     }
 
     private fun executeCommand(command: Command): CommandResult {

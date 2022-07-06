@@ -31,7 +31,7 @@ class PrivacyModule(
     private val sensitiveFileNameRegexes: List<Regex>
 ) : Module {
     // Matches an email address, which is not part of a user mention ([~name])
-    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z0-9.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()
+    private val emailRegex = "(?<!\\[~)\\b[a-zA-Z\\d.\\-_]+@[a-zA-Z.\\-_]+\\.[a-zA-Z.\\-]{2,15}\\b".toRegex()
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
@@ -135,7 +135,7 @@ class PrivacyModule(
     @Suppress("ReturnCount")
     private fun Issue.containsIssueSensitiveData(lastRun: Instant): Boolean {
         if (created.isAfter(lastRun)) {
-            summary?.let(::containsSensitiveData)?.let {
+            summary.let(::containsSensitiveData)?.let {
                 logFoundSensitiveData("in summary", it)
                 return true
             }

@@ -8,10 +8,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 object CommandExceptions {
     // Most exceptions here are not actually command syntax related, but Brigadier currently has no
     // exception for command execution failure, see https://github.com/Mojang/brigadier/issues/100
-    class CommandExecutionException : Exception {
-        constructor(message: String?) : super(message)
-        constructor(message: String?, cause: Throwable?) : super(message, cause)
-    }
+    class CommandExecutionException(message: String?, cause: Throwable?) : Exception(message, cause)
 
     val ALREADY_FIXED_IN = DynamicCommandExceptionType {
         LiteralMessage("The ticket was already marked as fixed in $it")

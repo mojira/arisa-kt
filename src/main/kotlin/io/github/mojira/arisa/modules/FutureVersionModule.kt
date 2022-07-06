@@ -41,7 +41,7 @@ class FutureVersionModule(
 
     private fun Issue.getVersionsLatelyAddedByNonStaff(lastRun: Instant): List<String> =
         if (created.isAfter(lastRun)) {
-            if (isStaff(reporter?.getGroups?.invoke())) {
+            if (isStaff(reporter.getGroups.invoke())) {
                 emptyList()
             } else {
                 affectedVersions.map { ver -> ver.id }

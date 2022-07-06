@@ -48,20 +48,15 @@ buildscript {
 
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
-val kotestVersion = "4.4.1"
+val kotestVersion = "4.4.3"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {
-        isForce = true
         isChanging = true
     }
     implementation(kotlin("reflect") as String) {
-        isForce = true
         isChanging = true
     }
-
-    testImplementation("io.kotest:kotest-plugins-pitest-jvm:$kotestVersion")
-    pitest("com.github.pitest:pitest-kotlin:master-SNAPSHOT")
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
@@ -96,13 +91,11 @@ tasks {
         useJUnitPlatform()
         maxParallelForks =
             (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1 // Run with same number of cores
-        reports.html.isEnabled = false
-        reports.junitXml.isEnabled = false
     }
 }
 
 application {
-    mainClassName = "io.github.mojira.arisa.ArisaMainKt"
+    mainClass.set("io.github.mojira.arisa.ArisaMainKt")
 }
 
 detekt {
@@ -123,11 +116,4 @@ tasks {
         // Target version of the generated JVM bytecode. It is used for type resolution.
         this.jvmTarget = "11"
     }
-}
-
-configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
-    testPlugin.set("Kotest")
-    targetClasses.set(listOf("io.github.mojira.*"))
-    outputFormats.add("HTML")
-    outputFormats.add("XML")
 }

@@ -171,7 +171,7 @@ private const val JVM_CRASH = """#
 # Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
 #
 # If you would like to submit a bug report, please visit:
-#   http://bugreport.sun.com/bugreport/crash.jsp
+#   https://bugreport.sun.com/bugreport/crash.jsp
 # The crash happened outside the Java Virtual Machine in native code.
 # See problematic frame for where to report the bug.
 #"""
@@ -190,7 +190,7 @@ private const val MODDED_JVM_CRASH = """
 # Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
 #
 # If you would like to submit a bug report, please visit:
-#   http://bugreport.java.com/bugreport/crash.jsp
+#   https://bugreport.java.com/bugreport/crash.jsp
 # The crash happened outside the Java Virtual Machine in native code.
 # See problematic frame for where to report the bug.
 #

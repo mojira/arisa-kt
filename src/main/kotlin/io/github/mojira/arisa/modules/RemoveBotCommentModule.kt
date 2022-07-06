@@ -14,24 +14,22 @@ class RemoveBotCommentModule(
 ) : Module {
     private val log: Logger = LoggerFactory.getLogger("RemoveBotCommentModule")
 
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
-        Either.fx {
+    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
 
-            // Only consider new comments
-            val newComments = comments.filter {
-                it.updated.isAfter(lastRun)
-            }
-
-            var performedRemoval = false
-            newComments.forEach {
-                if (shouldBeRemoved(it)) {
-                    it.remove()
-                    log.debug("Removed bot comment [${it.id}] from [${issue.key}]")
-                    performedRemoval = true
-                }
-            }
-            assertTrue(performedRemoval).bind()
+        // Only consider new comments
+        val newComments = issue.comments.filter {
+            it.updated.isAfter(lastRun)
         }
+
+        var performedRemoval = false
+        newComments.forEach {
+            if (shouldBeRemoved(it)) {
+                it.remove()
+                log.debug("Removed bot comment [${it.id}] from [${issue.key}]")
+                performedRemoval = true
+            }
+        }
+        assertTrue(performedRemoval).bind()
     }
 
     private fun isVolunteerRestricted(comment: Comment) =

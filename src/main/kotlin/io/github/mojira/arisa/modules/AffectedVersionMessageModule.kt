@@ -34,5 +34,5 @@ class AffectedVersionMessageModule(
     }
 
     private fun Issue.wasCreatedByStaff() =
-        reporter?.getGroups?.invoke()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+        reporter.getGroups.invoke()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 }

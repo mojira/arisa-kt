@@ -67,12 +67,12 @@ class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Mo
         issue.created.isAfter(lastRun)
 
     private fun isBugreportSpam(issue: Issue): Boolean {
-        val reporter = issue.reporter ?: return false
+        val reporter = issue.reporter
         val groups = reporter.getGroups() ?: listOf()
         val userIsVolunteer = groups.any { listOf("helper", "global-moderators", "staff").contains(it) }
 
         return if (userIsVolunteer) false
-        else isTextSpam(issue.summary ?: "") ||
+        else isTextSpam(issue.summary) ||
             isTextSpam(issue.description ?: "") ||
             isTextSpam(issue.environment ?: "")
     }

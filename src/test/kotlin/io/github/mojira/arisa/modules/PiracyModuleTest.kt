@@ -152,7 +152,6 @@ class PiracyModuleTest : StringSpec({
         val module = PiracyModule(listOf("null null null"), "message")
         val issue = mockIssue(
             environment = null,
-            summary = null,
             description = null
         )
 

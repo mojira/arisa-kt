@@ -226,23 +226,6 @@ class LanguageModuleTest : StringSpec({
         isApiExecuted shouldBe true
     }
 
-    "should pass only the description to the API when summary is null" {
-        var isApiExecuted = false
-
-        val module = LanguageModule(
-            getLanguage = { it shouldBe "Description."; isApiExecuted = true; mapOf("en" to 1.0) }
-        )
-        val issue = mockIssue(
-            created = RIGHT_NOW,
-            description = "Description."
-        )
-
-        val result = module(issue, A_SECOND_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-        isApiExecuted shouldBe true
-    }
-
     "should pass only the summary to the API when it contains the description" {
         var isApiExecuted = false
 

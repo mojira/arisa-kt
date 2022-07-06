@@ -91,12 +91,12 @@ fun mockComment(
 
 fun mockIssue(
     key: String = "MC-1",
-    summary: String? = null,
+    summary: String = "Title",
     status: String = "Open",
     description: String? = null,
     environment: String? = null,
     securityLevel: String? = null,
-    reporter: User? = null,
+    reporter: User = mockUser(),
     resolution: String? = null,
     created: Instant = RIGHT_NOW,
     updated: Instant = RIGHT_NOW,

@@ -94,7 +94,7 @@ fun JiraIssue.toDomain(
         description,
         getEnvironment(),
         security?.id,
-        reporter?.toDomain(jiraClient, config),
+        reporter.toDomain(jiraClient, config),
         resolution?.name,
         createdDate.toInstant(),
         updatedDate.toInstant(),

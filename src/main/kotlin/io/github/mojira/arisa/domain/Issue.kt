@@ -5,12 +5,12 @@ import java.time.Instant
 
 data class Issue(
     val key: String,
-    val summary: String?,
+    val summary: String,
     val status: String,
     val description: String?,
     val environment: String?,
     val securityLevel: String?,
-    val reporter: User?,
+    val reporter: User,
     val resolution: String?,
     val created: Instant,
     val updated: Instant,

@@ -32,8 +32,7 @@ class KeepPrivateModule(
                         ?.any { it == "global-moderators" || it == "staff" } == true
                 ) {
                     addRawRestrictedComment(
-                        "To remove the security level," +
-                            "please remove the keep private tag first.",
+                        "To remove the security level, please remove the keep private tag first.",
                         "staff"
                     )
                 } else {

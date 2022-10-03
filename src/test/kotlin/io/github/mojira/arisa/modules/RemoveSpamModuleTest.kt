@@ -18,9 +18,7 @@ private val YESTERDAY: Instant = RIGHT_NOW.minus(1, ChronoUnit.DAYS)
 
 class RemoveSpamModuleTest : StringSpec({
     val module = RemoveSpamModule(
-        listOf(
-            SpamPatternConfig("SPAM", 3)
-        )
+        listOf(SpamPatternConfig("SPAM", 3))
     )
 
     "should return OperationNotNeededModuleResponse when no comments" {

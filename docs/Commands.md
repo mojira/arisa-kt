@@ -127,8 +127,8 @@ This command only has an effect once; the reporter is able to make the ticket pu
   as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you
   can leave it in the command as Arisa doesn't mind it.
 
-Deletes all attachments on the ticket by user with the username if the attachment ID is between minId and maxId (
-inclusive).
+Deletes all attachments on the ticket by user with the username if the attachment ID is between minId and maxId
+(inclusive).
 
 Examples:
 
@@ -214,7 +214,6 @@ Reopens tickets resolved as Awaiting Response
 Shadowbans a user for the next 24 hours.
 
 Note: The user's previous actions still need to be reverted manually (or e.g. via `$ARISA_REMOVE_CONTENT` and bulk
-change),
-as running this command will only cause the bot auto-undo actions done by the shadowbanned user in the future.
+change), as running this command will only cause the bot auto-undo actions done by the shadowbanned user in the future.
 
 For more information on how shadowbans work, see "Modules → Shadowban".

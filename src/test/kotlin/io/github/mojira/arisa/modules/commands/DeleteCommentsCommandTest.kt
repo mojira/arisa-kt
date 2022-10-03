@@ -30,7 +30,7 @@ class DeleteCommentsCommandTest : StringSpec({
         result shouldBe 1
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(1)
-            messageVar shouldBe ("Removed by arisa")
+            messageVar shouldBe "Removed by arisa"
         }
     }
 
@@ -62,7 +62,7 @@ class DeleteCommentsCommandTest : StringSpec({
         result shouldBe 2
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2)
-            list shouldBe (mutableListOf("Removed by arisa1", "Removed by arisa2"))
+            list shouldBe mutableListOf("Removed by arisa1", "Removed by arisa2")
         }
     }
 
@@ -86,7 +86,7 @@ class DeleteCommentsCommandTest : StringSpec({
         result shouldBe 1
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(1)
-            messageVar shouldBe ("Removed by arisa")
+            messageVar shouldBe "Removed by arisa"
         }
     }
 
@@ -118,7 +118,7 @@ class DeleteCommentsCommandTest : StringSpec({
         result shouldBe 1
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2)
-            list shouldBe (mutableListOf("Removed by arisa spammer"))
+            list shouldBe mutableListOf("Removed by arisa spammer")
         }
         list.clear()
 
@@ -139,7 +139,7 @@ class DeleteCommentsCommandTest : StringSpec({
         result shouldBe 0
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(1)
-            list shouldBe (mutableListOf())
+            list shouldBe mutableListOf()
         }
     }
 
@@ -173,7 +173,7 @@ class DeleteCommentsCommandTest : StringSpec({
         result shouldBe 1
         withContext(Dispatchers.IO) {
             TimeUnit.SECONDS.sleep(2)
-            list shouldBe (mutableListOf("Removed by arisa (right)"))
+            list shouldBe mutableListOf("Removed by arisa (right)")
         }
     }
 })

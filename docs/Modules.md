@@ -124,8 +124,8 @@ the [config](../config/config.yml)
 
 - A duplicate link was created in `commentDelayMinutes` defined in the [config](../config/config.yml)
   before last run.
-- The ticket doesn't have a staff restricted comment posted by a volunteer containing `ARISA_NO_DUPLICATE_MESSAGE`
-  , `ARISA_NO_DUPE_MSG`, or a combination of these abbreviations.
+- The ticket doesn't have a staff restricted comment posted by a volunteer containing `ARISA_NO_DUPLICATE_MESSAGE`,
+  `ARISA_NO_DUPE_MSG`, or a combination of these abbreviations.
 - None of the duplicate links that were added to this ticket have been mentioned in any public comments.
 - The ticket currently has parents.
 - Adds the comment corresponding to the parents' security levels/resolutions/keys according to all
@@ -139,8 +139,7 @@ the [config](../config/config.yml)
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/FutureVersionModule.kt) |
 
 Removes future versions from the ticket, and resolves it as `Awaiting Response` when the future version is the only
-version
-the ticket has.
+version the ticket has.
 
 ### Checks
 
@@ -430,8 +429,7 @@ Removes affected versions added to resolved tickets.
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/ReopenAwaitingModule.kt) |
 
 Reopens ticket that is resolved as `Awaiting Response` when the ticket is updated, or adds a comment when the ticket
-shouldn't
-be reopened because of the `MEQS_KEEP_AR` tag or because the ticket is too old.
+shouldn't be reopened because of the `MEQS_KEEP_AR` tag or because the ticket is too old.
 
 ### Checks
 

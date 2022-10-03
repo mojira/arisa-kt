@@ -17,6 +17,7 @@ private val UNKNOWN_ENUM_CONSTANT_NAME = DynamicCommandExceptionType {
 
 class EnumArgumentType<E : Enum<E>>(enumClass: Class<E>) : ArgumentType<E> {
     private val mapping: Map<String, E>
+
     init {
         val mapping = mutableMapOf<String, E>()
         enumClass.enumConstants

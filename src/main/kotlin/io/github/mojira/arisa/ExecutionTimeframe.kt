@@ -70,7 +70,7 @@ class ExecutionTimeframe(
      * @return If open ended: empty string. Otherwise: ` AND updated <= [currentRunTime]`
      */
     private fun capIfNotOpenEnded(): String =
-        if (openEnded) "" else " AND updated <= ${ currentRunTime.toEpochMilli() }"
+        if (openEnded) "" else " AND updated <= ${currentRunTime.toEpochMilli()}"
 
     override fun toString(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

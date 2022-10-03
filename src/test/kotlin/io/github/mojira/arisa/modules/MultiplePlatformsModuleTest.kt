@@ -20,26 +20,44 @@ private val FIVE_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val duplicatedLink = mockLink(
     outwards = false,
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(platform = "None", resolution = "Duplicate", changeLog = listOf(duplicateLinkChangeLog)).right() }
+        getFullIssue = {
+            mockIssue(
+                platform = "None",
+                resolution = "Duplicate",
+                changeLog = listOf(duplicateLinkChangeLog)
+            ).right()
+        }
     )
 )
 private val duplicatedLink2 = mockLink(
     outwards = false,
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(platform = "Amazon", resolution = "Duplicate", changeLog = listOf(duplicateLinkChangeLog)).right() }
+        getFullIssue = {
+            mockIssue(
+                platform = "Amazon",
+                resolution = "Duplicate",
+                changeLog = listOf(duplicateLinkChangeLog)
+            ).right()
+        }
     )
 )
 private val duplicatedLink3 = mockLink(
-        outwards = false,
-        issue = mockLinkedIssue(
-                getFullIssue = { mockIssue(platform = "Amazon", resolution = "Duplicate").right() }
-        )
+    outwards = false,
+    issue = mockLinkedIssue(
+        getFullIssue = { mockIssue(platform = "Amazon", resolution = "Duplicate").right() }
+    )
 )
 private val duplicatedLink4 = mockLink(
-        outwards = false,
-        issue = mockLinkedIssue(
-                getFullIssue = { mockIssue(platform = "Amazon", resolution = "Duplicate", changeLog = listOf(oldDuplicateLinkChangeLog)).right() }
-        )
+    outwards = false,
+    issue = mockLinkedIssue(
+        getFullIssue = {
+            mockIssue(
+                platform = "Amazon",
+                resolution = "Duplicate",
+                changeLog = listOf(oldDuplicateLinkChangeLog)
+            ).right()
+        }
+    )
 )
 private val duplicatedLinkNotResolved = mockLink(
     outwards = false,
@@ -59,10 +77,10 @@ private val oldDuplicateLinkChangeLog = mockChangeLogItem(
 )
 private val throwable = Throwable(message = "example")
 private val faultyDuplicatedLink = mockLink(
-        outwards = false,
-        issue = mockLinkedIssue(
-                getFullIssue = { throwable.left() }
-        )
+    outwards = false,
+    issue = mockLinkedIssue(
+        getFullIssue = { throwable.left() }
+    )
 )
 private val relatesLink = mockLink(
     type = "Relates"
@@ -157,14 +175,14 @@ class MultiplePlatformsModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the meqs comment is added" {
         val comment = mockComment(
-                body = "MEQS_KEEP_PLATFORM",
-                visibilityType = "group",
-                visibilityValue = "staff"
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff"
         )
         val issue = mockIssue(
-                comments = listOf(comment),
-                platform = "Xbox One",
-                links = listOf(duplicatedLink2)
+            comments = listOf(comment),
+            platform = "Xbox One",
+            links = listOf(duplicatedLink2)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -174,8 +192,8 @@ class MultiplePlatformsModuleTest : StringSpec({
 
     "should return FailedModuleResponse when can't get full issue from the link" {
         val issue = mockIssue(
-                platform = "Xbox One",
-                links = listOf(faultyDuplicatedLink)
+            platform = "Xbox One",
+            links = listOf(faultyDuplicatedLink)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -207,8 +225,8 @@ class MultiplePlatformsModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a duplicate with an old link" {
         val issue = mockIssue(
-                platform = "Xbox One",
-                links = listOf(duplicatedLink4)
+            platform = "Xbox One",
+            links = listOf(duplicatedLink4)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)
@@ -218,8 +236,8 @@ class MultiplePlatformsModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there is a duplicate without a changelog item" {
         val issue = mockIssue(
-                platform = "Xbox One",
-                links = listOf(duplicatedLink3)
+            platform = "Xbox One",
+            links = listOf(duplicatedLink3)
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

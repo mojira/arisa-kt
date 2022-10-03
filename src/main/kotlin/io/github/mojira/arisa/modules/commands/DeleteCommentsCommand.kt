@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
  */
 const val DELETE_COMMENT_SLEEP_INTERVAL = 10
 
+@Suppress("ExplicitItLambdaParameter")
 class DeleteCommentsCommand {
     operator fun invoke(issue: Issue, userName: String): Int {
         val comments = issue.comments

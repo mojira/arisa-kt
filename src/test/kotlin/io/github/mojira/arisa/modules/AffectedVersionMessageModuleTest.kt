@@ -34,9 +34,11 @@ class AffectedVersionMessageModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when report was created before last run" {
-        val module = AffectedVersionMessageModule(mapOf(
-            VERSION_1.id to "message-1"
-        ))
+        val module = AffectedVersionMessageModule(
+            mapOf(
+                VERSION_1.id to "message-1"
+            )
+        )
         val issue = mockIssue(
             created = YESTERDAY,
             affectedVersions = listOf(VERSION_1)
@@ -47,9 +49,11 @@ class AffectedVersionMessageModuleTest : StringSpec({
     }
 
     "should return OperationNotNeededModuleResponse when report was created by staff" {
-        val module = AffectedVersionMessageModule(mapOf(
-            VERSION_1.id to "message-1"
-        ))
+        val module = AffectedVersionMessageModule(
+            mapOf(
+                VERSION_1.id to "message-1"
+            )
+        )
         val issue = mockIssue(
             reporter = mockUser(
                 getGroups = { listOf("staff") }
@@ -62,9 +66,11 @@ class AffectedVersionMessageModuleTest : StringSpec({
     }
 
     "should add message when issue has affected version with message" {
-        val module = AffectedVersionMessageModule(mapOf(
-            VERSION_1.id to "message-1"
-        ))
+        val module = AffectedVersionMessageModule(
+            mapOf(
+                VERSION_1.id to "message-1"
+            )
+        )
         val addedMessages = mutableListOf<CommentOptions>()
 
         val issue = mockIssue(
@@ -78,10 +84,12 @@ class AffectedVersionMessageModuleTest : StringSpec({
     }
 
     "should add only one message" {
-        val module = AffectedVersionMessageModule(mapOf(
-            VERSION_1.id to "message-1",
-            VERSION_2.id to "message-2"
-        ))
+        val module = AffectedVersionMessageModule(
+            mapOf(
+                VERSION_1.id to "message-1",
+                VERSION_2.id to "message-2"
+            )
+        )
         val addedMessages = mutableListOf<CommentOptions>()
 
         val issue = mockIssue(

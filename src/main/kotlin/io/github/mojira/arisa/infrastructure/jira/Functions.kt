@@ -212,8 +212,10 @@ private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
             edit.execute()
         } catch (e: JiraException) {
             val cause = e.cause
-            if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                        cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+            if (cause is RestException && (
+                cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                )
             ) {
                 log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
             } else {
@@ -426,8 +428,10 @@ fun tryWithWarn(comment: Comment, func: () -> Unit) {
         func()
     } catch (e: JiraException) {
         val cause = e.cause
-        if (cause is RestException && (cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        if (cause is RestException && (
+            cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+            )
         ) {
             log.warn("Tried to update comment ${comment.url} but it was deleted")
         } else {
@@ -441,10 +445,12 @@ fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
     Either.catch {
         withContext(Dispatchers.IO) {
             // Mojira does not seem to provide any accountIds, hence the endpoint GET /user/groups cannot be used.
-            (jiraClient.restClient.get(
-                User.getBaseUri() + "user/",
-                mapOf(Pair("username", username), Pair("expand", "groups"))
-            ) as JSONObject)
+            (
+                jiraClient.restClient.get(
+                    User.getBaseUri() + "user/",
+                    mapOf(Pair("username", username), Pair("expand", "groups"))
+                ) as JSONObject
+                )
                 .getJSONObject("groups")
                 .getJSONArray("items")
                 .map { (it as JSONObject)["name"] as String }

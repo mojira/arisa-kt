@@ -64,14 +64,14 @@ class LanguageDetectionApi(private val token: String?, private val quotaWarningT
 
     @Suppress("ReturnCount", "ThrowsCount")
     fun getLanguage(text: String): Map<String, Double> {
-        if (token == null) throw IllegalArgumentException("Dandelion token is undefined")
+        requireNotNull(token) { "Dandelion token is undefined" }
 
         val request = "token=" + URLEncoder.encode(token, UTF_8) + "&text=" + URLEncoder.encode(text, UTF_8)
         with(URL(BASE_URL).openConnection() as HttpURLConnection) {
             this.setRequestProperty(
                 "User-Agent",
                 "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)" +
-                        " Chrome/51.0.2704.103 Safari/537.36"
+                    " Chrome/51.0.2704.103 Safari/537.36"
             )
             this.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
             requestMethod = "POST"

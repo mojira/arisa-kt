@@ -123,7 +123,7 @@ class HelperMessagesTest : StringSpec({
                 ]
             }
         }
-    """.trimIndent()
+        """.trimIndent()
     )
 
     "should return Error when there is no such message" {
@@ -231,8 +231,8 @@ class HelperMessagesTest : StringSpec({
         val result = HelperMessageService.getMessage("MC", listOf("normal", "i-am-a-bot"), lang = "ab")
 
         result shouldBe "Ababab abababa\n~{color:#888}-- A ba b aba.{color}~" +
-                "\n----\n" +
-                "Normal message\n~{color:#888}-- I am a bot.{color}~"
+            "\n----\n" +
+            "Normal message\n~{color:#888}-- I am a bot.{color}~"
     }
 
     "should only contain original message when the lang doesn't exist" {

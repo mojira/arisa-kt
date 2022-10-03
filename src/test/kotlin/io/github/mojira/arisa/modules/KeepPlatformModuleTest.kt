@@ -92,16 +92,16 @@ class KeepPlatformModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket’s platform was last changed by staff before the comment" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-                body = "MEQS_KEEP_PLATFORM",
-                visibilityType = "group",
-                visibilityValue = "staff",
-                created = RIGHT_NOW
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff",
+            created = RIGHT_NOW
         )
         val volunteerChange = mockPlatformChangeLogItem(created = A_SECOND_AGO) { listOf("staff") }
         val issue = mockIssue(
-                comments = listOf(comment),
-                platform = "Amazon",
-                changeLog = listOf(volunteerChange)
+            comments = listOf(comment),
+            platform = "Amazon",
+            changeLog = listOf(volunteerChange)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -112,22 +112,22 @@ class KeepPlatformModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket’s platform was changed to the same value as last volunteer change after the comment" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-                body = "MEQS_KEEP_PLATFORM",
-                visibilityType = "group",
-                visibilityValue = "staff",
-                created = THREE_SECONDS_AGO
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff",
+            created = THREE_SECONDS_AGO
         )
         val volunteerChange = mockPlatformChangeLogItem(created = TWO_SECONDS_AGO) { listOf("staff") }
         val userChange1 = mockPlatformChangeLogItem(
-                created = A_SECOND_AGO,
-                oldValue = "Amazon",
-                newValue = "Android"
+            created = A_SECOND_AGO,
+            oldValue = "Amazon",
+            newValue = "Android"
         ) { listOf("users") }
         val userChange2 = mockPlatformChangeLogItem(created = RIGHT_NOW) { listOf("users") }
         val issue = mockIssue(
-                comments = listOf(comment),
-                platform = "Amazon",
-                changeLog = listOf(volunteerChange, userChange1, userChange2)
+            comments = listOf(comment),
+            platform = "Amazon",
+            changeLog = listOf(volunteerChange, userChange1, userChange2)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -138,21 +138,21 @@ class KeepPlatformModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when Ticket’s platform was changed to the same value as previous state at the time of the comment" {
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-                body = "MEQS_KEEP_PLATFORM",
-                visibilityType = "group",
-                visibilityValue = "staff",
-                created = TWO_SECONDS_AGO
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff",
+            created = TWO_SECONDS_AGO
         )
         val userChange1 = mockPlatformChangeLogItem(
-                created = A_SECOND_AGO,
-                oldValue = "Amazon",
-                newValue = "Android"
+            created = A_SECOND_AGO,
+            oldValue = "Amazon",
+            newValue = "Android"
         ) { listOf("users") }
         val userChange2 = mockPlatformChangeLogItem(created = RIGHT_NOW) { listOf("users") }
         val issue = mockIssue(
-                comments = listOf(comment),
-                platform = "Amazon",
-                changeLog = listOf(userChange1, userChange2)
+            comments = listOf(comment),
+            platform = "Amazon",
+            changeLog = listOf(userChange1, userChange2)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -190,17 +190,17 @@ class KeepPlatformModuleTest : StringSpec({
 
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-                body = "MEQS_KEEP_PLATFORM",
-                visibilityType = "group",
-                visibilityValue = "staff",
-                created = TWO_SECONDS_AGO
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff",
+            created = TWO_SECONDS_AGO
         )
         val userChange = mockPlatformChangeLogItem(newValue = "None", created = A_SECOND_AGO) { listOf("users") }
         val issue = mockIssue(
-                comments = listOf(comment),
-                platform = "None",
-                changeLog = listOf(userChange),
-                updatePlatform = { changedPlatform = it; Unit.right() }
+            comments = listOf(comment),
+            platform = "None",
+            changeLog = listOf(userChange),
+            updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -214,23 +214,23 @@ class KeepPlatformModuleTest : StringSpec({
 
         val module = KeepPlatformModule("MEQS_KEEP_PLATFORM")
         val comment = mockComment(
-                body = "MEQS_KEEP_PLATFORM",
-                visibilityType = "group",
-                visibilityValue = "staff",
-                created = A_SECOND_AGO
+            body = "MEQS_KEEP_PLATFORM",
+            visibilityType = "group",
+            visibilityValue = "staff",
+            created = A_SECOND_AGO
         )
         val volunteerChange = mockPlatformChangeLogItem(created = THREE_SECONDS_AGO) { listOf("staff") }
         val userChange1 = mockPlatformChangeLogItem(
-                created = TWO_SECONDS_AGO,
-                oldValue = "Amazon",
-                newValue = "Android"
+            created = TWO_SECONDS_AGO,
+            oldValue = "Amazon",
+            newValue = "Android"
         ) { listOf("users") }
         val userChange2 = mockPlatformChangeLogItem(created = RIGHT_NOW, newValue = "None") { listOf("users") }
         val issue = mockIssue(
-                comments = listOf(comment),
-                platform = "None",
-                changeLog = listOf(volunteerChange, userChange1, userChange2),
-                updatePlatform = { changedPlatform = it; Unit.right() }
+            comments = listOf(comment),
+            platform = "None",
+            changeLog = listOf(volunteerChange, userChange1, userChange2),
+            updatePlatform = { changedPlatform = it; Unit.right() }
         )
 
         val result = module(issue, RIGHT_NOW)

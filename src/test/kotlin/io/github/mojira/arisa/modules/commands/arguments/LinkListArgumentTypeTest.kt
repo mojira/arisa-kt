@@ -22,7 +22,7 @@ class LinkListArgumentTypeTest : StringSpec({
     "should support URLs" {
         val reader = StringReader(
             "relates https://bugs.mojang.com/browse/MC-100 " +
-                    "https://bugs.mojang.com/browse/MC-200"
+                "https://bugs.mojang.com/browse/MC-200"
         )
         val result = argumentType.parse(reader)
         result shouldBe LinkList(

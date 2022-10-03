@@ -38,7 +38,7 @@ class KeepPlatformModule(
         item.field == (if (project == "MCD") "Dungeons Platform" else "Platform")
 
     private fun changedByVolunteer(item: ChangeLogItem) =
-            item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+        item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
 
     private fun assertContainsKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
         val volunteerComments = comments.filter(::isVolunteerComment)
@@ -52,7 +52,7 @@ class KeepPlatformModule(
         comment.visibilityValue == "staff"
 
     private fun isKeepPlatformTag(comment: Comment) =
-            comment.body?.contains(keepPlatformTag) ?: false
+        comment.body?.contains(keepPlatformTag) ?: false
 
     private fun List<ChangeLogItem>.getSavedValue(markedTime: Instant): String? {
         val volunteerChange = this.lastOrNull(::changedByVolunteer)

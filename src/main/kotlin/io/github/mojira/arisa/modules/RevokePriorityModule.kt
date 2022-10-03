@@ -33,7 +33,7 @@ class RevokePriorityModule : Module {
         item.field == "Mojang Priority"
 
     private fun changedByStaff(item: ChangeLogItem) = !updateIsRecent(item) ||
-            item.getAuthorGroups()?.any { it == "global-moderators" || it == "staff" } ?: true
+        item.getAuthorGroups()?.any { it == "global-moderators" || it == "staff" } ?: true
 
     private fun updateIsRecent(item: ChangeLogItem) =
         item

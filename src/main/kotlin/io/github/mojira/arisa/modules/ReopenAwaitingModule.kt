@@ -64,26 +64,30 @@ class ReopenAwaitingModule(
         if (comments.any(::isKeepARTag)) return false
 
         // reopen the bug report if:
-                // the report has been updated (by the reporter) OR
+        // the report has been updated (by the reporter) OR
         return validChangeLog.isNotEmpty() ||
-                // regular users can reopen and have commented OR
-                (!onlyOp && isSoftAR) ||
-                // reporter has commented
-                validComments.any { it.author.name == reporter?.name }
+            // regular users can reopen and have commented OR
+            (!onlyOp && isSoftAR) ||
+            // reporter has commented
+            validComments.any { it.author.name == reporter?.name }
     }
 
     private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            (comment.body?.contains(onlyOPTag) ?: false)
+        comment.visibilityValue == "staff" &&
+        (comment.body?.contains(onlyOPTag) ?: false)
 
     private fun isKeepARTag(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepARTag) ?: false)
+        comment.visibilityValue == "staff" &&
+        (comment.body?.contains(keepARTag) ?: false)
 
     private fun isKeepARMessage(comment: Comment, project: Project) = comment.author.name == "arisabot" &&
-            (comment.body?.contains(HelperMessageService.getMessageWithBotSignature(
+        (
+            comment.body?.contains(
+                HelperMessageService.getMessageWithBotSignature(
                     project.key, message, null, "en"
-            )) ?: false)
+                )
+            ) ?: false
+            )
 
     private fun getValidComments(
         comments: List<Comment>,

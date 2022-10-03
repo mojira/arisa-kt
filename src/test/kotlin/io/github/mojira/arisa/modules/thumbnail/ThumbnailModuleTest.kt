@@ -374,8 +374,10 @@ class ThumbnailModuleTest : StringSpec({
 
         result.shouldBeRight(ModuleResponse)
         // Module is created with maxImagesCount=2, should only process at most two images
-        hasUpdatedDescription shouldBe ("!$attachmentName|thumbnail! !$attachmentName|thumbnail! " +
-            "!$attachmentName! !$attachmentName! ")
+        hasUpdatedDescription shouldBe (
+            "!$attachmentName|thumbnail! !$attachmentName|thumbnail! " +
+                "!$attachmentName! !$attachmentName! "
+            )
     }
 
     "regex should match embedded images lazily" {

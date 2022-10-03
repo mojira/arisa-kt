@@ -9,4 +9,4 @@ arisa:
     discordLogWebhook: <Discord log webhook>
     discordErrorLogWebhook: <Discord error webhook>
   debug:
-    # You can add some debug options here, see `ArisaConfig.kt` for details
+  # You can add some debug options here, see `ArisaConfig.kt` for details

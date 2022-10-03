@@ -102,13 +102,17 @@ class CommandModule(
         val commandStr = command.command
         commandResult.fold(
             { exception ->
-                log.error("$issueKey: Failed executing command of comment $commentId for user $user: $commandStr",
-                    exception)
+                log.error(
+                    "$issueKey: Failed executing command of comment $commentId for user $user: $commandStr",
+                    exception
+                )
             },
             { resultValue ->
                 // Include user name to be able to detect command misuse
-                log.info("$issueKey: Successfully executed command of comment $commentId for user " +
-                    "$user (result=$resultValue): $commandStr")
+                log.info(
+                    "$issueKey: Successfully executed command of comment $commentId for user " +
+                        "$user (result=$resultValue): $commandStr"
+                )
             }
         )
     }
@@ -123,7 +127,7 @@ class CommandModule(
             .mapIndexed { lineNr, line ->
                 when (val result = results[lineNr]) {
                     null -> line
-                    else -> "\n${ getCommandFeedback(line, result) }\n"
+                    else -> "\n${getCommandFeedback(line, result)}\n"
                 }
             }
             .joinToString("\n")

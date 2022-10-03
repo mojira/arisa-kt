@@ -73,7 +73,7 @@ class JiraConnectionService(
 
             val relogResult = RelogResult.UnsucessfulRelog()
             log.error(
-                "Could not reconnect. Will attempt to relog again in ${ relogResult.sleepTimeInSeconds } seconds."
+                "Could not reconnect. Will attempt to relog again in ${relogResult.sleepTimeInSeconds} seconds."
             )
             log.debug("Connection error:", exception)
 
@@ -82,7 +82,7 @@ class JiraConnectionService(
             val relogResult = RelogResult.NoRelogAttempted()
             log.info(
                 "Something went wrong. " +
-                    "Will wait for ${ relogResult.sleepTimeInSeconds } seconds and see if it'll work then."
+                    "Will wait for ${relogResult.sleepTimeInSeconds} seconds and see if it'll work then."
             )
             relogResult
         }

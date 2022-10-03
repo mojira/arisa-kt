@@ -37,10 +37,8 @@ class AttachmentUtils(
         val textDocuments = attachments
             // Ignore attachments from Arisa (e.g. deobfuscated crash reports)
             .filterNot { it.uploader?.isBotUser?.invoke() == true }
-
             // Only check attachments with allowed extensions
             .filter { isCrashAttachment(it.name) }
-
             // Download attachment
             .map(::fetchAttachment)
             .toMutableList()

@@ -112,7 +112,7 @@ class FixedCommandTest : StringSpec({
             command(issue, affectedVersion.name, false)
         }
         exception.message shouldBe "Cannot add fix version 12w34a because the affected version 12w34a of the issue " +
-                "is the same or was released after it; run with `<version> force` to add the fix version anyways"
+            "is the same or was released after it; run with `<version> force` to add the fix version anyways"
     }
 
     "should throw FIX_VERSION_SAME_OR_BEFORE_AFFECTED_VERSION when the fix version is before an affected version" {
@@ -134,7 +134,7 @@ class FixedCommandTest : StringSpec({
             command(issue, affectedVersion1.name, false)
         }
         exception.message shouldBe "Cannot add fix version 12w34a because the affected version 12w34b of the issue " +
-                "is the same or was released after it; run with `<version> force` to add the fix version anyways"
+            "is the same or was released after it; run with `<version> force` to add the fix version anyways"
     }
 
     "should not throw when the fix version is same as an affected version, but 'force' is used" {

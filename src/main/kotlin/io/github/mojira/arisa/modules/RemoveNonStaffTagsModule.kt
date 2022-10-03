@@ -35,7 +35,7 @@ class RemoveNonStaffTagsModule(
 
     private fun isNotVolunteerRestricted(comment: Comment) =
         comment.visibilityType != "group" ||
-                !listOf("staff", "global-moderators", "helper").contains(comment.visibilityValue)
+            !listOf("staff", "global-moderators", "helper").contains(comment.visibilityValue)
 
     private fun removeTags(comment: String): String {
         var newComment = comment
@@ -43,7 +43,7 @@ class RemoveNonStaffTagsModule(
             val regex = """($prefix)(?!_REMOVED)(_[A-Z_]+)""".toRegex()
             newComment = regex.replace(newComment) {
                 "Arisa removed prefix '${it.groupValues[1]}' from '${it.groupValues[2]}';" +
-                        " removal reason: $removalReason"
+                    " removal reason: $removalReason"
             }
         }
         return newComment

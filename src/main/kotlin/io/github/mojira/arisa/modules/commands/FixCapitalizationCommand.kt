@@ -19,9 +19,11 @@ class FixCapitalizationCommand {
         matchesDescription
             .map { it.groupValues[0] }
             .forEach {
-                newDescription = newDescription.replace(it,
+                newDescription = newDescription.replace(
+                    it,
                     // Uppercase only the first character of the sentence
-                    it.lowercase().replaceFirstChar { c -> if (c.isLowerCase()) c.titlecase() else c.toString() })
+                    it.lowercase().replaceFirstChar { c -> if (c.isLowerCase()) c.titlecase() else c.toString() }
+                )
             }
         exceptions
             .forEach {

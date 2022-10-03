@@ -77,6 +77,7 @@ class RemoveContentCommand(
                 throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY
                     .create(sanitizedUserName, jql)
                     .initCause(either.a)
+
             is Either.Right -> either.b
         }
 
@@ -96,6 +97,7 @@ class RemoveContentCommand(
 
     private data class RemoveActivityResult(var removedComments: Int, var removedAttachments: Int)
 
+    @Suppress("ExplicitItLambdaParameter")
     private fun removeActivity(ticketIds: List<String>, userName: String): RemoveActivityResult {
         val result = RemoveActivityResult(0, 0)
 

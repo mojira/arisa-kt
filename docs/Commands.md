@@ -1,4 +1,5 @@
 # Commands
+
 Commands supported by Arisa. Commands are executed by adding a restricted comment to a Jira issue with each line
 containing a command. After commands have been executed, Arisa will edit the original comment to include the command
 results.
@@ -7,6 +8,7 @@ Most commands are executed for the issue on which the comment was added, however
 are executed globally.
 
 ## $ARISA_ADD_LINKS
+
 | Entry       | Value                                            |
 | ----------- | ------------------------------------------------ |
 | Syntax      | `$ARISA_ADD_LINKS <link type> <list of tickets>` |
@@ -21,6 +23,7 @@ List of tickets can consist of keys (MC-1) or links to tickets (https://bugs.moj
 Keys and type are case insensitive
 
 ## $ARISA_ADD_VERSION
+
 | Entry       | Value                          |
 | ----------- | ------------------------------ |
 | Syntax      | `$ARISA_ADD_VERSION <version>` |
@@ -29,6 +32,7 @@ Keys and type are case insensitive
 - `<version>`: Put the name of the version on Mojira as-is, including potential spaces. Do not put quotes around it.
 
 ## $ARISA_CLEAR_PROJECT_CACHE
+
 | Entry       | Value                          |
 | ----------- | ------------------------------ |
 | Syntax      | `$ARISA_CLEAR_PROJECT_CACHE`   |
@@ -46,6 +50,7 @@ on any bug report in order to force Arisa to clear its project cache.
 This command currently only exists because of a technical limitation. It will be removed in the future.
 
 ## $ARISA_DEOBFUSCATE
+
 | Entry       | Value                                                                       |
 | ----------- | --------------------------------------------------------------------------- |
 | Syntax      | `$ARISA_DEOBFUSCATE <attachmentId> [<minecraftVersionId> [client\|server]]` |
@@ -61,6 +66,7 @@ Note: The 'Crash' module automatically attaches deobfuscated crash reports. This
 was unable to parse the crash report or detected the wrong Minecraft version.
 
 ## $ARISA_FIX_CAPITALIZATION
+
 | Entry       | Value                       |
 | ----------- | --------------------------- |
 | Syntax      | `$ARISA_FIX_CAPITALIZATION` |
@@ -69,6 +75,7 @@ was unable to parse the crash report or detected the wrong Minecraft version.
 Lowercases sentences in which the first letter of each word is capitalized.
 
 ## $ARISA_FIXED
+
 | Entry       | Value                            |
 | ----------- | -------------------------------- |
 | Syntax      | `$ARISA_FIXED <version> [force]` |
@@ -83,16 +90,20 @@ When one of the affected versions of the issue was erroneously added and the fix
 version, the command fails. To skip this check, run with a trailing `force` literal, e.g. `$ARISA_FIXED 12w34a force`.
 
 ## $ARISA_LIST_USER_ACTIVITY
+
 | Entry       | Value                                  |
 | ----------- | -------------------------------------- |
 | Syntax      | `$ARISA_LIST_USER_ACTIVITY <username>` |
 | Permissions | Mod+                                   |
 
-- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you can leave it in the command as Arisa doesn't mind it.
+- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded
+  as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you
+  can leave it in the command as Arisa doesn't mind it.
 
 List all recent activity (up to 50 items) by the given user in a new mod+ comment.
 
 ## $ARISA_MAKE_PRIVATE
+
 | Entry       | Value                       |
 | ----------- | --------------------------- |
 | Syntax      | `$ARISA_MAKE_PRIVATE`       |
@@ -105,17 +116,22 @@ the Security Level.
 This command only has an effect once; the reporter is able to make the ticket public afterwards again.
 
 ## $ARISA_PURGE_ATTACHMENT
+
 | Entry       | Value                                                                 |
 | ----------- | --------------------------------------------------------------------- |
 | Syntax      | `$ARISA_PURGE_ATTACHMENT [from <minId>] [to <maxId>] [by <username>]` |
 | Permissions | Mod+                                                                  |
 
 - `<minId>` and `<maxId>`: The numeric ID of an attachment that can be found in the change log or in the link of it.
-- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you can leave it in the command as Arisa doesn't mind it.
+- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded
+  as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you
+  can leave it in the command as Arisa doesn't mind it.
 
-Deletes all attachments on the ticket by user with the username if the attachment ID is between minId and maxId (inclusive).
+Deletes all attachments on the ticket by user with the username if the attachment ID is between minId and maxId (
+inclusive).
 
 Examples:
+
 ```
 $ARISA_PURGE_ATTACHMENT                   // Remove all attachments from the report.
 $ARISA_PURGE_ATTACHMENT by Annoying User  // Remove all attachments uploaded by "Annoying User" from the report.
@@ -128,18 +144,22 @@ $ARISA_PURGE_ATTACHMENT to 20000 by Annoying User
 ```
 
 ## $ARISA_REMOVE_COMMENTS
+
 | Entry       | Value                               |
 | ----------- | ----------------------------------- |
 | Syntax      | `$ARISA_REMOVE_COMMENTS <username>` |
 | Permissions | Mod+                                |
 
-- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you can leave it in the command as Arisa doesn't mind it.
+- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded
+  as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you
+  can leave it in the command as Arisa doesn't mind it.
 
 Finds all comments created by the user on the current report and restricts them.
 
 Note: the command is successful regardless of whether any comments by that user exist.
 
 ## $ARISA_REMOVE_CONTENT
+
 | Entry       | Value                              |
 | ----------- | ---------------------------------- |
 | Syntax      | `$ARISA_REMOVE_CONTENT <username>` |
@@ -147,7 +167,9 @@ Note: the command is successful regardless of whether any comments by that user 
 
 (Formerly `$ARISA_REMOVE_USER`)
 
-- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you can leave it in the command as Arisa doesn't mind it.
+- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded
+  as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you
+  can leave it in the command as Arisa doesn't mind it.
 
 Finds all comments and attachments created by the user on any report and restricts or deletes them, respectively.
 
@@ -155,6 +177,7 @@ Note: The command executes successfully regardless of whether any comments by th
 with a new comment when it has finished removing the user.
 
 ## $ARISA_REMOVE_LINKS
+
 | Entry       | Value                                               |
 | ----------- | --------------------------------------------------- |
 | Syntax      | `$ARISA_REMOVE_LINKS <link type> <list of tickets>` |
@@ -169,6 +192,7 @@ List of tickets can consist of keys (MC-1) or links to tickets (https://bugs.moj
 Keys and type are case insensitive
 
 ## $ARISA_REOPEN
+
 | Entry       | Value           |
 | ----------- | --------------- |
 | Syntax      | `$ARISA_REOPEN` |
@@ -177,16 +201,20 @@ Keys and type are case insensitive
 Reopens tickets resolved as Awaiting Response
 
 ## $ARISA_SHADOWBAN
+
 | Entry       | Value                         |
 | ----------- | ----------------------------- |
 | Syntax      | `$ARISA_SHADOWBAN <username>` |
 | Permissions | Mod+                          |
 
-- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you can leave it in the command as Arisa doesn't mind it.
+- `<username>`: Copy from the Username field on the user's profile as-is (not from the URL, where spaces may get encoded
+  as plus signs). Do not put quotes around it. Note that there might be a trailing space in the Username field -- you
+  can leave it in the command as Arisa doesn't mind it.
 
 Shadowbans a user for the next 24 hours.
 
-Note: The user's previous actions still need to be reverted manually (or e.g. via `$ARISA_REMOVE_CONTENT` and bulk change),
+Note: The user's previous actions still need to be reverted manually (or e.g. via `$ARISA_REMOVE_CONTENT` and bulk
+change),
 as running this command will only cause the bot auto-undo actions done by the shadowbanned user in the future.
 
 For more information on how shadowbans work, see "Modules → Shadowban".

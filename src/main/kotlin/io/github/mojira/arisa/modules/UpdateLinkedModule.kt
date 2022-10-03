@@ -53,16 +53,16 @@ class UpdateLinkedModule(
 
     private fun isDuplicateLinkAddedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-                change.changedToString?.matches(DUPLICATE_REGEX) ?: false
+            change.changedToString?.matches(DUPLICATE_REGEX) ?: false
 
     private fun isDuplicateLinkRemovedChange(change: ChangeLogItem) =
         change.field == "Link" &&
-                change.changedFromString?.matches(DUPLICATE_REGEX) ?: false
+            change.changedFromString?.matches(DUPLICATE_REGEX) ?: false
 
     private fun isDuplicateLinkChange(change: ChangeLogItem) =
         change.field == "Link" && (
-                isDuplicateLinkAddedChange(change) || isDuplicateLinkRemovedChange(change)
-                )
+            isDuplicateLinkAddedChange(change) || isDuplicateLinkRemovedChange(change)
+            )
 
     private fun createdAfter(change: ChangeLogItem, lastUpdate: Instant) =
         change.created.isAfter(lastUpdate)
@@ -73,6 +73,7 @@ class UpdateLinkedModule(
                 .isBefore(
                     Instant.now().minus(updateInterval, ChronoUnit.HOURS)
                 ) -> Unit.right()
+
             else -> OperationNotNeededModuleResponse.left()
         }
 }

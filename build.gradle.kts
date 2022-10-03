@@ -3,7 +3,6 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     application
     id("io.gitlab.arturbosch.detekt") version "1.17.0"
-    id("info.solidsoft.pitest") version "1.5.1"
 }
 
 group = "io.github.mojira"
@@ -37,15 +36,6 @@ repositories {
     }
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.1")
-    }
-}
-
 val logBackVersion = "1.2.3"
 val arrowVersion = "0.10.4"
 val kotestVersion = "4.4.1"
@@ -59,9 +49,6 @@ dependencies {
         isForce = true
         isChanging = true
     }
-
-    testImplementation("io.kotest:kotest-plugins-pitest-jvm:$kotestVersion")
-    pitest("com.github.pitest:pitest-kotlin:master-SNAPSHOT")
 
     implementation("com.uchuhimo", "konf", "0.22.1")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
@@ -123,11 +110,4 @@ tasks {
         // Target version of the generated JVM bytecode. It is used for type resolution.
         this.jvmTarget = "11"
     }
-}
-
-configure<info.solidsoft.gradle.pitest.PitestPluginExtension> {
-    testPlugin.set("Kotest")
-    targetClasses.set(listOf("io.github.mojira.*"))
-    outputFormats.add("HTML")
-    outputFormats.add("XML")
 }

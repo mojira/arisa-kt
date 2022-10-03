@@ -21,9 +21,10 @@ class AccessTokenRedactorTest : StringSpec({
             mimeType = "text/plain",
             getContent = {
                 // Example JWT token from https://jwt.io/
-                ("some text --accessToken eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6" +
-                    "IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c more text"
-                ).toByteArray()
+                (
+                    "some text --accessToken eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6" +
+                        "IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c more text"
+                    ).toByteArray()
             }
         )
         val redactedAttachment = AccessTokenRedactor.redact(attachment)

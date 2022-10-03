@@ -15,7 +15,7 @@ data class Attachment(
 ) {
     /** Returns whether the type of the content is text */
     fun hasTextContent() = mimeType.startsWith("text/") or
-            (mimeType == "application/json") or (mimeType == "application/xml")
+        (mimeType == "application/json") or (mimeType == "application/xml")
 
     /** Decodes the content as UTF-8 String */
     fun getTextContent() = String(getContent())

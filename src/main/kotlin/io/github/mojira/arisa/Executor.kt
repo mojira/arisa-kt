@@ -62,6 +62,7 @@ class Executor(
     ) {
         val issues = getIssuesForRegistry(registry, rerunTickets, timeframe)
 
+        @Suppress("DestructuringDeclarationWithTooManyEntries")
         registry.getEnabledModules().forEach { (moduleName, _, execute, moduleExecutor) ->
             log.debug("Executing module $moduleName")
             moduleExecutor.executeModule(issues, addFailedTicket) { issue -> execute(issue, timeframe) }

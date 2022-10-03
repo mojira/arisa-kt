@@ -364,11 +364,13 @@ class TransferLinksModuleTest : StringSpec({
                         key1 shouldBe "MC-100"
                         type shouldBe "Duplicate"
                     }
+
                     "MC-10" -> {
                         addedToSecondParent = true
                         key1 shouldBe "MC-100"
                         type shouldBe "Duplicate"
                     }
+
                     else -> fail("MC-100 should only duplicate MC-1 and MC-2")
                 }
                 Unit.right()
@@ -446,11 +448,13 @@ class TransferLinksModuleTest : StringSpec({
                         key1 shouldBe "MC-1"
                         type shouldBe "Relates"
                     }
+
                     "MC-11" -> {
                         secondLinkAdded = true
                         key1 shouldBe "MC-1"
                         type shouldBe "Relates"
                     }
+
                     else -> fail("The parent should only be linked to MC-10 and MC-11")
                 }
                 Unit.right()

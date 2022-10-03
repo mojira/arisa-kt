@@ -91,6 +91,7 @@ class ThumbnailModule(
         }
     }
 
+    @Suppress("InstanceOfCheckForException")
     private fun getImageOptions(issue: Issue, imageName: String): String? {
         // For now only support embedded attached images (but not embedded with URL)
         val attachment = issue.attachments.find { it.name == imageName }

@@ -33,7 +33,7 @@ data class TextRangeLocation(
             } else {
                 null
             }
-        )
+            )
     }
 
     fun getLocationDescription(): String {

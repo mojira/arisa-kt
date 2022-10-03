@@ -29,6 +29,7 @@ class ListUserActivityCommand(
                 throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY
                     .create(sanitizedUserName, jql)
                     .initCause(either.a)
+
             is Either.Right -> either.b
         }
 

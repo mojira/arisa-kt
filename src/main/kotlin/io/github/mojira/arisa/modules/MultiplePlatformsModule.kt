@@ -23,12 +23,12 @@ class MultiplePlatformsModule(
             val platformValue = getPlatformValue()
             assertPlatformWhitelisted(platformValue, getPlatformWhitelist(project.key)).bind()
             assertTrue(
-                    isDuplicatedWithDifferentPlatforms(
-                            platformValue,
-                            transferredPlatformBlacklist,
-                            issue,
-                            lastRun
-                    ).bind()
+                isDuplicatedWithDifferentPlatforms(
+                    platformValue,
+                    transferredPlatformBlacklist,
+                    issue,
+                    lastRun
+                ).bind()
             ).bind()
             assertNotKeepPlatformTag(comments).bind()
             if (project.key == "MCD") {
@@ -56,10 +56,11 @@ class MultiplePlatformsModule(
             .forEach {
                 val child = it.issue.getFullIssue().toFailedModuleEither().bind()
                 if (child.resolution == "Duplicate" && child.getPlatformValue() !in blacklist &&
-                    child.getPlatformValue() != platform.getOrDefault("None")) {
+                    child.getPlatformValue() != platform.getOrDefault("None")
+                ) {
                     val newLinks = child.changeLog
-                            .filter { item -> isLinkToIssue(item, expectedDuplicateText) }
-                            .filter { item -> isRecent(item, lastRun) }
+                        .filter { item -> isLinkToIssue(item, expectedDuplicateText) }
+                        .filter { item -> isRecent(item, lastRun) }
                     if (newLinks.isNotEmpty()) {
                         return@fx true
                     }
@@ -74,7 +75,7 @@ class MultiplePlatformsModule(
 
     private fun isLinkToIssue(change: ChangeLogItem, expected: String) =
         change.field == "Link" &&
-                change.changedToString?.equals(expected) ?: false
+            change.changedToString?.equals(expected) ?: false
 
     private fun assertNotKeepPlatformTag(comments: List<Comment>): Either<ModuleError, ModuleResponse> {
         val volunteerComments = comments.filter(::isVolunteerComment)
@@ -85,10 +86,10 @@ class MultiplePlatformsModule(
     }
 
     private fun isVolunteerComment(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff"
+        comment.visibilityValue == "staff"
 
     private fun isKeepPlatformTag(comment: Comment) =
-            comment.body?.contains(keepPlatformTag) ?: false
+        comment.body?.contains(keepPlatformTag) ?: false
 
     private fun assertPlatformWhitelisted(status: String?, whitelist: List<String>) =
         if ((status.getOrDefault("None")) in whitelist) {

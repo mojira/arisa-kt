@@ -28,14 +28,14 @@ class ShadowbanModuleTest : StringSpec({
                     since = Instant.ofEpochMilli(500),
                     until = Instant.ofEpochMilli(1500)
                 )
-            ),
+                ),
             (
                 "nolongerbanned" to Shadowban(
                     user = "nolongerbanned",
                     since = Instant.ofEpochMilli(0),
                     until = Instant.ofEpochMilli(500)
                 )
-            )
+                )
         ),
         openEnded = false
     )

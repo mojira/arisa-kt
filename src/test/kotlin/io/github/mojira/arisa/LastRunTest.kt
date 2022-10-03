@@ -41,7 +41,7 @@ class LastRunTest : StringSpec({
         val tickets = listOf("MC-1234", "MCL-5678", "MCPE-9012")
 
         val lastRun = LastRunFile.read {
-            """{"time": "${ time.toEpochMilli() }", "failedTickets": ["MC-1234", "MCL-5678", "MCPE-9012"]}"""
+            """{"time": "${time.toEpochMilli()}", "failedTickets": ["MC-1234", "MCL-5678", "MCPE-9012"]}"""
         }
 
         lastRun.time shouldBe time
@@ -153,18 +153,21 @@ class LastRunTest : StringSpec({
 
         val lastRun = LastRun(
             {
-                LastRunFile(time, emptySet(), listOf(
-                    Shadowban(
-                        user = "Spammer Mc Spamface",
-                        since = Instant.ofEpochMilli(1000000),
-                        until = Instant.ofEpochMilli(2000000)
-                    ),
-                    Shadowban(
-                        user = "Monty Python",
-                        since = Instant.ofEpochMilli(4000000),
-                        until = Instant.ofEpochMilli(6000000)
+                LastRunFile(
+                    time, emptySet(),
+                    listOf(
+                        Shadowban(
+                            user = "Spammer Mc Spamface",
+                            since = Instant.ofEpochMilli(1000000),
+                            until = Instant.ofEpochMilli(2000000)
+                        ),
+                        Shadowban(
+                            user = "Monty Python",
+                            since = Instant.ofEpochMilli(4000000),
+                            until = Instant.ofEpochMilli(6000000)
+                        )
                     )
-                ))
+                )
             },
             { newFile -> shadowbans = newFile.shadowbans }
         )
@@ -179,11 +182,13 @@ class LastRunTest : StringSpec({
                 until = Instant.ofEpochMilli(6000000)
             )
         )
-        shadowbans shouldBe listOf(Shadowban(
-            user = "Monty Python",
-            since = Instant.ofEpochMilli(4000000),
-            until = Instant.ofEpochMilli(6000000)
-        ))
+        shadowbans shouldBe listOf(
+            Shadowban(
+                user = "Monty Python",
+                since = Instant.ofEpochMilli(4000000),
+                until = Instant.ofEpochMilli(6000000)
+            )
+        )
     }
 
     "should add shadowbans" {
@@ -193,13 +198,16 @@ class LastRunTest : StringSpec({
 
         val lastRun = LastRun(
             {
-                LastRunFile(time, emptySet(), listOf(
-                    Shadowban(
-                        user = "Spammer Mc Spamface",
-                        since = Instant.ofEpochMilli(1000000),
-                        until = Instant.ofEpochMilli(2000000)
+                LastRunFile(
+                    time, emptySet(),
+                    listOf(
+                        Shadowban(
+                            user = "Spammer Mc Spamface",
+                            since = Instant.ofEpochMilli(1000000),
+                            until = Instant.ofEpochMilli(2000000)
+                        )
                     )
-                ))
+                )
             },
             { newFile -> shadowbans = newFile.shadowbans }
         )

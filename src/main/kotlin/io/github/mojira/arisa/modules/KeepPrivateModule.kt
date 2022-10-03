@@ -33,7 +33,8 @@ class KeepPrivateModule(
                 ) {
                     addRawRestrictedComment(
                         "To remove the security level," +
-                                "please remove the keep private tag first.", "staff"
+                            "please remove the keep private tag first.",
+                        "staff"
                     )
                 } else {
                     addComment(CommentOptions(message))
@@ -43,8 +44,8 @@ class KeepPrivateModule(
     }
 
     private fun isKeepPrivateTag(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepPrivateTag!!) ?: false)
+        comment.visibilityValue == "staff" &&
+        (comment.body?.contains(keepPrivateTag!!) ?: false)
 
     private fun isSecurityChangeToPublic(item: ChangeLogItem, privateLevel: String) =
         item.field == "security" && item.changedFromString == privateLevel

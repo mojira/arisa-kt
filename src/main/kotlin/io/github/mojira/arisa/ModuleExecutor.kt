@@ -31,6 +31,7 @@ class ModuleExecutor(
                                     log.debug("[RESPONSE] [$issue] [$moduleName] Operation not needed")
                                 }
                             }
+
                             is FailedModuleResponse -> {
                                 addFailedTicket(issue)
 

@@ -63,7 +63,7 @@ class ShadowbanModule : Module {
             .filter {
                 timeframe.shadowbans[it.author.name]?.banTimeContains(it.created) ?: false
             }
-            .map { it.restrict("${ it.body }\n\n_Removed by Arisa -- User is shadowbanned_") }
+            .map { it.restrict("${it.body}\n\n_Removed by Arisa -- User is shadowbanned_") }
             .size
 
     private fun Issue.checkAttachmentsForShadowban(timeframe: ExecutionTimeframe): Int =
@@ -78,7 +78,7 @@ class ShadowbanModule : Module {
             .size
 
     private fun User.isNotVolunteer() =
-        getGroups()?.none { it -> listOf("helper", "global-moderators", "staff").contains(it) } ?: true
+        getGroups()?.none { listOf("helper", "global-moderators", "staff").contains(it) } ?: true
 
     private fun Comment.isNotStaffRestricted() =
         visibilityType != "group" || visibilityValue != "staff"

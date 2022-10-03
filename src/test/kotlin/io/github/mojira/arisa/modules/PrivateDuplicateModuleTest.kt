@@ -20,14 +20,18 @@ private val duplicatesLink1 = mockLink(
 private val duplicatesLinkComment = mockLink(
     type = "Duplicate",
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(
-            securityLevel = "private",
-            comments = listOf(mockComment(
-                body = "MEQS_KEEP_PRIVATE",
-                visibilityType = "group",
-                visibilityValue = "staff"
-            ))
-        ).right() }
+        getFullIssue = {
+            mockIssue(
+                securityLevel = "private",
+                comments = listOf(
+                    mockComment(
+                        body = "MEQS_KEEP_PRIVATE",
+                        visibilityType = "group",
+                        visibilityValue = "staff"
+                    )
+                )
+            ).right()
+        }
     )
 )
 private val duplicatesLink2 = mockLink(

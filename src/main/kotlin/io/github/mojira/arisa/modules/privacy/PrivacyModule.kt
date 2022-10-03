@@ -116,8 +116,10 @@ class PrivacyModule(
                         } ?: run {
                             // Redactor might have produced malformed output, or sensitive data regex pattern
                             // is imprecise; marking attachment as containing sensitive data nonetheless
-                            log.warn("$key: Sensitive data was detected in redacted content for attachment with " +
-                                    "ID ${it.id}, but original attachment content was not detect")
+                            log.warn(
+                                "$key: Sensitive data was detected in redacted content for attachment with " +
+                                    "ID ${it.id}, but original attachment content was not detect"
+                            )
                         }
                     }
 
@@ -209,12 +211,16 @@ class PrivacyModule(
                     if (filePath == null || issue.hasAnyAttachmentName(fileName) || !fileNames.add(fileName)) {
                         redactedAll = false
                         // Note: Don't log file name to avoid log injection
-                        log.warn("Cannot redact attachment with ID ${attachment.id} of issue ${issue.key}; file name " +
-                            "is malformed or would clash with other attachment")
+                        log.warn(
+                            "Cannot redact attachment with ID ${attachment.id} of issue ${issue.key}; file name " +
+                                "is malformed or would clash with other attachment"
+                        )
                         tempDir.delete()
                     } else {
-                        log.info("Redacting attachment with ID ${attachment.id} of issue ${issue.key} because it " +
-                            "contains sensitive data")
+                        log.info(
+                            "Redacting attachment with ID ${attachment.id} of issue ${issue.key} because it " +
+                                "contains sensitive data"
+                        )
                         filePath.writeText(it.redactedContent)
                         issue.addAttachmentFromFile(filePath) {
                             // Once uploaded, delete the temp directory containing the attachment

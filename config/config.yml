@@ -399,7 +399,7 @@ arisa:
 
     removeSpam:
       # Add patterns in `local.yml` to hide them from the public
-      patterns: []
+      patterns: [ ]
 
     resolveTrash:
       projects:

@@ -192,7 +192,14 @@ class RemoveVersionModuleTest : StringSpec({
             created = FIVE_SECONDS_AGO,
             resolution = "Invalid",
             affectedVersions = listOf(version, EXTRA_VERSION),
-            changeLog = listOf(ADD_VERSION, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED, VERSION_REMOVED),
+            changeLog = listOf(
+                ADD_VERSION,
+                VERSION_REMOVED,
+                VERSION_REMOVED,
+                VERSION_REMOVED,
+                VERSION_REMOVED,
+                VERSION_REMOVED
+            ),
             project = mockProject(
                 versions = listOf(version, EXTRA_VERSION)
             ),

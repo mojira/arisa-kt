@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.6.21"
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    kotlin("jvm") version "1.7.20"
+    id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     application
-    id("io.gitlab.arturbosch.detekt") version "1.17.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
 group = "io.github.mojira"
@@ -36,7 +36,7 @@ repositories {
     }
 }
 
-val logBackVersion = "1.2.3"
+val logBackVersion = "1.4.3"
 val arrowVersion = "0.10.4"
 val kotestVersion = "4.4.1"
 
@@ -50,25 +50,25 @@ dependencies {
         isChanging = true
     }
 
-    implementation("com.uchuhimo", "konf", "0.22.1")
+    implementation("com.uchuhimo", "konf", "1.1.2")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
-    implementation("com.urielsalis", "mc-crash-lib", "2.0.7")
-    implementation("com.github.napstr", "logback-discord-appender", "a20617d401")
-    implementation("org.slf4j", "slf4j-api", "1.7.25")
+    implementation("com.urielsalis", "mc-crash-lib", "2.0.8")
+    implementation("com.github.napstr", "logback-discord-appender", "bda874138e")
+    implementation("org.slf4j", "slf4j-api", "2.0.3")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)
     implementation("ch.qos.logback", "logback-core", logBackVersion)
     implementation("io.arrow-kt", "arrow-core", arrowVersion)
     implementation("io.arrow-kt", "arrow-syntax", arrowVersion)
     implementation("io.arrow-kt", "arrow-fx", arrowVersion)
-    implementation("com.beust", "klaxon", "5.4")
+    implementation("com.beust", "klaxon", "5.6")
     implementation("com.mojang", "brigadier", "1.0.18")
-    implementation("org.apache.commons", "commons-imaging", "1.0-alpha2")
+    implementation("org.apache.commons", "commons-imaging", "1.0-alpha3")
 
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
     testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
-    testImplementation("io.mockk", "mockk", "1.9.3")
-    testImplementation("org.reflections", "reflections", "0.9.12")
+    testImplementation("io.mockk", "mockk", "1.13.2")
+    testImplementation("org.reflections", "reflections", "0.10.2")
 }
 
 tasks {

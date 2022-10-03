@@ -59,8 +59,7 @@ abstract class ModuleRegistry(protected val config: Config) {
         )
     }
 
-    private fun getModuleResult(moduleName: String, module: Module) = {
-        issue: Issue, timeframe: ExecutionTimeframe ->
+    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, timeframe: ExecutionTimeframe ->
         moduleName to tryExecuteModule { module(issue, timeframe) }
     }
 
@@ -74,8 +73,8 @@ abstract class ModuleRegistry(protected val config: Config) {
     }
 
     fun getFullJql(timeframe: ExecutionTimeframe, failedTickets: Collection<String>): String {
-        val failedTicketsJql = if (failedTickets.isEmpty()) "" else "key in (${ failedTickets.joinToString() }) OR "
-        val registryJql = "(${ getJqlWithDebug(timeframe) })"
+        val failedTicketsJql = if (failedTickets.isEmpty()) "" else "key in (${failedTickets.joinToString()}) OR "
+        val registryJql = "(${getJqlWithDebug(timeframe)})"
 
         return "$failedTicketsJql$registryJql ORDER BY updated ASC"
     }

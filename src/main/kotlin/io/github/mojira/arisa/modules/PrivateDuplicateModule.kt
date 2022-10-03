@@ -31,8 +31,8 @@ class PrivateDuplicateModule(
     }
 
     private fun isKeepPrivateTag(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            (comment.body?.contains(keepPrivateTag!!) ?: false)
+        comment.visibilityValue == "staff" &&
+        (comment.body?.contains(keepPrivateTag!!) ?: false)
 
     private fun parentHasKeepPrivateTag(parent: Issue): Boolean = parent.comments.any(::isKeepPrivateTag)
 

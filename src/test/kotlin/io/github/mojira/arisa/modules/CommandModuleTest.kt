@@ -199,6 +199,7 @@ class CommandModuleTest : StringSpec({
 
     "should work for other prefixes" {
         var updatedComment = ""
+
         @Suppress("NAME_SHADOWING")
         val module = CommandModule("TESTING_COMMAND", "userName", true, attachmentUtils, ::getDispatcher)
         val comment = getComment(

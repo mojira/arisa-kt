@@ -98,16 +98,19 @@ class CrashModule(
      */
     private fun getDuplicateLink(crash: Crash): String? {
         return when (crash) {
-            is Crash.Minecraft -> minecraftCrashDupeConfigs
-                .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
-                .orNull()
-                ?.duplicates
+            is Crash.Minecraft ->
+                minecraftCrashDupeConfigs
+                    .firstOrNone { it.exceptionRegex.toRegex().containsMatchIn(crash.exception) }
+                    .orNull()
+                    ?.duplicates
+
             is Crash.Jvm -> (crash.problematicFrame as? Crash.JvmFrame.CFrame)?.libraryName?.let { libraryName ->
                 jvmCrashDupeConfigs
                     .firstOrNone { it.libraryNameRegex.toRegex().containsMatchIn(libraryName) }
                     .orNull()
                     ?.duplicates
             }
+
             else -> null
         }
     }

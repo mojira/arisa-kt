@@ -1,4 +1,5 @@
 # Modules
+
 Modules of Arisa. Arisa periodically checks for newly created Jira issues and updates to existing issues and then
 invokes modules for these issues.
 
@@ -7,6 +8,7 @@ performs one specific task. The execution of a module can be customized through 
 [config file](../config/config.yml)
 
 ## AffectedVersionMessage
+
 | Entry | Value                                                                                     |
 | ----- | ----------------------------------------------------------------------------------------- |
 | Name  | `AffectedVersionMessage`                                                                  |
@@ -20,10 +22,12 @@ The map from Jira version ID to message key is specified as `versionIdMessageMap
 (defaults to empty map).
 
 ### Checks
+
 - The issue has been created after the last run.
 - The issue has not been created by a staff member (helper, moderator or Mojang employee).
 
 ## Attachment
+
 | Entry | Value                                                                         |
 | ----- | ----------------------------------------------------------------------------- |
 | Name  | `Attachment`                                                                  |
@@ -32,10 +36,12 @@ The map from Jira version ID to message key is specified as `versionIdMessageMap
 Removes attachments ending with certain extensions and adds a comment to inform the reporter.
 
 ### Checks
+
 - There are attachments ending with any of the extensions
   listed in `extensionBlacklist` in the [config](../config/config.yml).
 
 ## CHK
+
 | Entry | Value                                                                  |
 | ----- | ---------------------------------------------------------------------- |
 | Name  | `CHK`                                                                  |
@@ -44,10 +50,12 @@ Removes attachments ending with certain extensions and adds a comment to inform 
 Updates the `CHK` field with the current time when a ticket is firstly confirmed.
 
 ### Checks
+
 - The `Confirmation Status` field is none of `null`, `"undefined"`, or `"unconfirmed"`, case-insensitively.
 - The `CHK` field is `null`.
 
 ## Command
+
 | Entry | Value                                                                      |
 | ----- | -------------------------------------------------------------------------- |
 | Name  | `Command`                                                                  |
@@ -56,6 +64,7 @@ Updates the `CHK` field with the current time when a ticket is firstly confirmed
 Executes [commands](Commands.md).
 
 ### Checks
+
 - There are comments which are
     - Restricted to `helper` or `staff`;
     - Sent by `helper`, `global-moderators`, or `staff`; AND
@@ -63,6 +72,7 @@ Executes [commands](Commands.md).
 - The comments will be interpreted according to the defined [command](Commands.md) syntax.
 
 ## ConfirmParent
+
 | Entry | Value                                                                            |
 | ----- | -------------------------------------------------------------------------------- |
 | Name  | `ConfirmParent`                                                                  |
@@ -71,10 +81,14 @@ Executes [commands](Commands.md).
 Sets `Confirmation Status` to `Community Consensus` when the amount of duplicated tickets is greater than the threshold.
 
 ### Checks
-- The `Confirmation Status` field is listed in the `confirmationStatusWhitelist` defined in the [config](../config/config.yml).
-- The amount of duplicated tickets that have unique reporters is greater than the `linkedThreshold` defined in the [config](../config/config.yml).
+
+- The `Confirmation Status` field is listed in the `confirmationStatusWhitelist` defined in
+  the [config](../config/config.yml).
+- The amount of duplicated tickets that have unique reporters is greater than the `linkedThreshold` defined in
+  the [config](../config/config.yml).
 
 ## Crash
+
 | Entry | Value                                                                    |
 | ----- | ------------------------------------------------------------------------ |
 | Name  | `Crash`                                                                  |
@@ -83,6 +97,7 @@ Sets `Confirmation Status` to `Community Consensus` when the amount of duplicate
 Detects the crash reports of the ticket and resolves it as Duplicate/Invalid accordingly.
 
 ### Checks
+
 - The `Confirmation Status` is `Unconfirmed`.
 - The `Mojang Priority` is `null`.
 - There are newly uploaded crash reports.
@@ -92,6 +107,7 @@ Detects the crash reports of the ticket and resolves it as Duplicate/Invalid acc
       [config](../config/config.yml).
 
 ## DuplicateMessage
+
 | Entry | Value                                                                               |
 | ----- | ----------------------------------------------------------------------------------- |
 | Name  | `DuplicateMessage`                                                                  |
@@ -101,26 +117,33 @@ Adds comment to indicate that this ticket is a duplicate if no one mentioned it 
 
 ### Triggered
 
-This module is triggered after the tickets are updated for `commentDelayMinutes` defined in the [config](../config/config.yml)
+This module is triggered after the tickets are updated for `commentDelayMinutes` defined in
+the [config](../config/config.yml)
 
 ### Checks
+
 - A duplicate link was created in `commentDelayMinutes` defined in the [config](../config/config.yml)
   before last run.
-- The ticket doesn't have a staff restricted comment posted by a volunteer containing `ARISA_NO_DUPLICATE_MESSAGE`, `ARISA_NO_DUPE_MSG`, or a combination of these abbreviations.
+- The ticket doesn't have a staff restricted comment posted by a volunteer containing `ARISA_NO_DUPLICATE_MESSAGE`
+  , `ARISA_NO_DUPE_MSG`, or a combination of these abbreviations.
 - None of the duplicate links that were added to this ticket have been mentioned in any public comments.
 - The ticket currently has parents.
-- Adds the comment corresponding to the parents' security levels/resolutions/keys according to all the [config](../config/config.yml).
+- Adds the comment corresponding to the parents' security levels/resolutions/keys according to all
+  the [config](../config/config.yml).
 
 ## FutureVersion
+
 | Entry | Value                                                                            |
 | ----- | -------------------------------------------------------------------------------- |
 | Name  | `FutureVersion`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/FutureVersionModule.kt) |
 
-Removes future versions from the ticket, and resolves it as `Awaiting Response` when the future version is the only version
+Removes future versions from the ticket, and resolves it as `Awaiting Response` when the future version is the only
+version
 the ticket has.
 
 ### Checks
+
 - Get all the versions of the ticket that are added after last run by non-`staff` users.
 - Any of those versions is a future version.
 - The project of this ticket has a released version.
@@ -128,6 +151,7 @@ the ticket has.
   was the only version the ticket has, resolves the ticket as `Awaiting Response`.
 
 ## HideImpostors
+
 | Entry | Value                                                                            |
 | ----- | -------------------------------------------------------------------------------- |
 | Name  | `HideImpostors`                                                                  |
@@ -136,6 +160,7 @@ the ticket has.
 Hides the comments created by users who look like an impostor.
 
 ### Checks
+
 - The comment was created within a day.
 - The comment's author's display name starts with a pair of square brackets with some texts in it, and has a space
   and some texts after the brackets. e.g. `[dev] foo`.
@@ -143,6 +168,7 @@ Hides the comments created by users who look like an impostor.
 - The comment's author is not a `helper`, `global-moderators`, nor `staff`.
 
 ## IncompleteModule
+
 | Entry | Value                                                                         |
 | ----- | ----------------------------------------------------------------------------- |
 | Name  | `IncompleteModule`                                                            |
@@ -151,13 +177,15 @@ Hides the comments created by users who look like an impostor.
 Resolves an empty report as `Incomplete`.
 
 ### Checks
+
 - The ticket was created after last run.
 - The ticket is empty by either
-  - Both description and environment are the built-in placeholder texts provided by Mojira; OR
-  - Both description and environment are shorter than 5 characters.
+    - Both description and environment are the built-in placeholder texts provided by Mojira; OR
+    - Both description and environment are shorter than 5 characters.
 - The ticket doesn't have any attachments.
 
 ## KeepPlatform
+
 | Entry | Value                                                                           |
 | ----- | ------------------------------------------------------------------------------- |
 | Name  | `KeepPlatform`                                                                  |
@@ -166,12 +194,15 @@ Resolves an empty report as `Incomplete`.
 Keep tickets containing certain tag with the same `Platform`.
 
 ### Checks
+
 - Change log contains `Platform` changes.
 - Any of the comments is restricted to `staff` and contains the tag, as defined in the [config](../config/config.yml).
-- Either there was a change by a user who is a `helper`, `global-moderators`, or `staff` after the comment, or there was any change after the comment (to get the saved platform)
+- Either there was a change by a user who is a `helper`, `global-moderators`, or `staff` after the comment, or there was
+  any change after the comment (to get the saved platform)
 - saved platform and current `Platform` do not match
 
 ## KeepPrivate
+
 | Entry | Value                                                                          |
 | ----- | ------------------------------------------------------------------------------ |
 | Name  | `KeepPrivate`                                                                  |
@@ -180,11 +211,13 @@ Keep tickets containing certain tag with the same `Platform`.
 Keep tickets containing certain tag as private.
 
 ### Checks
+
 - The `tag` is defined in the [config](../config/config.yml).
 - Any of the comments is restricted to `staff` and contains the tag.
 - The security level of the ticket is not set to private.
 
 ## Language
+
 | Entry | Value                                                                       |
 | ----- | --------------------------------------------------------------------------- |
 | Name  | `Language`                                                                  |
@@ -193,6 +226,7 @@ Keep tickets containing certain tag as private.
 Resolves tickets that are not in English as `Invalid`.
 
 ### Checks
+
 - The ticket was created after last run.
 - The ticket is viewable by public.
 - Combines the summary and the description of the ticket together, separated with a space (` `).
@@ -203,20 +237,26 @@ Resolves tickets that are not in English as `Invalid`.
   with a percentage greater than `0.7`.
 
 ## MultiplePlatforms
+
 | Entry | Value                                                                                |
 | ----- | ------------------------------------------------------------------------------------ |
 | Name  | `MultiplePlatforms`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/MultiplePlatformsModule.kt) |
 
-Sets `Platform` to `targetPlatform` (as defined in the [config](../config/config.yml)) when there is a duplicate link that leads to a ticket with different `Platform` to the one on the current issue.
+Sets `Platform` to `targetPlatform` (as defined in the [config](../config/config.yml)) when there is a duplicate link
+that leads to a ticket with different `Platform` to the one on the current issue.
 
 ### Checks
+
 - Current `Platform` is in the whitelist, as defined by `platformWhitelist` in the [config](../config/config.yml).
 - There's an inwards `Duplicate` link that leads to a ticket with a different platform to the current `platform`.
-- The platform from the link is not blacklisted as defined by `transferredPlatformBlacklist` in the [config](../config/config.yml).
-- There's no tag that shows that the ticket is supposed to keep its platform, as defined by `keepPlatformTag` in the [config](../config/config.yml).
+- The platform from the link is not blacklisted as defined by `transferredPlatformBlacklist` in
+  the [config](../config/config.yml).
+- There's no tag that shows that the ticket is supposed to keep its platform, as defined by `keepPlatformTag` in
+  the [config](../config/config.yml).
 
 ## Piracy
+
 | Entry | Value                                                                     |
 | ----- | ------------------------------------------------------------------------- |
 | Name  | `Piracy`                                                                  |
@@ -225,10 +265,13 @@ Sets `Platform` to `targetPlatform` (as defined in the [config](../config/config
 Resolves tickets about pirated games as `Invalid`.
 
 ### Checks
+
 - The ticket was created after last run.
-- Any of the description, environment, and/or summary contains any of the `piracySignatures` defined in the [config](../config/config.yml).
+- Any of the description, environment, and/or summary contains any of the `piracySignatures` defined in
+  the [config](../config/config.yml).
 
 ## Privacy
+
 | Entry | Value                                                                              |
 | ----- | ---------------------------------------------------------------------------------- |
 | Name  | `Privacy`                                                                          |
@@ -239,22 +282,28 @@ Additionally in some cases it redacts sensitive data from attachments by deletin
 reuploading it with redacted content and its name prefixed with `redacted_` and adding a comment informing the uploader.
 
 ### Checks
+
 - The ticket is not set to private.
+
 #### For Setting Tickets to Private
+
 - Any of the following matches one of the regex patterns specified by `sensitiveTextRegexes` in the
   [config](../config/config.yml), or contains an email address which does not match one of the `allowedEmailRegexes`:
-  - summary, environment, description (if ticket was created after last run)
-  - text attachment (if it was created after last run), and the module was unable to redact the sensitive data
-  - changelog entry string value (if it was created after last run)
+    - summary, environment, description (if ticket was created after last run)
+    - text attachment (if it was created after last run), and the module was unable to redact the sensitive data
+    - changelog entry string value (if it was created after last run)
 - Or any of the attachments created after the last run has a name which matches one of `sensitiveFileNameRegexes` in
   the [config](../config/config.yml).
+
 #### For Restricting Comments to `staff`
+
 - The comment was added after last run.
 - The comment is not restricted.
 - The comment matches one of the regex patterns specified by `sensitiveTextRegexes` in the
   [config](../config/config.yml), or contains an email address which does not match one of the `allowedEmailRegexes`.
 
 ## PrivateDuplicate
+
 | Entry | Value                                                                               |
 | ----- | ----------------------------------------------------------------------------------- |
 | Name  | `PrivateDuplicate`                                                                  |
@@ -263,29 +312,36 @@ reuploading it with redacted content and its name prefixed with `redacted_` and 
 Transfers security level and MEQS comment to a report's duplicates.
 
 ### Checks
+
 - The `keepPrivateTag` is defined in the [config](../config/config.yml).
 - The ticket has links.
 - At least one link is outwards and duplicate.
 - The ticket is not set to private.
 - The linked report is private.
+
 #### For Transferring MEQS Comment
+
 - Any of the comments on the linked report is restricted to `staff` and contains the keepPrivateTag.
 
 ## RemoveBotComment
+
 | Entry | Value                                                                                  |
 |-------|----------------------------------------------------------------------------------------|
 | Name  | `RemoveBotComment`                                                                     |
 | Class | [link](../src/main/kotlin/io/github/mojira/arisa/modules/RemoveBotCommentModule.kt)    |
 
-Deletes any undesired comments that were created by the bot that now only contain a removal tag (can be configured in [config](../config/config.yml)).
+Deletes any undesired comments that were created by the bot that now only contain a removal tag (can be configured
+in [config](../config/config.yml)).
 
 ### Checks
+
 - The comment was originally authored by the bot.
 - The comment has been updated since the last run.
 - The comment contains only the removal tag.
 - The comment is restricted to `global-moderators` or `staff`.
 
 ## RemoveIdenticalLink
+
 | Entry | Value                                                                                  |
 | ----- | -------------------------------------------------------------------------------------- |
 | Name  | `RemoveIdenticalLink`                                                                  |
@@ -294,11 +350,13 @@ Deletes any undesired comments that were created by the bot that now only contai
 Removes identical links from the ticket.
 
 ### Checks
+
 - The ticket has links.
 - The link has the same type, direction, and linked ticket as any other link.
     - The direction of `Relates to` link isn't checked.
 
 ## RemoveNonStaffTags
+
 | Entry | Value                                                                                 |
 | ----- | ------------------------------------------------------------------------------------- |
 | Name  | `RemoveNonStaffTags`                                                                  |
@@ -307,10 +365,12 @@ Removes identical links from the ticket.
 Removes specified tags added by non-volunteer users.
 
 ### Checks
+
 - The comment is a specified tag as defined in the config.
 - The comment is not restricted to `global-moderators`, `staff` or `helper`.
 
 ## RemoveSpam
+
 | Entry | Value                                                                         |
 | ----- | ----------------------------------------------------------------------------- |
 | Name  | `RemoveSpam`                                                                  |
@@ -323,6 +383,7 @@ Bug reports that match these patterns are resolved as invalid, are made private,
 and the reporter is changed to `SpamBin`.
 
 ### Checks
+
 - The comment
     - is new (created after the last bot run)
     - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
@@ -333,6 +394,7 @@ and the reporter is changed to `SpamBin`.
     - matches any spam pattern either in the description, the environment, or the summary
 
 ## RemoveTriagedMeqs
+
 | Entry | Value                                                                                |
 | ----- | ------------------------------------------------------------------------------------ |
 | Name  | `RemoveTriagedMeqs`                                                                  |
@@ -341,11 +403,13 @@ and the reporter is changed to `SpamBin`.
 Replaces MEQS tags in already triaged tickets with `MEQS_ARISA_REMOVED`.
 
 ### Checks
+
 - The ticket has been triaged by either
     - Has a `Mojang Priority`; OR
     - Has a `Triaged Time`.
 
 ## RemoveVersion
+
 | Entry | Value                                                                            |
 | ----- | -------------------------------------------------------------------------------- |
 | Name  | `RemoveVersion`                                                                  |
@@ -354,33 +418,41 @@ Replaces MEQS tags in already triaged tickets with `MEQS_ARISA_REMOVED`.
 Removes affected versions added to resolved tickets.
 
 ### Checks
+
 - The ticket is resolved.
 - Affected versions have been added by a normal user.
 
 ## ReopenAwaiting
+
 | Entry | Value                                                                             |
 | ----- | --------------------------------------------------------------------------------- |
 | Name  | `ReopenAwaiting`                                                                  |
 | Class | [Link](../src/main/kotlin/io/github/mojira/arisa/modules/ReopenAwaitingModule.kt) |
 
-Reopens ticket that is resolved as `Awaiting Response` when the ticket is updated, or adds a comment when the ticket shouldn't
+Reopens ticket that is resolved as `Awaiting Response` when the ticket is updated, or adds a comment when the ticket
+shouldn't
 be reopened because of the `MEQS_KEEP_AR` tag or because the ticket is too old.
 
 ### Checks
+
 - The ticket is resolved as `Awaiting Response`.
 - The ticket was updated after it was created for two seconds.
 - There are valid updates after the ticket was resolved. Valid updates are:
     - Comments that are posted by users, except for:
-        - Comments from users with one of the roles in `blacklistedRoles` as defined in the [config](../config/config.yml)
-        - Comments from new users (users that don't have any comments or non-trash bug reports that are older than 24 hours)
+        - Comments from users with one of the roles in `blacklistedRoles` as defined in
+          the [config](../config/config.yml)
+        - Comments from new users (users that don't have any comments or non-trash bug reports that are older than 24
+          hours)
     - Changes that are done by the reporter.
 - There is no `MEQS_KEEP_AR` tag.
 - If there is a `ARISA_REOPEN_OP` tag, the bug report can only be reopened by the reporter.
 - The ticket was resolved within the `softARDays` defined in the [config](../config/config.yml)
   OR the update is done by the reporter.
-- If all the other checks pass but not the last two, adds a comment to indicate the user unless it has already been commented before.
+- If all the other checks pass but not the last two, adds a comment to indicate the user unless it has already been
+  commented before.
 
 ## ReplaceText
+
 | Entry | Value                                                                          |
 | ----- | ------------------------------------------------------------------------------ |
 | Name  | `ReplaceText`                                                                  |
@@ -389,15 +461,20 @@ be reopened because of the `MEQS_KEEP_AR` tag or because the ticket is too old.
 Replaces ticket links with ticket keys.
 
 ### Checks
+
 #### For Description
+
 - The ticket was created after last run.
 - The description is not `null`.
 - The description has ticket URLs that don't have any query parameters nor display texts other than the ticket key.
+
 #### For Comments
+
 - The comment was created after last run.
 - The comment has ticket URLs that don't have any query parameters nor display texts other than the ticket key.
 
 ## ResolveTrash
+
 | Entry | Value                                                                           |
 | ----- | ------------------------------------------------------------------------------- |
 | Name  | `ResolveTrash`                                                                  |
@@ -406,9 +483,11 @@ Replaces ticket links with ticket keys.
 Resolves trashed tickets as `Invalid`.
 
 ### Checks
+
 - The ticket is in `TRASH` project.
 
 ## RevokeConfirmation
+
 | Entry | Value                                                                                 |
 | ----- | ------------------------------------------------------------------------------------- |
 | Name  | `RevokeConfirmation`                                                                  |
@@ -417,10 +496,12 @@ Resolves trashed tickets as `Invalid`.
 Revokes changes to `Confirmation Status` done by non-volunteers.
 
 ### Checks
+
 - The `Confirmation Status` is not the same as the last one changed by users with group
   `helper`, `global-moderators`, or `staff`.
 
 ## RevokePriority
+
 | Entry | Value                                                                                 |
 | ----- | ------------------------------------------------------------------------------------- |
 | Name  | `RevokePriority`                                                                  |
@@ -429,10 +510,12 @@ Revokes changes to `Confirmation Status` done by non-volunteers.
 Revokes changes to `Mojang Priority` done by non-volunteers.
 
 ### Checks
+
 - The `Mojang Priority` is not the same as the last one changed by users with group
   `global-moderators` or `staff`.
 
 ## Thumbnail
+
 | Entry | Value                                                                                  |
 | ----- | -------------------------------------------------------------------------------------- |
 | Name  | `Thumbnail`                                                                            |
@@ -442,17 +525,20 @@ Edits embedded image references to large images in the issue description and com
 instead.
 
 ### Checks
+
 - For issues: The issue has been created after the last run (edits after the last run are ignored)
 - For comments: The comment has been added after the last run (edits after the last run are ignored)
 - The image reference refers to an attached image (URL references are not supported)
 - The image reference does not specify any display settings (e.g. custom size)
-- The image is wider than `maxImageWidth` or taller than `maxImageHeight` specified in the [config](../config/config.yml)
+- The image is wider than `maxImageWidth` or taller than `maxImageHeight` specified in
+  the [config](../config/config.yml)
 - While reading the image not more than `maxImageReadBytes` as specified in the [config](../config/config.yml)
   (defaults to 5 KiB) are read. Note that most image formats include the dimension information in the first few bytes.
 - At most `maxImagesCount` as specified in the [config](../config/config.yml) (defaults to 10) will be processed per
   issue description respectively per comment
 
 ## Shadowban
+
 | Entry | Value                                                                        |
 | ----- | ---------------------------------------------------------------------------- |
 | Name  | `Shadowban`                                                                  |
@@ -466,20 +552,22 @@ created by shadowbanned users (via `$ARISA_SHADOWBAN`).
 - Attachments are immediately deleted.
 
 ### Checks
+
 - The bug report
-  - was reported by someone who is currently shadowbanned
-  - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
+    - was reported by someone who is currently shadowbanned
+    - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
 - The comment
-  - was created by someone who is currently shadowbanned
-  - has been created while that user was banned
-  - is not restricted already
-  - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
+    - was created by someone who is currently shadowbanned
+    - has been created while that user was banned
+    - is not restricted already
+    - was not posted by someone in the `helper`, `staff`, or `global-moderators` group
 - The attachment
-  - was uploaded by someone who is currently shadowbanned
-  - has been uploaded while that user was banned
-  - was not uploaded by someone in the `helper`, `staff`, or `global-moderators` group
+    - was uploaded by someone who is currently shadowbanned
+    - has been uploaded while that user was banned
+    - was not uploaded by someone in the `helper`, `staff`, or `global-moderators` group
 
 ## TransferLinks
+
 | Entry | Value                                                                               |
 | ----- | ----------------------------------------------------------------------------------- |
 | Name  | `TransferLinks`                                                                     |
@@ -488,15 +576,21 @@ created by shadowbanned users (via `$ARISA_SHADOWBAN`).
 Transfers links from duplicated tickets to their parents.
 
 ### Checks
+
 - The ticket was linked as a duplicate after last run.
+
 #### For Removing Links from Children
+
 - The link is not a `Duplicates` link.
+
 #### For Adding Links to Parents
+
 - The link is not a `Duplicates` link.
 - The parent doesn't have this link.
 - The link doesn't point to the parent itself.
 
 ## TransferVersions
+
 | Entry | Value                                                                           |
 | ----- | ------------------------------------------------------------------------------- |
 | Name  | `TransferVersions`                                                              |
@@ -505,12 +599,14 @@ Transfers links from duplicated tickets to their parents.
 Transfers versions from duplicated tickets to their parents.
 
 ### Checks
+
 - The ticket was linked as a duplicate after last run.
 - The Jira version ID is not listed in `notTransferredVersionIds` specified in the [config](../config/config.yml)
   (defaults to empty list, i.e. all versions are transferred).
 - The version doesn't exist in the parent yet.
 
 ## UpdateLinked
+
 | Entry | Value                                                                           |
 | ----- | ------------------------------------------------------------------------------- |
 | Name  | `UpdateLinked`                                                                  |
@@ -520,9 +616,12 @@ Updates the `Linked` field to indicate the amount of duplicates of this ticket.
 
 ### Triggered
 
-This module is triggered after the tickets are updated for `updateIntervalHours` defined in the [config](../config/config.yml).
+This module is triggered after the tickets are updated for `updateIntervalHours` defined in
+the [config](../config/config.yml).
 
 ### Checks
+
 - The amount of duplicates calculated from the change log is not the same as the value of the `Linked` field.
 - There are link changes after the `Linked` field was last updated.
-- The first link change after the `Linked` field was last updated is not within `updateIntervalHours` defined in the [config](../config/config.yml).
+- The first link change after the `Linked` field was last updated is not within `updateIntervalHours` defined in
+  the [config](../config/config.yml).

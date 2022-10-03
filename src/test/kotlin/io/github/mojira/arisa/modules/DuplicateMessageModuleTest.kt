@@ -172,24 +172,24 @@ class DuplicateMessageModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when the ticket has a prevent message tag" {
         val issue = getIssue(
-                changeLog = listOf(
-                        mockChangeLogItem(
-                                created = TEN_THOUSAND_YEARS_LATER,
-                                field = "Link",
-                                changedTo = "MC-1",
-                                changedToString = "This issue duplicates MC-1"
-                        )
-                ),
-                links = listOf(
-                        mockLink()
-                ),
-                comments = listOf(
-                        mockComment(
-                                body = "ARISA_NO_DUPLICATE_MESSAGE",
-                                visibilityType = "group",
-                                visibilityValue = "staff"
-                        )
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_THOUSAND_YEARS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
                 )
+            ),
+            links = listOf(
+                mockLink()
+            ),
+            comments = listOf(
+                mockComment(
+                    body = "ARISA_NO_DUPLICATE_MESSAGE",
+                    visibilityType = "group",
+                    visibilityValue = "staff"
+                )
+            )
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -1003,27 +1003,27 @@ class DuplicateMessageModuleTest : StringSpec({
     "should add the forward comment if the ticket was created before the parent" {
         var commentOptions: CommentOptions? = null
         val issue = getIssue(
-                changeLog = listOf(
-                        mockChangeLogItem(
-                                created = TEN_SECONDS_LATER,
-                                field = "Link",
-                                changedTo = "MC-1",
-                                changedToString = "This issue duplicates MC-1"
-                        )
-                ),
-                links = listOf(
-                        mockLink(
-                                issue = mockLinkedIssue(
-                                        key = "MC-1",
-                                        getFullIssue = {
-                                            mockIssue(
-                                                    created = TEN_THOUSAND_YEARS_LATER,
-                                                    resolution = "Invalid"
-                                            ).right()
-                                        }
-                                )
-                        )
-                ),
+            changeLog = listOf(
+                mockChangeLogItem(
+                    created = TEN_SECONDS_LATER,
+                    field = "Link",
+                    changedTo = "MC-1",
+                    changedToString = "This issue duplicates MC-1"
+                )
+            ),
+            links = listOf(
+                mockLink(
+                    issue = mockLinkedIssue(
+                        key = "MC-1",
+                        getFullIssue = {
+                            mockIssue(
+                                created = TEN_THOUSAND_YEARS_LATER,
+                                resolution = "Invalid"
+                            ).right()
+                        }
+                    )
+                )
+            ),
             addDupeMessage = { commentOptions = it; Unit.right() }
         )
 

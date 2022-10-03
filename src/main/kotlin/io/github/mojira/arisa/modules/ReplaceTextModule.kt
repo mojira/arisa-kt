@@ -17,8 +17,8 @@ class ReplaceTextModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             val needUpdateDescription = created.isAfter(lastRun) &&
-                    description != null &&
-                    needReplacement(description)
+                description != null &&
+                needReplacement(description)
 
             val filteredComments = comments
                 .filter { createdAfterLastRun(it.created, lastRun) }

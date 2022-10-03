@@ -21,7 +21,8 @@ class DeleteLinksCommandTest : StringSpec({
                             type = "Duplicate"
                         )
                     )
-                ), LinkList("relates to", listOf("MC-100"))
+                ),
+                LinkList("relates to", listOf("MC-100"))
             )
         }
 
@@ -29,7 +30,8 @@ class DeleteLinksCommandTest : StringSpec({
             command(
                 mockIssue(
                     links = emptyList()
-                ), LinkList("relates to", listOf("MC-100"))
+                ),
+                LinkList("relates to", listOf("MC-100"))
             )
         }
     }
@@ -46,21 +48,24 @@ class DeleteLinksCommandTest : StringSpec({
                     issue = mockLinkedIssue(
                         key = "MC-100"
                     )
-                ), mockLink(
+                ),
+                mockLink(
                     type = "Duplicate",
                     outwards = false,
                     remove = { list.add("duplicated2") },
                     issue = mockLinkedIssue(
                         key = "MC-200"
                     )
-                ), mockLink(
+                ),
+                mockLink(
                     type = "Relates",
                     outwards = true,
                     remove = { list.add("relates1") },
                     issue = mockLinkedIssue(
                         key = "MC-100"
                     )
-                ), mockLink(
+                ),
+                mockLink(
                     type = "Relates",
                     outwards = false,
                     remove = { list.add("relates2") },

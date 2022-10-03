@@ -36,10 +36,10 @@ class RemoveBotCommentModule(
 
     private fun isVolunteerRestricted(comment: Comment) =
         comment.visibilityType == "group" &&
-                listOf("staff", "global-moderators").contains(comment.visibilityValue)
+            listOf("staff", "global-moderators").contains(comment.visibilityValue)
 
     private fun shouldBeRemoved(comment: Comment) =
         comment.author.name == botUserName &&
-                isVolunteerRestricted(comment) &&
-                comment.body.equals(removalTag)
+            isVolunteerRestricted(comment) &&
+            comment.body.equals(removalTag)
 }

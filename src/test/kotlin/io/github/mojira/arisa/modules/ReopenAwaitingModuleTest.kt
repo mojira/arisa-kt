@@ -21,7 +21,7 @@ private val RANDOM_USER = getUser(name = "randomUser")
 private val NEWBIE = getUser(name = "newbieUser", newUser = true)
 
 private val NOT_REOPEN_AR_MESSAGE = HelperMessageService.getMessageWithBotSignature(
-        "MC", "not-reopen-ar", null, "en"
+    "MC", "not-reopen-ar", null, "en"
 )
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)

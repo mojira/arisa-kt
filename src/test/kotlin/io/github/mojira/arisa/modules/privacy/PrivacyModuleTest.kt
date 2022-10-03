@@ -475,8 +475,8 @@ class PrivacyModuleTest : FunSpec({
     }
 
     context("sensitive file names") {
-            val sensitiveFileName = "sensitive.txt"
-            val module = createModule(sensitiveFileNameRegexes = listOf(Regex.fromLiteral(sensitiveFileName)))
+        val sensitiveFileName = "sensitive.txt"
+        val module = createModule(sensitiveFileNameRegexes = listOf(Regex.fromLiteral(sensitiveFileName)))
 
         test("should not mark as private when attachment has been created before last run") {
             var hasSetPrivate = false
@@ -620,8 +620,10 @@ class PrivacyModuleTest : FunSpec({
             val uploader1User = mockUser(
                 name = uploader1
             )
+
             @Suppress("LocalVariableName")
             val attachmentName1_1 = "my-attachment.txt"
+
             @Suppress("LocalVariableName")
             val attachmentName1_2 = "my-attachment2.txt"
 

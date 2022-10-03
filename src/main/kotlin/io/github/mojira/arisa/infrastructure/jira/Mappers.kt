@@ -235,11 +235,13 @@ private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
 ).fold({ null }, { it })
 
 private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
-    val commentJql = "issueFunction IN commented(${ escapeIssueFunction(username) { "by $it before -24h" } })"
+    val commentJql = "issueFunction IN commented(${escapeIssueFunction(username) { "by $it before -24h" }})"
 
     val oldCommentsExist = try {
         jiraClient.countIssues(commentJql) > 0
-    } catch (_: JiraException) { false }
+    } catch (_: JiraException) {
+        false
+    }
 
     if (oldCommentsExist) return false
 
@@ -247,7 +249,9 @@ private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
 
     val oldReportsExist = try {
         jiraClient.countIssues(reportJql) > 0
-    } catch (_: JiraException) { true }
+    } catch (_: JiraException) {
+        true
+    }
 
     return !oldReportsExist
 }
@@ -260,8 +264,10 @@ fun JiraIssue.toLinkedIssue(
     key,
     status.name,
     { getFullIssue(jiraClient, config) },
-    ::createLink.partially1(getUpdateContext(jiraClient)).partially1(::getOtherUpdateContext
-            .partially1(jiraClient))
+    ::createLink.partially1(getUpdateContext(jiraClient)).partially1(
+        ::getOtherUpdateContext
+            .partially1(jiraClient)
+    )
 )
 
 @Suppress("LongParameterList")
@@ -335,6 +341,7 @@ private fun JiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.Cus
 private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
 private fun JiraIssue.getDungeonsPlatform(config: Config) =
     getCustomField(config[Arisa.CustomFields.dungeonsPlatformField])
+
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
 private fun JiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])

@@ -268,6 +268,6 @@ fun openHttpInputStream(request: HttpRequest): InputStream {
     return response.body()
         ?: throw IOException(
             "${request.method()} request to ${request.uri()} failed with HTTP status code " +
-                    "${response.statusCode()}"
+                "${response.statusCode()}"
         )
 }

@@ -75,7 +75,7 @@ class DuplicateMessageModule(
     }
 
     private fun isAddingDuplicateLink(item: ChangeLogItem) = item.field == "Link" && item.changedTo != null &&
-            item.changedToString != null && item.changedToString.startsWith("This issue duplicates ")
+        item.changedToString != null && item.changedToString.startsWith("This issue duplicates ")
 
     private fun List<LinkedIssue>.getFilledText() = this
         .map { it.key }
@@ -133,8 +133,8 @@ class DuplicateMessageModule(
         link.type.lowercase() == "duplicate" && link.outwards
 
     private fun isPreventMessageTag(comment: Comment) = comment.visibilityType == "group" &&
-            comment.visibilityValue == "staff" &&
-            preventMessageTags.any { comment.body!!.contains(it) }
+        comment.visibilityValue == "staff" &&
+        preventMessageTags.any { comment.body!!.contains(it) }
 
     private fun assertNotContainsPreventMessageTag(comments: List<Comment>) = when {
         comments.any(::isPreventMessageTag) -> OperationNotNeededModuleResponse.left()

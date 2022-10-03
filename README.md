@@ -12,7 +12,7 @@
     <img src="arisa.png" alt="Arisa" width="80" height="80">
   </a>
 
-  <h3>Arisa</h3>
+<h3>Arisa</h3>
 
   <p>
     A JIRA bot for doing various moderation tasks on Mojang's bug tracker <a href="https://bugs.mojang.com/">Mojira</a>.
@@ -26,8 +26,11 @@
 </div>
 
 ## About the project
-Arisa is a Bot account on Mojira, Mojang's bug tracker. Its purpose is to run various checks on tickets and execute automated tasks.
-For instance, it automatically analyzes newly posted tickets and automatically resolves them in case the game is modified.
+
+Arisa is a Bot account on Mojira, Mojang's bug tracker. Its purpose is to run various checks on tickets and execute
+automated tasks.
+For instance, it automatically analyzes newly posted tickets and automatically resolves them in case the game is
+modified.
 
 Arisa was [originally written in Ruby](https://github.com/mojira/arisa) by Synchunk, a now retired Mojira moderator.
 Later, Arisa was [rewritten in JavaScript](https://github.com/mojira/arisa-js) by [Mustek](https://github.com/Mustek).
@@ -35,7 +38,8 @@ This Kotlin version of Arisa was written by [urielsalis](https://github.com/urie
 
 ## Installation
 
-If you want to tinker around with the project on your local PC, you can simply go ahead, clone the project and build it with Gradle.
+If you want to tinker around with the project on your local PC, you can simply go ahead, clone the project and build it
+with Gradle.
 
 ```
 git clone https://github.com/mojira/arisa-kt.git
@@ -46,6 +50,7 @@ git clone https://github.com/mojira/arisa-kt.git
 ```
 
 To run the bot with the default configuration, you need to run the following command:
+
 ```
 ./gradlew build installDist
 ./build/install/arisa-kt/bin/arisa-kt
@@ -70,12 +75,14 @@ Language detection [powered by Dandelion API](https://dandelion.eu/).
 
 ## Contributing
 
-You're very welcome to contribute to this project! Please note that this project uses [ktlint](https://github.com/pinterest/ktlint) to ensure consistent code.
+You're very welcome to contribute to this project! Please note that this project
+uses [ktlint](https://github.com/pinterest/ktlint) to ensure consistent code.
 It runs with `./gradlew clean build`, but you can also run it independently using `./gradlew ktlintCheck`.
 
 ## Found a bug in Minecraft?
 
-Please head over to [bugs.mojang.com](https://bugs.mojang.com/), search whether your bug is already reported and if not, create an account and click the red "Create" button on the top of the page.
+Please head over to [bugs.mojang.com](https://bugs.mojang.com/), search whether your bug is already reported and if not,
+create an account and click the red "Create" button on the top of the page.
 
 ## License
 

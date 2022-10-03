@@ -30,10 +30,10 @@ class RemoveTriagedMeqsModule(
 
     private fun removeMeqsTags(comment: String): String {
         val regex = (
-                "MEQS(" +
-                        meqsTags.joinToString("|") { it.replace("MEQS", "") } +
-                        ")"
-                ).toRegex()
+            "MEQS(" +
+                meqsTags.joinToString("|") { it.replace("MEQS", "") } +
+                ")"
+            ).toRegex()
         return regex.replace(comment) {
             "Arisa removed prefix 'MEQS' from '${it.groupValues[1]}'; removal reason: $removalReason"
         }

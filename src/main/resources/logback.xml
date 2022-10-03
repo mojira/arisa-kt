@@ -25,12 +25,14 @@
     </appender>
 
     <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
-        <webhookUri />
+        <webhookUri/>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg`%n%replace(```%ex{full}```){'``````',''}%nopex</pattern>
+            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -
+                %msg`%n%replace(```%ex{full}```){'``````',''}%nopex
+            </pattern>
         </layout>
         <username>Arisa</username>
         <avatarUrl>https://raw.githubusercontent.com/mojira/arisa-kt/master/arisa.png</avatarUrl>
@@ -38,11 +40,11 @@
     </appender>
 
     <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="DISCORD" />
+        <appender-ref ref="DISCORD"/>
     </appender>
 
     <appender name="ERROR_DISCORD" class="com.github.napstr.logback.DiscordAppender">
-        <webhookUri />
+        <webhookUri/>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
         </filter>
@@ -55,13 +57,13 @@
     </appender>
 
     <appender name="ASYNC_ERROR_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="ERROR_DISCORD" />
+        <appender-ref ref="ERROR_DISCORD"/>
     </appender>
 
     <root level="debug">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
-        <appender-ref ref="ASYNC_DISCORD" />
-        <appender-ref ref="ASYNC_ERROR_DISCORD" />
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ASYNC_DISCORD"/>
+        <appender-ref ref="ASYNC_ERROR_DISCORD"/>
     </root>
 </configuration>

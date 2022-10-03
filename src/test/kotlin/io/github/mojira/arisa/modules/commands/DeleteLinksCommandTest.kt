@@ -77,18 +77,18 @@ class DeleteLinksCommandTest : StringSpec({
         )
 
         command(issue, LinkList("is duplicated by", listOf("MC-100", "MC-200"))) shouldBe 2
-        list shouldBe (mutableListOf("duplicated1", "duplicated2"))
+        list shouldBe mutableListOf("duplicated1", "duplicated2")
         list.clear()
 
         command(issue, LinkList("is duplicated by", listOf("MC-100"))) shouldBe 1
-        list shouldBe (mutableListOf("duplicated1"))
+        list shouldBe mutableListOf("duplicated1")
         list.clear()
 
         command(issue, LinkList("relates to", listOf("MC-100", "MC-200"))) shouldBe 2
-        list shouldBe (mutableListOf("relates1", "relates2"))
+        list shouldBe mutableListOf("relates1", "relates2")
         list.clear()
 
         command(issue, LinkList("relates to", listOf("MC-100"))) shouldBe 1
-        list shouldBe (mutableListOf("relates1"))
+        list shouldBe mutableListOf("relates1")
     }
 })

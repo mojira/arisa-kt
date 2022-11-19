@@ -64,11 +64,32 @@ dependencies {
     implementation("com.mojang", "brigadier", "1.0.18")
     implementation("org.apache.commons", "commons-imaging", "1.0-alpha3")
 
+    components {
+        /*
+         * Clears all dependencies of dom4j (which is used transitively) because they are actually optional
+         * dependencies, see:
+         * - https://github.com/dom4j/dom4j/issues/99#issuecomment-830063159
+         * - https://github.com/dom4j/dom4j/blob/7fbdc6d58623ec0b54b9b44a4738781b65191df1/build.gradle#L92-L96
+         *
+         * One of the optional dependencies (pull-parser) is causing issues because it registers itself as
+         * javax.xml.parsers.SAXParserFactory implementation, but it does not support all features, causing
+         * failures for logback.
+         */
+        withModule<ClearDependencies>("org.dom4j:dom4j")
+    }
+
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
     testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
     testImplementation("io.mockk", "mockk", "1.13.2")
     testImplementation("org.reflections", "reflections", "0.10.2")
+}
+
+// Used for removing dependencies of dom4j, see usage above
+class ClearDependencies : ComponentMetadataRule {
+    override fun execute(context: ComponentMetadataContext) {
+        context.details.allVariants { withDependencies { clear() } }
+    }
 }
 
 tasks {

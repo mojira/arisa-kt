@@ -71,7 +71,7 @@ jobs:
           TENANT_ID: ${{ secrets.TENANT_ID }}
           BASTION_NAME: ${{ secrets.BASTION_NAME }}
       - name: Run internal deploy script
-        uses: fifsky/ssh-action@master
+        uses: urielsalis/azure-bastion-ssh-action@master
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
@@ -80,7 +80,8 @@ jobs:
           TENANT_ID: ${{ secrets.TENANT_ID }}
           BASTION_NAME: ${{ secrets.BASTION_NAME }}
         with:
-          host: ssh.urielsalis.com
+          host: localhost
+          port: 50022
           user: arisakt
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command: |

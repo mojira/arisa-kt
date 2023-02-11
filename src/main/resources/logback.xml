@@ -30,9 +30,7 @@
             <level>INFO</level>
         </filter>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -
-                %msg`%n%replace(```%ex{full}```){'``````',''}%nopex
-            </pattern>
+            <pattern>`%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg`%n%replace(```%ex{full}```){'``````',''}%nopex</pattern>
         </layout>
         <username>Arisa</username>
         <avatarUrl>https://raw.githubusercontent.com/mojira/arisa-kt/master/arisa.png</avatarUrl>

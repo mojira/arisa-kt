@@ -52,7 +52,7 @@ dependencies {
 
     implementation("com.uchuhimo", "konf", "1.1.2")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
-    implementation("com.urielsalis", "mc-crash-lib", "2.0.8")
+    implementation("com.urielsalis", "mc-crash-lib", "2.0.10")
     implementation("com.github.napstr", "logback-discord-appender", "bda874138e")
     implementation("org.slf4j", "slf4j-api", "2.0.3")
     implementation("ch.qos.logback", "logback-classic", logBackVersion)

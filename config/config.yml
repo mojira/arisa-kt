@@ -242,7 +242,6 @@ arisa:
     multiplePlatforms:
       projects:
         - MCD
-        - MCLG
         - MCPE
       resolutions:
         - Unresolved
@@ -273,7 +272,6 @@ arisa:
     keepPlatform:
       projects:
         - MCD
-        - MCLG
         - MCPE
       resolutions:
         - Unresolved

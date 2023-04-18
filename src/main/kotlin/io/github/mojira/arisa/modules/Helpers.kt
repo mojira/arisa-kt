@@ -10,7 +10,6 @@ import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.log
 import net.rcarz.jiraclient.Transition
-import net.sf.json.JSONObject
 import org.apache.commons.lang.reflect.FieldUtils
 import java.io.IOException
 import java.io.InputStream

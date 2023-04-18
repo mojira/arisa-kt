@@ -6,6 +6,7 @@ arisa:
       - MCPE
       - MCL
       - MCD
+      - MCLG
       - BDS
       - REALMS
       - WEB
@@ -241,6 +242,7 @@ arisa:
     multiplePlatforms:
       projects:
         - MCD
+        - MCLG
         - MCPE
       resolutions:
         - Unresolved
@@ -271,6 +273,7 @@ arisa:
     keepPlatform:
       projects:
         - MCD
+        - MCLG
         - MCPE
       resolutions:
         - Unresolved
@@ -369,6 +372,7 @@ arisa:
         - MCPE
         - BDS
         - MCD
+        - MCLG
       resolutions:
         - Unresolved
       excludedStatuses:
@@ -418,6 +422,7 @@ arisa:
         - MCPE
         - MCL
         - MCD
+        - MCLG
         - BDS
         - REALMS
         - WEB

@@ -203,7 +203,7 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
             ::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!)
         )
     }
-    return tryRunAll(functions)
+    return tryRunAll(functions, context)
 }
 
 private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {

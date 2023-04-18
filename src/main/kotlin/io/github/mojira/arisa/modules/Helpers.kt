@@ -7,6 +7,11 @@ import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.log
+import net.rcarz.jiraclient.Transition
+import net.sf.json.JSONObject
+import org.apache.commons.lang.reflect.FieldUtils
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
@@ -70,17 +75,88 @@ fun assertAny(vararg list: Either<OperationNotNeededModuleResponse, ModuleRespon
  * The functions will stop executing when any of them fails. Therefore, we can avoid the bot from spamming comments
  * when the resolve fails in case it needs to resolve and comment
  */
+@SuppressWarnings("ReturnCount", "TooGenericExceptionCaught")
 fun tryRunAll(
-    functions: Collection<() -> Either<Throwable, Unit>>
+    functions: Collection<() -> Either<Throwable, Unit>>,
+    context: IssueUpdateContext? = null
 ): Either<FailedModuleResponse, ModuleResponse> {
     functions.forEach {
-        val result = it()
-        if (result.isLeft()) {
-            return FailedModuleResponse(listOf((result as Either.Left).a)).left()
+        try {
+            val result = it()
+            if (result.isLeft()) {
+                val either = (result as Either.Left)
+                log.error("Either.left! Context: ${contextForException(context)}", either.a)
+                return FailedModuleResponse(listOf(either.a)).left()
+            }
+        } catch (e: Throwable) {
+            log.error("Exception! Context: ${contextForException(context)}", e)
+            return FailedModuleResponse(listOf(e)).left()
         }
     }
 
     return ModuleResponse.right()
+}
+
+fun contextForException(context: IssueUpdateContext?): String {
+    if (context == null) {
+        return "null"
+    }
+    return "Jira issue: ${context.jiraIssue.key}\n" +
+        "hasEdits: ${context.hasEdits}, hasUpdate: ${context.hasUpdates}\n" +
+        "transitionName: ${context.transitionName ?: "None"}\n" +
+        "Other operations: ${context.otherOperations.size}, ${context.otherOperations.map { it.toString() }}\n" +
+        "resolve.fields: ${
+        mapMapFieldToString(context.resolve, "fields")
+        }\n" +
+        "resolve.transitions: ${
+        (
+            FieldUtils.readField(
+                context.resolve,
+                "transitions",
+                true
+            ) as List<Transition>
+            ).joinToString(", ") { transitionToString(it) }
+        }\n" +
+        "update.fields: ${
+        mapMapFieldToString(context.update, "fields")
+        }\n" +
+        "update.transitions: ${
+        (
+            FieldUtils.readField(
+                context.update,
+                "transitions",
+                true
+            ) as List<Transition>
+            ).joinToString(", ") { transitionToString(it) }
+        }\n" +
+        "edit.fields: ${
+        mapMapFieldToString(context.edit, "fields")
+        }\n" +
+        "edit.fieldOpers: ${
+        mapMapFieldToString(context.edit, "fieldOpers")
+        }\n" +
+        "edit.editmeta: ${FieldUtils.readField(context.edit, "editmeta", true) as JSONObject}"
+}
+
+fun mapMapFieldToString(obj: Any, fieldName: String): String = mapToString(
+    FieldUtils.readField(
+        obj,
+        fieldName,
+        true
+    ) as Map<String, Any>
+)
+
+fun transitionToString(it: Transition): String {
+    return "Transition: {${it.name},  ${it.toStatus}, fields: ${mapToString(it.fields as Map<String, Any>)}}"
+}
+
+fun mapToString(map: Map<String, Any>): String =
+    map.map { "${it.key}: ${valueToString(it.value)}" }.joinToString(",")
+
+fun valueToString(value: Any): String = if (value is List<*>) {
+    "(${value.joinToString(",") { it.toString() }})"
+} else {
+    value.toString()
 }
 
 fun <T> assertEquals(o1: T, o2: T) = if (o1 == o2) {
@@ -213,19 +289,24 @@ private fun concatenateCombinations(list: List<String>): Set<String> {
     return newSet.toSortedSet()
 }
 
-fun addLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
-    val tmp = linkTypes.filter {
-        type.lowercase() in it.nameVariants
+fun addLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> =
+    Either.fx {
+        val tmp = linkTypes.filter {
+            type.lowercase() in it.nameVariants
+        }
+        assertNotNull(tmp).bind()
+        assertTrue(tmp.size == 1).bind()
+        val linkType = tmp[0]
+        for (key in keys) {
+            issue.createLink(linkType.id, key.uppercase(), linkType.outwards)
+        }
     }
-    assertNotNull(tmp).bind()
-    assertTrue(tmp.size == 1).bind()
-    val linkType = tmp[0]
-    for (key in keys) {
-        issue.createLink(linkType.id, key.uppercase(), linkType.outwards)
-    }
-}
 
-fun deleteLinks(issue: Issue, type: String, keys: List<String>): Either<ModuleError, ModuleResponse> = Either.fx {
+fun deleteLinks(
+    issue: Issue,
+    type: String,
+    keys: List<String>
+): Either<ModuleError, ModuleResponse> = Either.fx {
     val tmp = linkTypes.filter {
         type.lowercase() in it.nameVariants
     }

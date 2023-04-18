@@ -34,7 +34,7 @@ class MultiplePlatformsModule(
             assertNotKeepPlatformTag(comments).bind()
             if (project.key == "MCD") {
                 updateDungeonsPlatform(targetPlatform)
-            } else if (project.key == "MCLG"){
+            } else if (project.key == "MCLG") {
                 updateLegendsPlatform(targetPlatform)
             } else {
                 updatePlatform(targetPlatform)
@@ -44,10 +44,13 @@ class MultiplePlatformsModule(
 
     private fun getPlatformWhitelist(project: String) =
         if (project == "MCD") dungeonsPlatformWhitelist
-            else if (project == "MCLG") legendsPlatformWhitelist else platformWhitelist
+        else if (project == "MCLG") legendsPlatformWhitelist
+        else platformWhitelist
 
-    private fun Issue.getPlatformValue() = if (project.key == "MCD") dungeonsPlatform
-        else if (project.key == "MCLG") legendsPlatform else platform
+    private fun Issue.getPlatformValue() =
+        if (project.key == "MCD") dungeonsPlatform
+        else if (project.key == "MCLG") legendsPlatform
+        else platform
 
     private fun isDuplicatedWithDifferentPlatforms(
         platform: String?,

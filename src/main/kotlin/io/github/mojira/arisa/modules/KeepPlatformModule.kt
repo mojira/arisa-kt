@@ -19,7 +19,7 @@ class KeepPlatformModule(
             assertNotEmpty(platformChangeItems).bind()
             assertContainsKeepPlatformTag(comments).bind()
             val markedTime = comments.first(::isKeepPlatformTag).created
-            val currentPlatform = getPlatformValue()
+            val currentPlatform = getPlatformValue().getOrDefault("None")
             val savedPlatform = platformChangeItems.getSavedValue(markedTime)
             assertNotNull(savedPlatform).bind()
             assertNotEquals(currentPlatform, savedPlatform).bind()
@@ -34,8 +34,9 @@ class KeepPlatformModule(
     }
 
     private fun Issue.getPlatformValue() =
-        (if (project.key == "MCD") dungeonsPlatform else if (project.key == "MCLG") legendsPlatform else platform)
-            .getOrDefault("None")
+        if (project.key == "MCD") dungeonsPlatform
+        else if (project.key == "MCLG") legendsPlatform
+        else platform
 
     private fun isPlatformChange(project: String, item: ChangeLogItem) =
         item.field == (if (project == "MCD") "Dungeons Platform"

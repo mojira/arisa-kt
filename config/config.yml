@@ -243,6 +243,7 @@ arisa:
       projects:
         - MCD
         - MCPE
+        - MCLG
       resolutions:
         - Unresolved
       dungeonsPlatformWhitelist:
@@ -251,6 +252,15 @@ arisa:
         - PlayStation 5
         - Windows
         - Xbox Cloud Gaming
+        - Xbox One
+        - Xbox Series S
+        - Xbox Series X
+      legendsPlatformWhitelist:
+        - Nintendo Switch
+        - PlayStation 4
+        - PlayStation 5
+        - Steam
+        - Windows
         - Xbox One
         - Xbox Series S
         - Xbox Series X

@@ -39,8 +39,11 @@ class KeepPlatformModule(
         else platform
 
     private fun isPlatformChange(project: String, item: ChangeLogItem) =
-        item.field == (if (project == "MCD") "Dungeons Platform"
-            else if (project == "MCLG") "Legends Platform" else "Platform")
+        item.field == (
+            if (project == "MCD") "Dungeons Platform"
+            else if (project == "MCLG") "Legends Platform"
+            else "Platform"
+        )
 
     private fun changedByVolunteer(item: ChangeLogItem) =
         item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false

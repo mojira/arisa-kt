@@ -85,11 +85,11 @@ fun tryRunAll(
             val result = it()
             if (result.isLeft()) {
                 val either = (result as Either.Left)
-                log.error("Either.left! Context: ${contextForException(context)}", either.a)
+                log.error("Either.left! Context: ${contextForException(context)}")
                 return FailedModuleResponse(listOf(either.a)).left()
             }
         } catch (e: Throwable) {
-            log.error("Exception! Context: ${contextForException(context)}", e)
+            log.error("Exception! Context: ${contextForException(context)}")
             return FailedModuleResponse(listOf(e)).left()
         }
     }
@@ -134,8 +134,7 @@ fun contextForException(context: IssueUpdateContext?): String {
         }\n" +
         "edit.fieldOpers: ${
         mapMapFieldToString(context.edit, "fieldOpers")
-        }\n" +
-        "edit.editmeta: ${FieldUtils.readField(context.edit, "editmeta", true) as JSONObject}"
+        }"
 }
 
 fun mapMapFieldToString(obj: Any, fieldName: String): String = mapToString(
@@ -147,7 +146,7 @@ fun mapMapFieldToString(obj: Any, fieldName: String): String = mapToString(
 )
 
 fun transitionToString(it: Transition): String {
-    return "Transition: {${it.name},  ${it.toStatus}, fields: ${mapToString(it.fields as Map<String, Any>)}}"
+    return "Transition: {${it.name},  ${it.toStatus}}"
 }
 
 fun mapToString(map: Map<String, Any>): String =

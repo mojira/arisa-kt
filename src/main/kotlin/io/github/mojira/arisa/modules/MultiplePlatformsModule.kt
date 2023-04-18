@@ -43,9 +43,11 @@ class MultiplePlatformsModule(
     }
 
     private fun getPlatformWhitelist(project: String) =
-        if (project == "MCD") dungeonsPlatformWhitelist else if (project == "MCLG") legendsPlatformWhitelist else platformWhitelist
+        if (project == "MCD") dungeonsPlatformWhitelist
+            else if (project == "MCLG") legendsPlatformWhitelist else platformWhitelist
 
-    private fun Issue.getPlatformValue() = if (project.key == "MCD") dungeonsPlatform else if (project.key == "MCLG") legendsPlatform else platform
+    private fun Issue.getPlatformValue() = if (project.key == "MCD") dungeonsPlatform
+        else if (project.key == "MCLG") legendsPlatform else platform
 
     private fun isDuplicatedWithDifferentPlatforms(
         platform: String?,

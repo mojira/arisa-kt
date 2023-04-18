@@ -131,6 +131,14 @@ fun updateDungeonsPlatform(context: Lazy<IssueUpdateContext>, dungeonsPlatformFi
     context.value.edit.field(dungeonsPlatformField, jsonValue)
 }
 
+fun updateLegendsPlatform(context: Lazy<IssueUpdateContext>, legendsPlatformField: String, value: String) {
+    val jsonValue = JSONObject()
+    jsonValue["value"] = value
+
+    context.value.hasEdits = true
+    context.value.edit.field(legendsPlatformField, jsonValue)
+}
+
 fun updatePlatform(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
     val jsonValue = JSONObject()
     jsonValue["value"] = value

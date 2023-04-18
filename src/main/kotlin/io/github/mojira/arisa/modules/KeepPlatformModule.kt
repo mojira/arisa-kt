@@ -25,6 +25,8 @@ class KeepPlatformModule(
             assertNotEquals(currentPlatform, savedPlatform).bind()
             if (project.key == "MCD") {
                 updateDungeonsPlatform(savedPlatform!!)
+            } else if (project.key == "MCLG") {
+                updateLegendsPlatform(savedPlatform!!)
             } else {
                 updatePlatform(savedPlatform!!)
             }
@@ -32,10 +34,10 @@ class KeepPlatformModule(
     }
 
     private fun Issue.getPlatformValue() =
-        (if (project.key == "MCD") dungeonsPlatform else platform).getOrDefault("None")
+        (if (project.key == "MCD") dungeonsPlatform else if (project.key == "MCLG") legendsPlatform else platform).getOrDefault("None")
 
     private fun isPlatformChange(project: String, item: ChangeLogItem) =
-        item.field == (if (project == "MCD") "Dungeons Platform" else "Platform")
+        item.field == (if (project == "MCD") "Dungeons Platform" else if (project == "MCLG") "Legends Platform" else "Platform")
 
     private fun changedByVolunteer(item: ChangeLogItem) =
         item.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false

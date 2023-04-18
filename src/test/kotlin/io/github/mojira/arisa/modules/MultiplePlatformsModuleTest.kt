@@ -90,6 +90,7 @@ private val duplicatesLink = mockLink()
 class MultiplePlatformsModuleTest : StringSpec({
     val module = MultiplePlatformsModule(
         listOf("Xbox One", "Amazon", "Arch-Illager OS"),
+        listOf("Xbox One", "Amazon", "Piglin OS"),
         listOf("Xbox One", "Amazon"),
         "Multiple",
         listOf("None"),
@@ -284,6 +285,24 @@ class MultiplePlatformsModuleTest : StringSpec({
             dungeonsPlatform = "Arch-Illager OS",
             links = listOf(duplicatedLink2),
             updateDungeonsPlatform = { changedPlatform = it }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        changedPlatform.shouldBe("Multiple")
+    }
+
+    "should set to Multiple when Platform is Piglin OS and there is a duplicate" {
+        var changedPlatform = ""
+
+        val issue = mockIssue(
+            project = mockProject(
+                key = "MCLG"
+            ),
+            legendsPlatform = "Piglin OS",
+            links = listOf(duplicatedLink2),
+            updateLegendsPlatform = { changedPlatform = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

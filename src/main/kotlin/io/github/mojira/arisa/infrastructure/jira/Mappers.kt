@@ -107,6 +107,7 @@ fun JiraIssue.toDomain(
         project.toDomain(config),
         getPlatform(config),
         getDungeonsPlatform(config),
+        getLegendsPlatform(config),
         mapVersions(),
         mapFixVersions(),
         mapAttachments(jiraClient, config),
@@ -124,6 +125,7 @@ fun JiraIssue.toDomain(
         ::updatePriority.partially1(context).partially1(config[Arisa.CustomFields.mojangPriorityField]),
         ::updatePlatform.partially1(context).partially1(config[Arisa.CustomFields.platformField]),
         ::updateDungeonsPlatform.partially1(context).partially1(config[Arisa.CustomFields.dungeonsPlatformField]),
+        ::updateLegendsPlatform.partially1(context).partially1(config[Arisa.CustomFields.legendsPlatformField]),
         ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
@@ -341,6 +343,8 @@ private fun JiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.Cus
 private fun JiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
 private fun JiraIssue.getDungeonsPlatform(config: Config) =
     getCustomField(config[Arisa.CustomFields.dungeonsPlatformField])
+private fun JiraIssue.getLegendsPlatform(config: Config) =
+    getCustomField(config[Arisa.CustomFields.legendsPlatformField])
 
 private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
 private fun JiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])

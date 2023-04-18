@@ -34,7 +34,7 @@ class KeepPlatformModule(
     }
 
     private fun Issue.getPlatformValue() =
-        (if (project.key == "MCD") dungeonsPlatformelse if (project.key == "MCLG") legendsPlatform else platform)
+        (if (project.key == "MCD") dungeonsPlatform else if (project.key == "MCLG") legendsPlatform else platform)
             .getOrDefault("None")
 
     private fun isPlatformChange(project: String, item: ChangeLogItem) =

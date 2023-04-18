@@ -6,6 +6,7 @@ arisa:
       - MCPE
       - MCL
       - MCD
+      - MCLG
       - BDS
       - REALMS
       - WEB
@@ -369,6 +370,7 @@ arisa:
         - MCPE
         - BDS
         - MCD
+        - MCLG
       resolutions:
         - Unresolved
       excludedStatuses:
@@ -418,6 +420,7 @@ arisa:
         - MCPE
         - MCL
         - MCD
+        - MCLG
         - BDS
         - REALMS
         - WEB

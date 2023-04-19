@@ -28,6 +28,7 @@ arisa:
     chkField: customfield_10701
     confirmationField: customfield_10500
     dungeonsPlatformField: customfield_12400
+    legendsPlatformField: customfield_12900
     mojangPriorityField: customfield_12200
     triagedTimeField: customfield_12201
     platformField: customfield_10402
@@ -243,6 +244,7 @@ arisa:
       projects:
         - MCD
         - MCPE
+        - MCLG
       resolutions:
         - Unresolved
       dungeonsPlatformWhitelist:
@@ -251,6 +253,15 @@ arisa:
         - PlayStation 5
         - Windows
         - Xbox Cloud Gaming
+        - Xbox One
+        - Xbox Series S
+        - Xbox Series X
+      legendsPlatformWhitelist:
+        - Nintendo Switch
+        - PlayStation 4
+        - PlayStation 5
+        - Steam
+        - Windows
         - Xbox One
         - Xbox Series S
         - Xbox Series X

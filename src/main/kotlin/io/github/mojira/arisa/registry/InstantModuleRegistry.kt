@@ -90,6 +90,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.MultiplePlatforms,
             MultiplePlatformsModule(
                 config[Arisa.Modules.MultiplePlatforms.dungeonsPlatformWhitelist],
+                config[Arisa.Modules.MultiplePlatforms.legendsPlatformWhitelist],
                 config[Arisa.Modules.MultiplePlatforms.platformWhitelist],
                 config[Arisa.Modules.MultiplePlatforms.targetPlatform],
                 config[Arisa.Modules.MultiplePlatforms.transferredPlatformBlacklist],

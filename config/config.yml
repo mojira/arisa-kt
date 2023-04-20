@@ -268,12 +268,11 @@ arisa:
       platformWhitelist:
         - Amazon
         - Android
-        - Gear VR
+        - Chromebook
         - iOS
         - Nintendo Switch
-        - PlayStation 4
-        - Windows 10 - PC
-        - Windows 10 Mobile
+        - PlayStation
+        - Windows
         - Xbox
       targetPlatform: Multiple
       transferredPlatformBlacklist:
@@ -284,6 +283,7 @@ arisa:
       projects:
         - MCD
         - MCPE
+        - MCLG
       resolutions:
         - Unresolved
       keepPlatformTag: MEQS_KEEP_PLATFORM

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.7.20"
+    kotlin("jvm") version "1.8.21"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     application
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
@@ -41,15 +41,6 @@ val arrowVersion = "0.10.4"
 val kotestVersion = "4.4.1"
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8") as String) {
-        // isForce = true
-        isChanging = true
-    }
-    implementation(kotlin("reflect") as String) {
-        // isForce = true
-        isChanging = true
-    }
-
     implementation("com.uchuhimo", "konf", "1.1.2")
     implementation("com.github.rcarz", "jira-client", "868a5ca897")
     implementation("com.urielsalis", "mc-crash-lib", "2.0.10")
@@ -92,14 +83,11 @@ class ClearDependencies : ComponentMetadataRule {
     }
 }
 
-tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "11"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "11"
-    }
+kotlin {
+    jvmToolchain(11)
+}
 
+tasks {
     test {
         useJUnitPlatform()
         maxParallelForks =
@@ -123,9 +111,6 @@ detekt {
 
 tasks {
     withType<io.gitlab.arturbosch.detekt.Detekt> {
-        // Target version of the generated JVM bytecode. It is used for type resolution.
-        this.jvmTarget = "11"
-
         reports {
             html.required.set(false) // Disabled due to requirement for kotlinx-html which is still in jcenter
             xml.required.set(false) // checkstyle like format mainly for integrations like Jenkins

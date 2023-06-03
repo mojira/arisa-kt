@@ -42,11 +42,11 @@ val kotestVersion = "4.4.1"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8") as String) {
-        isForce = true
+        // isForce = true
         isChanging = true
     }
     implementation(kotlin("reflect") as String) {
-        isForce = true
+        // isForce = true
         isChanging = true
     }
 
@@ -104,31 +104,32 @@ tasks {
         useJUnitPlatform()
         maxParallelForks =
             (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1 // Run with same number of cores
-        reports.html.isEnabled = false
-        reports.junitXml.isEnabled = false
+        reports.html.required.set(false)
+        reports.junitXml.required.set(false)
     }
 }
 
 application {
-    mainClassName = "io.github.mojira.arisa.ArisaMainKt"
+    mainClass.set("io.github.mojira.arisa.ArisaMainKt")
 }
 
 detekt {
     // For now only consider main source files, but ignore test sources
-    input = files("src/main/kotlin")
+    source = files("src/main/kotlin")
     allRules = true // enable all rules, including unstable ones
     buildUponDefaultConfig = true // preconfigure defaults
     parallel = true
-    reports {
-        html.enabled = false // Disabled due to requirement for kotlinx-html which is still in jcenter
-        xml.enabled = false // checkstyle like format mainly for integrations like Jenkins
-        txt.enabled = false // similar to the console output, contains issue signature to manually edit baseline files
-    }
 }
 
 tasks {
     withType<io.gitlab.arturbosch.detekt.Detekt> {
         // Target version of the generated JVM bytecode. It is used for type resolution.
         this.jvmTarget = "11"
+
+        reports {
+            html.required.set(false) // Disabled due to requirement for kotlinx-html which is still in jcenter
+            xml.required.set(false) // checkstyle like format mainly for integrations like Jenkins
+            txt.required.set(false) // similar to the console output, contains issue signature to manually edit baseline files
+        }
     }
 }

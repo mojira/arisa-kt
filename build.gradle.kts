@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.8.21"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     application
-    id("io.gitlab.arturbosch.detekt") version "1.21.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.0"
 }
 
 group = "io.github.mojira"
@@ -103,7 +103,7 @@ application {
 
 detekt {
     // For now only consider main source files, but ignore test sources
-    source = files("src/main/kotlin")
+    source.setFrom(files("src/main/kotlin"))
     allRules = true // enable all rules, including unstable ones
     buildUponDefaultConfig = true // preconfigure defaults
     parallel = true

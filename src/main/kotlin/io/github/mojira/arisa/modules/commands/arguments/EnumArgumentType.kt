@@ -24,14 +24,10 @@ class EnumArgumentType<E : Enum<E>>(enumClass: Class<E>) : ArgumentType<E> {
             .map { it.name.lowercase() to it }
             .forEach {
                 val name = it.first
-                if (!name.all(StringReader::isAllowedInUnquotedString)) {
-                    throw IllegalArgumentException("Unsupported name '$name'")
-                }
+                require(name.all(StringReader::isAllowedInUnquotedString)) { "Unsupported name '$name'" }
 
                 val old = mapping.put(name, it.second)
-                if (old != null) {
-                    throw IllegalArgumentException("Lower cased names of constants '${it.second}' and '$old' clash")
-                }
+                require(old == null) { "Lower cased names of constants '${it.second}' and '$old' clash" }
             }
         this.mapping = mapping
     }

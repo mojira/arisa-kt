@@ -24,8 +24,8 @@ class KeepPrivateModule(
             setPrivate()
 
             val markedTime = comments.first(::isKeepPrivateTag).created
-            val securityChange = changeLog
-                .lastOrNull { isSecurityChangeToPublic(it, project.privateSecurity) }
+            val securityChange = changeLog.lastOrNull(::isSecurityChangeToPublic)
+
             val changedTime = securityChange?.created
             if (changedTime != null && changedTime.isAfter(markedTime)) {
                 if (
@@ -47,8 +47,8 @@ class KeepPrivateModule(
         comment.visibilityValue == "staff" &&
         (comment.body?.contains(keepPrivateTag!!) ?: false)
 
-    private fun isSecurityChangeToPublic(item: ChangeLogItem, privateLevel: String) =
-        item.field == "security" && item.changedFromString == privateLevel
+    private fun isSecurityChangeToPublic(item: ChangeLogItem) =
+        item.field == "security" && privateLevels.contains(item.changedFromString)
 
     private fun assertContainsKeepPrivateTag(comments: List<Comment>) = when {
         comments.any(::isKeepPrivateTag) -> Unit.right()

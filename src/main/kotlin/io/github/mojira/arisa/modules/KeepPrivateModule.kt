@@ -12,13 +12,14 @@ import java.time.Instant
 
 class KeepPrivateModule(
     private val keepPrivateTag: String?,
-    private val message: String
+    private val message: String,
+    private val privateLevels: Set<String>
 ) : Module {
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotNull(keepPrivateTag).bind()
             assertContainsKeepPrivateTag(comments).bind()
-            assertIsPublic(securityLevel, project.privateSecurity).bind()
+            assertIsPublic(securityLevel).bind()
 
             setPrivate()
 
@@ -54,8 +55,8 @@ class KeepPrivateModule(
         else -> OperationNotNeededModuleResponse.left()
     }
 
-    private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel) {
+    private fun assertIsPublic(securityLevel: String?) =
+        if (privateLevels.contains(securityLevel)) {
             OperationNotNeededModuleResponse.left()
         } else {
             Unit.right()

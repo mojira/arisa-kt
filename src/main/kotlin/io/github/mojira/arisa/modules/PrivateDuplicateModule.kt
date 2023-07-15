@@ -39,14 +39,16 @@ class PrivateDuplicateModule(
     private fun isDuplicatesLink(link: Link): Boolean = link.type == "Duplicate" && link.outwards
 
     private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel)
+        if (securityLevel == privateLevel) {
             OperationNotNeededModuleResponse.left()
-        else
+        } else {
             Unit.right()
+        }
 
     private fun assertParentPrivate(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel)
+        if (securityLevel == privateLevel) {
             Unit.right()
-        else
+        } else {
             OperationNotNeededModuleResponse.left()
+        }
 }

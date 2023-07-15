@@ -18,7 +18,7 @@ private enum class MyEnum {
 
 @Suppress("unused")
 private enum class EnumWithNameClashes {
-    @Suppress("EnumEntryName")
+    @Suppress("EnumEntryName") // ktlint-disable enum-entry-name-case
     a,
     A
 }

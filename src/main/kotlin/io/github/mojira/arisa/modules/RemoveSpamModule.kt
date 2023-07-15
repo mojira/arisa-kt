@@ -55,12 +55,13 @@ class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Mo
     private fun checkIssue(issue: Issue, lastRun: Instant): List<() -> Unit> {
         val shouldTakeAction = isBugreportNew(issue, lastRun) && isBugreportSpam(issue)
 
-        return if (shouldTakeAction)
+        return if (shouldTakeAction) {
             listOf {
                 issue.putInSpamBin()
             }
-        else
+        } else {
             emptyList()
+        }
     }
 
     private fun isBugreportNew(issue: Issue, lastRun: Instant) =
@@ -71,10 +72,13 @@ class RemoveSpamModule(private val patternConfigs: List<SpamPatternConfig>) : Mo
         val groups = reporter.getGroups() ?: listOf()
         val userIsVolunteer = groups.any { listOf("helper", "global-moderators", "staff").contains(it) }
 
-        return if (userIsVolunteer) false
-        else isTextSpam(issue.summary ?: "") ||
-            isTextSpam(issue.description ?: "") ||
-            isTextSpam(issue.environment ?: "")
+        return if (userIsVolunteer) {
+            false
+        } else {
+            isTextSpam(issue.summary ?: "") ||
+                isTextSpam(issue.description ?: "") ||
+                isTextSpam(issue.environment ?: "")
+        }
     }
 
     private fun Issue.putInSpamBin() {

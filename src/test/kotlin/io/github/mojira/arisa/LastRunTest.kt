@@ -77,7 +77,8 @@ class LastRunTest : StringSpec({
                     {"user": "Monty Python", "since": "3000000", "until": "4000000"},
                     {"user": "Nigerian Prince", "since": "5000000", "until": "6000000"}
                 ]
-            }""".trimMargin()
+            }
+            """.trimMargin()
         }
 
         lastRun.time shouldBe time
@@ -154,7 +155,8 @@ class LastRunTest : StringSpec({
         val lastRun = LastRun(
             {
                 LastRunFile(
-                    time, emptySet(),
+                    time,
+                    emptySet(),
                     listOf(
                         Shadowban(
                             user = "Spammer Mc Spamface",
@@ -199,7 +201,8 @@ class LastRunTest : StringSpec({
         val lastRun = LastRun(
             {
                 LastRunFile(
-                    time, emptySet(),
+                    time,
+                    emptySet(),
                     listOf(
                         Shadowban(
                             user = "Spammer Mc Spamface",
@@ -246,11 +249,15 @@ class LastRunTest : StringSpec({
 
     "legacy last-run file upgrade should work properly" {
         LastRunFileService.convertLegacyFile("123456789,MC-1234,WEB-234") shouldBe LastRunFile(
-            Instant.ofEpochMilli(123456789), setOf("MC-1234", "WEB-234"), emptyList()
+            Instant.ofEpochMilli(123456789),
+            setOf("MC-1234", "WEB-234"),
+            emptyList()
         )
 
         LastRunFileService.convertLegacyFile("123456789") shouldBe LastRunFile(
-            Instant.ofEpochMilli(123456789), emptySet(), emptyList()
+            Instant.ofEpochMilli(123456789),
+            emptySet(),
+            emptyList()
         )
 
         val now = Instant.now()

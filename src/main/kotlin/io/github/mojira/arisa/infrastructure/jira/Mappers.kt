@@ -136,7 +136,10 @@ fun JiraIssue.toDomain(
             createComment(
                 context,
                 HelperMessageService.getMessageWithBotSignature(
-                    project.key, messageKey, variable, language
+                    project.key,
+                    messageKey,
+                    variable,
+                    language
                 )
             )
         },
@@ -144,7 +147,10 @@ fun JiraIssue.toDomain(
             createComment(
                 context,
                 HelperMessageService.getMessageWithDupeBotSignature(
-                    project.key, messageKey, variable, language
+                    project.key,
+                    messageKey,
+                    variable,
+                    language
                 )
             )
         },
@@ -152,7 +158,10 @@ fun JiraIssue.toDomain(
             addRestrictedComment(
                 context,
                 HelperMessageService.getMessageWithBotSignature(
-                    project.key, messageKey, variable, language
+                    project.key,
+                    messageKey,
+                    variable,
+                    language
                 ),
                 "helper"
             )
@@ -161,7 +170,9 @@ fun JiraIssue.toDomain(
             createComment(
                 context,
                 HelperMessageService.getMessageWithBotSignature(
-                    project.key, config[Arisa.Modules.Language.message], lang = language
+                    project.key,
+                    config[Arisa.Modules.Language.message],
+                    lang = language
                 )
             )
         },
@@ -222,7 +233,8 @@ fun JiraComment.toDomain(
 }
 
 fun JiraUser.toDomain(jiraClient: JiraClient, config: Config) = User(
-    name, displayName,
+    name,
+    displayName,
     ::getUserGroups.partially1(jiraClient).partially1(name),
     ::isNewUser.partially1(jiraClient).partially1(name)
 ) {

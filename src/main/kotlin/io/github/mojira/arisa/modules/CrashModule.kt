@@ -134,8 +134,9 @@ class CrashModule(
     }
 
     private fun assertNoValidCrash(crashes: List<AttachmentUtils.CrashAttachment>) =
-        if (crashes.all { isModded(it.crash) || getDuplicateLink(it.crash) != null })
+        if (crashes.all { isModded(it.crash) || getDuplicateLink(it.crash) != null }) {
             Unit.right()
-        else
+        } else {
             OperationNotNeededModuleResponse.left()
+        }
 }

@@ -55,8 +55,9 @@ class KeepPrivateModule(
     }
 
     private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel)
+        if (securityLevel == privateLevel) {
             OperationNotNeededModuleResponse.left()
-        else
+        } else {
             Unit.right()
+        }
 }

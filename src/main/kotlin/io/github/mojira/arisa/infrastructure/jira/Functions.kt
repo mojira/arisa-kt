@@ -60,7 +60,6 @@ private fun JiraClient.getCurrentUser(): User {
     ) {}
 }
 
-@Suppress("ForbiddenComment")
 /**
  * Get a list of tickets matching a JQL query.
  * TODO: Actually return the tickets themselves instead of only ticket IDs.
@@ -69,6 +68,7 @@ private fun JiraClient.getCurrentUser(): User {
  *
  * @return a list of strings indicating ticket IDs that are contained in the given jql filter.
  */
+@Suppress("ForbiddenComment")
 fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBlocking {
     Either.catch {
         val searchResult = try {

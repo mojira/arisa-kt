@@ -34,15 +34,23 @@ class KeepPlatformModule(
     }
 
     private fun Issue.getPlatformValue() =
-        if (project.key == "MCD") dungeonsPlatform
-        else if (project.key == "MCLG") legendsPlatform
-        else platform
+        if (project.key == "MCD") {
+            dungeonsPlatform
+        } else if (project.key == "MCLG") {
+            legendsPlatform
+        } else {
+            platform
+        }
 
     private fun isPlatformChange(project: String, item: ChangeLogItem) =
         item.field == (
-            if (project == "MCD") "Dungeons Platform"
-            else if (project == "MCLG") "Legends Platform"
-            else "Platform"
+            if (project == "MCD") {
+                "Dungeons Platform"
+            } else if (project == "MCLG") {
+                "Legends Platform"
+            } else {
+                "Platform"
+            }
             )
 
     private fun changedByVolunteer(item: ChangeLogItem) =

@@ -16,7 +16,6 @@ class RemoveBotCommentModule(
 
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
-
             // Only consider new comments
             val newComments = comments.filter {
                 it.updated.isAfter(lastRun)

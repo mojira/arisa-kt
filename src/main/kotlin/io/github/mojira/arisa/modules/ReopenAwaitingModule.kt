@@ -84,7 +84,10 @@ class ReopenAwaitingModule(
         (
             comment.body?.contains(
                 HelperMessageService.getMessageWithBotSignature(
-                    project.key, message, null, "en"
+                    project.key,
+                    message,
+                    null,
+                    "en"
                 )
             ) ?: false
             )

@@ -68,8 +68,11 @@ abstract class ModuleRegistry(protected val config: Config) {
 
         val debugWhitelist = config[Arisa.Debug.ticketWhitelist]
 
-        return if (debugWhitelist == null) registryJql
-        else "key IN (${debugWhitelist.joinToString()}) AND ($registryJql)"
+        return if (debugWhitelist == null) {
+            registryJql
+        } else {
+            "key IN (${debugWhitelist.joinToString()}) AND ($registryJql)"
+        }
     }
 
     fun getFullJql(timeframe: ExecutionTimeframe, failedTickets: Collection<String>): String {

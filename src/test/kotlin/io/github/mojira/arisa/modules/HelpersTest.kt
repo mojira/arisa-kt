@@ -37,8 +37,12 @@ class HelpersTest : StringSpec({
         val throwable2 = Throwable(message = "generic error 2")
         val throwable3 = Throwable(message = "generic error 3")
         val moduleEither = listOf(
-            success.right(), throwable1.left(), success.right(), success.right(),
-            throwable2.left(), throwable3.left()
+            success.right(),
+            throwable1.left(),
+            success.right(),
+            success.right(),
+            throwable2.left(),
+            throwable3.left()
         ).toFailedModuleEither()
 
         moduleEither shouldBeLeft FailedModuleResponse(listOf(throwable1, throwable2, throwable3))
@@ -176,8 +180,11 @@ class HelpersTest : StringSpec({
 
         val moduleEither = tryRunAll(
             listOf(
-                { successful1() }, { successful2() }, { throwable.left() },
-                { Throwable(message = "different error").left() }, { successful3() }
+                { successful1() },
+                { successful2() },
+                { throwable.left() },
+                { Throwable(message = "different error").left() },
+                { successful3() }
             )
         )
 
@@ -341,13 +348,19 @@ class HelpersTest : StringSpec({
         list1 shouldBe mutableListOf("1 2 3", "MC-4", "MC-5", "MC-6")
 
         val list2 = mutableListOf(
-            "1", "2", "3", "https://bugs.mojang.com/browse/MC-4",
-            "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6"
+            "1",
+            "2",
+            "3",
+            "https://bugs.mojang.com/browse/MC-4",
+            "https://bugs.mojang.com/browse/MC-5",
+            "https://bugs.mojang.com/browse/MC-6"
         )
         list2.concatLinkName()
         list2 shouldBe mutableListOf(
-            "1 2 3", "https://bugs.mojang.com/browse/MC-4",
-            "https://bugs.mojang.com/browse/MC-5", "https://bugs.mojang.com/browse/MC-6"
+            "1 2 3",
+            "https://bugs.mojang.com/browse/MC-4",
+            "https://bugs.mojang.com/browse/MC-5",
+            "https://bugs.mojang.com/browse/MC-6"
         )
     }
 
@@ -357,14 +370,19 @@ class HelpersTest : StringSpec({
         list1 shouldBe mutableListOf("", "MC-1", "MC-2", "MC-3", "MC-4", "MC-5")
 
         val list2 = mutableListOf(
-            "https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-2",
-            "https://bugs.mojang.com/browse/MC-3", "https://bugs.mojang.com/browse/MC-4",
+            "https://bugs.mojang.com/browse/MC-1",
+            "https://bugs.mojang.com/browse/MC-2",
+            "https://bugs.mojang.com/browse/MC-3",
+            "https://bugs.mojang.com/browse/MC-4",
             "https://bugs.mojang.com/browse/MC-5"
         )
         list2.concatLinkName()
         list2 shouldBe mutableListOf(
-            "", "https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-2",
-            "https://bugs.mojang.com/browse/MC-3", "https://bugs.mojang.com/browse/MC-4",
+            "",
+            "https://bugs.mojang.com/browse/MC-1",
+            "https://bugs.mojang.com/browse/MC-2",
+            "https://bugs.mojang.com/browse/MC-3",
+            "https://bugs.mojang.com/browse/MC-4",
             "https://bugs.mojang.com/browse/MC-5"
         )
     }
@@ -446,8 +464,10 @@ class HelpersTest : StringSpec({
 
     "convertLinks should convert ticket links to numbers" {
         val list = mutableListOf(
-            "https://bugs.mojang.com/browse/MC-1", "https://bugs.mojang.com/browse/MC-20",
-            "https://bugs.mojang.com/browse/MC-312", "https://bugs.mojang.com/browse/MC-400"
+            "https://bugs.mojang.com/browse/MC-1",
+            "https://bugs.mojang.com/browse/MC-20",
+            "https://bugs.mojang.com/browse/MC-312",
+            "https://bugs.mojang.com/browse/MC-400"
         )
         list.convertLinks()
         list shouldBe mutableListOf("MC-1", "MC-20", "MC-312", "MC-400")
@@ -459,8 +479,10 @@ class HelpersTest : StringSpec({
         list1 shouldBe mutableListOf("MC-1", "MC-20", "MC-312", "MC-400")
 
         val list2 = mutableListOf(
-            "https://bugs.mojang.com/browse/MC-1", "MC-20",
-            "https://bugs.mojang.com/browse/MC-312", "MC-400"
+            "https://bugs.mojang.com/browse/MC-1",
+            "MC-20",
+            "https://bugs.mojang.com/browse/MC-312",
+            "MC-400"
         )
         list2.convertLinks()
         list2 shouldBe mutableListOf("MC-1", "MC-20", "MC-312", "MC-400")
@@ -528,7 +550,8 @@ class HelpersTest : StringSpec({
                     list.add(listOf(key, type, outwards.toString()))
                 }
             ),
-            "relAtes To", listOf("MC-100")
+            "relAtes To",
+            listOf("MC-100")
         ) shouldBeRight ModuleResponse
         list shouldBe mutableListOf(listOf("Relates", "MC-100", "true"))
     }
@@ -542,7 +565,8 @@ class HelpersTest : StringSpec({
                     list.add(listOf(key, type, outwards.toString()))
                 }
             ),
-            "relates", listOf("mc-100")
+            "relates",
+            listOf("mc-100")
         ) shouldBeRight ModuleResponse
         list shouldBe mutableListOf(listOf("Relates", "MC-100", "true"))
     }
@@ -564,14 +588,16 @@ class HelpersTest : StringSpec({
                     )
                 )
             ),
-            "relates", listOf("MC-100")
+            "relates",
+            listOf("MC-100")
         ) shouldBeLeft OperationNotNeededModuleResponse
 
         deleteLinks(
             mockIssue(
                 links = emptyList()
             ),
-            "relates", listOf("MC-100")
+            "relates",
+            listOf("MC-100")
         ) shouldBeLeft OperationNotNeededModuleResponse
     }
 

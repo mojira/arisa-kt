@@ -113,7 +113,8 @@ class RemoveSpamModuleTest : StringSpec({
                 |SPAM, SPAM, SPAM, EGG AND SPAM
                 |SPAM SAUSAGE, SPAM, SPAM, SPAM, BACON, SPAM, TOMATO AND SPAM
                 |SPAM, SPAM, SPAM, SPAM, SPAM, SPAM, BAKED BEANS, SPAM, SPAM, SPAM AND SPAM
-                |LOBSTER THERMIDOR AUX CREVETTES WITH A MORNAY SAUCE, GARNISHED WITH TRUFFLE PÂTÉ, BRANDY AND A FRIED EGG ON TOP, AND SPAM""".trimMargin(),
+                |LOBSTER THERMIDOR AUX CREVETTES WITH A MORNAY SAUCE, GARNISHED WITH TRUFFLE PÂTÉ, BRANDY AND A FRIED EGG ON TOP, AND SPAM
+            """.trimMargin(),
             restrict = { isRestricted = true }
         )
         val issue = mockIssue(

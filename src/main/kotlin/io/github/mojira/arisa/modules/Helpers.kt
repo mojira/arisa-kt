@@ -194,10 +194,11 @@ fun assertAfter(instant1: Instant, instant2: Instant) = if (instant1.isAfter(ins
 }
 
 fun String?.getOrDefault(default: String) =
-    if (isNullOrBlank())
+    if (isNullOrBlank()) {
         default
-    else
+    } else {
         this
+    }
 
 fun String?.getOrDefaultNull(default: String) =
     this ?: default
@@ -232,8 +233,11 @@ fun MutableList<String>.concatLinkName() {
         return
     }
     val linkName = linkNameList.joinToString(separator = " ")
-    val newList = if (linkName.isEmpty()) this.toMutableList()
-    else this.drop(linkName.count { it == ' ' } + 1).toMutableList()
+    val newList = if (linkName.isEmpty()) {
+        this.toMutableList()
+    } else {
+        this.drop(linkName.count { it == ' ' } + 1).toMutableList()
+    }
     newList.add(0, linkName)
     this.clear()
     this.addAll(newList)

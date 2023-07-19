@@ -11,13 +11,13 @@ import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-private val duplicatesLink1 = mockLink(
+private val duplicatesLinkPrivate = mockLink(
     type = "Duplicate",
     issue = mockLinkedIssue(
         getFullIssue = { mockIssue(securityLevel = "private").right() }
     )
 )
-private val duplicatesLinkComment = mockLink(
+private val duplicatesLinkPrivateComment = mockLink(
     type = "Duplicate",
     issue = mockLinkedIssue(
         getFullIssue = {
@@ -34,10 +34,10 @@ private val duplicatesLinkComment = mockLink(
         }
     )
 )
-private val duplicatesLink2 = mockLink(
+private val duplicatesLinkPublic = mockLink(
     type = "Duplicate",
     issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(securityLevel = "public").right() }
+        getFullIssue = { mockIssue(securityLevel = null).right() }
     )
 )
 private val relatesLink = mockLink(
@@ -51,7 +51,7 @@ class PrivateDuplicateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when keep private tag is null" {
         val module = PrivateDuplicateModule(null)
         val issue = mockIssue(
-            links = listOf(duplicatesLinkComment)
+            links = listOf(duplicatesLinkPrivateComment)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -63,7 +63,7 @@ class PrivateDuplicateModuleTest : StringSpec({
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
         val issue = mockIssue(
             securityLevel = "private",
-            links = listOf(duplicatesLink1)
+            links = listOf(duplicatesLinkPrivate)
         )
 
         val result = module(issue, RIGHT_NOW)
@@ -77,7 +77,7 @@ class PrivateDuplicateModuleTest : StringSpec({
 
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
         val issue = mockIssue(
-            links = listOf(duplicatesLinkComment),
+            links = listOf(duplicatesLinkPrivateComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
             addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
@@ -95,8 +95,8 @@ class PrivateDuplicateModuleTest : StringSpec({
 
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
         val issue = mockIssue(
-            securityLevel = "not private",
-            links = listOf(duplicatesLinkComment),
+            securityLevel = null,
+            links = listOf(duplicatesLinkPrivateComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
             addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
@@ -114,7 +114,7 @@ class PrivateDuplicateModuleTest : StringSpec({
 
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
         val issue = mockIssue(
-            links = listOf(duplicatesLink1),
+            links = listOf(duplicatesLinkPrivate),
             setPrivate = { didSetToPrivate = true; Unit.right() },
             addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
         )
@@ -140,7 +140,7 @@ class PrivateDuplicateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when parent is not private" {
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
         val issue = mockIssue(
-            links = listOf(duplicatesLink2)
+            links = listOf(duplicatesLinkPublic)
         )
 
         val result = module(issue, RIGHT_NOW)

@@ -390,9 +390,6 @@ arisa:
     keepPrivate:
       tag: MEQS_KEEP_PRIVATE
       message: panel-unmark-private-issue
-      privateLevels:
-        - '10318' # most projects
-        - '10502' # just MCL
 
     privateDuplicate:
       resolutions:

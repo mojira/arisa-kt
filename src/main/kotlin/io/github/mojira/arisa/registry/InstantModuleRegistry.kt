@@ -128,8 +128,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
             Arisa.Modules.KeepPrivate,
             KeepPrivateModule(
                 config[Arisa.Modules.KeepPrivate.tag],
-                config[Arisa.Modules.KeepPrivate.message],
-                config[Arisa.Modules.KeepPrivate.privateLevels]
+                config[Arisa.Modules.KeepPrivate.message]
             )
         )
 

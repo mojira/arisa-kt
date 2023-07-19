@@ -339,9 +339,6 @@ object Arisa : ConfigSpec() {
                 description = "The key of the message that is posted when this module succeeds."
             )
             val tag by optional<String?>(null)
-            val privateLevels by required<Set<String>>(
-                description = "All levels used to denote private security level"
-            )
         }
 
         object PrivateDuplicate : ModuleConfigSpec() {

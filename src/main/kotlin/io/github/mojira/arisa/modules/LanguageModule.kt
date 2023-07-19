@@ -21,7 +21,7 @@ class LanguageModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertAfter(created, lastRun).bind()
-            assertIsPublic(securityLevel, project.privateSecurity).bind()
+            assertNull(securityLevel).bind()
 
             val combinedText = combineSummaryAndDescription(summary ?: "", description ?: "")
             assertExceedLengthThreshold(combinedText).bind()
@@ -72,13 +72,6 @@ class LanguageModule(
         text.length < lengthThreshold -> OperationNotNeededModuleResponse.left()
         else -> Unit.right()
     }
-
-    private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel) {
-            OperationNotNeededModuleResponse.left()
-        } else {
-            Unit.right()
-        }
 
     private fun assertLanguageIsNotAllowed(allowedLanguages: List<String>, language: String) = when {
         allowedLanguages.any { language == it } -> OperationNotNeededModuleResponse.left()

@@ -15,13 +15,14 @@ class PrivateDuplicateModule(
     override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotNull(keepPrivateTag).bind()
-            assertIsPublic(securityLevel, project.privateSecurity).bind()
+            assertNull(securityLevel).bind()
+
             val duplicatedReports = links
                 .filter(::isDuplicatesLink)
                 .map { it.issue.getFullIssue().toFailedModuleEither().bind() }
             assertGreaterThan(duplicatedReports.size, 0).bind()
             duplicatedReports.forEach {
-                assertParentPrivate(it.securityLevel, it.project.privateSecurity).bind()
+                assertNotNull(it.securityLevel).bind()
                 setPrivate()
                 if (parentHasKeepPrivateTag(it)) {
                     addRawRestrictedComment(keepPrivateTag!!, "staff")
@@ -37,18 +38,4 @@ class PrivateDuplicateModule(
     private fun parentHasKeepPrivateTag(parent: Issue): Boolean = parent.comments.any(::isKeepPrivateTag)
 
     private fun isDuplicatesLink(link: Link): Boolean = link.type == "Duplicate" && link.outwards
-
-    private fun assertIsPublic(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel) {
-            OperationNotNeededModuleResponse.left()
-        } else {
-            Unit.right()
-        }
-
-    private fun assertParentPrivate(securityLevel: String?, privateLevel: String) =
-        if (securityLevel == privateLevel) {
-            Unit.right()
-        } else {
-            OperationNotNeededModuleResponse.left()
-        }
 }

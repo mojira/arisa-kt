@@ -58,7 +58,7 @@ fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.chan
     ?.toInstant() ?: default
 
 fun JiraProject.getSecurityLevelId(config: Config) =
-    config[Arisa.PrivateSecurityLevel.special][key] ?: config[Arisa.PrivateSecurityLevel.default]
+    config[Arisa.PrivateSecurityLevel.special][key.lowercase()] ?: config[Arisa.PrivateSecurityLevel.default]
 
 fun JiraVersion.toDomain() = Version(
     id,

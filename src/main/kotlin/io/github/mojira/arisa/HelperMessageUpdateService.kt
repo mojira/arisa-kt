@@ -13,6 +13,10 @@ class HelperMessageUpdateService {
     private val helperMessagesFile = File("helper-messages.json")
     private var helperMessagesLastFetch = Instant.now().minusSeconds(UPDATE_INTERVAL_IN_SECONDS + 1)
 
+    init {
+        this.checkForUpdate()
+    }
+
     fun checkForUpdate() {
         val currentTime = Instant.now()
 

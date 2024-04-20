@@ -7,6 +7,7 @@ import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -168,6 +169,26 @@ class HideImpostorsModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when comment was edited by a staff+ user" {
+        var isRestricted = false
+        val module = HideImpostorsModule()
+        val comment = getComment(
+            author = "[test] test",
+            updateAuthor = "[Mod] Moderator",
+            getAuthorGroups = { listOf("user") },
+            getUpdateAuthorGroups = { listOf("staff") },
+            restrict = { isRestricted = true }
+        )
+        val issue = mockIssue(
+            comments = listOf(comment)
+        )
+
+        val result = module(issue, RIGHT_NOW)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+        isRestricted.shouldBeFalse()
+    }
+
     "should hide comment when user starts with a valid tag but is not of a permission group" {
         var isRestricted = false
         val module = HideImpostorsModule()
@@ -279,14 +300,18 @@ private fun getUser(displayName: String) = mockUser(name = "", displayName = dis
 
 private fun getComment(
     author: String = "User",
+    updateAuthor: String? = null,
     getAuthorGroups: () -> List<String> = { emptyList() },
+    getUpdateAuthorGroups: () -> List<String> = { emptyList() },
     created: Instant = RIGHT_NOW,
     visibilityType: String? = null,
     visibilityValue: String? = null,
     restrict: (String) -> Unit = { }
 ) = mockComment(
     author = getUser(displayName = author),
+    updateAuthor = if (updateAuthor == null) null else getUser(displayName = updateAuthor),
     getAuthorGroups = getAuthorGroups,
+    getUpdateAuthorGroups = getUpdateAuthorGroups,
     created = created,
     updated = created,
     visibilityType = visibilityType,

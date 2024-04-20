@@ -4,6 +4,7 @@ import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.AffectedVersionMessageModule
@@ -209,7 +210,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
                 config[Arisa.Modules.ReopenAwaiting.softARDays],
                 config[Arisa.Modules.ReopenAwaiting.keepARTag],
                 config[Arisa.Modules.ReopenAwaiting.onlyOPTag],
-                config[Arisa.Modules.ReopenAwaiting.message]
+                HelperMessageService.getMessage("MC", keys = listOf(config[Arisa.Modules.ReopenAwaiting.message]))
             )
         )
 

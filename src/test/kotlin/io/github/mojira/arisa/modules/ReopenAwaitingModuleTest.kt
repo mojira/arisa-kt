@@ -2,7 +2,6 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
@@ -20,15 +19,11 @@ private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
 private val NEWBIE = getUser(name = "newbieUser", newUser = true)
 
-private val NOT_REOPEN_AR_MESSAGE = HelperMessageService.getMessageWithBotSignature(
-    "MC",
-    "not-reopen-ar",
-    null,
-    "en"
-)
-
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
+
+private const val NOT_REOPEN_AR_MESSAGE = "This report is currently missing crucial information. " +
+    "Please take a look at the other comments to find out what we are looking for."
 
 private val MODULE = ReopenAwaitingModule(
     setOf("staff", "global-moderators"),
@@ -36,7 +31,7 @@ private val MODULE = ReopenAwaitingModule(
     365,
     "MEQS_KEEP_AR",
     "ARISA_REOPEN_OP",
-    "not-reopen-ar"
+    NOT_REOPEN_AR_MESSAGE
 )
 private val AWAITING_RESOLVE = mockChangeLogItem(
     created = TEN_SECONDS_AGO,
@@ -800,7 +795,8 @@ class ReopenAwaitingModuleTest : StringSpec({
             comments = listOf(tagComment, normalComment),
             changeLog = listOf(AWAITING_RESOLVE),
             reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
+            addComment = { hasCommented = true; Unit.right() },
+            addRawBotComment = { hasCommented = true; Unit.right() }
         )
 
         val result = MODULE(issue, TEN_SECONDS_AGO)
@@ -823,7 +819,8 @@ class ReopenAwaitingModuleTest : StringSpec({
             comments = listOf(comment),
             changeLog = listOf(OLD_AWAITING_RESOLVE),
             reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
+            addComment = { hasCommented = true; Unit.right() },
+            addRawBotComment = { hasCommented = true; Unit.right() }
         )
 
         val result = MODULE(issue, TEN_SECONDS_AGO)
@@ -886,7 +883,8 @@ class ReopenAwaitingModuleTest : StringSpec({
             comments = listOf(tagComment, fakeComment),
             changeLog = listOf(AWAITING_RESOLVE),
             reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
+            addComment = { hasCommented = true; Unit.right() },
+            addRawBotComment = { hasCommented = true; Unit.right() }
         )
 
         val result = MODULE(issue, TEN_SECONDS_AGO)

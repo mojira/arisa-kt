@@ -165,6 +165,7 @@ Hides the comments created by users who look like an impostor.
   and some texts after the brackets. e.g. `[dev] foo`.
 - The comment is not restricted to `staff`.
 - The comment's author is not a `helper`, `global-moderators`, nor `staff`.
+- The user who last updated the comment is not a `helper`, `global-moderators`, nor `staff`.
 
 ## IncompleteModule
 

@@ -2,13 +2,17 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.left
 import arrow.core.right
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import io.github.mojira.arisa.utils.mockIssue
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldStartWith
 import io.mockk.mockk
 import net.rcarz.jiraclient.Issue
 
@@ -177,5 +181,23 @@ class RemoveContentCommandTest : StringSpec({
         commentRestriction shouldBe "staff"
         // Should contain sanitized user name
         comment shouldContain "evil?User"
+    }
+
+    "should throw with suppressed exception when querying activity fails" {
+        val searchException = Exception("test exception")
+        val command = RemoveContentCommand(
+            searchIssues = { _, _ -> searchException.left() },
+            getIssue = { throw AssertionError("not needed for test") },
+            execute = { throw AssertionError("not needed for test") }
+        )
+
+        val issue = mockIssue()
+        val user = "user\nName"
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, user)
+        }
+        val expectedSanitizedUser = "user?Name"
+        exception.message shouldStartWith "Could not query activity of user \"$expectedSanitizedUser\". Query string: "
+        exception.suppressed.shouldContainExactly(searchException)
     }
 })

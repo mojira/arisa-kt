@@ -16,6 +16,12 @@ import java.util.concurrent.TimeUnit
 const val REMOVABLE_ACTIVITY_CAP = 200
 
 /**
+ * How many hours ago an activity must have been to not be removed by the command.
+ * This is a safety guard in case the command gets invoked on a very active user.
+ */
+const val MAX_ACTIVITY_AGE_HOURS = 24
+
+/**
  * After how many actions the bot should pause for a second
  * (in order to not send too many requests too quickly)
  */
@@ -32,6 +38,9 @@ class RemoveContentCommand(
 
     val getCommentsFromIssue: (String, Issue) -> List<Pair<String, Comment>> = { _, issue ->
         issue.comments.mapNotNull { it.id to it }
+    },
+    val getTimeOfComment: (Pair<String, Comment>) -> Instant = { (_, comment) ->
+        comment.created
     },
     val getVisibilityValueOfComment: (Pair<String, Comment>) -> String = { (_, comment) ->
         comment.visibility?.value ?: ""
@@ -51,6 +60,9 @@ class RemoveContentCommand(
     },
     val getAttachmentsFromIssue: (String, Issue) -> List<Pair<String, Attachment>> = { _, issue ->
         issue.attachments.mapNotNull { it.id to it }
+    },
+    val getTimeOfAttachment: (Pair<String, Attachment>) -> Instant = { (_, attachment) ->
+        attachment.created
     },
     val getAuthorNameFromAttachment: (Pair<String, Attachment>) -> String? = { (_, attachment) ->
         attachment.author?.name
@@ -76,7 +88,7 @@ class RemoveContentCommand(
             is Either.Left ->
                 throw CommandExceptions.CANNOT_QUERY_USER_ACTIVITY
                     .create(sanitizedUserName, jql)
-                    .apply { addSuppressed(either.a) }
+                    .initCause(either.a)
 
             is Either.Right -> either.b
         }
@@ -100,7 +112,8 @@ class RemoveContentCommand(
     @Suppress("ExplicitItLambdaParameter")
     private fun removeActivity(ticketIds: List<String>, userName: String): RemoveActivityResult {
         val result = RemoveActivityResult(0, 0)
-
+        val now = Instant.now()
+        
         ticketIds
             .mapNotNull {
                 val either = getIssue(it)
@@ -112,8 +125,9 @@ class RemoveContentCommand(
             }
             .forEach { (key, issue) ->
                 log.debug("Removing comments and attachments from ticket $key")
-
+                
                 result.removedComments += getCommentsFromIssue(key, issue)
+                    .filter { getTimeOfComment(it) >= now.minus(MAX_ACTIVITY_AGE_HOURS, ChronoUnit.HOURS) }
                     .filter { getVisibilityValueOfComment(it) != "staff" }
                     .filter { getAuthorOfComment(it) == userName }
                     .onEachIndexed { index, it ->
@@ -130,6 +144,7 @@ class RemoveContentCommand(
                     .count()
 
                 result.removedAttachments += getAttachmentsFromIssue(key, issue)
+                    .filter { getTimeOfAttachment(it) >= now.minus(MAX_ACTIVITY_AGE_HOURS, ChronoUnit.HOURS) }
                     .filter { getAuthorNameFromAttachment(it) == userName }
                     .onEachIndexed { index, it ->
                         removeAttachment(it, issue)

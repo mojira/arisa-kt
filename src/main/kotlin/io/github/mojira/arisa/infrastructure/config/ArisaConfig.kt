@@ -45,10 +45,6 @@ object Arisa : ConfigSpec() {
         val default by required<String>(
             description = "The default security id used by projects not defined in special."
         )
-        val special by required<Map<String, String>>(
-            description = "Some projects define their own security level. These projects need to be defined here with" +
-                " their own ID.. Default is all projects use the default ID"
-        )
     }
 
     object Debug : ConfigSpec() {

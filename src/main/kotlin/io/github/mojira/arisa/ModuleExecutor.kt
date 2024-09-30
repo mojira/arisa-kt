@@ -25,6 +25,7 @@ class ModuleExecutor(
                 val moduleName = response.first
                 response.second.fold(
                     {
+                        @Suppress("detekt:OptionalWhenBraces")
                         when (it) {
                             is OperationNotNeededModuleResponse -> {
                                 if (config[Arisa.Debug.logOperationNotNeeded]) {

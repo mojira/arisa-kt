@@ -44,7 +44,7 @@ jobs:
         artifact_paths: |
           build/install/arisa-kt/lib
           build/install/arisa-kt/bin
-          config/config.yml
+          config/config.*
         artifact_destination: /home/arisakt/arisa-kt
         script: |
           /usr/bin/screen -ls | /bin/egrep 'Detached|Attached' | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill

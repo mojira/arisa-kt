@@ -35,8 +35,6 @@ arisa:
 
   privateSecurityLevel:
     default: '10318'
-    special:
-      mcl: '10502'
 
   modules:
     affectedVersionMessage:

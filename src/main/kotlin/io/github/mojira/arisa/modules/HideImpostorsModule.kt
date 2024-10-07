@@ -16,7 +16,8 @@ class HideImpostorsModule : Module {
                 .filter(::commentIsRecent)
                 .filter(::userContainsBrackets)
                 .filter(::isNotStaffRestricted)
-                .filter(::userIsNotVolunteer)
+                .filter(::authorIsNotVolunteer)
+                .filter(::updateAuthorIsNotVolunteer)
                 .map { it.restrict.partially1(it.body ?: "") }
                 .toList()
 
@@ -34,8 +35,13 @@ class HideImpostorsModule : Module {
         this != null && matches("""\[(?:\p{L}|\p{N}|\s)+]\s.+""".toRegex())
     }
 
-    private fun userIsNotVolunteer(comment: Comment) =
-        !(comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false)
+    private val staffGroups = setOf("helper", "global-moderators", "staff")
+
+    private fun authorIsNotVolunteer(comment: Comment) =
+        comment.getAuthorGroups()?.none { staffGroups.contains(it) } ?: true
+
+    private fun updateAuthorIsNotVolunteer(comment: Comment) =
+        comment.getUpdateAuthorGroups()?.none { staffGroups.contains(it) } ?: true
 
     private fun isNotStaffRestricted(comment: Comment) =
         comment.visibilityType != "group" || comment.visibilityValue != "staff"

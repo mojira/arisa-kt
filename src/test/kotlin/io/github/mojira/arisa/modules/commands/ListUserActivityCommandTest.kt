@@ -2,9 +2,13 @@ package io.github.mojira.arisa.modules.commands
 
 import arrow.core.Either
 import arrow.core.extensions.fx
+import arrow.core.left
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import io.github.mojira.arisa.utils.mockIssue
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -72,7 +76,23 @@ class ListUserActivityCommandTest : StringSpec({
         comment.shouldNotBeNull()
         commentRestriction shouldBe "staff"
 
-        // Should contain sanitized user name
-        comment shouldStartWith "No unrestricted comments from user \"user?Name\" were found."
+        val expectedSanitizedUser = "user?Name"
+        comment shouldStartWith "No unrestricted comments from user \"$expectedSanitizedUser\" were found."
+    }
+
+    "should throw with suppressed exception when querying activity fails" {
+        val searchException = Exception("test exception")
+        val command = ListUserActivityCommand { _, _ ->
+            searchException.left()
+        }
+
+        val issue = mockIssue()
+        val user = "user\nName"
+        val exception = shouldThrow<CommandSyntaxException> {
+            command(issue, user)
+        }
+        val expectedSanitizedUser = "user?Name"
+        exception.message shouldStartWith "Could not query activity of user \"$expectedSanitizedUser\". Query string: "
+        exception.suppressed.shouldContainExactly(searchException)
     }
 })

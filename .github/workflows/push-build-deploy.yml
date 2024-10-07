@@ -1,5 +1,8 @@
 name: Build and deploy
 
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
+
 on:
   push:
     branches: [ master ]
@@ -8,87 +11,43 @@ on:
 
 jobs:
   build:
-
+    name: Build and deploy
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: temurin
-      - name: Setup and build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: clean installDist
-      - name: Upload new libraries
-        uses: urielsalis/rsync-deploy@master
-        env:
-          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_PORT: 50022
-          FOLDER: "build/install/arisa-kt/lib"
-          ARGS: "-avhW --delete"
-          SERVER_IP: localhost
-          USERNAME: arisakt
-          SERVER_DESTINATION: /home/arisakt/arisa-kt
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-          TENANT_ID: ${{ secrets.TENANT_ID }}
-          BASTION_NAME: ${{ secrets.BASTION_NAME }}
-      - name: Upload new binaries
-        uses: urielsalis/rsync-deploy@master
-        env:
-          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_PORT: 50022
-          FOLDER: "build/install/arisa-kt/bin"
-          ARGS: "-avhW --delete"
-          SERVER_IP: localhost
-          USERNAME: arisakt
-          SERVER_DESTINATION: /home/arisakt/arisa-kt
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-          TENANT_ID: ${{ secrets.TENANT_ID }}
-          BASTION_NAME: ${{ secrets.BASTION_NAME }}
-      - name: Upload new configuration
-        uses: urielsalis/rsync-deploy@master
-        env:
-          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_PORT: 50022
-          FOLDER: "config"
-          ARGS: "-avhW --delete --exclude='local.yml'"
-          SERVER_IP: localhost
-          USERNAME: arisakt
-          SERVER_DESTINATION: /home/arisakt/arisa-kt
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-          TENANT_ID: ${{ secrets.TENANT_ID }}
-          BASTION_NAME: ${{ secrets.BASTION_NAME }}
-      - name: Run internal deploy script
-        uses: urielsalis/azure-bastion-ssh-action@master
-        env:
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          RESOURCE_ID: ${{ secrets.RESOURCE_ID }}
-          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-          TENANT_ID: ${{ secrets.TENANT_ID }}
-          BASTION_NAME: ${{ secrets.BASTION_NAME }}
-        with:
-          host: localhost
-          port: 50022
-          user: arisakt
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command: |
-            /usr/bin/screen -ls | /bin/egrep 'Detached|Attached' | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
-            sleep 1
-            cd arisa-kt
-            /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-          args: "-tt"
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: temurin
 
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Build with Gradle
+      run: ./gradlew clean installDist
+
+    - name: Deploy
+      uses: mojira/deploy@main
+      with:
+        azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        bastion_name: ${{ secrets.BASTION_NAME }}
+        resource_group: ${{ secrets.RESOURCE_GROUP }}
+        resource_id: ${{ secrets.RESOURCE_ID }}
+        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        username: arisakt
+        artifact_paths: |
+          build/install/arisa-kt/lib
+          build/install/arisa-kt/bin
+          config/config.*
+        artifact_destination: /home/arisakt/arisa-kt
+        script: |
+          /usr/bin/screen -ls | /bin/egrep 'Detached|Attached' | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
+          sleep 1
+          cd arisa-kt
+          /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'

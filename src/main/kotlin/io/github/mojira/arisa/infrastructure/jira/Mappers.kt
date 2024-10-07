@@ -57,8 +57,7 @@ fun getCreationDate(issue: JiraIssue, id: String, default: Instant) = issue.chan
     ?.created
     ?.toInstant() ?: default
 
-fun JiraProject.getSecurityLevelId(config: Config) =
-    config[Arisa.PrivateSecurityLevel.special][key.lowercase()] ?: config[Arisa.PrivateSecurityLevel.default]
+fun JiraProject.getSecurityLevelId(config: Config) = config[Arisa.PrivateSecurityLevel.default]
 
 fun JiraVersion.toDomain() = Version(
     id,
@@ -221,7 +220,9 @@ fun JiraComment.toDomain(
         id,
         body,
         author.toDomain(jiraClient, config),
+        updateAuthor?.toDomain(jiraClient, config),
         { getGroups(jiraClient, author.name).fold({ null }, { it }) },
+        { if (updateAuthor == null) emptyList() else getGroups(jiraClient, updateAuthor.name).fold({ null }, { it }) },
         createdDate.toInstant(),
         updatedDate.toInstant(),
         visibility?.type,

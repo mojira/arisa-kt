@@ -14,7 +14,7 @@ class DeleteCommentsCommand {
     operator fun invoke(issue: Issue, userName: String): Int {
         val comments = issue.comments
             .filter { it.visibilityValue != "staff" }
-            .filter { it.author.name == userName }
+            .filter { it.author?.name == userName }
 
         Thread {
             comments

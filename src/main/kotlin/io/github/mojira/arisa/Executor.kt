@@ -130,11 +130,17 @@ private fun getSearchResultsFromJira(
 
     return searchResult
         .issues
-        .map {
-            it.toDomain(
-                jiraClient,
-                ProjectCache.getProjectFromTicketId(it.key),
-                config
-            )
+        .mapNotNull {
+            @Suppress("TooGenericExceptionCaught")
+            try {
+                it.toDomain(
+                    jiraClient,
+                    ProjectCache.getProjectFromTicketId(it.key),
+                    config
+                )
+            } catch (exception: Exception) {
+                log.error("Error mapping bug report ${it.key}:" + exception.message + "\n" + exception.stackTrace)
+                null
+            }
         }
 }

@@ -98,7 +98,7 @@ class CommandModule(
     ) {
         val issueKey = issue.key
         val commentId = comment.id
-        val user = comment.author.name
+        val user = comment.author?.name
         val commandStr = command.command
         commandResult.fold(
             { exception ->
@@ -162,7 +162,7 @@ class CommandModule(
     private fun userIsVolunteer(comment: Comment): Boolean {
         // Ignore comments from the bot itself to prevent accidental infinite recursion and command
         // injection by malicious user
-        if (ignoreOwnCommands && comment.author.name == botUserName) {
+        if (ignoreOwnCommands && comment.author?.name == botUserName) {
             return false
         }
 

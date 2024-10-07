@@ -59,9 +59,9 @@ class ShadowbanModule : Module {
     private fun Issue.checkCommentsForShadowban(timeframe: ExecutionTimeframe): Int =
         comments
             .filter { it.isNotStaffRestricted() }
-            .filter { it.author.isNotVolunteer() }
+            .filter { it.author != null && it.author.isNotVolunteer() }
             .filter {
-                timeframe.shadowbans[it.author.name]?.banTimeContains(it.created) ?: false
+                timeframe.shadowbans[it.author?.name]?.banTimeContains(it.created) ?: false
             }
             .map { it.restrict("${it.body}\n\n_Removed by Arisa -- User is shadowbanned_") }
             .size

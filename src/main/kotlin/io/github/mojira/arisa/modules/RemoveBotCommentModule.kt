@@ -38,7 +38,7 @@ class RemoveBotCommentModule(
             listOf("staff", "global-moderators").contains(comment.visibilityValue)
 
     private fun shouldBeRemoved(comment: Comment) =
-        comment.author.name == botUserName &&
+        comment.author?.name == botUserName &&
             isVolunteerRestricted(comment) &&
             comment.body.equals(removalTag)
 }

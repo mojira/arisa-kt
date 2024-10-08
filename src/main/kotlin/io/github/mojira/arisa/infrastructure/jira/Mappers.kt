@@ -219,7 +219,7 @@ fun JiraComment.toDomain(
     return Comment(
         id,
         body,
-        author.toDomain(jiraClient, config),
+        author?.toDomain(jiraClient, config),
         updateAuthor?.toDomain(jiraClient, config),
         { getGroups(jiraClient, author.name).fold({ null }, { it }) },
         { if (updateAuthor == null) emptyList() else getGroups(jiraClient, updateAuthor.name).fold({ null }, { it }) },

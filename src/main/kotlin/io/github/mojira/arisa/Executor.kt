@@ -139,7 +139,7 @@ private fun getSearchResultsFromJira(
                     config
                 )
             } catch (exception: Exception) {
-                log.error("Error mapping bug report ${it.key}:" + exception.message + "\n" + exception.stackTrace)
+                log.error("Error mapping bug report ${it.key}", exception)
                 null
             }
         }

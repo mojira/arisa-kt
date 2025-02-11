@@ -4,8 +4,11 @@ import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
     object Credentials : ConfigSpec() {
+        // TODO: Remove username and password
         val username by required<String>()
         val password by required<String>()
+        val email by required<String>()
+        val apiToken by required<String>()
         val dandelionToken by optional<String?>(
             null,
             description = "Token for dandelion.eu"

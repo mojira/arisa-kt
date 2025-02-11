@@ -3,6 +3,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.5.0"
     application
     id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 group = "io.github.mojira"
@@ -54,6 +55,8 @@ dependencies {
     implementation("com.beust", "klaxon", "5.6")
     implementation("com.mojang", "brigadier", "1.0.18")
     implementation("org.apache.commons", "commons-imaging", "1.0-alpha3")
+    implementation("com.squareup.okhttp3", "okhttp", "4.12.0")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.8.0")
 
     components {
         /*

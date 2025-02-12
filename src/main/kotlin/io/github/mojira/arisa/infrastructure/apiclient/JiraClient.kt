@@ -1,9 +1,11 @@
 package io.github.mojira.arisa.infrastructure.apiclient
 
+import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.IOException
 
 private val JSON = "application/json".toMediaType()
 
@@ -31,7 +33,7 @@ class JiraClient(
     private val email: String,
     private val apiToken: String
 ) {
-    private final val API_ENDPOINT = jiraUrl.plus("/rest/api/3")
+    private final val API_ENDPOINT = jiraUrl.plus("rest/api/3")
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(BasicAuthInterceptor(email, apiToken))
         .build()
@@ -54,10 +56,10 @@ class JiraClient(
      fun searchIssues(
          jql: String,
          fields: List<String>,
-         expand: List<String>,
+         expand: List<String> = emptyList(),
          maxResults: Int,
-         startAt: Int,
-     ): Response {
+         startAt: Int = 0,
+     ): SearchResults {
          val payload = Json.encodeToString(JiraSearchRequest(
              expand = expand,
              fields = fields,
@@ -66,6 +68,13 @@ class JiraClient(
              startAt = startAt
          )).toRequestBody(JSON)
 
-         return this.postRequest("/search", payload)
+         val response = this.postRequest("/search", payload)
+         response.use { response ->
+             if (!response.isSuccessful) {
+                 throw IOException("Unexpected code $response")
+             }
+
+             return Json.decodeFromString<SearchResults>(response.body!!.string())
+         }
      }
 }

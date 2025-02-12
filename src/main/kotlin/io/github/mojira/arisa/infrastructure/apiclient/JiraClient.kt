@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.infrastructure.apiclient
 
+import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
 import kotlinx.serialization.json.Json
 import okhttp3.*
@@ -37,9 +38,20 @@ class JiraClient(
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(BasicAuthInterceptor(email, apiToken))
         .build()
+    private val JsonWithUnknownKeys = Json{ignoreUnknownKeys = true}
 
     private fun constructURL(url: String): String {
         return this.API_ENDPOINT.plus(url)
+    }
+
+    private fun getRequest(url: String): Response {
+        val request = Request.Builder()
+            .url(constructURL(url))
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Accept", "application/json")
+            .build()
+
+        return this.httpClient.newCall(request).execute()
     }
 
     private fun postRequest(url: String, payload: RequestBody): Response {
@@ -77,4 +89,18 @@ class JiraClient(
              return Json.decodeFromString<SearchResults>(response.body!!.string())
          }
      }
+
+    fun getProject(
+        key: String
+    ): Project {
+        val response = this.getRequest("/project/$key")
+        response.use { response ->
+            if (!response.isSuccessful) {
+                throw IOException("Unexpected code $response")
+            }
+
+            return this.JsonWithUnknownKeys.decodeFromString<Project>(response.body!!.string())
+        }
+    }
+
 }

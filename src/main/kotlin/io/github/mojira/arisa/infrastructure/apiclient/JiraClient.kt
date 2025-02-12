@@ -50,6 +50,17 @@ interface JiraApi {
     ): Call<SearchResults>
 }
 
+/**
+ * Extends retrofit2.Call with generic response handling logic.
+ */
+private fun <T> Call<T>.executeOrThrow(): T {
+    val response = this.execute()
+    if (!response.isSuccessful) {
+        throw IOException("Unexpected code ${response.code()}")
+    }
+    return response.body() ?: throw IOException("Empty response body")
+}
+
 class JiraClient(
     private val jiraUrl: String,
     private val email: String,
@@ -90,21 +101,11 @@ class JiraClient(
             startAt = startAt
         )
 
-        val response = jiraApi.searchIssues(payload).execute()
-        if (!response.isSuccessful) {
-            throw IOException("Unexpected code $response")
-        }
-
-        return response.body() ?: throw IOException("Empty response body")
+        return jiraApi.searchIssues(payload).executeOrThrow()
     }
 
     fun getProject(key: String): Project {
-        val response = jiraApi.getProject(key).execute()
-        if (!response.isSuccessful) {
-            throw IOException("Unexpected code ${response.code()}")
-        }
-
-        return response.body() ?: throw IOException("Empty response body")
+        return jiraApi.getProject(key).executeOrThrow()
     }
 
     fun getIssue(
@@ -112,12 +113,7 @@ class JiraClient(
         includedFields: String = "*all",
         expand: String = "changelog",
     ): IssueBean {
-        val response = jiraApi.getIssue(key, includedFields, expand).execute()
-        if (!response.isSuccessful) {
-            throw IOException("Unexpected code ${response.code()}")
-        }
-
-        return response.body() ?: throw IOException("Empty response body")
+        return jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
     }
 
 }

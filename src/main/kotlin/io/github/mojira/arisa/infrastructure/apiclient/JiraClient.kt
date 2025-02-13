@@ -3,14 +3,18 @@ package io.github.mojira.arisa.infrastructure.apiclient
 import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
+import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
 import okio.IOException
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.*
+import java.io.File
+import java.io.InputStream
 
 /**
  * Adds authentication headers to the request.
@@ -48,6 +52,23 @@ interface JiraApi {
     fun searchIssues(
         @Body request: JiraSearchRequest
     ): Call<SearchResults>
+
+    @GET("attachment/content/{id}")
+    fun downloadAttachment(
+        @Path("id") attachmentId: String
+    ): Call<ResponseBody>
+
+    @retrofit2.http.Headers("X-Atlassian-Token: no-check")
+    @POST("issue/{issueIdOrKey}/attachments")
+    fun addAttachment(
+        @Path("issueIdOrKey") issueIdOrKey: String,
+        @Part file: MultipartBody.Part
+    ): Call<List<Attachment>>
+
+    @DELETE("attachment/{id}")
+    fun deleteAttachment(
+        @Path("id") attachmentId: String
+    ): Call<Void>
 }
 
 /**
@@ -116,4 +137,19 @@ class JiraClient(
         return jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
     }
 
+    fun addAttachment(issueIdOrKey: String, file: File): List<Attachment> {
+        val requestFile = file.asRequestBody("application/octet-stream".toMediaType())
+        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        return jiraApi.addAttachment(issueIdOrKey, body).executeOrThrow()
+    }
+
+    fun deleteAttachment(attachmentId: String) {
+        jiraApi.deleteAttachment(attachmentId).executeOrThrow()
+    }
+
+    fun openAttachmentStream(attachmentId: String): InputStream {
+        val responseBody = jiraApi.downloadAttachment(attachmentId).executeOrThrow()
+        return responseBody.byteStream()
+    }
 }

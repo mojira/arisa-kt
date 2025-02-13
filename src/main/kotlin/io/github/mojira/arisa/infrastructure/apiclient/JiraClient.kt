@@ -1,11 +1,16 @@
 package io.github.mojira.arisa.infrastructure.apiclient
 
+import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
+import io.github.mojira.arisa.infrastructure.apiclient.models.Project
+import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-
-private val JSON = "application/json".toMediaType()
+import okio.IOException
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import retrofit2.http.*
 
 /**
  * Adds authentication headers to the request.
@@ -14,7 +19,7 @@ class BasicAuthInterceptor(
     private val email: String,
     private val apiToken: String
 ) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
         val originalRequest: Request = chain.request()
 
         val credentials = Credentials.basic(email, apiToken)
@@ -26,46 +31,89 @@ class BasicAuthInterceptor(
     }
 }
 
+interface JiraApi {
+    @GET("project/{key}")
+    fun getProject(
+        @Path("key") key: String
+    ): Call<Project>
+
+    @GET("issue/{key}")
+    fun getIssue(
+        @Path("key") key: String,
+        @Query("fields") fields: String = "*all",
+        @Query("expand") expand: String = "changelog"
+    ): Call<IssueBean>
+
+    @POST("search")
+    fun searchIssues(
+        @Body request: JiraSearchRequest
+    ): Call<SearchResults>
+}
+
+/**
+ * Extends retrofit2.Call with generic response handling logic.
+ */
+private fun <T> Call<T>.executeOrThrow(): T {
+    val response = this.execute()
+    if (!response.isSuccessful) {
+        throw IOException("Unexpected code ${response.code()}")
+    }
+    return response.body() ?: throw IOException("Empty response body")
+}
+
 class JiraClient(
     private val jiraUrl: String,
     private val email: String,
     private val apiToken: String
 ) {
-    private final val API_ENDPOINT = jiraUrl.plus("/rest/api/3")
-    private val httpClient: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(BasicAuthInterceptor(email, apiToken))
-        .build()
+    private val jiraApi: JiraApi
 
-    private fun constructURL(url: String): String {
-        return this.API_ENDPOINT.plus(url)
-    }
-
-    private fun postRequest(url: String, payload: RequestBody): Response {
-        val request  = Request.Builder()
-            .url(constructURL(url))
-            .post(payload)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Accept", "application/json")
+    init {
+        val httpClient: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(BasicAuthInterceptor(email, apiToken))
             .build()
 
-        return this.httpClient.newCall(request).execute()
+        val apiBaseUrl = jiraUrl.plus("rest/api/3/")
+        val mediaType = "application/json".toMediaType()
+        val json = Json { ignoreUnknownKeys = true }
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(apiBaseUrl)
+            .client(httpClient)
+            .addConverterFactory(json.asConverterFactory(mediaType))
+            .build()
+
+        jiraApi = retrofit.create(JiraApi::class.java)
     }
 
-     fun searchIssues(
-         jql: String,
-         fields: List<String>,
-         expand: List<String>,
-         maxResults: Int,
-         startAt: Int,
-     ): Response {
-         val payload = Json.encodeToString(JiraSearchRequest(
-             expand = expand,
-             fields = fields,
-             jql = jql,
-             maxResults = maxResults,
-             startAt = startAt
-         )).toRequestBody(JSON)
+    fun searchIssues(
+        jql: String,
+        fields: List<String> = emptyList(),
+        expand: List<String> = emptyList(),
+        maxResults: Int = 100,
+        startAt: Int = 0,
+    ): SearchResults {
+        val payload = JiraSearchRequest(
+            expand = expand,
+            fields = fields,
+            jql = jql,
+            maxResults = maxResults,
+            startAt = startAt
+        )
 
-         return this.postRequest("/search", payload)
-     }
+        return jiraApi.searchIssues(payload).executeOrThrow()
+    }
+
+    fun getProject(key: String): Project {
+        return jiraApi.getProject(key).executeOrThrow()
+    }
+
+    fun getIssue(
+        key: String,
+        includedFields: String = "*all",
+        expand: String = "changelog",
+    ): IssueBean {
+        return jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
+    }
+
 }

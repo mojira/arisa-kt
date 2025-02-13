@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
+import URISerializer
 import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -52,12 +53,13 @@ data class IssueBean(
     val renderedFields: Map<String, String>? = null,
 
     /* The schema describing each field present on the issue. */
-//    @SerialName("schema")
-//    val schema: Map<String, JsonTypeBean>? = null,
+    @SerialName("schema")
+    val schema: Map<String, JsonTypeBean>? = null,
 
     /* The URL of the issue details. */
-//    @SerialName("self")
-//    val self: java.net.URI? = null,
+    @Serializable(with = URISerializer::class)
+    @SerialName("self")
+    val self: java.net.URI? = null,
 
     /* The transitions that can be performed on the issue. */
 //    @SerialName("transitions")

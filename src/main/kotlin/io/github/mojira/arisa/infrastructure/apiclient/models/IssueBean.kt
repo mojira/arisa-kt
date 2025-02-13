@@ -10,8 +10,8 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 data class IssueBean(
 
     /* Details of changelogs associated with the issue. */
-//    @SerialName("changelog")
-//    val changelog: PageOfChangelogs? = null,
+    @SerialName("changelog")
+    val changelog: PageOfChangelogs? = null,
 
     /* The metadata for the fields on the issue that can be amended. */
 //    @SerialName("editmeta")

@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
+import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -51,7 +52,7 @@ data class FieldMetadata (
 
     /* The configuration properties. */
     @SerialName("configuration")
-    val configuration: Map<String, JsonElement>? = null,
+    val configuration: OpenApiObject? = null,
 
     /* The default value of the field. */
 //    @SerialName("defaultValue")

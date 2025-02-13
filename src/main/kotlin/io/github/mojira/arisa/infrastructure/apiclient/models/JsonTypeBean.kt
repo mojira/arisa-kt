@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
+import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -24,7 +25,7 @@ data class JsonTypeBean (
 
     /* If the field is a custom field, the configuration of the field. */
     @SerialName("configuration")
-    val configuration: Map<String, JsonElement>? = null,
+    val configuration: OpenApiObject? = null,
 
     /* If the field is a custom field, the URI of the field. */
     @SerialName("custom")

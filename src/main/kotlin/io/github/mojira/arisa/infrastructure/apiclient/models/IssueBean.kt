@@ -1,5 +1,6 @@
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
+import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -22,7 +23,7 @@ data class IssueBean(
     val expand: String? = null,
 
     @SerialName("fields")
-    val fields: Map<String, JsonElement>? = null,
+    val fields: OpenApiObject? = null,
 
 //    @SerialName("fieldsToInclude")
 //    val fieldsToInclude: IncludedFields? = null,

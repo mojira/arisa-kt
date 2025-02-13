@@ -2,6 +2,7 @@ package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.infrastructure.jira.IncorrectlyCapitalizedUsernameException
 import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import java.lang.Long.max
 import java.time.Duration
@@ -40,8 +41,8 @@ class JiraConnectionService(
     private fun establishConnection(): Exception? {
         return try {
             val client = connectToJira(
-                config[Arisa.Credentials.email],
-                config[Arisa.Credentials.apiToken],
+                config[Arisa.Credentials.username],
+                config[Arisa.Credentials.password],
                 config[Arisa.Issues.url]
             )
 
@@ -107,8 +108,13 @@ class JiraConnectionService(
     fun connect() {
         val exception = establishConnection() ?: return
 
-        log.error("Could not connect to Jira", exception)
-        reconnect()
+        // Rethrow; startup should fail and Arisa config should be fixed
+        if (exception is IncorrectlyCapitalizedUsernameException) {
+            throw exception
+        } else {
+            log.error("Could not connect to Jira", exception)
+            reconnect()
+        }
     }
 
     /**

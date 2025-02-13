@@ -17,6 +17,8 @@ class IntegrationTest : StringSpec({
                 mapOf(
                     "arisa.credentials.username" to "test",
                     "arisa.credentials.password" to "test",
+                    "arisa.credentials.email" to "test",
+                    "arisa.credentials.apiToken" to "test",
                     "arisa.credentials.dandelionToken" to "test"
                 )
             )

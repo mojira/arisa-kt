@@ -14,8 +14,8 @@ data class IssueBean(
     val changelog: PageOfChangelogs? = null,
 
     /* The metadata for the fields on the issue that can be amended. */
-//    @SerialName("editmeta")
-//    val editmeta: IssueUpdateMetadata? = null,
+    @SerialName("editmeta")
+    val editmeta: IssueUpdateMetadata? = null,
 
     /* Expand options that include additional issue details in the response. */
     @SerialName("expand")

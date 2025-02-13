@@ -62,8 +62,8 @@ data class IssueBean(
     val self: java.net.URI? = null,
 
     /* The transitions that can be performed on the issue. */
-//    @SerialName("transitions")
-//    val transitions: List<IssueTransition>? = null,
+    @SerialName("transitions")
+    val transitions: List<IssueTransition>? = null,
 
     /* The versions of each field on the issue. */
     @SerialName("versionedRepresentations")

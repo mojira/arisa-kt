@@ -11,11 +11,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Scope(
-    /* The project the item has scope in. */
+    // The project the item has scope in.
     @SerialName("project")
     val project: ProjectDetails? = null,
-
-    /* The type of scope. */
+    // The type of scope.
     @SerialName("type")
     val type: Type? = null
 ) {
@@ -25,7 +24,9 @@ data class Scope(
      * Values: PROJECT,TEMPLATE
      */
     @Serializable
-    enum class Type(val value: String) {
+    enum class Type(
+        val value: String
+    ) {
         @SerialName("PROJECT")
         PROJECT("PROJECT"),
 

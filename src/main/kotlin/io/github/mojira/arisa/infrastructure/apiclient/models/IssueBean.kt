@@ -4,10 +4,8 @@ import URISerializer
 import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
-@JsonIgnoreUnknownKeys
 data class IssueBean(
     // Details of changelogs associated with the issue.
     @SerialName("changelog")

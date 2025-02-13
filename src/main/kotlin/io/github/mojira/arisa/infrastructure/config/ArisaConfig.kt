@@ -3,6 +3,7 @@ package io.github.mojira.arisa.infrastructure.config
 import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
+    @Suppress("ForbiddenComment")
     object Credentials : ConfigSpec() {
         // TODO: Remove username and password
         val username by required<String>()

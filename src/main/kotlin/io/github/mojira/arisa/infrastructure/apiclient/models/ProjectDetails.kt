@@ -1,3 +1,5 @@
+@file:Suppress("MaxLineLength")
+
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
 import kotlinx.serialization.SerialName

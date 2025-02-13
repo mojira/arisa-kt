@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  * @param items The list of items changed.
  */
 @Serializable
-data class Changelog (
+data class Changelog(
 
     /* The user who made the change. */
     @SerialName("author")
@@ -37,4 +37,4 @@ data class Changelog (
     @SerialName("items")
     val items: kotlin.collections.List<ChangeDetails>? = null
 
-) {}
+)

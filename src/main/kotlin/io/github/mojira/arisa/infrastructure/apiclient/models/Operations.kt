@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  * @param linkGroups Details of the link groups defining issue operations.
  */
 @Serializable
-data class Operations (
+data class Operations(
 
     /* Details of the link groups defining issue operations. */
     @SerialName("linkGroups")

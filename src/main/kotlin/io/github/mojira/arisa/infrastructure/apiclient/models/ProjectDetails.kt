@@ -1,8 +1,7 @@
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
-
+import kotlinx.serialization.Serializable
 
 /**
  * Details about a project.
@@ -17,36 +16,29 @@ import kotlinx.serialization.SerialName
  * @param simplified Whether or not the project is simplified.
  */
 @Serializable
-data class ProjectDetails (
-    /* The URLs of the project's avatars. */
+data class ProjectDetails(
+    // The URLs of the project's avatars.
     @SerialName("avatarUrls")
     val avatarUrls: AvatarUrlsBean? = null,
-
-    /* The ID of the project. */
+    // The ID of the project.
     @SerialName("id")
     val id: String? = null,
-
-    /* The key of the project. */
+    // The key of the project.
     @SerialName("key")
     val key: String? = null,
-
-    /* The name of the project. */
+    // The name of the project.
     @SerialName("name")
     val name: String? = null,
-
-    /* The category the project belongs to. */
+    // The category the project belongs to.
     @SerialName("projectCategory")
     val projectCategory: UpdatedProjectCategory? = null,
-
-    /* The project type of the project. */
+    // The project type of the project.
     @SerialName("projectTypeKey")
     val projectTypeKey: ProjectTypeKey? = null,
-
-    /* The URL of the project details. */
+    // The URL of the project details.
     @SerialName("self")
     val self: String? = null,
-
-    /* Whether or not the project is simplified. */
+    // Whether or not the project is simplified.
     @SerialName("simplified")
     val simplified: Boolean? = null
 ) {
@@ -54,15 +46,16 @@ data class ProjectDetails (
      * The project type of the project.
      */
     @Serializable
-    enum class ProjectTypeKey(val value: String) {
+    enum class ProjectTypeKey(
+        val value: String
+    ) {
         @SerialName("software")
-        software("software"),
+        Software("software"),
 
         @SerialName("service_desk")
-        service_desk("service_desk"),
+        ServiceDesk("service_desk"),
 
         @SerialName("business")
-        business("business")
+        Business("business")
     }
 }
-

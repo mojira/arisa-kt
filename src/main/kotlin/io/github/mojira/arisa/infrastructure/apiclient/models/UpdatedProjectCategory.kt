@@ -3,7 +3,6 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 /**
  * A project category.
  *
@@ -30,4 +29,3 @@ data class UpdatedProjectCategory(
     @SerialName("self")
     val self: String? = null
 )
-

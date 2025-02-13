@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
-
 /**
  * Details of issue history metadata.
  *
@@ -21,7 +20,7 @@ import kotlinx.serialization.json.JsonElement
  * @param type The type of the history record.
  */
 @Serializable
-data class HistoryMetadata (
+data class HistoryMetadata(
 
     /* The activity described in the history record. */
     @SerialName("activityDescription")
@@ -67,4 +66,4 @@ data class HistoryMetadata (
     @SerialName("type")
     val type: String? = null
 
-) : kotlin.collections.HashMap<String, JsonElement>() {}
+) : kotlin.collections.HashMap<String, JsonElement>()

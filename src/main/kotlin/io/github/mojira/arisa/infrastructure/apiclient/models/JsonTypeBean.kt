@@ -3,8 +3,6 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
-
 
 /**
  * The schema of a field.
@@ -17,7 +15,7 @@ import kotlinx.serialization.json.JsonElement
  * @param system If the field is a system field, the name of the field.
  */
 @Serializable
-data class JsonTypeBean (
+data class JsonTypeBean(
 
     /* The data type of the field. */
     @SerialName("type")

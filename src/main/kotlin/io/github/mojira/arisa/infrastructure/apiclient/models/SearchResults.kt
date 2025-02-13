@@ -9,4 +9,4 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 data class SearchResults(
     @SerialName("issues")
     val issues: List<IssueBean>
-) {}
+)

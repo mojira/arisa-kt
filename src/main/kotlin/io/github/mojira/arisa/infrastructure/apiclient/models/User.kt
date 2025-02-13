@@ -4,28 +4,25 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class AccountType(val value: String) {
-    atlassian("atlassian"),
-    app("app"),
-    customer("customer"),
-    unknown("unknown")
+enum class AccountType(
+    val value: String
+) {
+    Atlassian("atlassian"),
+    App("app"),
+    Customer("customer"),
+    Unknown("unknown")
 }
 
 @Serializable
 data class User(
-
     @SerialName("accountId")
     val accountId: String? = null,
-
     @SerialName("accountType")
     val accountType: AccountType? = null,
-
     @SerialName("active")
-    val active: Boolean? = null,
-
+    val active: Boolean? = null
 //    @SerialName("applicationRoles")
 //    val applicationRoles: SimpleListWrapperApplicationRole? = null,
-
 //    @SerialName("avatarUrls")
 //    val avatarUrls: AvatarUrlsBean? = null,
-) {}
+)

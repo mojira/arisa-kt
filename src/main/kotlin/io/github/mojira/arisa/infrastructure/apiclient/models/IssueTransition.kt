@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
  * @param to Details of the issue status after the transition.
  */
 @Serializable
-data class IssueTransition (
+data class IssueTransition(
 
     /* Expand options that include additional transition details in the response. */
     @SerialName("expand")

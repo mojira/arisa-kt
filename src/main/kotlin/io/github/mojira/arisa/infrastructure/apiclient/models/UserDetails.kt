@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserDetails (
+data class UserDetails(
 
     /* The account ID of the user, which uniquely identifies the user across all Atlassian products. For example, *5b10ac8d82e05b22cc7d4ef5*. */
     @SerialName("accountId")
@@ -46,4 +46,4 @@ data class UserDetails (
     @SerialName("timeZone")
     val timeZone: String? = null
 
-) {}
+)

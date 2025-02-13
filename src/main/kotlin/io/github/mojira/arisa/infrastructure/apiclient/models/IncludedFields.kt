@@ -3,7 +3,6 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 /**
  * @param actuallyIncluded
  * @param excluded

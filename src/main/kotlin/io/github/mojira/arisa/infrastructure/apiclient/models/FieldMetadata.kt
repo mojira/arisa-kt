@@ -3,7 +3,6 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 
 /**
  * The metadata describing an issue field.
@@ -20,7 +19,7 @@ import kotlinx.serialization.json.JsonElement
  * @param hasDefaultValue Whether the field has a default value.
  */
 @Serializable
-data class FieldMetadata (
+data class FieldMetadata(
 
     /* The key of the field. */
     @SerialName("key")

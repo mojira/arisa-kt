@@ -1,31 +1,43 @@
+@file:Suppress("ktlint")
+
 package io.github.mojira.arisa.infrastructure.apiclient
 
 import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
 import kotlinx.serialization.json.Json
-import okhttp3.*
+import okhttp3.Credentials
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okio.IOException
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Adds authentication headers to the request.
  */
 class BasicAuthInterceptor(
     private val email: String,
-    private val apiToken: String
+    private val apiToken: String,
 ) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+    override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest: Request = chain.request()
 
         val credentials = Credentials.basic(email, apiToken)
-        val newRequest: Request = originalRequest.newBuilder()
-            .header("Authorization", credentials)
-            .build()
+        val newRequest: Request =
+            originalRequest
+                .newBuilder()
+                .header("Authorization", credentials)
+                .build()
 
         return chain.proceed(newRequest)
     }
@@ -34,19 +46,19 @@ class BasicAuthInterceptor(
 interface JiraApi {
     @GET("project/{key}")
     fun getProject(
-        @Path("key") key: String
+        @Path("key") key: String,
     ): Call<Project>
 
     @GET("issue/{key}")
     fun getIssue(
         @Path("key") key: String,
         @Query("fields") fields: String = "*all",
-        @Query("expand") expand: String = "changelog"
+        @Query("expand") expand: String = "changelog",
     ): Call<IssueBean>
 
     @POST("search")
     fun searchIssues(
-        @Body request: JiraSearchRequest
+        @Body request: JiraSearchRequest,
     ): Call<SearchResults>
 }
 
@@ -64,24 +76,28 @@ private fun <T> Call<T>.executeOrThrow(): T {
 class JiraClient(
     private val jiraUrl: String,
     private val email: String,
-    private val apiToken: String
+    private val apiToken: String,
 ) {
     private val jiraApi: JiraApi
 
     init {
-        val httpClient: OkHttpClient = OkHttpClient.Builder()
-            .addInterceptor(BasicAuthInterceptor(email, apiToken))
-            .build()
+        val httpClient: OkHttpClient =
+            OkHttpClient
+                .Builder()
+                .addInterceptor(BasicAuthInterceptor(email, apiToken))
+                .build()
 
         val apiBaseUrl = jiraUrl.plus("rest/api/3/")
         val mediaType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(apiBaseUrl)
-            .client(httpClient)
-            .addConverterFactory(json.asConverterFactory(mediaType))
-            .build()
+        val retrofit =
+            Retrofit
+                .Builder()
+                .baseUrl(apiBaseUrl)
+                .client(httpClient)
+                .addConverterFactory(json.asConverterFactory(mediaType))
+                .build()
 
         jiraApi = retrofit.create(JiraApi::class.java)
     }
@@ -93,27 +109,23 @@ class JiraClient(
         maxResults: Int = 100,
         startAt: Int = 0,
     ): SearchResults {
-        val payload = JiraSearchRequest(
-            expand = expand,
-            fields = fields,
-            jql = jql,
-            maxResults = maxResults,
-            startAt = startAt
-        )
+        val payload =
+            JiraSearchRequest(
+                expand = expand,
+                fields = fields,
+                jql = jql,
+                maxResults = maxResults,
+                startAt = startAt,
+            )
 
         return jiraApi.searchIssues(payload).executeOrThrow()
     }
 
-    fun getProject(key: String): Project {
-        return jiraApi.getProject(key).executeOrThrow()
-    }
+    fun getProject(key: String): Project = jiraApi.getProject(key).executeOrThrow()
 
     fun getIssue(
         key: String,
         includedFields: String = "*all",
         expand: String = "changelog",
-    ): IssueBean {
-        return jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
-    }
-
+    ): IssueBean = jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
 }

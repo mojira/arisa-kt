@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  * @param weight
  */
 @Serializable
-data class LinkGroup (
+data class LinkGroup(
 
     @SerialName("groups")
     val groups: kotlin.collections.List<LinkGroup>? = null,

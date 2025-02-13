@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  * @param weight
  */
 @Serializable
-data class SimpleLink (
+data class SimpleLink(
 
     @SerialName("href")
     val href: String? = null,

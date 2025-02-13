@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  * @param statusCategory The category assigned to the status.
  */
 @Serializable
-data class StatusDetails (
+data class StatusDetails(
 
     /* The description of the status. */
     @SerialName("description")

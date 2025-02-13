@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * @param self The URL of the status category.
  */
 @Serializable
-data class StatusCategory (
+data class StatusCategory(
     /* The name of the color used to represent the status category. */
     @SerialName("colorName")
     val colorName: String? = null,

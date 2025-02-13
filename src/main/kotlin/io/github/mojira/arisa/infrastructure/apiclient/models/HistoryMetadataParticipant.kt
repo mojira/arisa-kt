@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
-
 /**
  * Details of user or system associated with a issue history metadata item.
  *
@@ -16,7 +15,7 @@ import kotlinx.serialization.json.JsonElement
  * @param url The URL of the user or system associated with a history record.
  */
 @Serializable
-data class HistoryMetadataParticipant (
+data class HistoryMetadataParticipant(
 
     /* The URL to an avatar for the user or system associated with a history record. */
     @SerialName("avatarUrl")
@@ -42,4 +41,4 @@ data class HistoryMetadataParticipant (
     @SerialName("url")
     val url: String? = null
 
-) : kotlin.collections.HashMap<String, JsonElement>() {}
+) : kotlin.collections.HashMap<String, JsonElement>()

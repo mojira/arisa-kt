@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AvatarUrlsBean (
+data class AvatarUrlsBean(
 
     /* The URL of the item's 16x16 pixel avatar. */
     @Serializable(with = URISerializer::class)
@@ -27,4 +27,4 @@ data class AvatarUrlsBean (
     @SerialName("48x48")
     val `48x48`: java.net.URI? = null
 
-) {}
+)

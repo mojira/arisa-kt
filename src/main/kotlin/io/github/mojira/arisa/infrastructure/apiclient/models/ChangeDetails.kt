@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  * @param toString The details of the new value as a string.
  */
 @Serializable
-data class ChangeDetails (
+data class ChangeDetails(
 
     /* The name of the field changed. */
     @SerialName("field")
@@ -45,4 +45,4 @@ data class ChangeDetails (
     @SerialName("toString")
     val toString: String? = null
 
-) {}
+)

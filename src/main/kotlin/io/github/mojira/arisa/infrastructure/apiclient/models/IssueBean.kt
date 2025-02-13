@@ -3,7 +3,6 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
@@ -25,8 +24,8 @@ data class IssueBean(
     @SerialName("fields")
     val fields: OpenApiObject? = null,
 
-//    @SerialName("fieldsToInclude")
-//    val fieldsToInclude: IncludedFields? = null,
+    @SerialName("fieldsToInclude")
+    val fieldsToInclude: IncludedFields? = null,
 
     /* The ID of the issue. */
     @SerialName("id")
@@ -41,8 +40,8 @@ data class IssueBean(
     val names: Map<String, String>? = null,
 
     /* The operations that can be performed on the issue. */
-//    @SerialName("operations")
-//    val operations: Operations? = null,
+    @SerialName("operations")
+    val operations: Operations? = null,
 
     /* Details of the issue properties identified in the request. */
     @SerialName("properties")

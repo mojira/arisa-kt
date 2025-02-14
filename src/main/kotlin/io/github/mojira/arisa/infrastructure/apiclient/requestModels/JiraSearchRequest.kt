@@ -1,4 +1,4 @@
-package io.github.mojira.arisa.infrastructure.apiclient
+package io.github.mojira.arisa.infrastructure.apiclient.requestModels
 
 import kotlinx.serialization.Serializable
 

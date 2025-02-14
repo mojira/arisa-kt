@@ -12,6 +12,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.GroupName
 import io.github.mojira.arisa.infrastructure.apiclient.models.User
 import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.AddCommentBody
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.JiraSearchRequest
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials

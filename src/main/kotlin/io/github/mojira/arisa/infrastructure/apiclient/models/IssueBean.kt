@@ -50,5 +50,9 @@ data class IssueBean(
     val transitions: List<IssueTransition>? = null,
     // The versions of each field on the issue.
     @SerialName("versionedRepresentations")
-    val versionedRepresentations: Map<String, Map<String, String>>? = null
+    val versionedRepresentations: Map<String, Map<String, String>>? = null,
+
+    /* The attachments associated with the issue. */
+    @SerialName("attachments")
+    val attachments: List<Attachment>? = null
 )

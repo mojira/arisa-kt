@@ -35,6 +35,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Part
 import retrofit2.http.DELETE
+import retrofit2.http.Headers
+import retrofit2.http.Multipart
 import retrofit2.http.PUT
 import java.io.File
 import java.io.InputStream
@@ -95,7 +97,8 @@ interface JiraApi {
         @Path("id") attachmentId: String
     ): Call<ResponseBody>
 
-    @retrofit2.http.Headers("X-Atlassian-Token: no-check")
+    @Multipart
+    @Headers("X-Atlassian-Token: no-check")
     @POST("issue/{issueIdOrKey}/attachments")
     fun addAttachment(
         @Path("issueIdOrKey") issueIdOrKey: String,

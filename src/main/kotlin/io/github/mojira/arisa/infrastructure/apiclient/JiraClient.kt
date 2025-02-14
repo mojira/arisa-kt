@@ -6,6 +6,8 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
 import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment
+import io.github.mojira.arisa.infrastructure.apiclient.models.GroupName
+import io.github.mojira.arisa.infrastructure.apiclient.models.User
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials
 import okhttp3.Interceptor
@@ -63,6 +65,18 @@ interface JiraApi {
         @Query("fields") fields: String = "*all",
         @Query("expand") expand: String = "changelog",
     ): Call<IssueBean>
+
+    @GET("myself")
+    fun getCurrentUser(
+        @Query("expand") expand: String?
+    ): Call<User>
+
+    @GET("user/groups")
+    fun getUserGroups(
+        @Query("accountId") accountsId: String,
+        @Query("username") username: String?,
+        @Query("key") key: String?
+    ): Call<List<GroupName>>
 
     @POST("search")
     fun searchIssues(
@@ -153,6 +167,16 @@ class JiraClient(
         includedFields: String = "*all",
         expand: String = "changelog",
     ): IssueBean = jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
+
+    fun getCurrentUser(
+        expand: String? = null
+    ): User = jiraApi.getCurrentUser(expand).executeOrThrow()
+
+    fun getUserGroups(
+        accountsId: String,
+        username: String? = null,
+        key: String? = null,
+    ): List<GroupName> = jiraApi.getUserGroups(accountsId, username, key).executeOrThrow()
 
     fun addAttachment(issueIdOrKey: String, file: File): List<Attachment> {
         val requestFile = file.asRequestBody("application/octet-stream".toMediaType())

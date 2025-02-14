@@ -2,6 +2,8 @@
 
 package io.github.mojira.arisa.infrastructure.apiclient
 
+import io.github.mojira.arisa.infrastructure.apiclient.exceptions.JiraClientException
+import io.github.mojira.arisa.infrastructure.apiclient.exceptions.ClientErrorException
 import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
@@ -140,9 +142,12 @@ interface JiraApi {
 private fun <T> Call<T>.executeOrThrow(): T {
     val response = this.execute()
     if (!response.isSuccessful) {
-        throw IOException("Unexpected code ${response.code()}")
+        if (response.code() in 400..499) {
+            throw ClientErrorException(response.code(), "Request failed with code ${response.code()}", response.raw())
+        }
+        throw JiraClientException("Unexpected code ${response.code()}")
     }
-    return response.body() ?: throw IOException("Empty response body")
+    return response.body() ?: throw JiraClientException("Empty response body")
 }
 
 class JiraClient(

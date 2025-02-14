@@ -12,10 +12,10 @@ import kotlinx.serialization.Serializable
  * @param total The number of results on the page.
  */
 @Serializable
-data class PageOfChangelogs(
+data class PageOf<TItem>(
     /* The list of changelogs. */
     @SerialName("histories")
-    val histories: List<Changelog>? = null,
+    val histories: List<TItem>? = null,
 
     /* The maximum number of results that could be on the page. */
     @SerialName("maxResults")

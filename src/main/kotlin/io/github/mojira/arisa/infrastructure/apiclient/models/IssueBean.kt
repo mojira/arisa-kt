@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class IssueBean(
     // Details of changelogs associated with the issue.
     @SerialName("changelog")
-    val changelog: PageOfChangelogs? = null,
+    val changelog: PageOf<Changelog>? = null,
     // The metadata for the fields on the issue that can be amended.
     @SerialName("editmeta")
     val editmeta: IssueUpdateMetadata? = null,

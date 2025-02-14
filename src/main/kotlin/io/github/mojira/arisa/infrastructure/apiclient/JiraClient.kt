@@ -6,8 +6,13 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
 import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment
+import io.github.mojira.arisa.infrastructure.apiclient.models.BodyType
+import io.github.mojira.arisa.infrastructure.apiclient.models.Comment
 import io.github.mojira.arisa.infrastructure.apiclient.models.GroupName
 import io.github.mojira.arisa.infrastructure.apiclient.models.User
+import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.AddCommentBody
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials
 import okhttp3.Interceptor
@@ -29,6 +34,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Part
 import retrofit2.http.DELETE
+import retrofit2.http.PUT
 import java.io.File
 import java.io.InputStream
 
@@ -98,6 +104,29 @@ interface JiraApi {
     @DELETE("attachment/{id}")
     fun deleteAttachment(
         @Path("id") attachmentId: String
+    ): Call<Void>
+
+    @POST("issue/{issueIdOrKey}/comment")
+    fun addComment(
+        @Path("issueIdOrKey") issueIdOrKey: String,
+        @Query("expand") expand: String? = null,
+        @Body body: AddCommentBody
+    ): Call<Comment>
+
+    @PUT("issue/{issueIdOrKey}/comment/{id}")
+    fun updateComment(
+        @Path("issueIdOrKey") issueIdOrKey: String,
+        @Path("id") commentId: String,
+        @Query("notifyUsers") notifyUsers: Boolean? = null,
+        @Query("overrideEditableFlag") overrideEditableFlag: Boolean? = null,
+        @Query("expand") expand: String? = null,
+        @Body body: UpdateCommentBody
+    ): Call<Comment>
+
+    @DELETE("issue/{issueIdOrKey}/comment/{id}")
+    fun deleteComment(
+        @Path("issueIdOrKey") issueIdOrKey: String,
+        @Path("id") commentId: String
     ): Call<Void>
 }
 
@@ -192,5 +221,25 @@ class JiraClient(
     fun openAttachmentStream(attachmentId: String): InputStream {
         val responseBody = jiraApi.downloadAttachment(attachmentId).executeOrThrow()
         return responseBody.byteStream()
+    }
+
+    fun addComment(issueIdOrKey: String, body: BodyType): Comment {
+        return jiraApi.addComment(
+            issueIdOrKey, body = AddCommentBody(body)
+        ).executeOrThrow()
+    }
+
+    fun addRestrictedComment(issueIdOrKey: String, body: BodyType, visibility: Visibility): Comment {
+        return jiraApi.addComment(
+            issueIdOrKey, body = AddCommentBody(body, visibility = visibility)
+        ).executeOrThrow()
+    }
+
+    fun updateComment(issueIdOrKey: String, commentId: String, body: UpdateCommentBody): Comment {
+        return jiraApi.updateComment(issueIdOrKey, commentId, body = body).executeOrThrow()
+    }
+
+    fun deleteComment(issueIdOrKey: String, commentId: String) {
+        jiraApi.deleteComment(issueIdOrKey, commentId).executeOrThrow()
     }
 }

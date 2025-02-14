@@ -1,11 +1,12 @@
 package io.github.mojira.arisa.infrastructure.apiclient.serializers
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 /**
  * Serializer for [OffsetDateTime] that handles ISO-8601 timestamps with colon-less offset format.
@@ -14,8 +15,10 @@ import java.time.format.DateTimeFormatter
  *
  * @throws DateTimeParseException when the input string cannot be parsed
  */
-@Serializer(forClass = OffsetDateTime::class)
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 object OffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
+    override val descriptor = PrimitiveSerialDescriptor("OffsetDateTime", PrimitiveKind.STRING)
+
     // Jira API v3 returns DateTime with an offsets without colons
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 

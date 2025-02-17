@@ -14,9 +14,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GroupName(
     @SerialName("groupId")
-    val groupId: String? = null,
+    val groupId: String,
     @SerialName("name")
-    val name: String? = null,
+    val name: String,
     @Serializable(with = URISerializer::class)
     @SerialName("self")
     val self: java.net.URI? = null

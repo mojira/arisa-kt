@@ -41,7 +41,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserDetails(
     @SerialName("accountId")
-    val accountId: String? = null,
+    val accountId: String,
     @SerialName("accountType")
     val accountType: String? = null,
     @SerialName("active")
@@ -52,8 +52,10 @@ data class UserDetails(
     val displayName: String? = null,
     @SerialName("emailAddress")
     val emailAddress: String? = null,
+    @Deprecated("This property is no longer available and will be removed from the documentation soon.")
     @SerialName("key")
     val key: String? = null,
+    @Deprecated("This property is no longer available and will be removed from the documentation soon.")
     @SerialName("name")
     val name: String? = null,
     @SerialName("self")

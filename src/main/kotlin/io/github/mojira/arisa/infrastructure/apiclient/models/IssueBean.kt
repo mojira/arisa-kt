@@ -24,7 +24,7 @@ data class IssueBean(
     @SerialName("expand")
     val expand: String? = null,
     @SerialName("fields")
-    val fields: OpenApiObject? = null,
+    val fields: IssueFields,
     @SerialName("fieldsToInclude")
     val fieldsToInclude: IncludedFields? = null,
     // The ID of the issue.
@@ -32,7 +32,7 @@ data class IssueBean(
     val id: String,
     // The key of the issue.
     @SerialName("key")
-    val key: String? = null,
+    val key: String,
     // The ID and name of each field present on the issue.
     @SerialName("names")
     val names: Map<String, String>? = null,
@@ -146,7 +146,7 @@ data class IssueBean(
             }
 
             val updatedIssue = this@IssueBean.copy(
-                fields = updatedFields
+                fields = updatedFields as IssueFields
             )
 
             return Pair(requestBody, updatedIssue)

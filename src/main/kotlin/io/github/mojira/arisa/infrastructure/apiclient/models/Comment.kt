@@ -32,14 +32,14 @@ data class Comment(
     val author: UserDetails? = null,
     // The comment text in [Atlassian Document Format](https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/).
     @SerialName("body")
-    val body: BodyType? = null,
+    val body: BodyType,
     // The date and time at which the comment was created.
     @Serializable(with = OffsetDateTimeSerializer::class)
     @SerialName("created")
     val created: java.time.OffsetDateTime? = null,
     // The ID of the comment.
     @SerialName("id")
-    val id: String? = null,
+    val id: String,
     // Whether the comment was added from an email sent by a person who is not part of the issue. See [Allow external emails to be added as comments on issues](https://support.atlassian.com/jira-service-management-cloud/docs/allow-external-emails-to-be-added-as-comments-on-issues/)for information on setting up this feature.
     @SerialName("jsdAuthorCanSeeRequest")
     val jsdAuthorCanSeeRequest: Boolean? = null,

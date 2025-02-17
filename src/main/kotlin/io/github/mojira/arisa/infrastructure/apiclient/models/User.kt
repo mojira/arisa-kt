@@ -21,7 +21,7 @@ data class User(
     /* The account ID of the user, which uniquely identifies the user across all Atlassian products.
        For example, *5b10ac8d82e05b22cc7d4ef5*. Required in requests. */
     @SerialName("accountId")
-    val accountId: String? = null,
+    val accountId: String,
     /* The user account type. Can take the following values:
      *  `atlassian` regular Atlassian user account
      *  `app` system account used for Connect applications and OAuth to represent external systems
@@ -30,7 +30,7 @@ data class User(
     val accountType: AccountType? = null,
     // Whether the user is active.
     @SerialName("active")
-    val active: Boolean? = null,
+    val active: Boolean = false,
     // The application roles the user is assigned to.
     @SerialName("applicationRoles")
     val applicationRoles: SimpleListWrapper<ApplicationRole>? = null,

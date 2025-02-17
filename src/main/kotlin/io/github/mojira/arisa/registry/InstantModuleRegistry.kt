@@ -2,9 +2,7 @@ package io.github.mojira.arisa.registry
 
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.ExecutionTimeframe
-import io.github.mojira.arisa.infrastructure.AttachmentUtils
-import io.github.mojira.arisa.infrastructure.HelperMessageService
-import io.github.mojira.arisa.infrastructure.LanguageDetectionApi
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
@@ -13,7 +11,7 @@ import io.github.mojira.arisa.modules.privacy.PrivacyModule
 /**
  * This class is the registry for modules that get executed immediately after a ticket has been updated.
  */
-class InstantModuleRegistry(config: Config) : ModuleRegistry(config) {
+class InstantModuleRegistry(config: Config) : ModuleRegistry<CloudIssue>(config) {
     override fun getJql(timeframe: ExecutionTimeframe): String {
         return timeframe.getFreshlyUpdatedJql()
     }

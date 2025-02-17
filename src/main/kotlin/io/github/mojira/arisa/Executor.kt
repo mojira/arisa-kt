@@ -3,6 +3,7 @@ package io.github.mojira.arisa
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -12,7 +13,7 @@ import io.github.mojira.arisa.registry.getModuleRegistries
 
 class Executor(
     private val config: Config,
-    private val registries: List<ModuleRegistry> = getModuleRegistries(config),
+    private val registries: List<ModuleRegistry<CloudIssue>> = getModuleRegistries(config),
     private val searchIssues: (String, Int, () -> Unit) -> List<Issue> =
         ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
 ) {
@@ -55,7 +56,7 @@ class Executor(
     }
 
     private fun executeRegistry(
-        registry: ModuleRegistry,
+        registry: ModuleRegistry<CloudIssue>,
         rerunTickets: Collection<String>,
         timeframe: ExecutionTimeframe,
         addFailedTicket: (String) -> Unit
@@ -70,7 +71,7 @@ class Executor(
     }
 
     private fun getIssuesForRegistry(
-        registry: ModuleRegistry,
+        registry: ModuleRegistry<CloudIssue>,
         rerunTickets: Collection<String>,
         timeframe: ExecutionTimeframe
     ): List<Issue> {
@@ -117,7 +118,7 @@ private fun getSearchResultsFromJira(
     jql: String,
     startAt: Int,
     finishedCallback: () -> Unit
-): List<Issue> {
+): List<CloudIssue> {
     val searchResult = jiraClient.searchIssues(
         jql,
         "*all",

@@ -1,6 +1,6 @@
 package io.github.mojira.arisa.modules.privacy
 
-import io.github.mojira.arisa.domain.Attachment
+import io.github.mojira.arisa.domain.cloud.CloudAttachment
 
 private const val REDACTED_REPLACEMENT = "###REDACTED###"
 
@@ -19,7 +19,7 @@ interface AttachmentRedactor {
      *      information about the redacted attachment, or `null`
      *      if nothing was redacted
      */
-    fun redact(attachment: Attachment): RedactedAttachment?
+    fun redact(attachment: CloudAttachment): RedactedAttachment?
 }
 
 /** Redacts access tokens passed as command line argument, as found in JVM crash reports. */
@@ -27,7 +27,7 @@ object AccessTokenRedactor : AttachmentRedactor {
     // Use lookbehind to only redact the token itself
     private val pattern = Regex("""(?<=(^|\s)--accessToken )[a-zA-Z0-9.+/=\-_]+(?=(\s|$))""")
 
-    override fun redact(attachment: Attachment): RedactedAttachment? {
+    override fun redact(attachment: CloudAttachment): RedactedAttachment? {
         if (attachment.hasTextContent()) {
             val original = attachment.getTextContent()
             val redacted = original.replace(pattern, REDACTED_REPLACEMENT)
@@ -42,7 +42,7 @@ object AccessTokenRedactor : AttachmentRedactor {
 
 data class RedactedAttachment(
     /** The original attachment containing sensitive data */
-    val attachment: Attachment,
+    val attachment: CloudAttachment,
     /** Attachment content with sensitive data redacted */
     val redactedContent: String
 )

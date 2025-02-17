@@ -17,8 +17,6 @@ import io.github.mojira.arisa.modules.ModuleResponse
 val getModuleRegistries = { config: Config ->
     listOf(
         InstantModuleRegistry(config),
-        DelayedModuleRegistry(config),
-        LinkedModuleRegistry(config)
     )
 }
 

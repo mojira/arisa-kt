@@ -14,6 +14,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.GroupName
 import io.github.mojira.arisa.infrastructure.apiclient.models.User
 import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.AddCommentBody
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.JiraSearchRequest
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
 import kotlinx.serialization.json.Json
@@ -76,6 +77,12 @@ interface JiraApi {
         @Query("fields") fields: String = "*all",
         @Query("expand") expand: String = "changelog",
     ): Call<IssueBean>
+
+    @PUT("issue/{key}")
+    fun editIssue(
+        @Path("key") key: String,
+        @Body body: EditIssueBody,
+    ): Call<Unit>
 
     @GET("myself")
     fun getCurrentUser(
@@ -156,9 +163,10 @@ class JiraClient(
     private val apiToken: String,
 ) {
     private val jiraApi: JiraApi
+    val httpClient: OkHttpClient
 
     init {
-        val httpClient: OkHttpClient =
+        httpClient =
             OkHttpClient
                 .Builder()
                 .addInterceptor(BasicAuthInterceptor(email, apiToken))
@@ -205,6 +213,13 @@ class JiraClient(
         includedFields: String = "*all",
         expand: String = "changelog",
     ): IssueBean = jiraApi.getIssue(key, includedFields, expand).executeOrThrow()
+
+    fun editIssue(
+        key: String,
+        update: EditIssueBody,
+    ): Unit {
+        return jiraApi.editIssue(key, update).executeOrThrow()
+    }
 
     fun getCurrentUser(
         expand: String? = null

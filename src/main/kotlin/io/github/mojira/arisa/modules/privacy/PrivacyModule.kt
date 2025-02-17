@@ -199,8 +199,8 @@ class PrivacyModule(
         var redactedAll = true
         attachments
             // Group by uploader in case they uploaded multiple attachments at once
-            .groupBy { it.attachment.uploader?.name!! }
-            .forEach { (uploader, userAttachments) ->
+            .groupBy { it.attachment.uploader?.accountId!! }
+            .forEach { (uploaderId, userAttachments) ->
                 val fileNames = mutableSetOf<String>()
                 userAttachments.forEach {
                     val attachment = it.attachment
@@ -237,7 +237,8 @@ class PrivacyModule(
                         // Use link for attachments
                         "\n- [^${sanitizeCommentArg(it)}]"
                     }
-                    val sanitizedUploaderName = sanitizeCommentArg(uploader)
+                    val uploaderName = attachments.first().attachment.uploader?.displayName!!
+                    val sanitizedUploaderName = sanitizeCommentArg(uploaderName)
                     // Does not use helper message because message will only be used by bot and helper messages
                     // currently only support one placeholder
                     issue.addRawBotComment(

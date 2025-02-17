@@ -33,6 +33,7 @@ import net.rcarz.jiraclient.Attachment as JiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
 import net.rcarz.jiraclient.Comment as JiraComment
+import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Issue as JiraIssue
 import net.rcarz.jiraclient.IssueLink as JiraIssueLink
 import net.rcarz.jiraclient.Project as JiraProject
@@ -211,26 +212,26 @@ fun JiraProject.toDomain(
     getSecurityLevelId(config)
 )
 
-fun JiraComment.toDomain(
-    jiraClient: JiraClient,
-    issue: JiraIssue,
+fun MojiraComment.toDomain(
+    jiraClient: MojiraClient,
+    issue: MojiraIssue,
     config: Config
 ): Comment {
     val context = issue.getUpdateContext(jiraClient)
     return Comment(
-        id,
-        body,
-        author?.toDomain(jiraClient, config),
-        updateAuthor?.toDomain(jiraClient, config),
-        { getGroups(jiraClient, author.name).fold({ null }, { it }) },
-        { if (updateAuthor == null) emptyList() else getGroups(jiraClient, updateAuthor.name).fold({ null }, { it }) },
-        createdDate.toInstant(),
-        updatedDate.toInstant(),
-        visibility?.type,
-        visibility?.value,
-        ::restrictCommentToGroup.partially1(context).partially1(this).partially1("staff"),
-        ::updateCommentBody.partially1(context).partially1(this),
-        ::deleteComment.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
+        id = id,
+        body = body,
+        author = author?.toDomain(jiraClient, config),
+        updateAuthor = updateAuthor?.toDomain(jiraClient, config),
+        getAuthorGroups = { getGroups(jiraClient, author!!.accountId).fold({ null }, { it }) },
+        getUpdateAuthorGroups = { if (updateAuthor == null) emptyList() else getGroups(jiraClient, updateAuthor.accountId).fold({ null }, { it }) },
+        created = created!!.toInstant(),
+        updated = updated!!.toInstant(),
+        visibilityType = visibility?.type.toString(),
+        visibilityValue = visibility?.value,
+        restrict = ::restrictCommentToGroup.partially1(context).partially1(this).partially1("staff"),
+        update = ::updateCommentBody.partially1(context).partially1(this),
+        remove = ::deleteComment.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
     )
 }
 

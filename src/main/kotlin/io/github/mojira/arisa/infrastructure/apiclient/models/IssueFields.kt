@@ -44,7 +44,7 @@ data class IssueFields(
 
 @Serializable
 data class CommentContainer(
-    val comments: List<IssueComment> = emptyList(),
+    val comments: List<Comment> = emptyList(),
     val self: String,
     val maxResults: Int,
     val total: Int,

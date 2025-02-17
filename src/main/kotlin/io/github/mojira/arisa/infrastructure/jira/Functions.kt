@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.rcarz.jiraclient.Attachment
 import net.rcarz.jiraclient.Comment
+import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Field
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.IssueLink
@@ -341,13 +342,14 @@ fun addRestrictedComment(
     }
 }
 
-fun deleteComment(context: Lazy<IssueUpdateContext>, comment: Comment) {
+fun deleteComment(context: Lazy<IssueUpdateContext>, comment: MojiraComment) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
                     try {
-                        context.value.jiraClient.restClient.delete(URI(comment.self))
+                        val issueId = context.value.jiraIssue.id
+                        context.value.jiraClient.deleteComment(issueId, comment.id)
                     } catch (e: RestException) {
                         if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
                             e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
@@ -358,7 +360,6 @@ fun deleteComment(context: Lazy<IssueUpdateContext>, comment: Comment) {
                         }
                     }
                 }
-                Unit
             }
         }
     }
@@ -402,12 +403,17 @@ fun deleteLink(context: Lazy<IssueUpdateContext>, link: IssueLink) {
     }
 }
 
-fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body: String) {
+fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: MojiraComment, body: String) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 tryWithWarn(comment) {
-                    comment.update(body)
+                    val issueId = context.value.jiraIssue.id
+                    context.value.jiraClient.updateComment(
+                        issueId,
+                        comment.id,
+                        UpdateCommentBody(body)
+                    )
                 }
             }
         }
@@ -416,7 +422,7 @@ fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body:
 
 fun restrictCommentToGroup(
     context: Lazy<IssueUpdateContext>,
-    comment: Comment,
+    comment: MojiraComment,
     group: String,
     body: String = comment.body
 ) {
@@ -424,24 +430,37 @@ fun restrictCommentToGroup(
         runBlocking {
             Either.catch {
                 tryWithWarn(comment) {
-                    comment.update(body, "group", group)
+                    val issueId = context.value.jiraIssue.id
+                    val payload = UpdateCommentBody(
+                        body,
+                        visibility = Visibility(
+                            identifier = group,
+                            type = Visibility.Type.Group,
+                            value = group
+                        )
+                    )
+                    context.value.jiraClient.updateComment(
+                        issueId,
+                        comment.id,
+                        payload
+                    )
                 }
             }
         }
     }
 }
 
-fun tryWithWarn(comment: Comment, func: () -> Unit) {
+fun tryWithWarn(comment: MojiraComment, func: () -> Unit) {
     try {
         func()
     } catch (e: JiraException) {
         val cause = e.cause
-        if (cause is RestException && (
-            cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
-            )
+        if (cause is ClientErrorException && (
+                cause.code == HttpStatus.SC_NOT_FOUND ||
+                    cause.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                )
         ) {
-            log.warn("Tried to update comment ${comment.url} but it was deleted")
+            log.warn("Tried to update comment ${comment.self} but it was deleted")
         } else {
             throw e
         }

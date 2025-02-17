@@ -14,51 +14,32 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.rcarz.jiraclient.Attachment
+import io.github.mojira.arisa.infrastructure.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment as MojiraAttachment
 import net.rcarz.jiraclient.Comment
 import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Field
-import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.IssueLink
-import net.rcarz.jiraclient.JiraClient
+import io.github.mojira.arisa.infrastructure.apiclient.models.IssueLink as MojiraIssueLink
 import net.rcarz.jiraclient.JiraException
-import net.rcarz.jiraclient.Resource
+import io.github.mojira.arisa.infrastructure.apiclient.exceptions.JiraClientException
 import net.rcarz.jiraclient.RestException
-import net.rcarz.jiraclient.TokenCredentials
-import net.rcarz.jiraclient.User
+import io.github.mojira.arisa.infrastructure.apiclient.exceptions.ClientErrorException
 import net.rcarz.jiraclient.Version
 import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
-import org.apache.http.client.methods.HttpGet
 import java.io.File
-import java.io.IOException
 import java.io.InputStream
-import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
+import io.github.mojira.arisa.infrastructure.apiclient.JiraClient
+import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
+import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.jiraClient
 
-fun connectToJira(username: String, password: String, url: String): JiraClient {
-    val credentials = TokenCredentials(username, password)
-    val jiraClient = JiraClient(url, credentials)
-    val actualUsername = jiraClient.getCurrentUser().name
-
-    // Jira seems to allow login with different capitalization, however for checks such
-    // as whether an action was performed by Arisa itself, Arisa needs to know the correctly
-    // capitalized username
-    if (username != actualUsername) {
-        throw IncorrectlyCapitalizedUsernameException(actualUsername)
-    }
-    return jiraClient
-}
-
-class IncorrectlyCapitalizedUsernameException(expectedUsername: String) :
-    Exception("Username uses incorrect capitalization; expected: $expectedUsername")
-
-private fun JiraClient.getCurrentUser(): User {
-    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/myself-getUser
-    return object : User(
-        restClient,
-        restClient.get(Resource.getBaseUri() + "myself") as JSONObject
-    ) {}
+fun connectToJira(email: String, apiToken: String, url: String): JiraClient {
+    return JiraClient(url, email, apiToken)
 }
 
 /**
@@ -75,8 +56,8 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
         val searchResult = try {
             jiraClient.searchIssues(
                 jql,
-                "[]",
-                amount
+                listOf("[]"),
+                maxResults = amount
             )
         } catch (e: JiraException) {
             log.error("Error while retrieving filter results", e)
@@ -87,7 +68,7 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
     }
 }
 
-fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
+fun getIssue(jiraClient: MojiraClient, key: String) = runBlocking {
     Either.catch {
         jiraClient.getIssue(key, "*all", "changelog")
     }
@@ -215,16 +196,17 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
     return tryRunAll(functions, context)
 }
 
-private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
+private fun applyFluentUpdate(edit: IssueBean.FluentUpdate) = runBlocking {
     Either.catch {
         try {
-            edit.execute()
+            val (requestBody, updatedIssue) = edit.execute()
+            jiraClient.editIssue(updatedIssue.id, requestBody)
         } catch (e: JiraException) {
             val cause = e.cause
             if (cause is RestException && (
-                cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
-                )
+                    cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                        cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                    )
             ) {
                 log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
             } else {
@@ -234,33 +216,23 @@ private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     }
 }
 
-private fun applyFluentTransition(update: Issue.FluentTransition, transitionName: String) = runBlocking {
+private fun applyFluentTransition(update: net.rcarz.jiraclient.Issue.FluentTransition, transitionName: String) = runBlocking {
     Either.catch {
         update.execute(transitionName)
     }
 }
 
 fun openAttachmentStream(jiraClient: JiraClient, attachment: Attachment): InputStream {
-    val httpClient = jiraClient.restClient.httpClient
-    val request = HttpGet(attachment.contentUrl)
-
-    return runBlocking(Dispatchers.IO) {
-        val response = httpClient.execute(request)
-        val statusCode = response.statusLine.statusCode
-        if (statusCode != HttpStatus.SC_OK) {
-            throw IOException("Request for attachment ${attachment.id} content failed with status code $statusCode")
-        }
-        response.entity.content
-    }
+    return jiraClient.openAttachmentStream(attachment.id)
 }
 
-fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) {
+fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: MojiraAttachment) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
                     try {
-                        context.value.jiraClient.restClient.delete(URI(attachment.self))
+                        context.value.jiraClient.deleteAttachment(attachment.id)
                     } catch (e: RestException) {
                         if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
                             e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
@@ -283,10 +255,12 @@ fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File, cleanupCall
             Either.catch {
                 withContext(Dispatchers.IO) {
                     try {
-                        context.value.jiraIssue.addAttachment(file)
-                    } catch (e: RestException) {
-                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        val issueId = context.value.jiraIssue.id
+                        context.value.jiraClient.addAttachment(issueId, file)
+                        Unit
+                    } catch (e: ClientErrorException) {
+                        if (e.code == HttpStatus.SC_NOT_FOUND ||
+                            e.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
                         ) {
                             log.warn("Couldn't upload ${file.name}")
                         } else {
@@ -312,7 +286,10 @@ fun createComment(
 
                 when (val checkResult = CommentCache.check(key, comment)) {
                     is Either.Left -> log.error(checkResult.a.message)
-                    is Either.Right -> context.value.jiraIssue.addComment(comment)
+                    is Either.Right -> {
+                        val issueId = context.value.jiraIssue.id
+                        context.value.jiraClient.addComment(issueId, comment)
+                    }
                 }
 
                 Unit
@@ -333,7 +310,11 @@ fun addRestrictedComment(
 
                 when (val checkResult = CommentCache.check(key, comment)) {
                     is Either.Left -> log.error(checkResult.a.message)
-                    is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                    is Either.Right -> {
+                        val issueId = context.value.jiraIssue.id
+                        val visibility = Visibility(value = restrictionLevel)
+                        context.value.jiraClient.addRestrictedComment(issueId, comment, visibility)
+                    }
                 }
 
                 Unit
@@ -369,14 +350,14 @@ fun createLink(
     context: Lazy<IssueUpdateContext>,
     getContext: (key: String) -> Lazy<IssueUpdateContext>,
     linkType: String,
-    linkKey: String,
+    linkIssueId: String,
     outwards: Boolean
 ) {
     if (outwards) {
         context.value.otherOperations.add {
             runBlocking {
                 Either.catch {
-                    context.value.jiraIssue.link(linkKey, linkType)
+                    context.value.jiraIssue.link(jiraClient, linkIssueId, linkType)
                 }
             }
         }
@@ -384,7 +365,7 @@ fun createLink(
         runBlocking {
             val either = Either.catch {
                 val key = context.value.jiraIssue.key
-                createLink(getContext(linkKey), getContext, linkType, key, true)
+                createLink(getContext(linkIssueId), getContext, linkType, key, true)
             }
             if (either.isLeft()) {
                 context.value.otherOperations.add { either }
@@ -393,11 +374,11 @@ fun createLink(
     }
 }
 
-fun deleteLink(context: Lazy<IssueUpdateContext>, link: IssueLink) {
+fun deleteLink(context: Lazy<IssueUpdateContext>, link: MojiraIssueLink) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                link.delete()
+                jiraClient.deleteIssueLink(link.id!!)
             }
         }
     }
@@ -468,19 +449,10 @@ fun tryWithWarn(comment: MojiraComment, func: () -> Unit) {
 }
 
 // not included in used library
-fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
+fun getGroups(jiraClient: JiraClient, accountId: String) = runBlocking {
     Either.catch {
         withContext(Dispatchers.IO) {
-            // Mojira does not seem to provide any accountIds, hence the endpoint GET /user/groups cannot be used.
-            (
-                jiraClient.restClient.get(
-                    User.getBaseUri() + "user/",
-                    mapOf(Pair("username", username), Pair("expand", "groups"))
-                ) as JSONObject
-                )
-                .getJSONObject("groups")
-                .getJSONArray("items")
-                .map { (it as JSONObject)["name"] as String }
+            jiraClient.getUserGroups(accountId).map { group -> group.name }
         }
     }
 }

@@ -11,9 +11,11 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment
 import io.github.mojira.arisa.infrastructure.apiclient.models.BodyType
 import io.github.mojira.arisa.infrastructure.apiclient.models.Comment
 import io.github.mojira.arisa.infrastructure.apiclient.models.GroupName
+import io.github.mojira.arisa.infrastructure.apiclient.models.IssueLink
 import io.github.mojira.arisa.infrastructure.apiclient.models.User
 import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.AddCommentBody
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.CreateIssueLinkBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.JiraSearchRequest
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
@@ -141,6 +143,21 @@ interface JiraApi {
         @Path("issueIdOrKey") issueIdOrKey: String,
         @Path("id") commentId: String
     ): Call<Void>
+
+    @POST("issueLink")
+    fun createIssueLink(
+        @Body body: CreateIssueLinkBody
+    ): Call<Unit>
+
+    @GET("issueLink/{linkId}")
+    abstract fun getIssueLink(
+        @Path("linkId") linkId: String
+    ): Call<IssueLink>
+
+    @DELETE("issueLink/{linkId}")
+    abstract fun deleteIssueLink(
+        @Path("linkId") linkId: String
+    ): Call<Unit>
 }
 
 /**
@@ -265,5 +282,17 @@ class JiraClient(
 
     fun deleteComment(issueIdOrKey: String, commentId: String) {
         jiraApi.deleteComment(issueIdOrKey, commentId).executeOrThrow()
+    }
+
+    fun createIssueLink(body: CreateIssueLinkBody) {
+        jiraApi.createIssueLink(body).executeOrThrow()
+    }
+
+    fun getIssueLink(linkId: String): IssueLink {
+        return jiraApi.getIssueLink(linkId).executeOrThrow()
+    }
+
+    fun deleteIssueLink(linkId: String) {
+        jiraApi.deleteIssueLink(linkId).executeOrThrow()
     }
 }

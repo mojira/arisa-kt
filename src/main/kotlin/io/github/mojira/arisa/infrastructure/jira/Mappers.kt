@@ -21,6 +21,7 @@ import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
+import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
@@ -31,7 +32,9 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
+import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog as MojiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
+import io.github.mojira.arisa.infrastructure.apiclient.models.ChangeDetails as MojiraChangeLogItem
 import net.rcarz.jiraclient.Comment as JiraComment
 import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Issue as JiraIssue
@@ -301,22 +304,22 @@ fun JiraIssueLink.toDomain(
     ::deleteLink.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
 )
 
-fun JiraChangeLogItem.toDomain(
-    jiraClient: JiraClient,
-    entry: JiraChangeLogEntry,
+fun MojiraChangeLogItem.toDomain(
+    jiraClient: MojiraClient,
+    entry: MojiraChangeLogEntry,
     itemIndex: Int,
     config: Config
 ) = ChangeLogItem(
-    entry.id,
-    itemIndex,
-    entry.created.toInstant(),
-    field,
-    from,
-    fromString,
-    to,
-    toString,
-    entry.author.toDomain(jiraClient, config),
-    ::getUserGroups.partially1(jiraClient).partially1(entry.author.name)
+    entryId = entry.id!!,
+    itemIndex = itemIndex,
+    created = entry.created.toInstant(),
+    field = field,
+    changedFrom = from,
+    changedFromString = fromString,
+    changedTo = to,
+    changedToString = toString,
+    author = entry.author!!.toDomain(jiraClient, config),
+    getAuthorGroups = ::getUserGroups.partially1(jiraClient).partially1(entry.author.accountId)
 )
 
 @Suppress("LongParameterList")
@@ -339,14 +342,12 @@ private fun JiraIssue.mapVersions() =
 private fun JiraIssue.mapFixVersions() =
     fixVersions.map { it.toDomain() }
 
-private fun JiraIssue.getChangeLogEntries(jiraClient: JiraClient, config: Config) =
-    changeLog.entries.flatMap { e ->
+private fun MojiraIssue.getChangeLogEntries(jiraClient: MojiraClient, config: Config) =
+    (changelog.histories as List<Changelog>).flatMap { e: Changelog ->
         e.items.mapIndexed { index, item ->
             item.toDomain(jiraClient, e, index, config)
         }
     }
-
-private fun JiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
 
 private fun JiraIssue.getCustomField(customField: String): String? =
     ((getField(customField)) as? JSONObject)?.get("value") as? String?

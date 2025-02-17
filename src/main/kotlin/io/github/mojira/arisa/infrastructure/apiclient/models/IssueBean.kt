@@ -1,7 +1,9 @@
 package io.github.mojira.arisa.infrastructure.apiclient.models
 
 import URISerializer
+import io.github.mojira.arisa.infrastructure.apiclient.JiraClient
 import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.CreateIssueLinkBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -16,7 +18,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 data class IssueBean(
     // Details of changelogs associated with the issue.
     @SerialName("changelog")
-    val changelog: PageOf<Changelog>? = null,
+    val changelog: PageOf<Changelog> = PageOf(histories = emptyList()),
     // The metadata for the fields on the issue that can be amended.
     @SerialName("editmeta")
     val editmeta: IssueUpdateMetadata? = null,
@@ -61,7 +63,7 @@ data class IssueBean(
 
     /* The attachments associated with the issue. */
     @SerialName("attachments")
-    val attachments: List<Attachment>? = null
+    val attachments: List<Attachment> = emptyList(),
 ) {
     companion object {
         data class FieldOperation(
@@ -153,8 +155,22 @@ data class IssueBean(
         }
     }
 
+    fun getField(field: String) : String? {
+        return fields[field]?.toString()
+    }
+
     /**
      * Creates a new FluentUpdate instance for this issue
      */
     fun update(): FluentUpdate = FluentUpdate()
+
+    fun link(client: JiraClient, issueId: String, linkType: String) {
+        val link = CreateIssueLinkBody(
+            type = IssueLinkType(name = linkType),
+            inwardIssue = IssueLink(id = issueId),
+            outwardIssue = IssueLink(id = this.id)
+        )
+
+        client.createIssueLink(link)
+    }
 }

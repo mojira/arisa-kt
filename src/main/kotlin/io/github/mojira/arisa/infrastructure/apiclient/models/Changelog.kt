@@ -21,7 +21,7 @@ data class Changelog(
     // The date on which the change took place.
     @Serializable(with = OffsetDateTimeSerializer::class)
     @SerialName("created")
-    val created: java.time.OffsetDateTime? = null,
+    val created: java.time.OffsetDateTime,
     // The history metadata associated with the changed.
     @SerialName("historyMetadata")
     val historyMetadata: HistoryMetadata? = null,
@@ -30,5 +30,5 @@ data class Changelog(
     val id: kotlin.String? = null,
     // The list of items changed.
     @SerialName("items")
-    val items: kotlin.collections.List<ChangeDetails>? = null
+    val items: kotlin.collections.List<ChangeDetails> = emptyList()
 )

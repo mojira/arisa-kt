@@ -19,7 +19,7 @@ data class ChangeDetails(
 
     /* The name of the field changed. */
     @SerialName("field")
-    val `field`: String? = null,
+    val `field`: String,
 
     /* The ID of the field changed. */
     @SerialName("fieldId")

@@ -37,6 +37,7 @@ import net.rcarz.jiraclient.Issue as JiraIssue
 import net.rcarz.jiraclient.IssueLink as JiraIssueLink
 import net.rcarz.jiraclient.Project as JiraProject
 import net.rcarz.jiraclient.User as JiraUser
+import io.github.mojira.arisa.infrastructure.apiclient.models.UserDetails as MojiraUserDetails
 import net.rcarz.jiraclient.Version as JiraVersion
 
 fun JiraAttachment.toDomain(jiraClient: JiraClient, issue: JiraIssue, config: Config) = Attachment(
@@ -233,20 +234,19 @@ fun JiraComment.toDomain(
     )
 }
 
-fun JiraUser.toDomain(jiraClient: JiraClient, config: Config) = User(
-    name,
-    displayName,
-    ::getUserGroups.partially1(jiraClient).partially1(name),
-    ::isNewUser.partially1(jiraClient).partially1(name)
+fun MojiraUserDetails.toDomain(jiraClient: MojiraClient, config: Config) = User(
+    accountId = accountId,
+    name = displayName,
+    displayName = displayName,
+    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId),
+    isNewUser = { false }
 ) {
-    // Check case insensitively because it apparently does not matter when logging in, so `username` might have
-    // incorrect capitalization
-    name.equals(config[Arisa.Credentials.username], ignoreCase = true)
+    accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
 }
 
-private fun getUserGroups(jiraClient: JiraClient, username: String) = getGroups(
+private fun getUserGroups(jiraClient: MojiraClient, accountId: String) = getGroups(
     jiraClient,
-    username
+    accountId
 ).fold({ null }, { it })
 
 private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {

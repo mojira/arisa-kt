@@ -6,11 +6,11 @@ import java.time.Instant
 
 data class CloudAttachment(
     val id: String,
-    val name: String,
+    val filename: String,
     val created: Instant,
     val mimeType: String,
     val remove: () -> Unit,
-//    val openContentStream: () -> InputStream,
+    val openContentStream: () -> InputStream,
     val getContent: () -> ByteArray,
     val uploader: User?
 ) {

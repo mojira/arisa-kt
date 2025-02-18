@@ -7,7 +7,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.exceptions.ClientErrorExc
 import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.Project
 import io.github.mojira.arisa.infrastructure.apiclient.models.SearchResults
-import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment
+import io.github.mojira.arisa.infrastructure.apiclient.models.AttachmentBean
 import io.github.mojira.arisa.infrastructure.apiclient.models.BodyType
 import io.github.mojira.arisa.infrastructure.apiclient.models.Comment
 import io.github.mojira.arisa.infrastructure.apiclient.models.GroupName
@@ -114,7 +114,7 @@ interface JiraApi {
     fun addAttachment(
         @Path("issueIdOrKey") issueIdOrKey: String,
         @Part file: MultipartBody.Part
-    ): Call<List<Attachment>>
+    ): Call<List<AttachmentBean>>
 
     @DELETE("attachment/{id}")
     fun deleteAttachment(
@@ -248,7 +248,7 @@ class JiraClient(
         key: String? = null,
     ): List<GroupName> = jiraApi.getUserGroups(accountsId, username, key).executeOrThrow()
 
-    fun addAttachment(issueIdOrKey: String, file: File): List<Attachment> {
+    fun addAttachment(issueIdOrKey: String, file: File): List<AttachmentBean> {
         val requestFile = file.asRequestBody("application/octet-stream".toMediaType())
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 

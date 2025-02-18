@@ -8,7 +8,7 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
-import io.github.mojira.arisa.domain.Attachment
+// import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.Issue
@@ -26,6 +26,7 @@ import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog
+import io.github.mojira.arisa.infrastructure.apiclient.models.download
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
@@ -36,7 +37,7 @@ import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.time.Instant
 import net.rcarz.jiraclient.Attachment as JiraAttachment
-import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment as MojiraAttachment
+import io.github.mojira.arisa.infrastructure.apiclient.models.AttachmentBean as MojiraAttachment
 import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
 import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog as MojiraChangeLogEntry
 import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
@@ -55,13 +56,13 @@ import net.rcarz.jiraclient.Version as JiraVersion
 
 fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = CloudAttachment(
     id = id,
-    name = name,
+    filename = filename,
     created = getCreationDate(issue, id, issue.fields.created.toInstant()),
     mimeType = mimeType,
     remove = ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
-    getContent = { openAttachmentStream(jiraClient, this) },
+    openContentStream = { openAttachmentStream(jiraClient, this) },
     // Cache attachment content once it has been downloaded
-    lazy { this.download() }::value,
+    getContent = lazy { this.download() }::value,
     uploader = author?.toDomain(jiraClient, config)
 )
 

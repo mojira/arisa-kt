@@ -15,7 +15,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.rcarz.jiraclient.Attachment
 import io.github.mojira.arisa.infrastructure.apiclient.JiraClient as MojiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.models.Attachment as MojiraAttachment
+import io.github.mojira.arisa.infrastructure.apiclient.models.AttachmentBean as MojiraAttachment
+import io.github.mojira.arisa.domain.cloud.CloudAttachment
 import net.rcarz.jiraclient.Comment
 import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Field
@@ -222,7 +223,7 @@ private fun applyFluentTransition(update: net.rcarz.jiraclient.Issue.FluentTrans
     }
 }
 
-fun openAttachmentStream(jiraClient: JiraClient, attachment: Attachment): InputStream {
+fun openAttachmentStream(jiraClient: JiraClient, attachment: MojiraAttachment): InputStream {
     return jiraClient.openAttachmentStream(attachment.id)
 }
 

@@ -158,6 +158,16 @@ interface JiraApi {
     abstract fun deleteIssueLink(
         @Path("linkId") linkId: String
     ): Call<Unit>
+
+    @GET("issue/{issueIdOrKey}/transitions")
+    fun getTransition(
+        @Path("issueIdOrKey") issueIdOrKey: String,
+    ): Call<Unit>
+
+    @POST("issue/{issueIdOrKey}/transitions")
+    fun performTransition(
+        @Path("issueIdOrKey") issueIdOrKey: String,
+    ): Call<Unit>
 }
 
 /**
@@ -294,5 +304,13 @@ class JiraClient(
 
     fun deleteIssueLink(linkId: String) {
         jiraApi.deleteIssueLink(linkId).executeOrThrow()
+    }
+
+    fun getTransition(issueIdOrKey: String) {
+        jiraApi.deleteIssueLink(issueIdOrKey).executeOrThrow()
+    }
+
+    fun performTransition(issueIdOrKey: String) {
+        jiraApi.performTransition(issueIdOrKey).executeOrThrow()
     }
 }

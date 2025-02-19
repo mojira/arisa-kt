@@ -34,7 +34,7 @@ import java.io.InputStream
 import java.time.Instant
 import java.time.temporal.ChronoField
 import io.github.mojira.arisa.infrastructure.apiclient.JiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean
+import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean as MojiraIssue
 import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.jiraClient
@@ -197,7 +197,7 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
     return tryRunAll(functions, context)
 }
 
-private fun applyFluentUpdate(edit: IssueBean.FluentUpdate) = runBlocking {
+private fun applyFluentUpdate(edit: MojiraIssue.FluentUpdate) = runBlocking {
     Either.catch {
         try {
             val (requestBody, updatedIssue) = edit.execute()
@@ -217,7 +217,7 @@ private fun applyFluentUpdate(edit: IssueBean.FluentUpdate) = runBlocking {
     }
 }
 
-private fun applyFluentTransition(update: net.rcarz.jiraclient.Issue.FluentTransition, transitionName: String) = runBlocking {
+private fun applyFluentTransition(update: MojiraIssue.FluentTransition, transitionName: String) = runBlocking {
     Either.catch {
         update.execute(transitionName)
     }

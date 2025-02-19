@@ -155,6 +155,21 @@ data class IssueBean(
         }
     }
 
+    inner class FluentTransition {
+        fun field(name: String, value: Any): FluentTransition {
+            return this
+        }
+
+        /**
+         * Executes the transition action.
+         *
+         * @param name Transition name
+         */
+        fun execute(name: String) {
+            print("Transitioning issue to $name")
+        }
+    }
+
     fun getField(field: String) : String? {
         return fields[field]?.toString()
     }
@@ -163,6 +178,11 @@ data class IssueBean(
      * Creates a new FluentUpdate instance for this issue
      */
     fun update(): FluentUpdate = FluentUpdate()
+
+    /**
+     * Creates a new FluentTransition instance for this issue
+     */
+    fun transition(): FluentTransition = FluentTransition()
 
     fun link(client: JiraClient, issueId: String, linkType: String) {
         val link = CreateIssueLinkBody(

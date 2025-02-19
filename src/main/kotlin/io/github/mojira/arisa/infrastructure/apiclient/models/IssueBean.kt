@@ -63,7 +63,7 @@ data class IssueBean(
 
     /* The attachments associated with the issue. */
     @SerialName("attachments")
-    val attachments: List<Attachment> = emptyList(),
+    val attachments: List<AttachmentBean> = emptyList(),
 ) {
     companion object {
         data class FieldOperation(

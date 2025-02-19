@@ -286,7 +286,7 @@ private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
 }
 
 @Suppress("LongParameterList")
-fun MojiraLinkedIssue.toLinkedIssue(
+fun MojiraIssue.toLinkedIssue(
     jiraClient: MojiraClient,
     config: Config
 ) = CloudLinkedIssue(

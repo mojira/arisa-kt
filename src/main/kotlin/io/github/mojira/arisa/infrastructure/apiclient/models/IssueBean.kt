@@ -60,10 +60,6 @@ data class IssueBean(
     // The versions of each field on the issue.
     @SerialName("versionedRepresentations")
     val versionedRepresentations: Map<String, Map<String, String>>? = null,
-
-    /* The attachments associated with the issue. */
-    @SerialName("attachments")
-    val attachments: List<AttachmentBean> = emptyList(),
 ) {
     companion object {
         data class FieldOperation(

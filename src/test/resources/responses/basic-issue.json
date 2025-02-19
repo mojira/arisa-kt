@@ -1,0 +1,251 @@
+{
+  "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations,customfield_10010.requestTypePractice",
+  "id": "10037",
+  "self": "https://jira-connection.atlassian.net/rest/api/2/issue/10037",
+  "key": "KAN-6",
+  "changelog": {
+    "startAt": 0,
+    "maxResults": 2,
+    "total": 2,
+    "histories": [
+      {
+        "id": "10086",
+        "author": {
+          "self": "https://jira-connection.atlassian.net/rest/api/2/user?accountId=712020%3A33043866-64fe-4184-b28e-32ae8e3bd15f",
+          "accountId": "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+          "emailAddress": "jakub.kazimierczak@eficode.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+            "24x24": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+            "16x16": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+            "32x32": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+          },
+          "displayName": "Jakub Kazimierczak",
+          "active": true,
+          "timeZone": "Europe/Warsaw",
+          "accountType": "atlassian"
+        },
+        "created": "2025-02-19T15:40:30.672+0100",
+        "items": [
+          {
+            "field": "description",
+            "fieldtype": "jira",
+            "fieldId": "description",
+            "from": null,
+            "fromString": "It _only_ has some short description that’s formatted in *markdown*.\n\n{noformat}const attachments = null;\nconst comments = null;{noformat}",
+            "to": null,
+            "toString": "It _only_ has some short description that’s formatted in *markdown*.\n\n{noformat}const attachments = null;\nconst comments = null;{noformat}"
+          }
+        ]
+      },
+      {
+        "id": "10085",
+        "author": {
+          "self": "https://jira-connection.atlassian.net/rest/api/2/user?accountId=712020%3A33043866-64fe-4184-b28e-32ae8e3bd15f",
+          "accountId": "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+          "emailAddress": "jakub.kazimierczak@eficode.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+            "24x24": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+            "16x16": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+            "32x32": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+          },
+          "displayName": "Jakub Kazimierczak",
+          "active": true,
+          "timeZone": "Europe/Warsaw",
+          "accountType": "atlassian"
+        },
+        "created": "2025-02-19T15:40:25.044+0100",
+        "items": [
+          {
+            "field": "description",
+            "fieldtype": "jira",
+            "fieldId": "description",
+            "from": null,
+            "fromString": null,
+            "to": null,
+            "toString": "It _only_ has some short description that’s formatted in *markdown*.\n\n{noformat}const attachments = null;\nconst comments = null;{noformat}"
+          }
+        ]
+      }
+    ]
+  },
+  "fields": {
+    "statuscategorychangedate": "2025-02-19T15:39:33.374+0100",
+    "issuetype": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issuetype/10001",
+      "id": "10001",
+      "description": "Tasks track small, distinct pieces of work.",
+      "iconUrl": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+      "name": "Task",
+      "subtask": false,
+      "avatarId": 10318,
+      "entityId": "fff42566-0bee-4625-8194-7eb88013dc9b",
+      "hierarchyLevel": 0
+    },
+    "timespent": null,
+    "customfield_10030": null,
+    "customfield_10031": null,
+    "project": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/project/10000",
+      "id": "10000",
+      "key": "KAN",
+      "name": "jira-connect",
+      "projectTypeKey": "software",
+      "simplified": true,
+      "avatarUrls": {
+        "48x48": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10401",
+        "24x24": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10401?size=small",
+        "16x16": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10401?size=xsmall",
+        "32x32": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10401?size=medium"
+      }
+    },
+    "fixVersions": [],
+    "customfield_10033": null,
+    "aggregatetimespent": null,
+    "customfield_10034": null,
+    "resolution": null,
+    "customfield_10035": null,
+    "customfield_10037": null,
+    "customfield_10027": null,
+    "customfield_10028": null,
+    "customfield_10029": null,
+    "resolutiondate": null,
+    "workratio": -1,
+    "issuerestriction": {
+      "issuerestrictions": {},
+      "shouldDisplay": true
+    },
+    "lastViewed": "2025-02-19T15:39:38.352+0100",
+    "watches": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issue/KAN-6/watchers",
+      "watchCount": 1,
+      "isWatching": true
+    },
+    "created": "2025-02-19T15:39:32.910+0100",
+    "customfield_10020": null,
+    "customfield_10021": null,
+    "customfield_10022": null,
+    "priority": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/priority/3",
+      "iconUrl": "https://jira-connection.atlassian.net/images/icons/priorities/medium.svg",
+      "name": "Medium",
+      "id": "3"
+    },
+    "customfield_10023": null,
+    "customfield_10024": null,
+    "customfield_10025": null,
+    "labels": [],
+    "customfield_10026": null,
+    "customfield_10016": null,
+    "customfield_10017": null,
+    "customfield_10018": {
+      "hasEpicLinkFieldDependency": false,
+      "showField": false,
+      "nonEditableReason": {
+        "reason": "PLUGIN_LICENSE_ERROR",
+        "message": "The Parent Link is only available to Jira Premium users."
+      }
+    },
+    "customfield_10019": "0|i0005r:",
+    "timeestimate": null,
+    "aggregatetimeoriginalestimate": null,
+    "versions": [],
+    "issuelinks": [],
+    "assignee": null,
+    "updated": "2025-02-19T15:40:30.672+0100",
+    "status": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/status/10000",
+      "description": "",
+      "iconUrl": "https://jira-connection.atlassian.net/",
+      "name": "To Do",
+      "id": "10000",
+      "statusCategory": {
+        "self": "https://jira-connection.atlassian.net/rest/api/2/statuscategory/2",
+        "id": 2,
+        "key": "new",
+        "colorName": "blue-gray",
+        "name": "To Do"
+      }
+    },
+    "components": [],
+    "timeoriginalestimate": null,
+    "description": "It _only_ has some short description that’s formatted in *markdown*.\n\n{noformat}const attachments = null;\nconst comments = null;{noformat}",
+    "customfield_10010": null,
+    "customfield_10014": null,
+    "customfield_10015": null,
+    "timetracking": {},
+    "customfield_10005": null,
+    "customfield_10006": null,
+    "security": null,
+    "customfield_10007": null,
+    "customfield_10008": null,
+    "customfield_10009": null,
+    "attachment": [],
+    "aggregatetimeestimate": null,
+    "summary": "Basic issue",
+    "creator": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/user?accountId=712020%3A33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "accountId": "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "emailAddress": "jakub.kazimierczak@eficode.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "24x24": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "16x16": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "32x32": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+      },
+      "displayName": "Jakub Kazimierczak",
+      "active": true,
+      "timeZone": "Europe/Warsaw",
+      "accountType": "atlassian"
+    },
+    "subtasks": [],
+    "reporter": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/user?accountId=712020%3A33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "accountId": "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "emailAddress": "jakub.kazimierczak@eficode.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "24x24": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "16x16": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "32x32": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+      },
+      "displayName": "Jakub Kazimierczak",
+      "active": true,
+      "timeZone": "Europe/Warsaw",
+      "accountType": "atlassian"
+    },
+    "aggregateprogress": {
+      "progress": 0,
+      "total": 0
+    },
+    "customfield_10001": null,
+    "customfield_10002": [],
+    "customfield_10003": null,
+    "customfield_10004": null,
+    "environment": null,
+    "duedate": null,
+    "progress": {
+      "progress": 0,
+      "total": 0
+    },
+    "comment": {
+      "comments": [],
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issue/10037/comment",
+      "maxResults": 0,
+      "total": 0,
+      "startAt": 0
+    },
+    "votes": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issue/KAN-6/votes",
+      "votes": 0,
+      "hasVoted": false
+    },
+    "worklog": {
+      "startAt": 0,
+      "maxResults": 20,
+      "total": 0,
+      "worklogs": []
+    }
+  }
+}

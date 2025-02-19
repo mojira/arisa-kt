@@ -3,17 +3,16 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 import io.github.mojira.arisa.infrastructure.apiclient.serializers.OffsetDateTimeSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonPrimitive
 import java.time.OffsetDateTime
 
 @Serializable
 data class IssueFields(
     val aggregatetimespent: Long? = null,
     val assignee: UserDetails? = null,
-    val attachment: List<AttachmentBean>? = null,
-    val comment: CommentContainer,
+    val attachment: List<AttachmentBean> = emptyList(),
+    val comment: CommentContainer? = null,
     @Serializable(with = OffsetDateTimeSerializer::class)
-    val created: OffsetDateTime,
+    val created: OffsetDateTime? = null,
     val creator: User? = null,
     val description: String? = null,
     val duedate: String? = null,
@@ -51,10 +50,10 @@ data class IssueFields(
 @Serializable
 data class CommentContainer(
     val comments: List<Comment> = emptyList(),
-    val self: String,
-    val maxResults: Int,
-    val total: Int,
-    val startAt: Int
+    val self: String?,
+    val maxResults: Int?,
+    val total: Int?,
+    val startAt: Int?
 )
 
 @Serializable

@@ -199,7 +199,7 @@ class JiraClient(
                 .addInterceptor(BasicAuthInterceptor(email, apiToken))
                 .build()
 
-        val apiBaseUrl = jiraUrl.plus("rest/api/3/")
+        val apiBaseUrl = jiraUrl.plus("rest/api/2/")
         val mediaType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 

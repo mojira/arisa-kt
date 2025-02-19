@@ -18,7 +18,7 @@ class ModuleExecutor(
     fun executeModule(
         allIssues: List<CloudIssue>,
         addFailedTicket: (String) -> Unit,
-        execute: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        execute: (CloudIssue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         getIssuesForModule(allIssues)
             .map { it.key to execute(it) }

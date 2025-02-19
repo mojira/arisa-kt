@@ -14,7 +14,7 @@ import io.github.mojira.arisa.registry.getModuleRegistries
 class Executor(
     private val config: Config,
     private val registries: List<ModuleRegistry<CloudIssue>> = getModuleRegistries(config),
-    private val searchIssues: (String, Int, () -> Unit) -> List<Issue> =
+    private val searchIssues: (String, Int, () -> Unit) -> List<CloudIssue> =
         ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
 ) {
     companion object {
@@ -74,8 +74,8 @@ class Executor(
         registry: ModuleRegistry<CloudIssue>,
         rerunTickets: Collection<String>,
         timeframe: ExecutionTimeframe
-    ): List<Issue> {
-        val issues = mutableListOf<Issue>()
+    ): List<CloudIssue> {
+        val issues = mutableListOf<CloudIssue>()
 
         val jql = registry.getFullJql(timeframe, rerunTickets)
 
@@ -121,13 +121,13 @@ private fun getSearchResultsFromJira(
 ): List<CloudIssue> {
     val searchResult = jiraClient.searchIssues(
         jql,
-        "*all",
-        "changelog",
+        listOf("*all"),
+        listOf("changelog"),
         maxResults,
         startAt
     ) ?: return emptyList()
 
-    if (startAt + searchResult.max >= searchResult.total) finishedCallback()
+    if (startAt + searchResult.maxResults >= searchResult.total) finishedCallback()
 
     return searchResult
         .issues

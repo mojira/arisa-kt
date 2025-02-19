@@ -87,7 +87,7 @@ class PrivacyModule(
         val newAttachments = attachments.filter { it.created.isAfter(lastRun) }
 
         foundNonRedactableSensitiveData = newAttachments
-            .map(CloudAttachment::name)
+            .map(CloudAttachment::filename)
             .any(sensitiveFileNameRegexes::anyMatches)
 
         val attachmentsToRedact = newAttachments
@@ -189,7 +189,7 @@ class PrivacyModule(
         log.info("$key: Found sensitive data $location at ${matchResult.getLocationDescription()}")
     }
 
-    private fun CloudIssue.hasAnyAttachmentName(name: String) = attachments.any { it.name == name }
+    private fun CloudIssue.hasAnyAttachmentName(name: String) = attachments.any { it.filename == name }
 
     /**
      * @return true if all provided attachments have been redacted; false if at least one attachment
@@ -205,7 +205,7 @@ class PrivacyModule(
                 userAttachments.forEach {
                     val attachment = it.attachment
                     val tempDir = Files.createTempDirectory("arisa-redaction-upload").toFile()
-                    val fileName = "redacted_${attachment.name}"
+                    val fileName = "redacted_${attachment.filename}"
                     val filePath = getSafeChildPath(tempDir, fileName)
 
                     if (filePath == null || issue.hasAnyAttachmentName(fileName) || !fileNames.add(fileName)) {

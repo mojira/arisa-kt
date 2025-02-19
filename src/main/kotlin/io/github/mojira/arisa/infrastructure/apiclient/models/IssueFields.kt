@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 data class IssueFields(
     val aggregatetimespent: Long? = null,
     val assignee: UserDetails? = null,
-    val attachment: List<Attachment>? = null,
+    val attachment: List<AttachmentBean>? = null,
     val comment: CommentContainer,
     @Serializable(with = OffsetDateTimeSerializer::class)
     val created: OffsetDateTime,

@@ -331,8 +331,35 @@ object Arisa : ConfigSpec() {
             )
         }
 
+        object RevokeConfirmation : ModuleConfigSpec()
+
+        object RevokePriority : ModuleConfigSpec()
+
+        object KeepPrivate : ModuleConfigSpec() {
+            val message by required<String>(
+                description = "The key of the message that is posted when this module succeeds."
+            )
+            val tag by optional<String?>(null)
+        }
+
         object PrivateDuplicate : ModuleConfigSpec() {
             val tag by optional<String?>(null)
+        }
+
+        object HideImpostors : ModuleConfigSpec()
+
+        object RemoveSpam : ModuleConfigSpec() {
+            val patterns by required<List<SpamPatternConfig>>(
+                description = "Patterns that indicate that a comment is spam"
+            )
+        }
+
+        object ResolveTrash : ModuleConfigSpec()
+
+        object UpdateLinked : ModuleConfigSpec() {
+            val updateIntervalHours by required<Long>(
+                description = "Interval in which the module should update the Linked field in hours"
+            )
         }
 
         object TransferVersions : ModuleConfigSpec() {

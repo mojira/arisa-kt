@@ -50,9 +50,12 @@ import net.rcarz.jiraclient.IssueLink as JiraIssueLink
 import io.github.mojira.arisa.infrastructure.apiclient.models.LinkedIssue as MojiraLinkedIssue
 import io.github.mojira.arisa.infrastructure.apiclient.models.IssueLink as MojiraIssueLink
 import net.rcarz.jiraclient.Project as JiraProject
+import io.github.mojira.arisa.infrastructure.apiclient.models.Project as MojiraProject
 import net.rcarz.jiraclient.User as JiraUser
 import io.github.mojira.arisa.infrastructure.apiclient.models.UserDetails as MojiraUserDetails
 import net.rcarz.jiraclient.Version as JiraVersion
+import io.github.mojira.arisa.infrastructure.apiclient.models.Version as MojiraVersion
+
 
 fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = CloudAttachment(
     id = id,
@@ -72,14 +75,14 @@ fun getCreationDate(issue: MojiraIssue, id: String, default: Instant) = (issue.c
     ?.created
     ?.toInstant() ?: default
 
-fun JiraProject.getSecurityLevelId(config: Config) = config[Arisa.PrivateSecurityLevel.default]
+fun MojiraProject.getSecurityLevelId(config: Config) = config[Arisa.PrivateSecurityLevel.default]
 
-fun JiraVersion.toDomain() = Version(
+fun MojiraVersion.toDomain() = Version(
     id,
     name,
     isReleased,
     isArchived,
-    releaseDate?.toVersionReleaseInstant()
+    releaseDate?.toInstant()
 )
 
 fun MojiraIssue.getUpdateContext(jiraClient: MojiraClient): Lazy<IssueUpdateContext> =
@@ -96,7 +99,7 @@ fun MojiraIssue.getUpdateContext(jiraClient: MojiraClient): Lazy<IssueUpdateCont
 @Suppress("LongMethod", "LongParameterList")
 fun MojiraIssue.toDomain(
     jiraClient: MojiraClient,
-    project: JiraProject,
+    project: MojiraProject,
     config: Config
 ): CloudIssue {
     val context = getUpdateContext(jiraClient)
@@ -217,12 +220,12 @@ fun MojiraIssue.toDomain(
     )
 }
 
-fun JiraProject.toDomain(
+fun MojiraProject.toDomain(
     config: Config
 ) = Project(
-    key,
-    versions.map { it.toDomain() },
-    getSecurityLevelId(config)
+    key = key,
+    versions = versions.map { it.toDomain() },
+    privateSecurity = getSecurityLevelId(config)
 )
 
 fun MojiraComment.toDomain(

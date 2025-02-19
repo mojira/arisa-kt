@@ -39,16 +39,16 @@ fun getCommandDispatcher(
     val makePrivateCommand = MakePrivateCommand()
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val reopenCommand = ReopenCommand()
-    val removeContentCommand = RemoveContentCommand(
-        ::getIssuesFromJql.partially1(jiraClient),
-        {
-            when (val issue = getIssue(jiraClient, it)) {
-                is Either.Left -> issue
-                is Either.Right -> (it to issue.b).right()
-            }
-        },
-        { Thread(it).start() }
-    )
+//    val removeContentCommand = RemoveContentCommand(
+//        ::getIssuesFromJql.partially1(jiraClient),
+//        {
+//            when (val issue = getIssue(jiraClient, it)) {
+//                is Either.Left -> issue
+//                is Either.Right -> (it to issue.b).right()
+//            }
+//        },
+//        { Thread(it).start() }
+//    )
     val shadowbanCommand = ShadowbanCommand()
 
     return CommandDispatcher<CommandSource>().apply {
@@ -311,18 +311,18 @@ fun getCommandDispatcher(
                         )
                 )
 
-        val removeContentCommandNode =
-            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
-                .requires(::sentByModerator)
-                .then(
-                    argument<CommandSource, String>("username", greedyString())
-                        .executes {
-                            removeContentCommand(
-                                it.source.issue,
-                                it.getString("username")
-                            )
-                        }
-                )
+//        val removeContentCommandNode =
+//            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
+//                .requires(::sentByModerator)
+//                .then(
+//                    argument<CommandSource, String>("username", greedyString())
+//                        .executes {
+//                            removeContentCommand(
+//                                it.source.issue,
+//                                it.getString("username")
+//                            )
+//                        }
+//                )
 
         val reopenCommandNode =
             literal<CommandSource>("${prefix}_REOPEN")
@@ -357,7 +357,7 @@ fun getCommandDispatcher(
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
-        register(removeContentCommandNode)
+//        register(removeContentCommandNode)
         register(reopenCommandNode)
         register(shadowbanCommandNode)
     }

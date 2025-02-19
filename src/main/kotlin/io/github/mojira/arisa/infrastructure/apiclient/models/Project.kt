@@ -16,7 +16,7 @@ data class Project(
 //    @SerialName("issueTypes")
 //    @JsonNames("issuetypes")
 //    val issueTypes: List<IssueType>,
-//    val versions: List<Version>,
+    val versions: List<Version>,
     val roles: Map<String, String>,
 //    val category: ProjectCategory,
     val email: String? = null

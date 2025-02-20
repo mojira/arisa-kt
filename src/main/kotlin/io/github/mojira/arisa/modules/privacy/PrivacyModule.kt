@@ -189,6 +189,9 @@ class PrivacyModule(
         log.info("$key: Found sensitive data $location at ${matchResult.getLocationDescription()}")
     }
 
+    /**
+     * Checks if the issue contains any attachments with the provided file names.
+     */
     private fun CloudIssue.hasAnyAttachmentName(name: String) = attachments.any { it.filename == name }
 
     /**
@@ -235,7 +238,7 @@ class PrivacyModule(
                     // Use postfix line break to prevent bot signature from appearing as part of last list item
                     val fileNamesString = fileNames.joinToString(separator = "", postfix = "\n") {
                         // Use link for attachments
-                        "\n- [^${sanitizeCommentArg(it)}]"
+                        "\n* ${sanitizeCommentArg(it)} [^${sanitizeCommentArg(it)}]"
                     }
                     // Does not use helper message because message will only be used by bot and helper messages
                     // currently only support one placeholder

@@ -237,12 +237,10 @@ class PrivacyModule(
                         // Use link for attachments
                         "\n- [^${sanitizeCommentArg(it)}]"
                     }
-                    val uploaderName = attachments.first().attachment.uploader?.displayName!!
-                    val sanitizedUploaderName = sanitizeCommentArg(uploaderName)
                     // Does not use helper message because message will only be used by bot and helper messages
                     // currently only support one placeholder
                     issue.addRawBotComment(
-                        "@[~$sanitizedUploaderName], sensitive data has been removed from your " +
+                        "[~accountid:$uploaderId], sensitive data has been removed from your " +
                             "attachment(s) and they have been re-uploaded as:$fileNamesString"
                     )
                 }

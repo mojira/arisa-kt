@@ -18,6 +18,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.requestModels.AddCommentB
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.CreateIssueLinkBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.JiraSearchRequest
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials
@@ -166,6 +167,7 @@ interface JiraApi {
     @POST("issue/{issueIdOrKey}/transitions")
     fun performTransition(
         @Path("issueIdOrKey") issueIdOrKey: String,
+        @Body body: TransitionIssueBody
     ): Call<Unit>
 }
 
@@ -328,7 +330,7 @@ class JiraClient(
         jiraApi.deleteIssueLink(issueIdOrKey).executeOrThrow()
     }
 
-    fun performTransition(issueIdOrKey: String) {
-        jiraApi.performTransition(issueIdOrKey).executeOrThrow()
+    fun performTransition(issueIdOrKey: String, body: TransitionIssueBody) {
+        jiraApi.performTransition(issueIdOrKey, body).executeOrThrow()
     }
 }

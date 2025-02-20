@@ -26,7 +26,6 @@ import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog
-import io.github.mojira.arisa.infrastructure.apiclient.models.download
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
@@ -65,7 +64,7 @@ fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, conf
     remove = ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
     openContentStream = { openAttachmentStream(jiraClient, this) },
     // Cache attachment content once it has been downloaded
-    getContent = lazy { this.download() }::value,
+    getContent = lazy { jiraClient.downloadAttachment(id) }::value,
     uploader = author?.toDomain(jiraClient, config)
 )
 

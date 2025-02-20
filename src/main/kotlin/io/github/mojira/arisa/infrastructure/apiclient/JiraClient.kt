@@ -29,7 +29,6 @@ import okhttp3.Response
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import okhttp3.MultipartBody
-import okio.IOException
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -272,6 +271,15 @@ class JiraClient(
     fun openAttachmentStream(attachmentId: String): InputStream {
         val responseBody = jiraApi.downloadAttachment(attachmentId).executeOrThrow()
         return responseBody.byteStream()
+    }
+
+    /**
+     * Downloads the attachment content as a byte array.
+     * The content refers to [AttachmentBean.content] which a direct URL for given attachment.
+     */
+    fun downloadAttachment(attachmentId: String): ByteArray {
+        val responseBody = jiraApi.downloadAttachment(attachmentId).executeOrThrow()
+        return responseBody.bytes()
     }
 
     fun addComment(issueIdOrKey: String, body: BodyType): Comment {

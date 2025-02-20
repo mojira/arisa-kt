@@ -118,7 +118,7 @@ interface JiraApi {
     @DELETE("attachment/{id}")
     fun deleteAttachment(
         @Path("id") attachmentId: String
-    ): Call<Void>
+    ): Call<Unit>
 
     @POST("issue/{issueIdOrKey}/comment")
     fun addComment(
@@ -141,7 +141,7 @@ interface JiraApi {
     fun deleteComment(
         @Path("issueIdOrKey") issueIdOrKey: String,
         @Path("id") commentId: String
-    ): Call<Void>
+    ): Call<Unit>
 
     @POST("issueLink")
     fun createIssueLink(
@@ -172,7 +172,7 @@ interface JiraApi {
 /**
  * Extends retrofit2.Call with generic response handling logic.
  */
-private fun <T> Call<T>.executeOrThrow(): T {
+private inline fun <reified T> Call<T>.executeOrThrow(): T {
     val response = this.execute()
     if (!response.isSuccessful) {
         if (response.code() in 400..499) {
@@ -180,7 +180,17 @@ private fun <T> Call<T>.executeOrThrow(): T {
         }
         throw JiraClientException("Unexpected code ${response.code()}")
     }
-    return response.body() ?: throw JiraClientException("Empty response body")
+
+    if (T::class == Unit::class) {
+        return Unit as T
+    }
+
+    val body = response.body()
+    if (body != null) {
+        return body
+    }
+
+    throw JiraClientException("Empty response body")
 }
 
 class JiraClient(

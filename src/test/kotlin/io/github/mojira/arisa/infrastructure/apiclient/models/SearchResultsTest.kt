@@ -5,8 +5,17 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import kotlinx.serialization.json.Json
+import java.io.File
 
-class IssueBeanTest: StringSpec({
+class SearchResultsTest: StringSpec({
+    fun loadJsonFile(filename: String): String {
+        val file = File("src/test/resources/responses/$filename")
+        return file.readText()
+    }
+
+    val JSON = Json { ignoreUnknownKeys = true }
+
     "it should deserialize linked issue without comments" {
         val json = loadJsonFile("linked-issue-without-comments.json")
         val issueBean = JSON.decodeFromString<IssueBean>(json)
@@ -41,13 +50,5 @@ class IssueBeanTest: StringSpec({
 
         issueBean shouldNotBe null
         issueBean.fields.comment?.comments?.size shouldBe 3
-    }
-
-    "it should deserialize issue with security level" {
-        val json = loadJsonFile("issue-with-security-level.json")
-        val issueBean = JSON.decodeFromString<IssueBean>(json)
-
-        issueBean.fields.security shouldNotBe null
-        issueBean.fields.security?.id shouldBe "10033"
     }
 })

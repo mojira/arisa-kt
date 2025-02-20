@@ -59,7 +59,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.8.0")
     implementation("com.squareup.retrofit2", "retrofit", "2.11.0")
     implementation("com.squareup.retrofit2", "converter-kotlinx-serialization", "2.11.0")
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
 
     components {
         /*

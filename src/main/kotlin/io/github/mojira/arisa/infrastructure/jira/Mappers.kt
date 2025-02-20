@@ -59,7 +59,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.Version as MojiraV
 fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = CloudAttachment(
     id = id,
     filename = filename,
-    created = getCreationDate(issue, id, issue.fields.created.toInstant()),
+    created = getCreationDate(issue, id, issue.fields.created?.toInstant() ?: Instant.now()),
     mimeType = mimeType,
     remove = ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
     openContentStream = { openAttachmentStream(jiraClient, this) },
@@ -112,7 +112,7 @@ fun MojiraIssue.toDomain(
         securityLevel = fields.security?.id,
 //        reporter?.toDomain(jiraClient, config),
         resolution = fields.resolution?.name,
-        created = fields.created.toInstant(),
+        created = fields.created?.toInstant() ?: Instant.now(),
 //        updatedDate.toInstant(),
 //        resolutionDate?.toInstant(),
 //        getCHK(config),
@@ -343,10 +343,10 @@ private fun MojiraIssue.mapLinks(
 }
 
 private fun MojiraIssue.mapComments(jiraClient: MojiraClient, config: Config) =
-    fields.comment.comments.map { it.toDomain(jiraClient, this, config) }
+    fields.comment?.comments?.map { it.toDomain(jiraClient, this, config) } ?: emptyList()
 
 private fun MojiraIssue.mapAttachments(jiraClient: MojiraClient, config: Config) =
-    attachments.map { it.toDomain(jiraClient, this, config) }
+    fields.attachment.map { it.toDomain(jiraClient, this, config) }
 
 //private fun MojiraIssue.mapVersions() =
 //    fields.versions.map { it.toDomain() }

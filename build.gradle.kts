@@ -77,6 +77,7 @@ dependencies {
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
     testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
+    testImplementation("io.kotest", "kotest-assertions-json", kotestVersion)
     testImplementation("io.mockk", "mockk", "1.13.2")
     testImplementation("org.reflections", "reflections", "0.10.2")
 }

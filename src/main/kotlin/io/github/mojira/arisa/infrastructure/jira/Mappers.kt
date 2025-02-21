@@ -89,7 +89,7 @@ fun MojiraIssue.getUpdateContext(jiraClient: MojiraClient): Lazy<IssueUpdateCont
         IssueUpdateContextCache.get(key) ?: IssueUpdateContext(
             jiraClient,
             this,
-            update(),
+            FluentObjectBuilder(),
             transition(),
             transition()
         ).also { IssueUpdateContextCache.add(key, it) }
@@ -106,7 +106,7 @@ fun MojiraIssue.toDomain(
     return CloudIssue(
         key = key,
         summary = fields.summary,
-        status = fields.status.name,
+        status = fields.status?.name ?: "Unknown",
         description = fields.description,
         environment = fields.environment,
         securityLevel = fields.security?.id,
@@ -293,7 +293,7 @@ fun MojiraIssue.toLinkedIssue(
     config: Config
 ) = CloudLinkedIssue(
     key = key,
-    status = fields.status.name,
+    status = fields.status?.name ?: "Unknown",
     getFullIssue = { getFullIssue(jiraClient, config) },
     createLink = ::createLink.partially1(getUpdateContext(jiraClient)).partially1(
         ::getOtherUpdateContext
@@ -407,7 +407,7 @@ private fun MojiraIssue.getOtherUpdateContext(
         IssueUpdateContextCache.get(key) ?: IssueUpdateContext(
             jiraClient,
             jiraClient.getIssue(key),
-            update(),
+            FluentObjectBuilder(),
             transition(),
             transition()
         ).also { IssueUpdateContextCache.add(key, it) }

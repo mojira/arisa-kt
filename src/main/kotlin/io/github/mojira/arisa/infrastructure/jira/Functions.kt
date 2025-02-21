@@ -149,7 +149,9 @@ fun resolveAs(context: Lazy<IssueUpdateContext>, resolution: String) {
 
 fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
     context.value.hasEdits = true
-    context.value.edit.field(Field.SECURITY, Field.valueById(levelId))
+    context.value.edit.field(Field.SECURITY) {
+        subField("id", levelId)
+    }
 }
 
 fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
@@ -159,12 +161,14 @@ fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
 
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.fieldAdd("versions", Field.valueById(id))
+    context.value.edit.field("versions") {
+        subField("id", id)
+    }
 }
 
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.fieldRemove("versions", Field.valueById(id))
+    context.value.edit.remove("versions") { it.string("id") == id }
 }
 
 fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
@@ -180,7 +184,7 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
 fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
     val functions = context.otherOperations.toMutableList()
     if (context.hasEdits) {
-        functions.add(0, ::applyFluentUpdate.partially1(context.edit))
+        functions.add(0, ::applyFluentUpdate.partially1(context.jiraIssue.key).partially1(context.edit))
     }
     if (context.hasUpdates) {
         functions.add(
@@ -197,11 +201,13 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
     return tryRunAll(functions, context)
 }
 
-private fun applyFluentUpdate(edit: MojiraIssue.FluentUpdate) = runBlocking {
+private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = runBlocking {
     Either.catch {
         try {
-            val (requestBody, updatedIssue) = edit.execute()
-            jiraClient.editIssue(updatedIssue.id, requestBody)
+            val fieldsJson = edit.toJson()
+            jiraClient.editIssue(issueKey, EditIssueBody(
+                fields = fieldsJson["fields"]
+            ))
         } catch (e: JiraException) {
             val cause = e.cause
             if (cause is RestException && (

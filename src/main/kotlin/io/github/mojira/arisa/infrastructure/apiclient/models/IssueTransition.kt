@@ -44,5 +44,5 @@ data class IssueTransition(
     @SerialName("name")
     val name: String? = null,
     @SerialName("to")
-    val to: StatusDetails? = null
+    val toStatus: StatusDetails? = null
 )

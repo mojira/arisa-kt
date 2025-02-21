@@ -2,6 +2,7 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 
 import io.github.mojira.arisa.infrastructure.apiclient.serializers.OffsetDateTimeSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonElement
 import java.time.OffsetDateTime
 
@@ -28,7 +29,7 @@ data class IssueFields(
     val resolution: Resolution? = null,
     val resolutiondate: String? = null,
     val security: IssueSecurity? = null,
-    val status: IssueStatus,
+    val status: IssueStatus? = null,
     val statuscategorychangedate: String? = null,
     val subtasks: List<IssueBean>? = null,
     val summary: String? = null,
@@ -40,6 +41,7 @@ data class IssueFields(
 //    val votes: Votes? = null,
 //    val watches: Watchers? = null,
     val workratio: Int? = null,
+    @Transient
     private val additionalProperties: Map<String, JsonElement> = emptyMap()
 ) {
     operator fun get(field: String): JsonElement? {

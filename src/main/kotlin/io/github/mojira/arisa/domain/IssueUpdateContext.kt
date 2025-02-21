@@ -12,9 +12,9 @@ import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean as Mojir
 data class IssueUpdateContext(
     val jiraClient: MojiraClient,
     val jiraIssue: MojiraIssue,
-    val edit: MojiraIssue.FluentUpdate,
-    val update: MojiraIssue.FluentTransition,
-    val resolve: MojiraIssue.FluentTransition,
+    val edit: FluentObjectBuilder,
+    val update: FluentObjectBuilder,
+    val resolve: FluentObjectBuilder,
     var hasEdits: Boolean = false,
     var hasUpdates: Boolean = false,
     var transitionName: String? = null,

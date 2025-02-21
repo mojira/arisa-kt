@@ -61,96 +61,6 @@ data class IssueBean(
     @SerialName("versionedRepresentations")
     val versionedRepresentations: Map<String, Map<String, String>>? = null,
 ) {
-    companion object {
-        data class FieldOperation(
-            val operation: String,
-            val value: Any
-        )
-    }
-
-    inner class FluentUpdate {
-        private val fields = mutableMapOf<String, JsonElement>()
-        private val fieldOpers = mutableMapOf<String, MutableList<JsonObject>>()
-
-        /**
-         * Appends a field to the update action.
-         */
-        fun field(name: String, value: Any): FluentUpdate {
-            fields[name] = Json.encodeToJsonElement(value)
-            return this
-        }
-
-        /**
-         * Adds a field value to the existing value set.
-         */
-        fun fieldAdd(name: String, value: Any): FluentUpdate {
-            return fieldOperation(name, "add", value)
-        }
-
-        /**
-         * Removes a field value from the existing value set.
-         */
-        fun fieldRemove(name: String, value: Any): FluentUpdate {
-            return fieldOperation(name, "remove", value)
-        }
-
-        /**
-         * Sets a field value
-         */
-        fun fieldSet(name: String, value: Any): FluentUpdate {
-            return fieldOperation(name, "set", value)
-        }
-
-        /**
-         * Edits a field value with complex structure
-         */
-        fun fieldEdit(name: String, value: Map<String, Any>): FluentUpdate {
-            return fieldOperation(name, "edit", value)
-        }
-
-        private fun fieldOperation(name: String, operation: String, value: Any): FluentUpdate {
-            val operationObject = buildJsonObject {
-                put(operation, Json.encodeToJsonElement(value))
-            }
-
-            fieldOpers.getOrPut(name) { mutableListOf() }.add(operationObject)
-            return this
-        }
-
-        /**
-         * Executes the update action and returns both the request body and updated IssueBean
-         */
-        fun execute(): Pair<EditIssueBody, IssueBean> {
-            if (fields.isEmpty() && fieldOpers.isEmpty()) {
-                throw IllegalStateException("No fields were given for update")
-            }
-
-            val updateObject = buildJsonObject {
-                fieldOpers.forEach { (field, operations) ->
-                    put(field, JsonArray(operations))
-                }
-            }
-
-            val requestBody = EditIssueBody(
-                fields = if (fields.isNotEmpty()) fields else null,
-                update = if (fieldOpers.isNotEmpty()) updateObject.toMap() else null
-            )
-
-            // Create updated IssueBean
-            val updatedFields = (this@IssueBean.fields as? Map<String, JsonElement>)?.toMutableMap()
-                ?: mutableMapOf()
-            fields.forEach { (name, value) ->
-                updatedFields[name] = value
-            }
-
-            val updatedIssue = this@IssueBean.copy(
-                fields = updatedFields as IssueFields
-            )
-
-            return Pair(requestBody, updatedIssue)
-        }
-    }
-
     inner class FluentTransition {
         fun field(name: String, value: Any): FluentTransition {
             return this
@@ -169,11 +79,6 @@ data class IssueBean(
     fun getField(field: String) : String? {
         return fields[field]?.toString()
     }
-
-    /**
-     * Creates a new FluentUpdate instance for this issue
-     */
-    fun update(): FluentUpdate = FluentUpdate()
 
     /**
      * Creates a new FluentTransition instance for this issue

@@ -27,6 +27,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.exceptions.JiraClientExce
 import net.rcarz.jiraclient.RestException
 import io.github.mojira.arisa.infrastructure.apiclient.exceptions.ClientErrorException
 import net.rcarz.jiraclient.Version
+import io.github.mojira.arisa.infrastructure.apiclient.models.Version as MojiraVersion
 import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
 import java.io.File
@@ -34,10 +35,18 @@ import java.io.InputStream
 import java.time.Instant
 import java.time.temporal.ChronoField
 import io.github.mojira.arisa.infrastructure.apiclient.JiraClient
+import io.github.mojira.arisa.infrastructure.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.infrastructure.apiclient.builders.string
 import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean as MojiraIssue
 import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
+import io.github.mojira.arisa.infrastructure.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.jiraClient
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import net.rcarz.jiraclient.Issue
+import net.rcarz.jiraclient.Transition
 
 fun connectToJira(email: String, apiToken: String, url: String): JiraClient {
     return JiraClient(url, email, apiToken)
@@ -91,43 +100,38 @@ fun updateCHK(context: Lazy<IssueUpdateContext>, chkField: String) {
 }
 
 fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasUpdates = true
-    context.value.update.field(confirmationField, jsonValue)
+    context.value.update.field(confirmationField) {
+        subField("value", value)
+    }
 }
 
 fun updatePriority(context: Lazy<IssueUpdateContext>, priorityField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["id"] = value
-
     context.value.hasUpdates = true
-    context.value.update.field(priorityField, jsonValue)
+    context.value.update.field(priorityField) {
+        subField("id", value)
+    }
 }
 
 fun updateDungeonsPlatform(context: Lazy<IssueUpdateContext>, dungeonsPlatformField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasEdits = true
-    context.value.edit.field(dungeonsPlatformField, jsonValue)
+    context.value.edit.field(dungeonsPlatformField) {
+        subField("value", value)
+    }
 }
 
 fun updateLegendsPlatform(context: Lazy<IssueUpdateContext>, legendsPlatformField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasEdits = true
-    context.value.edit.field(legendsPlatformField, jsonValue)
+    context.value.edit.field(legendsPlatformField) {
+        subField("value", value)
+    }
 }
 
 fun updatePlatform(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasEdits = true
-    context.value.edit.field(platformField, jsonValue)
+    context.value.edit.field(platformField) {
+        subField("value", value)
+    }
 }
 
 fun updateLinked(context: Lazy<IssueUpdateContext>, linkedField: String, value: Double) {
@@ -140,10 +144,9 @@ fun reopen(context: Lazy<IssueUpdateContext>) {
 }
 
 fun resolveAs(context: Lazy<IssueUpdateContext>, resolution: String) {
-    val resolutionJson = JSONObject()
-    resolutionJson["name"] = resolution
-
-    context.value.resolve.field(Field.RESOLUTION, resolutionJson)
+    context.value.resolve.field(Field.RESOLUTION) {
+        subField("name", resolution)
+    }
     context.value.transitionName = "Resolve Issue"
 }
 
@@ -154,9 +157,11 @@ fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
     }
 }
 
-fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
+fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVersion) {
     context.value.hasEdits = true
-    context.value.edit.fieldRemove("versions", version)
+    context.value.edit.remove("versions") {
+        it.string("name") == version.name
+    }
 }
 
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
@@ -171,9 +176,9 @@ fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.edit.remove("versions") { it.string("id") == id }
 }
 
-fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
+fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVersion) {
     context.value.hasEdits = true
-    context.value.edit.fieldAdd("versions", version)
+    context.value.edit.add("versions", buildJsonObject { put("name", version.name) })
 }
 
 fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
@@ -184,18 +189,26 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
 fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
     val functions = context.otherOperations.toMutableList()
     if (context.hasEdits) {
-        functions.add(0, ::applyFluentUpdate.partially1(context.jiraIssue.key).partially1(context.edit))
+        functions.add(0, ::applyFluentUpdate
+            .partially1(context.jiraIssue.key)
+            .partially1(context.edit))
     }
     if (context.hasUpdates) {
         functions.add(
             0,
-            ::applyFluentTransition.partially1(context.update).partially1("Update Issue")
+            ::applyFluentTransition
+                .partially1(context.jiraIssue.key)
+                .partially1(context.resolve)
+                .partially1("Update issue")
         )
     }
     if (context.transitionName != null) {
         functions.add(
             0,
-            ::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!)
+            ::applyFluentTransition
+                .partially1(context.jiraIssue.key)
+                .partially1(context.resolve)
+                .partially1(context.transitionName!!)
         )
     }
     return tryRunAll(functions, context)
@@ -223,9 +236,12 @@ private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = run
     }
 }
 
-private fun applyFluentTransition(update: MojiraIssue.FluentTransition, transitionName: String) = runBlocking {
+private fun applyFluentTransition(issueKey: String, update: FluentObjectBuilder, transitionName: String) = runBlocking {
     Either.catch {
-        update.execute(transitionName)
+        val fieldsJson = update.toJson()
+        jiraClient.performTransition(issueKey, TransitionIssueBody(
+            fields = fieldsJson["fields"],
+        ))
     }
 }
 
@@ -465,7 +481,9 @@ fun getGroups(jiraClient: JiraClient, accountId: String) = runBlocking {
 }
 
 fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersionName: String) {
-    context.value.resolve.field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersionName)))
+    context.value.resolve.field("fixVersions", listOf(
+        buildJsonObject { put("name", fixVersionName) }
+    ))
     context.value.transitionName = "Resolve Issue"
 }
 

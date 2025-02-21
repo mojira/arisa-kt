@@ -22,6 +22,11 @@ class FluentObjectBuilder {
         return this
     }
 
+    fun field(name: String, value: Double): FluentObjectBuilder {
+        fields[name] = buildJsonObject { put("name", Json.encodeToJsonElement(value)) }
+        return this
+    }
+
     fun field(name: String, init: FieldBuilder.() -> Unit): FluentObjectBuilder {
         val builder = FieldBuilder().apply(init)
         fields[name] = builder.build()

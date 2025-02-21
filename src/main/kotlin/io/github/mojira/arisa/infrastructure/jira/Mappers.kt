@@ -25,6 +25,7 @@ import io.github.mojira.arisa.domain.cloud.CloudLinkedIssue
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
+import io.github.mojira.arisa.infrastructure.apiclient.builders.FluentObjectBuilder
 import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
@@ -90,8 +91,8 @@ fun MojiraIssue.getUpdateContext(jiraClient: MojiraClient): Lazy<IssueUpdateCont
             jiraClient,
             this,
             FluentObjectBuilder(),
-            transition(),
-            transition()
+            FluentObjectBuilder(),
+            FluentObjectBuilder()
         ).also { IssueUpdateContextCache.add(key, it) }
     }
 
@@ -408,7 +409,7 @@ private fun MojiraIssue.getOtherUpdateContext(
             jiraClient,
             jiraClient.getIssue(key),
             FluentObjectBuilder(),
-            transition(),
-            transition()
+            FluentObjectBuilder(),
+            FluentObjectBuilder()
         ).also { IssueUpdateContextCache.add(key, it) }
     }

@@ -2,17 +2,9 @@ package io.github.mojira.arisa.infrastructure.apiclient.models
 
 import URISerializer
 import io.github.mojira.arisa.infrastructure.apiclient.JiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.OpenApiObject
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.CreateIssueLinkBody
-import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.encodeToJsonElement
 
 @Serializable
 data class IssueBean(
@@ -61,30 +53,6 @@ data class IssueBean(
     @SerialName("versionedRepresentations")
     val versionedRepresentations: Map<String, Map<String, String>>? = null,
 ) {
-    inner class FluentTransition {
-        fun field(name: String, value: Any): FluentTransition {
-            return this
-        }
-
-        /**
-         * Executes the transition action.
-         *
-         * @param name Transition name
-         */
-        fun execute(name: String) {
-            print("Transitioning issue to $name")
-        }
-    }
-
-    fun getField(field: String) : String? {
-        return fields[field]?.toString()
-    }
-
-    /**
-     * Creates a new FluentTransition instance for this issue
-     */
-    fun transition(): FluentTransition = FluentTransition()
-
     fun link(client: JiraClient, issueId: String, linkType: String) {
         val link = CreateIssueLinkBody(
             type = IssueLinkType(name = linkType),

@@ -205,9 +205,11 @@ interface JiraApi {
  */
 private inline fun <reified T> Call<T>.executeOrThrow(): T {
     val response = this.execute()
+    val originalRequest = response.raw().request
+
     if (!response.isSuccessful) {
         if (response.code() in 400..499) {
-            throw ClientErrorException(response.code(), "Request failed with code ${response.code()}", response.raw())
+            throw ClientErrorException(response.code(), "Request failed - [${response.code()}] ${originalRequest.method} ${originalRequest.url}", response.raw())
         }
         throw JiraClientException("Unexpected code ${response.code()}")
     }

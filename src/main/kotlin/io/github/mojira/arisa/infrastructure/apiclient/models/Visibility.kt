@@ -18,7 +18,7 @@ data class Visibility(
     val identifier: String? = null,
     // Whether visibility of this item is restricted to a group or role.
     @SerialName("type")
-    val type: Type? = null,
+    val type: String? = null,
     // The name of the group or role that visibility of this item is restricted to. Please note that the name of
     // a group is mutable, to reliably identify a group use `identifier`.
     @SerialName("value")

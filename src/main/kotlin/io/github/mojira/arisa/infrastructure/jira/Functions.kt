@@ -335,7 +335,7 @@ fun addRestrictedComment(
                     is Either.Left -> log.error(checkResult.a.message)
                     is Either.Right -> {
                         val issueId = context.value.jiraIssue.id
-                        val visibility = Visibility(value = restrictionLevel)
+                        val visibility = Visibility(value = restrictionLevel, type = Visibility.Type.Group.value)
                         context.value.jiraClient.addRestrictedComment(issueId, comment, visibility)
                     }
                 }
@@ -439,7 +439,7 @@ fun restrictCommentToGroup(
                         body,
                         visibility = Visibility(
                             identifier = group,
-                            type = Visibility.Type.Group,
+                            type = Visibility.Type.Group.value,
                             value = group
                         )
                     )

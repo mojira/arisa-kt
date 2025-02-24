@@ -240,12 +240,14 @@ fun mockProject(
 )
 
 fun mockUser(
+    accountId: String = "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
     name: String = "user",
     displayName: String = "User",
     getGroups: () -> List<String>? = { null },
     isNewUser: () -> Boolean = { false },
     isBotUser: () -> Boolean = { false }
 ) = User(
+    accountId,
     name,
     displayName,
     getGroups,

@@ -3,12 +3,12 @@ package io.github.mojira.arisa
 import arrow.core.Either
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
-import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.registry.ModuleRegistry
-import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockCloudIssue
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -18,8 +18,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import java.time.Instant
 
-private val moduleRegistryMock = mockk<ModuleRegistry>()
-private val failedModuleRegistryMock = mockk<ModuleRegistry>()
+private val moduleRegistryMock = mockk<ModuleRegistry<CloudIssue>>()
+private val failedModuleRegistryMock = mockk<ModuleRegistry<CloudIssue>>()
 private val moduleExecutorMock = mockk<ModuleExecutor>()
 private val failedModuleExecutorMock = mockk<ModuleExecutor>()
 
@@ -66,7 +66,7 @@ class ExecutorTest : StringSpec({
             searchIssues = { _, _, finishedCallback ->
                 run {
                     finishedCallback()
-                    listOf(mockIssue("MC-1"))
+                    listOf(mockCloudIssue("MC-1"))
                 }
             }
         )
@@ -101,11 +101,11 @@ class ExecutorTest : StringSpec({
 })
 
 fun getMockExecutor(
-    registries: List<ModuleRegistry>,
-    searchIssues: (String, Int, () -> Unit) -> List<Issue> =
+    registries: List<ModuleRegistry<CloudIssue>>,
+    searchIssues: (String, Int, () -> Unit) -> List<CloudIssue> =
         { _, _, finishedCallback ->
             finishedCallback()
-            listOf(mockIssue())
+            listOf(mockCloudIssue())
         }
 ): Executor = Executor(
     getConfig(),

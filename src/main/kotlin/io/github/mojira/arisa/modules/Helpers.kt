@@ -112,7 +112,7 @@ fun contextForException(context: IssueUpdateContext?): String {
         (
             FieldUtils.readField(
                 context.resolve,
-                "transitions",
+                "fields",
                 true
             ) as Map<String, IssueTransition>
             ).entries.joinToString(", ") { transitionToString(it.value) }
@@ -124,7 +124,7 @@ fun contextForException(context: IssueUpdateContext?): String {
         (
             FieldUtils.readField(
                 context.update,
-                "transitions",
+                "fields",
                 true
             ) as Map<String, IssueTransition>
             ).entries.joinToString(", ") { transitionToString(it.value) }
@@ -132,10 +132,6 @@ fun contextForException(context: IssueUpdateContext?): String {
         "edit.fields: ${
         mapMapFieldToString(context.edit, "fields")
         }\n"
-//        }\n" +
-//        "edit.fieldOpers: ${
-//        mapMapFieldToString(context.edit, "fieldOpers")
-//        }"
 }
 
 fun mapMapFieldToString(obj: Any, fieldName: String): String = mapToString(

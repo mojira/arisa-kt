@@ -19,29 +19,13 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ProjectDetails(
-    // The URLs of the project's avatars.
-    @SerialName("avatarUrls")
     val avatarUrls: AvatarUrlsBean? = null,
-    // The ID of the project.
-    @SerialName("id")
     val id: String? = null,
-    // The key of the project.
-    @SerialName("key")
     val key: String? = null,
-    // The name of the project.
-    @SerialName("name")
     val name: String? = null,
-    // The category the project belongs to.
-    @SerialName("projectCategory")
     val projectCategory: UpdatedProjectCategory? = null,
-    // The project type of the project.
-    @SerialName("projectTypeKey")
     val projectTypeKey: ProjectTypeKey? = null,
-    // The URL of the project details.
-    @SerialName("self")
     val self: String? = null,
-    // Whether or not the project is simplified.
-    @SerialName("simplified")
     val simplified: Boolean? = null
 ) {
     /**

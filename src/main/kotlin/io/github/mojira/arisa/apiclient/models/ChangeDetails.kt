@@ -16,33 +16,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ChangeDetails(
-
-    /* The name of the field changed. */
     @SerialName("field")
     val `field`: String,
-
-    /* The ID of the field changed. */
-    @SerialName("fieldId")
     val fieldId: String? = null,
-
-    /* The type of the field changed. */
-    @SerialName("fieldtype")
     val fieldtype: String? = null,
-
-    /* The details of the original value. */
-    @SerialName("from")
     val from: String? = null,
-
-    /* The details of the original value as a string. */
-    @SerialName("fromString")
     val fromString: String? = null,
-
-    /* The details of the new value. */
-    @SerialName("to")
     val to: String? = null,
-
-    /* The details of the new value as a string. */
-    @SerialName("toString")
     val toString: String? = null
-
 )

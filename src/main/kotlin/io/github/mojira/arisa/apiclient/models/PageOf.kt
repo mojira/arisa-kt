@@ -13,19 +13,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class PageOf<TItem>(
-    /* The list of changelogs. */
-    @SerialName("histories")
     val histories: List<TItem>? = null,
-
-    /* The maximum number of results that could be on the page. */
-    @SerialName("maxResults")
     val maxResults: Int? = null,
-
-    /* The index of the first item returned on the page. */
-    @SerialName("startAt")
     val startAt: Int? = null,
-
-    /* The number of results on the page. */
-    @SerialName("total")
     val total: Int? = null
 )

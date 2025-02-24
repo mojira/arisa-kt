@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.apiclient.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,23 +14,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class LinkGroup(
-
-    @SerialName("groups")
-    val groups: kotlin.collections.List<LinkGroup>? = null,
-
-    @SerialName("header")
+    val groups: List<LinkGroup>? = null,
     val header: SimpleLink? = null,
-
-    @SerialName("id")
-    val id: kotlin.String? = null,
-
-    @SerialName("links")
-    val links: kotlin.collections.List<SimpleLink>? = null,
-
-    @SerialName("styleClass")
-    val styleClass: kotlin.String? = null,
-
-    @SerialName("weight")
-    val weight: kotlin.Int? = null
-
+    val id: String? = null,
+    val links: List<SimpleLink>? = null,
+    val styleClass: String? = null,
+    val weight: Int? = null
 )

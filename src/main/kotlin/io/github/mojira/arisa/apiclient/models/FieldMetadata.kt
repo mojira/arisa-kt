@@ -1,7 +1,6 @@
 package io.github.mojira.arisa.apiclient.models
 
 import io.github.mojira.arisa.apiclient.OpenApiObject
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -20,45 +19,14 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class FieldMetadata(
-
-    /* The key of the field. */
-    @SerialName("key")
     val key: String,
-
-    /* The name of the field. */
-    @SerialName("name")
     val name: String,
-
-    /* The list of operations that can be performed on the field. */
-    @SerialName("operations")
     val operations: List<String>,
-
-    /* Whether the field is required. */
-    @SerialName("required")
     val required: Boolean,
-
-    /* The data type of the field. */
-    @SerialName("schema")
     val schema: JsonTypeBean,
-
-    /* The list of values allowed in the field. */
-//    @SerialName("allowedValues")
-//    val allowedValues: List<Any>? = null,
-
-    /* The URL that can be used to automatically complete the field. */
-    @SerialName("autoCompleteUrl")
+    //    val allowedValues: List<Any>? = null,
     val autoCompleteUrl: String? = null,
-
-    /* The configuration properties. */
-    @SerialName("configuration")
     val configuration: OpenApiObject? = null,
-
-    /* The default value of the field. */
-//    @SerialName("defaultValue")
-//    val defaultValue: Any? = null,
-
-    /* Whether the field has a default value. */
-    @SerialName("hasDefaultValue")
+    //    val defaultValue: Any? = null,
     val hasDefaultValue: Boolean? = null
-
 )

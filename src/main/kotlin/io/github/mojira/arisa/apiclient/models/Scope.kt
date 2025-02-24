@@ -11,11 +11,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Scope(
-    // The project the item has scope in.
-    @SerialName("project")
     val project: ProjectDetails? = null,
-    // The type of scope.
-    @SerialName("type")
     val type: Type? = null
 ) {
     /**

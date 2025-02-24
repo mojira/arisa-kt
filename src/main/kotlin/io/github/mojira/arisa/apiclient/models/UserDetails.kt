@@ -40,26 +40,16 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UserDetails(
-    @SerialName("accountId")
     val accountId: String,
-    @SerialName("accountType")
     val accountType: String? = null,
-    @SerialName("active")
     val active: Boolean? = null,
-    @SerialName("avatarUrls")
     val avatarUrls: AvatarUrlsBean? = null,
-    @SerialName("displayName")
     val displayName: String? = null,
-    @SerialName("emailAddress")
     val emailAddress: String? = null,
     @Deprecated("This property is no longer available and will be removed from the documentation soon.")
-    @SerialName("key")
     val key: String? = null,
     @Deprecated("This property is no longer available and will be removed from the documentation soon.")
-    @SerialName("name")
     val name: String? = null,
-    @SerialName("self")
     val self: String? = null,
-    @SerialName("timeZone")
     val timeZone: String? = null
 )

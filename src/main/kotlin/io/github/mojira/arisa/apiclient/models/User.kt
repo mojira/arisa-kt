@@ -15,56 +15,42 @@ import java.net.URI
  * users. In this case, `accountId` returns *unknown* and all other parameters have fallback values.
  * *  User record unavailable: This usually occurs due to an internal service outage. In this case, all parameters have
  * fallback values.
+ *
+ * @param accountId The account ID of the user, which uniquely identifies the user across all Atlassian products.
+ * For example, *5b10ac8d82e05b22cc7d4ef5*. Required in requests.
+ * @param accountType The user account type. Can take the following values:
+ *  *  `atlassian` regular Atlassian user account
+ *  *  `app` system account used for Connect applications and OAuth to represent external systems
+ *  *  `customer` Jira Service Desk account representing an external service desk
+ * @param active Whether the user is active.
+ * @param applicationRoles The application roles the user is assigned to.
+ * @param avatarUrls The avatars of the user.
+ * @param displayName The display name of the user. Depending on the user's privacy setting, this may return an alternative value.
+ * @param emailAddress The email address of the user. Depending on the user's privacy setting, this may be returned as null.
+ * @param expand Expand options that include additional user details in the response.
+ * @param groups The groups that the user belongs to.
+ * @param key This property is no longer available and will be removed from the documentation soon.
+ * @param locale The locale of the user. Depending on the user's privacy setting, this may be returned as null.
+ * @param name This property is no longer available and will be removed from the documentation soon.
+ * @param self The URL of the user.
+ * @param timeZone The time zone specified in the user's profile. Depending on the user's privacy setting, this may be returned as null.
  */
 @Serializable
 data class User(
-    /* The account ID of the user, which uniquely identifies the user across all Atlassian products.
-       For example, *5b10ac8d82e05b22cc7d4ef5*. Required in requests. */
-    @SerialName("accountId")
     val accountId: String,
-    /* The user account type. Can take the following values:
-     *  `atlassian` regular Atlassian user account
-     *  `app` system account used for Connect applications and OAuth to represent external systems
-     *  `customer` Jira Service Desk account representing an external service desk */
-    @SerialName("accountType")
     val accountType: AccountType? = null,
-    // Whether the user is active.
-    @SerialName("active")
     val active: Boolean = false,
-    // The application roles the user is assigned to.
-    @SerialName("applicationRoles")
     val applicationRoles: SimpleListWrapper<ApplicationRole>? = null,
-    // The avatars of the user.
-    @SerialName("avatarUrls")
     val avatarUrls: AvatarUrlsBean? = null,
-    // The display name of the user. Depending on the user's privacy setting, this may return an alternative value.
-    @SerialName("displayName")
     val displayName: String? = null,
-    // The email address of the user. Depending on the user's privacy setting, this may be returned as null.
-    @SerialName("emailAddress")
     val emailAddress: String? = null,
-    // Expand options that include additional user details in the response.
-    @SerialName("expand")
     val expand: String? = null,
-    // The groups that the user belongs to.
-    @SerialName("groups")
     val groups: SimpleListWrapper<GroupName>? = null,
-    // This property is no longer available and will be removed from the documentation soon.
-    @SerialName("key")
     val key: String? = null,
-    // The locale of the user. Depending on the user's privacy setting, this may be returned as null.
-    @SerialName("locale")
     val locale: String? = null,
-    // This property is no longer available and will be removed from the documentation soon.
-    @SerialName("name")
     val name: String? = null,
-    // The URL of the user.
     @Serializable(with = URISerializer::class)
-    @SerialName("self")
     val self: URI? = null,
-    // The time zone specified in the user's profile. Depending on the user's privacy setting, this may be returned as
-    // null.
-    @SerialName("timeZone")
     val timeZone: String? = null
 ) {
     /**

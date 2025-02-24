@@ -23,25 +23,15 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class IssueTransition(
-    @SerialName("expand")
     val expand: String? = null,
-    @SerialName("fields")
     val fields: Map<String, FieldMetadata>? = null,
-    @SerialName("hasScreen")
     val hasScreen: Boolean? = null,
-    @SerialName("id")
     val id: String? = null,
-    @SerialName("isAvailable")
     val isAvailable: Boolean? = null,
-    @SerialName("isConditional")
     val isConditional: Boolean? = null,
-    @SerialName("isGlobal")
     val isGlobal: Boolean? = null,
-    @SerialName("isInitial")
     val isInitial: Boolean? = null,
-    @SerialName("looped")
     val looped: Boolean? = null,
-    @SerialName("name")
     val name: String? = null,
     @SerialName("to")
     val toStatus: StatusDetails? = null

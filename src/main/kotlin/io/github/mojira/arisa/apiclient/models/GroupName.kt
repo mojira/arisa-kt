@@ -1,7 +1,6 @@
 package io.github.mojira.arisa.apiclient.models
 
 import URISerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -13,11 +12,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class GroupName(
-    @SerialName("groupId")
     val groupId: String,
-    @SerialName("name")
     val name: String,
     @Serializable(with = URISerializer::class)
-    @SerialName("self")
     val self: java.net.URI? = null
 )

@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.apiclient.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,6 +9,5 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class IssueUpdateMetadata(
-    @SerialName("fields")
     val fields: Map<String, FieldMetadata>? = null
 )

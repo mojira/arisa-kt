@@ -1,7 +1,6 @@
 package io.github.mojira.arisa.apiclient.models
 
 import io.github.mojira.arisa.apiclient.serializers.OffsetDateTimeSerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,20 +14,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Changelog(
-    // The user who made the change.
-    @SerialName("author")
     val author: UserDetails? = null,
-    // The date on which the change took place.
     @Serializable(with = OffsetDateTimeSerializer::class)
-    @SerialName("created")
     val created: java.time.OffsetDateTime,
-    // The history metadata associated with the changed.
-    @SerialName("historyMetadata")
     val historyMetadata: HistoryMetadata? = null,
-    // The ID of the changelog.
-    @SerialName("id")
-    val id: kotlin.String? = null,
-    // The list of items changed.
-    @SerialName("items")
-    val items: kotlin.collections.List<ChangeDetails> = emptyList()
+    val id: String? = null,
+    val items: List<ChangeDetails> = emptyList()
 )

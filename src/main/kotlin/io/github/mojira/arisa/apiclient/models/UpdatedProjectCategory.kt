@@ -13,19 +13,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UpdatedProjectCategory(
-    /* The name of the project category. */
-    @SerialName("description")
     val description: String? = null,
-
-    /* The ID of the project category. */
-    @SerialName("id")
     val id: String? = null,
-
-    /* The description of the project category. */
-    @SerialName("name")
     val name: String? = null,
-
-    /* The URL of the project category. */
-    @SerialName("self")
     val self: String? = null
 )

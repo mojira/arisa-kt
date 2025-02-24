@@ -3,7 +3,6 @@
 package io.github.mojira.arisa.apiclient.models
 
 import io.github.mojira.arisa.apiclient.serializers.OffsetDateTimeSerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -27,41 +26,18 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Comment(
-    // The ID of the user who created the comment.
-    @SerialName("author")
     val author: UserDetails? = null,
-    // The comment text in [Atlassian Document Format](https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/).
-    @SerialName("body")
     val body: BodyType,
-    // The date and time at which the comment was created.
     @Serializable(with = OffsetDateTimeSerializer::class)
-    @SerialName("created")
     val created: java.time.OffsetDateTime? = null,
-    // The ID of the comment.
-    @SerialName("id")
     val id: String,
-    // Whether the comment was added from an email sent by a person who is not part of the issue. See [Allow external emails to be added as comments on issues](https://support.atlassian.com/jira-service-management-cloud/docs/allow-external-emails-to-be-added-as-comments-on-issues/)for information on setting up this feature.
-    @SerialName("jsdAuthorCanSeeRequest")
     val jsdAuthorCanSeeRequest: Boolean? = null,
-    @SerialName("jsdPublic")
     val jsdPublic: Boolean? = null,
-    // A list of comment properties. Optional on create and update.
-    @SerialName("properties")
     val properties: List<EntityProperty>? = null,
-    // The rendered version of the comment.
-    @SerialName("renderedBody")
     val renderedBody: String? = null,
-    // The URL of the comment.
-    @SerialName("self")
     val self: String? = null,
-    // The ID of the user who updated the comment last.
-    @SerialName("updateAuthor")
     val updateAuthor: UserDetails? = null,
-    // The date and time at which the comment was updated last.
     @Serializable(with = OffsetDateTimeSerializer::class)
-    @SerialName("updated")
     val updated: java.time.OffsetDateTime? = null,
-    // The group or role to which this comment is visible. Optional on create and update.
-    @SerialName("visibility")
     val visibility: Visibility? = null
 )

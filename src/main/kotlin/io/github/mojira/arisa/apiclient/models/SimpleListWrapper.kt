@@ -13,13 +13,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class SimpleListWrapper<TItem>(
-//    @SerialName("callback")
 //    val callback: Any? = null,
-    @SerialName("items")
     val items: List<TItem>? = null,
     @SerialName("max-results")
     val maxResults: Int? = null,
-//    @SerialName("pagingCallback")
 //    val pagingCallback: Any? = null,
     @SerialName("size")
     val propertySize: Int? = null

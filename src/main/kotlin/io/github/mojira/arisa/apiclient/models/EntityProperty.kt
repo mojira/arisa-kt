@@ -11,12 +11,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class EntityProperty(
-    /* The key of the property. Required on create and update. */
-    @SerialName("key")
     val key: String? = null,
-
-    /* The value of the property. Required on create and update. */
     @SerialName("value")
     val `value`: String? = null
-//    val `value`: Any? = null
 )

@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.apiclient.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -16,26 +15,11 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class SimpleLink(
-
-    @SerialName("href")
     val href: String? = null,
-
-    @SerialName("iconClass")
     val iconClass: String? = null,
-
-    @SerialName("id")
     val id: String? = null,
-
-    @SerialName("label")
     val label: String? = null,
-
-    @SerialName("styleClass")
     val styleClass: String? = null,
-
-    @SerialName("title")
     val title: String? = null,
-
-    @SerialName("weight")
     val weight: Int? = null
-
 )

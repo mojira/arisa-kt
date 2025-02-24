@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.apiclient.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -14,23 +13,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class StatusCategory(
-    /* The name of the color used to represent the status category. */
-    @SerialName("colorName")
     val colorName: String? = null,
-
-    /* The ID of the status category. */
-    @SerialName("id")
     val id: Long? = null,
-
-    /* The key of the status category. */
-    @SerialName("key")
     val key: String? = null,
-
-    /* The name of the status category. */
-    @SerialName("name")
     val name: String? = null,
-
-    /* The URL of the status category. */
-    @SerialName("self")
     val self: String? = null
 )

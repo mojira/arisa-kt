@@ -13,8 +13,6 @@ data class Project(
     val lead: User,
     val assigneeType: String,
 //    val components: List<Component>,
-//    @SerialName("issueTypes")
-//    @JsonNames("issuetypes")
 //    val issueTypes: List<IssueType>,
     val versions: List<Version>,
     val roles: Map<String, String>,

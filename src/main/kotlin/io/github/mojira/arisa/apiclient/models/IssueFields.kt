@@ -23,7 +23,6 @@ data class IssueFields(
     val issueType: IssueType? = null,
     val labels: List<String>? = null,
     val lastViewed: String? = null,
-//    val parent: IssueBean? = null,
     val priority: IssuePriority? = null,
     val reporter: User? = null,
     val resolution: Resolution? = null,
@@ -36,16 +35,13 @@ data class IssueFields(
     val versions: List<JsonElement> = emptyList(),
     val timeoriginalestimate: JsonElement? = null,
     val timespent: Long? = null,
-//    val timetracking: TimeTrackingDetails? = null,
     val updated: String? = null,
-//    val votes: Votes? = null,
-//    val watches: Watchers? = null,
     val workratio: Int? = null,
     @Transient
     private val additionalProperties: Map<String, JsonElement> = emptyMap()
 ) {
     operator fun get(field: String): JsonElement? {
-        return additionalProperties.get(field)
+        return additionalProperties[field]
     }
 }
 

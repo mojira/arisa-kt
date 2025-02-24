@@ -21,7 +21,7 @@ arisa:
       - Unresolved
       - Won't Fix
       - Works As Intended
-    url: https://jira-connection.atlassian.net/
+    url: https://bugs.mojang.com/
 
   customFields:
     linked: customfield_11100

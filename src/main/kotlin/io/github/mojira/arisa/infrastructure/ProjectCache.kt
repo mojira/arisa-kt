@@ -1,6 +1,6 @@
 package io.github.mojira.arisa.infrastructure
 
-import io.github.mojira.arisa.infrastructure.apiclient.models.Project
+import io.github.mojira.arisa.apiclient.models.Project
 import io.github.mojira.arisa.jiraClient
 import java.time.Duration
 import java.time.Instant

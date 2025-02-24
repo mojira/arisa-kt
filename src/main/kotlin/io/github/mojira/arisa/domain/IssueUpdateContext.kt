@@ -1,11 +1,9 @@
 package io.github.mojira.arisa.domain
 
 import arrow.core.Either
-import io.github.mojira.arisa.infrastructure.apiclient.builders.FluentObjectBuilder
-import net.rcarz.jiraclient.JiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.JiraClient as MojiraClient
-import net.rcarz.jiraclient.Issue as JiraIssue
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean as MojiraIssue
+import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.apiclient.models.IssueBean as MojiraIssue
 
 /**
  * Terminology: `edit`, `update`, and `resolve` are the same terms used on the Mojira interface.

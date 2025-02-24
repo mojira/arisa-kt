@@ -13,39 +13,30 @@ import io.github.mojira.arisa.modules.tryRunAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.rcarz.jiraclient.Attachment
-import io.github.mojira.arisa.infrastructure.apiclient.JiraClient as MojiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.models.AttachmentBean as MojiraAttachment
-import net.rcarz.jiraclient.Comment
-import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
+import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.apiclient.models.AttachmentBean as MojiraAttachment
+import io.github.mojira.arisa.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Field
-import net.rcarz.jiraclient.IssueLink
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueLink as MojiraIssueLink
+import io.github.mojira.arisa.apiclient.models.IssueLink as MojiraIssueLink
 import net.rcarz.jiraclient.JiraException
-import io.github.mojira.arisa.infrastructure.apiclient.exceptions.JiraClientException
 import net.rcarz.jiraclient.RestException
-import io.github.mojira.arisa.infrastructure.apiclient.exceptions.ClientErrorException
-import net.rcarz.jiraclient.Version
-import io.github.mojira.arisa.infrastructure.apiclient.models.Version as MojiraVersion
-import net.sf.json.JSONObject
+import io.github.mojira.arisa.apiclient.exceptions.ClientErrorException
+import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 import org.apache.http.HttpStatus
 import java.io.File
 import java.io.InputStream
 import java.time.Instant
 import java.time.temporal.ChronoField
-import io.github.mojira.arisa.infrastructure.apiclient.JiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.builders.FluentObjectBuilder
-import io.github.mojira.arisa.infrastructure.apiclient.builders.string
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean as MojiraIssue
-import io.github.mojira.arisa.infrastructure.apiclient.models.Visibility
-import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBody
-import io.github.mojira.arisa.infrastructure.apiclient.requestModels.TransitionIssueBody
-import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.apiclient.JiraClient
+import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.apiclient.builders.string
+import io.github.mojira.arisa.apiclient.models.Visibility
+import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.jiraClient
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import net.rcarz.jiraclient.Issue
-import net.rcarz.jiraclient.Transition
 
 fun connectToJira(email: String, apiToken: String, url: String, logNetworkRequests: Boolean? = false): JiraClient {
     return JiraClient(url, email, apiToken, logNetworkRequests)

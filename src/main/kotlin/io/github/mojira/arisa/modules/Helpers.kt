@@ -8,9 +8,8 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueTransition
+import io.github.mojira.arisa.apiclient.models.IssueTransition
 import io.github.mojira.arisa.log
-import net.rcarz.jiraclient.Transition
 import org.apache.commons.lang.reflect.FieldUtils
 import java.io.IOException
 import java.io.InputStream

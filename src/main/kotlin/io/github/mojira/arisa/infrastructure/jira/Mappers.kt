@@ -7,15 +7,11 @@ import arrow.core.left
 import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
-import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
 import io.github.mojira.arisa.domain.Attachment
 // import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.IssueUpdateContext
-import io.github.mojira.arisa.domain.Link
-import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
@@ -25,36 +21,24 @@ import io.github.mojira.arisa.domain.cloud.CloudLinkedIssue
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
-import io.github.mojira.arisa.infrastructure.apiclient.builders.FluentObjectBuilder
-import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog
+import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.escapeIssueFunction
 import net.rcarz.jiraclient.JiraClient
-import io.github.mojira.arisa.infrastructure.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
 import net.rcarz.jiraclient.JiraException
-import net.sf.json.JSONObject
-import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.time.Instant
-import net.rcarz.jiraclient.Attachment as JiraAttachment
-import io.github.mojira.arisa.infrastructure.apiclient.models.AttachmentBean as MojiraAttachment
-import net.rcarz.jiraclient.ChangeLogEntry as JiraChangeLogEntry
-import io.github.mojira.arisa.infrastructure.apiclient.models.Changelog as MojiraChangeLogEntry
-import net.rcarz.jiraclient.ChangeLogItem as JiraChangeLogItem
-import io.github.mojira.arisa.infrastructure.apiclient.models.ChangeDetails as MojiraChangeLogItem
-import net.rcarz.jiraclient.Comment as JiraComment
-import io.github.mojira.arisa.infrastructure.apiclient.models.Comment as MojiraComment
-import net.rcarz.jiraclient.Issue as JiraIssue
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueBean as MojiraIssue
-import net.rcarz.jiraclient.IssueLink as JiraIssueLink
-import io.github.mojira.arisa.infrastructure.apiclient.models.LinkedIssue as MojiraLinkedIssue
-import io.github.mojira.arisa.infrastructure.apiclient.models.IssueLink as MojiraIssueLink
-import net.rcarz.jiraclient.Project as JiraProject
-import io.github.mojira.arisa.infrastructure.apiclient.models.Project as MojiraProject
-import net.rcarz.jiraclient.User as JiraUser
-import io.github.mojira.arisa.infrastructure.apiclient.models.UserDetails as MojiraUserDetails
-import net.rcarz.jiraclient.Version as JiraVersion
-import io.github.mojira.arisa.infrastructure.apiclient.models.Version as MojiraVersion
+import io.github.mojira.arisa.apiclient.models.AttachmentBean as MojiraAttachment
+import io.github.mojira.arisa.apiclient.models.Changelog as MojiraChangeLogEntry
+import io.github.mojira.arisa.apiclient.models.ChangeDetails as MojiraChangeLogItem
+import io.github.mojira.arisa.apiclient.models.Comment as MojiraComment
+import io.github.mojira.arisa.apiclient.models.IssueBean as MojiraIssue
+import io.github.mojira.arisa.apiclient.models.IssueLink as MojiraIssueLink
+import io.github.mojira.arisa.apiclient.models.Project as MojiraProject
+import io.github.mojira.arisa.apiclient.models.UserDetails as MojiraUserDetails
+import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 
 
 fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = Attachment(

@@ -3,7 +3,7 @@ package io.github.mojira.arisa.modules.privacy
 import arrow.core.Either
 import arrow.core.extensions.fx
 import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
-import io.github.mojira.arisa.domain.cloud.CloudAttachment
+import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.jira.sanitizeCommentArg
@@ -87,7 +87,7 @@ class PrivacyModule(
         val newAttachments = attachments.filter { it.created.isAfter(lastRun) }
 
         foundNonRedactableSensitiveData = newAttachments
-            .map(CloudAttachment::filename)
+            .map(Attachment::name)
             .any(sensitiveFileNameRegexes::anyMatches)
 
         val attachmentsToRedact = newAttachments
@@ -192,7 +192,7 @@ class PrivacyModule(
     /**
      * Checks if the issue contains any attachments with the provided file names.
      */
-    private fun CloudIssue.hasAnyAttachmentName(name: String) = attachments.any { it.filename == name }
+    private fun CloudIssue.hasAnyAttachmentName(name: String) = attachments.any { it.name == name }
 
     /**
      * @return true if all provided attachments have been redacted; false if at least one attachment
@@ -208,7 +208,7 @@ class PrivacyModule(
                 userAttachments.forEach {
                     val attachment = it.attachment
                     val tempDir = Files.createTempDirectory("arisa-redaction-upload").toFile()
-                    val fileName = "redacted_${attachment.filename}"
+                    val fileName = "redacted_${attachment.name}"
                     val filePath = getSafeChildPath(tempDir, fileName)
 
                     if (filePath == null || issue.hasAnyAttachmentName(fileName) || !fileNames.add(fileName)) {

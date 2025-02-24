@@ -8,6 +8,7 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import com.urielsalis.mccrashlib.deobfuscator.getSafeChildPath
+import io.github.mojira.arisa.domain.Attachment
 // import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
@@ -18,7 +19,6 @@ import io.github.mojira.arisa.domain.LinkedIssue
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.Version
-import io.github.mojira.arisa.domain.cloud.CloudAttachment
 import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.domain.cloud.CloudLink
 import io.github.mojira.arisa.domain.cloud.CloudLinkedIssue
@@ -57,9 +57,9 @@ import net.rcarz.jiraclient.Version as JiraVersion
 import io.github.mojira.arisa.infrastructure.apiclient.models.Version as MojiraVersion
 
 
-fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = CloudAttachment(
+fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = Attachment(
     id = id,
-    filename = filename,
+    name = filename,
     created = getCreationDate(issue, id, issue.fields.created?.toInstant() ?: Instant.now()),
     mimeType = mimeType,
     remove = ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),

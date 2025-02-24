@@ -33,7 +33,7 @@ data class CloudIssue(
 //    val legendsPlatform: String?,
 //    val affectedVersions: List<Version>,
 //    val fixVersions: List<Version>,
-    val attachments: List<CloudAttachment>,
+    val attachments: List<Attachment>,
     val comments: List<Comment>,
     val links: List<CloudLink>,
     val changeLog: List<ChangeLogItem>,

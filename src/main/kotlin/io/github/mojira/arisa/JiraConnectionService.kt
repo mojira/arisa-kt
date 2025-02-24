@@ -42,7 +42,8 @@ class JiraConnectionService(
             val client = connectToJira(
                 config[Arisa.Credentials.email],
                 config[Arisa.Credentials.apiToken],
-                config[Arisa.Issues.url]
+                config[Arisa.Issues.url],
+                config[Arisa.Debug.logNetworkRequests]
             )
 
             log.info("Successfully connected to jira")

@@ -48,8 +48,8 @@ import kotlinx.serialization.json.put
 import net.rcarz.jiraclient.Issue
 import net.rcarz.jiraclient.Transition
 
-fun connectToJira(email: String, apiToken: String, url: String): JiraClient {
-    return JiraClient(url, email, apiToken)
+fun connectToJira(email: String, apiToken: String, url: String, logNetworkRequests: Boolean? = false): JiraClient {
+    return JiraClient(url, email, apiToken, logNetworkRequests)
 }
 
 /**

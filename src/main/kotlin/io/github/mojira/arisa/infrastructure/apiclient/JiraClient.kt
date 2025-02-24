@@ -20,6 +20,7 @@ import io.github.mojira.arisa.infrastructure.apiclient.requestModels.EditIssueBo
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.JiraSearchRequest
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.infrastructure.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.log
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials
 import okhttp3.Interceptor
@@ -30,6 +31,7 @@ import okhttp3.Response
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import okhttp3.MultipartBody
+import okio.Buffer
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -45,6 +47,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.PUT
 import java.io.File
 import java.io.InputStream
+import java.nio.charset.Charset
 
 /**
  * Adds authentication headers to the request.
@@ -64,6 +67,32 @@ class BasicAuthInterceptor(
                 .build()
 
         return chain.proceed(newRequest)
+    }
+}
+
+class LoggingInterceptor(
+    private val methods: List<String> = listOf("POST", "PUT")
+) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+
+        if (methods.isNotEmpty() && request.method !in methods) {
+            return chain.proceed(request)
+        }
+
+        // Log the HTTP method and URL.
+        log.debug("[HTTP] {} {}", request.method, request.url)
+
+        // If the request has a body, log it.
+        request.body?.let { body ->
+            val buffer = Buffer()
+            body.writeTo(buffer)
+            val charset: Charset = body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+            val bodyString = buffer.readString(charset)
+            log.debug(bodyString)
+        }
+
+        return chain.proceed(request)
     }
 }
 
@@ -199,6 +228,7 @@ class JiraClient(
     private val jiraUrl: String,
     private val email: String,
     private val apiToken: String,
+    private val logHttpRequests: Boolean?
 ) {
     private val jiraApi: JiraApi
     val httpClient: OkHttpClient
@@ -208,6 +238,11 @@ class JiraClient(
             OkHttpClient
                 .Builder()
                 .addInterceptor(BasicAuthInterceptor(email, apiToken))
+                .apply {
+                    if (logHttpRequests == true) {
+                        addInterceptor(LoggingInterceptor())
+                    }
+                }
                 .build()
 
         val apiBaseUrl = jiraUrl.plus("rest/api/2/")

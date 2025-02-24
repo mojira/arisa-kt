@@ -4,6 +4,8 @@ package io.github.mojira.arisa.apiclient
 
 import io.github.mojira.arisa.apiclient.exceptions.JiraClientException
 import io.github.mojira.arisa.apiclient.exceptions.ClientErrorException
+import io.github.mojira.arisa.apiclient.interceptors.BasicAuthInterceptor
+import io.github.mojira.arisa.apiclient.interceptors.LoggingInterceptor
 import io.github.mojira.arisa.apiclient.models.IssueBean
 import io.github.mojira.arisa.apiclient.models.Project
 import io.github.mojira.arisa.apiclient.models.SearchResults
@@ -20,18 +22,12 @@ import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.JiraSearchRequest
 import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
-import io.github.mojira.arisa.log
 import kotlinx.serialization.json.Json
-import okhttp3.Credentials
-import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import okhttp3.MultipartBody
-import okio.Buffer
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -47,54 +43,6 @@ import retrofit2.http.Multipart
 import retrofit2.http.PUT
 import java.io.File
 import java.io.InputStream
-import java.nio.charset.Charset
-
-/**
- * Adds authentication headers to the request.
- */
-class BasicAuthInterceptor(
-    private val email: String,
-    private val apiToken: String,
-) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalRequest: Request = chain.request()
-
-        val credentials = Credentials.basic(email, apiToken)
-        val newRequest: Request =
-            originalRequest
-                .newBuilder()
-                .header("Authorization", credentials)
-                .build()
-
-        return chain.proceed(newRequest)
-    }
-}
-
-class LoggingInterceptor(
-    private val methods: List<String> = listOf("POST", "PUT")
-) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-
-        if (methods.isNotEmpty() && request.method !in methods) {
-            return chain.proceed(request)
-        }
-
-        // Log the HTTP method and URL.
-        log.debug("[HTTP] {} {}", request.method, request.url)
-
-        // If the request has a body, log it.
-        request.body?.let { body ->
-            val buffer = Buffer()
-            body.writeTo(buffer)
-            val charset: Charset = body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
-            val bodyString = buffer.readString(charset)
-            log.debug(bodyString)
-        }
-
-        return chain.proceed(request)
-    }
-}
 
 interface JiraApi {
     @GET("project/{key}")

@@ -4,7 +4,7 @@ import io.github.mojira.arisa.apiclient.models.Project
 import io.github.mojira.arisa.jiraClient
 import java.time.Duration
 import java.time.Instant
-//import net.rcarz.jiraclient.Project as JiraProject
+// import net.rcarz.jiraclient.Project as JiraProject
 
 object ProjectCache {
     private var cache = Cache<Project>()

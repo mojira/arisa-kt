@@ -1,4 +1,4 @@
-@file:Suppress("ktlint")
+@file:Suppress("ktlint", "TooManyFunctions")
 
 package io.github.mojira.arisa.apiclient
 

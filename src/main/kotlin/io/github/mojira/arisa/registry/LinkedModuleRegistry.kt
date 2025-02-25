@@ -1,18 +1,11 @@
 package io.github.mojira.arisa.registry
 
-import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.ExecutionTimeframe
-import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.modules.UpdateLinkedModule
-import java.time.Duration
-
 /**
  * This class is the registry for the UpdateLinkedModule.
  * It only updates the linked field once if it's not set, and otherwise only updates it at most once per day.
  * This is done in order to avoid spam.
  */
-//class LinkedModuleRegistry(config: Config) : ModuleRegistry<Issue>(config) {
+// class LinkedModuleRegistry(config: Config) : ModuleRegistry<Issue>(config) {
 //    private val delayOffset = Duration.ofHours(config[Arisa.Modules.UpdateLinked.updateIntervalHours])
 //
 //    override fun getJql(timeframe: ExecutionTimeframe): String {
@@ -28,4 +21,4 @@ import java.time.Duration
 //            UpdateLinkedModule(config[Arisa.Modules.UpdateLinked.updateIntervalHours])
 //        )
 //    }
-//}
+// }

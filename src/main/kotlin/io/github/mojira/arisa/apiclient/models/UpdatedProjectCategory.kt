@@ -1,6 +1,5 @@
 package io.github.mojira.arisa.apiclient.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**

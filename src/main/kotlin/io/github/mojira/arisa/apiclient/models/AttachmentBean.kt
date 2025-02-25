@@ -10,5 +10,5 @@ data class AttachmentBean(
     val mimeType: String,
     val content: String,
     val author: UserDetails? = null,
-    val size: Int,
+    val size: Int
 )

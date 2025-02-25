@@ -8,4 +8,4 @@ data class IssuePriority(
     val id: String? = null,
     val iconUrl: String? = null,
     val name: String? = null
-) 
+)

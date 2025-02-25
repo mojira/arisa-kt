@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 
-class IssueBeanTest: StringSpec({
+class IssueBeanTest : StringSpec({
     "it should deserialize linked issue without comments" {
         val json = loadJsonFile("linked-issue-without-comments.json")
         val issueBean = JSON.decodeFromString<IssueBean>(json)

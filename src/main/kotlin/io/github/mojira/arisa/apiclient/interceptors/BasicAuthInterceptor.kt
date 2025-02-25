@@ -10,7 +10,7 @@ import okhttp3.Response
  */
 class BasicAuthInterceptor(
     private val email: String,
-    private val apiToken: String,
+    private val apiToken: String
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest: Request = chain.request()

@@ -7,5 +7,5 @@ data class IssueSecurity(
     val id: String,
     val self: String,
     val description: String,
-    val name: String,
+    val name: String
 )

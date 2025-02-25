@@ -15,7 +15,7 @@ import io.github.mojira.arisa.modules.ModuleResponse
 // All defined module registries
 val getModuleRegistries = { config: Config ->
     listOf(
-        InstantModuleRegistry(config),
+        InstantModuleRegistry(config)
     )
 }
 
@@ -56,9 +56,10 @@ abstract class ModuleRegistry<TIssue>(protected val config: Config) {
         )
     }
 
-    private fun getModuleResult(moduleName: String, module: ModuleBase<TIssue>) = { issue: TIssue, timeframe: ExecutionTimeframe ->
-        moduleName to tryExecuteModule { module(issue, timeframe) }
-    }
+    private fun getModuleResult(moduleName: String, module: ModuleBase<TIssue>) =
+        { issue: TIssue, timeframe: ExecutionTimeframe ->
+            moduleName to tryExecuteModule { module(issue, timeframe) }
+        }
 
     private fun getJqlWithDebug(timeframe: ExecutionTimeframe): String {
         val registryJql = getJql(timeframe)

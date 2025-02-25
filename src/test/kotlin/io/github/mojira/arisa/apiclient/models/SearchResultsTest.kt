@@ -8,7 +8,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import java.io.File
 
-class SearchResultsTest: StringSpec({
+class SearchResultsTest : StringSpec({
     fun loadJsonFile(filename: String): String {
         val file = File("src/test/resources/responses/$filename")
         return file.readText()

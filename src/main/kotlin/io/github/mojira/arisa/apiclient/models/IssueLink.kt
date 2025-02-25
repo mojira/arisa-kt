@@ -8,5 +8,5 @@ data class IssueLink(
     val inwardIssue: IssueBean? = null,
     val outwardIssue: IssueBean? = null,
     val self: String? = null,
-    val type: IssueLinkType? = null,
+    val type: IssueLinkType? = null
 )

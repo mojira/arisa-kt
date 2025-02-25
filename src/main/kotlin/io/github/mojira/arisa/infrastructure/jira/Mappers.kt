@@ -40,7 +40,6 @@ import io.github.mojira.arisa.apiclient.models.Project as MojiraProject
 import io.github.mojira.arisa.apiclient.models.UserDetails as MojiraUserDetails
 import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 
-
 fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = Attachment(
     id = id,
     name = filename,
@@ -186,7 +185,7 @@ fun MojiraIssue.toDomain(
         },
 //        ::markAsFixedWithSpecificVersion.partially1(context),
 //        ::changeReporter.partially1(context),
-        addAttachmentFromFile,
+        addAttachmentFromFile
 //        addAttachment = { name, content ->
 //            val tempDir = Files.createTempDirectory("arisa-attachment-upload").toFile()
 //            val safePath = getSafeChildPath(tempDir, name)
@@ -333,10 +332,10 @@ private fun MojiraIssue.mapComments(jiraClient: MojiraClient, config: Config) =
 private fun MojiraIssue.mapAttachments(jiraClient: MojiraClient, config: Config) =
     fields.attachment.map { it.toDomain(jiraClient, this, config) }
 
-//private fun MojiraIssue.mapVersions() =
+// private fun MojiraIssue.mapVersions() =
 //    fields.versions.map { it.toDomain() }
 //
-//private fun MojiraIssue.mapFixVersions() =
+// private fun MojiraIssue.mapFixVersions() =
 //    fixVersions.map { it.toDomain() }
 
 private fun MojiraIssue.getChangeLogEntries(jiraClient: MojiraClient, config: Config) =
@@ -346,24 +345,24 @@ private fun MojiraIssue.getChangeLogEntries(jiraClient: MojiraClient, config: Co
         }
     }
 
-//private fun MojiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
+// private fun MojiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
 //
-//private fun MojiraIssue.getCustomField(customField: String): String? =
+// private fun MojiraIssue.getCustomField(customField: String): String? =
 //    ((getField(customField)) as? JSONObject)?.get("value") as? String?
 
-//private fun MojiraIssue.getEnvironment() = getFieldAsString("environment")
+// private fun MojiraIssue.getEnvironment() = getFieldAsString("environment")
 //
-//private fun MojiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.CustomFields.chkField])
-//private fun MojiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
-//private fun MojiraIssue.getDungeonsPlatform(config: Config) =
+// private fun MojiraIssue.getCHK(config: Config) = getFieldAsString(config[Arisa.CustomFields.chkField])
+// private fun MojiraIssue.getConfirmation(config: Config) = getCustomField(config[Arisa.CustomFields.confirmationField])
+// private fun MojiraIssue.getDungeonsPlatform(config: Config) =
 //    getCustomField(config[Arisa.CustomFields.dungeonsPlatformField])
-//private fun MojiraIssue.getLegendsPlatform(config: Config) =
+// private fun MojiraIssue.getLegendsPlatform(config: Config) =
 //    getCustomField(config[Arisa.CustomFields.legendsPlatformField])
 //
-//private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
-//private fun MojiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
-//private fun MojiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
-//private fun MojiraIssue.getPlatform(config: Config) = getCustomField(config[Arisa.CustomFields.platformField])
+// private fun JiraIssue.getLinked(config: Config) = getField(config[Arisa.CustomFields.linked]) as? Double?
+// private fun MojiraIssue.getPriority(config: Config) = getCustomField(config[Arisa.CustomFields.mojangPriorityField])
+// private fun MojiraIssue.getTriagedTime(config: Config) = getFieldAsString(config[Arisa.CustomFields.triagedTimeField])
+// private fun MojiraIssue.getPlatform(config: Config) = getCustomField(config[Arisa.CustomFields.platformField])
 private val versionDateFormat = SimpleDateFormat("yyyy-MM-dd")
 private fun String.toVersionReleaseInstant() = versionDateFormat.parse(this).toInstant()
 

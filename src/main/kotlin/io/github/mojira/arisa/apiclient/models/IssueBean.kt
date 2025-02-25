@@ -22,7 +22,7 @@ data class IssueBean(
     @Serializable(with = URISerializer::class)
     val self: java.net.URI? = null,
     val transitions: List<IssueTransition>? = null,
-    val versionedRepresentations: Map<String, Map<String, String>>? = null,
+    val versionedRepresentations: Map<String, Map<String, String>>? = null
 ) {
     fun link(client: JiraClient, issueId: String, linkType: String) {
         val link = CreateIssueLinkBody(

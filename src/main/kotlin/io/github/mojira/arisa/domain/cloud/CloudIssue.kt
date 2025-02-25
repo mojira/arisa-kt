@@ -5,8 +5,6 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Project
-import io.github.mojira.arisa.domain.User
-import io.github.mojira.arisa.domain.Version
 import java.io.File
 import java.time.Instant
 
@@ -63,6 +61,6 @@ data class CloudIssue(
     val addRawBotComment: (rawMessage: String) -> Unit,
 //    val markAsFixedWithSpecificVersion: (fixVersionName: String) -> Unit,
 //    val changeReporter: (reporter: String) -> Unit,
-    val addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit,
+    val addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit
 //    val addAttachment: (name: String, content: String) -> Unit
 )

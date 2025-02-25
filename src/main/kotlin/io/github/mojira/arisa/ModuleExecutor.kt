@@ -2,7 +2,6 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa

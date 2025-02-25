@@ -8,5 +8,5 @@ data class IssueLinkType(
     val inward: String? = null,
     val name: String? = null,
     val outward: String? = null,
-    val self: String? = null,
+    val self: String? = null
 )

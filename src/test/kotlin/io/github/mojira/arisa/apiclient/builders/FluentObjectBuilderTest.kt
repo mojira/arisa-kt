@@ -51,10 +51,13 @@ class FluentObjectBuilderTest : StringSpec({
         val update = FluentObjectBuilder()
 
         // Act
-        update.field("fixVersions", listOf(
-            buildJsonObject { put("name", "v0.1.0") },
-            buildJsonObject { put("name", "v0.2.0") },
-        ))
+        update.field(
+            "fixVersions",
+            listOf(
+                buildJsonObject { put("name", "v0.1.0") },
+                buildJsonObject { put("name", "v0.2.0") }
+            )
+        )
         val editBody = update.toJson().toString()
 
         // Assert
@@ -67,10 +70,13 @@ class FluentObjectBuilderTest : StringSpec({
         val update = FluentObjectBuilder()
 
         // Act
-        update.field("fixVersions", listOf(
-            buildJsonObject { put("name", "v0.1.0") },
-            buildJsonObject { put("name", "v0.2.0") },
-        ))
+        update.field(
+            "fixVersions",
+            listOf(
+                buildJsonObject { put("name", "v0.1.0") },
+                buildJsonObject { put("name", "v0.2.0") }
+            )
+        )
         update.add("fixVersions", buildJsonObject { put("name", "v0.2.0") })
 
         val editBody = update.toJson().toString()
@@ -85,10 +91,13 @@ class FluentObjectBuilderTest : StringSpec({
         val update = FluentObjectBuilder()
 
         // Act
-        update.field("fixVersions", listOf(
-            buildJsonObject { put("name", "v0.1.0") },
-            buildJsonObject { put("name", "v0.2.0") },
-        ))
+        update.field(
+            "fixVersions",
+            listOf(
+                buildJsonObject { put("name", "v0.1.0") },
+                buildJsonObject { put("name", "v0.2.0") }
+            )
+        )
         update.remove("fixVersions") {
             it["name"]?.jsonPrimitive?.content == "v0.1.0"
         }
@@ -104,10 +113,13 @@ class FluentObjectBuilderTest : StringSpec({
         val update = FluentObjectBuilder()
 
         // Act
-        update.field("fixVersions", listOf(
-            buildJsonObject { put("name", "v0.1.0") },
-            buildJsonObject { put("name", "v0.2.0") },
-        ))
+        update.field(
+            "fixVersions",
+            listOf(
+                buildJsonObject { put("name", "v0.1.0") },
+                buildJsonObject { put("name", "v0.2.0") }
+            )
+        )
         update.remove("fixVersions") {
             it.string("name") == "non-existent-version"
         }

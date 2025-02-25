@@ -12,5 +12,5 @@ data class TransitionIssueBody(
     val historyMetadata: HistoryMetadata? = null,
     val properties: List<EntityProperty> = emptyList(),
     val transition: IssueTransition? = null,
-    val update: JsonElement? = null,
-): HashMap<String, JsonElement>()
+    val update: JsonElement? = null
+) : HashMap<String, JsonElement>()

@@ -7,7 +7,7 @@ import okhttp3.Response
  * Base exception for [JiraClient].
  */
 open class JiraClientException(
-    message: String,
+    message: String
 ) : Exception(message)
 
 /**
@@ -16,5 +16,5 @@ open class JiraClientException(
 open class ClientErrorException(
     val code: Int,
     val result: String,
-    val response: Response,
+    val response: Response
 ) : JiraClientException(result)

@@ -17,8 +17,8 @@ interface ModuleBase<TIssue> {
         invoke(issue, timeframe.lastRunTime)
 }
 
-interface Module : ModuleBase<Issue> {}
-interface CloudModule : ModuleBase<CloudIssue> {}
+interface Module : ModuleBase<Issue>
+interface CloudModule : ModuleBase<CloudIssue>
 
 typealias ModuleResponse = Unit
 

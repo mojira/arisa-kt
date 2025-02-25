@@ -179,9 +179,12 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
 fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
     val functions = context.otherOperations.toMutableList()
     if (context.hasEdits) {
-        functions.add(0, ::applyFluentUpdate
-            .partially1(context.jiraIssue.key)
-            .partially1(context.edit))
+        functions.add(
+            0,
+            ::applyFluentUpdate
+                .partially1(context.jiraIssue.key)
+                .partially1(context.edit)
+        )
     }
     if (context.hasUpdates) {
         functions.add(
@@ -208,15 +211,18 @@ private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = run
     Either.catch {
         try {
             val fieldsJson = edit.toJson()
-            jiraClient.editIssue(issueKey, EditIssueBody(
-                fields = fieldsJson["fields"]
-            ))
+            jiraClient.editIssue(
+                issueKey,
+                EditIssueBody(
+                    fields = fieldsJson["fields"]
+                )
+            )
         } catch (e: JiraException) {
             val cause = e.cause
             if (cause is RestException && (
-                    cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                        cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
-                    )
+                cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
+                    cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                )
             ) {
                 log.warn("Failed to execute fluent update due to ${cause.httpStatusCode}")
             } else {
@@ -229,9 +235,12 @@ private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = run
 private fun applyFluentTransition(issueKey: String, update: FluentObjectBuilder, transitionName: String) = runBlocking {
     Either.catch {
         val fieldsJson = update.toJson()
-        jiraClient.performTransition(issueKey, TransitionIssueBody(
-            fields = fieldsJson["fields"],
-        ))
+        jiraClient.performTransition(
+            issueKey,
+            TransitionIssueBody(
+                fields = fieldsJson["fields"]
+            )
+        )
     }
 }
 
@@ -450,9 +459,9 @@ fun tryWithWarn(comment: MojiraComment, func: () -> Unit) {
     } catch (e: JiraException) {
         val cause = e.cause
         if (cause is ClientErrorException && (
-                cause.code == HttpStatus.SC_NOT_FOUND ||
-                    cause.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
-                )
+            cause.code == HttpStatus.SC_NOT_FOUND ||
+                cause.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+            )
         ) {
             log.warn("Tried to update comment ${comment.self} but it was deleted")
         } else {
@@ -471,9 +480,12 @@ fun getGroups(jiraClient: JiraClient, accountId: String) = runBlocking {
 }
 
 fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersionName: String) {
-    context.value.resolve.field("fixVersions", listOf(
-        buildJsonObject { put("name", fixVersionName) }
-    ))
+    context.value.resolve.field(
+        "fixVersions",
+        listOf(
+            buildJsonObject { put("name", fixVersionName) }
+        )
+    )
     context.value.transitionName = "Resolve Issue"
 }
 

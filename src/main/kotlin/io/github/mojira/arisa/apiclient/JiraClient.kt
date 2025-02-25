@@ -16,12 +16,7 @@ import io.github.mojira.arisa.apiclient.models.GroupName
 import io.github.mojira.arisa.apiclient.models.IssueLink
 import io.github.mojira.arisa.apiclient.models.User
 import io.github.mojira.arisa.apiclient.models.Visibility
-import io.github.mojira.arisa.apiclient.requestModels.AddCommentBody
-import io.github.mojira.arisa.apiclient.requestModels.CreateIssueLinkBody
-import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
-import io.github.mojira.arisa.apiclient.requestModels.JiraSearchRequest
-import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
-import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.apiclient.requestModels.*
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -41,6 +36,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.PUT
+import retrofit2.http.QueryMap
 import java.io.File
 import java.io.InputStream
 
@@ -109,9 +105,7 @@ interface JiraApi {
     fun updateComment(
         @Path("issueIdOrKey") issueIdOrKey: String,
         @Path("id") commentId: String,
-        @Query("notifyUsers") notifyUsers: Boolean? = null,
-        @Query("overrideEditableFlag") overrideEditableFlag: Boolean? = null,
-        @Query("expand") expand: String? = null,
+        @QueryMap options: Map<String, String>,
         @Body body: UpdateCommentBody
     ): Call<Comment>
 
@@ -157,7 +151,11 @@ private inline fun <reified T> Call<T>.executeOrThrow(): T {
 
     if (!response.isSuccessful) {
         if (response.code() in 400..499) {
-            throw ClientErrorException(response.code(), "Request failed - [${response.code()}] ${originalRequest.method} ${originalRequest.url}", response.raw())
+            throw ClientErrorException(
+                response.code(),
+                "Request failed - [${response.code()}] ${originalRequest.method} ${originalRequest.url}",
+                response.raw()
+            )
         }
         throw JiraClientException("Unexpected code ${response.code()}")
     }
@@ -291,8 +289,14 @@ class JiraClient(
         ).executeOrThrow()
     }
 
-    fun updateComment(issueIdOrKey: String, commentId: String, body: UpdateCommentBody): Comment {
-        return jiraApi.updateComment(issueIdOrKey, commentId, body = body).executeOrThrow()
+    fun updateComment(
+        issueIdOrKey: String,
+        commentId: String,
+        body: UpdateCommentBody,
+        updateCommentQueryParams: UpdateCommentQueryParams = UpdateCommentQueryParams()
+    ): Comment {
+        return jiraApi.updateComment(issueIdOrKey, commentId, options = updateCommentQueryParams.toMap(), body = body)
+            .executeOrThrow()
     }
 
     fun deleteComment(issueIdOrKey: String, commentId: String) {

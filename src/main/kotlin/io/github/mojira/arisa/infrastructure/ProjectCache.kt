@@ -1,17 +1,18 @@
 package io.github.mojira.arisa.infrastructure
 
+import io.github.mojira.arisa.apiclient.models.Project
 import io.github.mojira.arisa.jiraClient
 import java.time.Duration
 import java.time.Instant
-import net.rcarz.jiraclient.Project as JiraProject
+// import net.rcarz.jiraclient.Project as JiraProject
 
 object ProjectCache {
-    private var cache = Cache<JiraProject>()
+    private var cache = Cache<Project>()
     private var lastRefresh = Instant.now()
 
     private const val REFRESH_INTERVAL_IN_MINUTES: Long = 5
 
-    fun getProjectFromTicketId(id: String): JiraProject {
+    fun getProjectFromTicketId(id: String): Project {
         checkForRefresh()
 
         val projectKey = id.split("-")[0]

@@ -7,8 +7,8 @@ import io.github.mojira.arisa.modules.OperationNotNeededModuleResponse
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockAttachment
 import io.github.mojira.arisa.utils.mockChangeLogItem
+import io.github.mojira.arisa.utils.mockCloudIssue
 import io.github.mojira.arisa.utils.mockComment
-import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -67,7 +67,7 @@ class PrivacyModuleTest : FunSpec({
         context(testData.testType) {
             context("ticket") {
                 test("should return OperationNotNeededModuleResponse when the ticket is marked as private") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         securityLevel = "private",
                         summary = testData.sensitiveText,
                         environment = testData.sensitiveText,
@@ -86,7 +86,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the ticket is created before lastRun") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         created = TEN_SECONDS_AGO,
                         description = testData.sensitiveText
                     )
@@ -97,7 +97,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the attachment is created before lastRun") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         attachments = listOf(
                             mockAttachment(
                                 created = TEN_SECONDS_AGO,
@@ -112,7 +112,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the attachment is not a text file") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         attachments = listOf(
                             mockAttachment(
                                 mimeType = "image/png",
@@ -127,7 +127,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the change log item is created before lastRun") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         changeLog = listOf(
                             mockChangeLogItem(
                                 created = TEN_SECONDS_AGO,
@@ -143,7 +143,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the ticket does not contain sensitive data") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         summary = "Test"
                     )
 
@@ -156,7 +156,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         attachments = listOf(
                             mockAttachment(
                                 getContent = { testData.sensitiveText.toByteArray() }
@@ -177,7 +177,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         attachments = listOf(
                             mockAttachment(
                                 mimeType = "application/json",
@@ -199,7 +199,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         summary = testData.sensitiveText,
                         setPrivate = { hasSetPrivate = true },
                         addComment = { addedComment = it }
@@ -216,7 +216,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         environment = testData.sensitiveText,
                         setPrivate = { hasSetPrivate = true },
                         addComment = { addedComment = it }
@@ -233,7 +233,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         description = testData.sensitiveText,
                         setPrivate = { hasSetPrivate = true },
                         addComment = { addedComment = it }
@@ -250,7 +250,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var addedComment: CommentOptions? = null
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         changeLog = listOf(
                             mockChangeLogItem(
                                 field = "environment",
@@ -272,7 +272,7 @@ class PrivacyModuleTest : FunSpec({
 
             context("comment") {
                 test("should return OperationNotNeededModuleResponse when the ticket is marked as private") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         securityLevel = "private",
                         comments = listOf(
                             mockComment(
@@ -287,7 +287,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the comment is created before lastRun") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         comments = listOf(
                             mockComment(
                                 body = testData.sensitiveText,
@@ -302,7 +302,7 @@ class PrivacyModuleTest : FunSpec({
                 }
 
                 test("should return OperationNotNeededModuleResponse when the comment is not public") {
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         comments = listOf(
                             mockComment(
                                 body = testData.sensitiveText,
@@ -321,7 +321,7 @@ class PrivacyModuleTest : FunSpec({
                     var hasSetPrivate = false
                     var hasRestrictedComment = false
 
-                    val issue = mockIssue(
+                    val issue = mockCloudIssue(
                         comments = listOf(
                             mockComment(
                                 body = testData.sensitiveText,
@@ -347,7 +347,7 @@ class PrivacyModuleTest : FunSpec({
     // Tests specific to email address detection, which cannot be shared with 'sensitive text' tests above
     context("email (specific)") {
         test("should return OperationNotNeededModuleResponse when the email address is contained in a user mention") {
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 summary = "[~foo@example.com]"
             )
 
@@ -360,7 +360,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 description = "[foo@example.com|mailto:foo@example.com]",
                 setPrivate = { hasSetPrivate = true },
                 addComment = { addedComment = it }
@@ -377,7 +377,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 summary = "f.o.o@example.com",
                 setPrivate = { hasSetPrivate = true },
                 addComment = { addedComment = it }
@@ -394,7 +394,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 summary = "foo@example.cc",
                 setPrivate = { hasSetPrivate = true },
                 addComment = { addedComment = it }
@@ -411,7 +411,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 summary = "foo@example.americanexpress",
                 setPrivate = { hasSetPrivate = true },
                 addComment = { addedComment = it }
@@ -430,7 +430,7 @@ class PrivacyModuleTest : FunSpec({
             val module = createModule(allowedEmailRegexes = allowedEmailRegexes)
             var hasSetPrivate = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 changeLog = listOf(
                     mockChangeLogItem(
                         field = "environment",
@@ -454,7 +454,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 changeLog = listOf(
                     mockChangeLogItem(
                         field = "environment",
@@ -481,7 +481,7 @@ class PrivacyModuleTest : FunSpec({
         test("should not mark as private when attachment has been created before last run") {
             var hasSetPrivate = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = sensitiveFileName,
@@ -500,7 +500,7 @@ class PrivacyModuleTest : FunSpec({
         test("should not mark as private when attachment has non-sensitive name") {
             var hasSetPrivate = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = "non-$sensitiveFileName"
@@ -519,7 +519,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = sensitiveFileName
@@ -540,7 +540,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var addedComment: CommentOptions? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = sensitiveFileName,
@@ -571,7 +571,7 @@ class PrivacyModuleTest : FunSpec({
         )
 
         test("should redact access tokens") {
-            val uploader = "some-\n-user"
+            val uploaderId = "123456:d6c6b8a3-81b7-4f8d-99e5-4dc9993301f2"
             val attachmentName = "my-\u202E-attachment.txt"
 
             var hasSetPrivate = false
@@ -580,12 +580,12 @@ class PrivacyModuleTest : FunSpec({
             var newAttachmentContent: String? = null
             var addedComment: String? = null
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = attachmentName,
                         uploader = mockUser(
-                            name = uploader
+                            accountId = uploaderId
                         ),
                         getContent = { accessTokenText.toByteArray() },
                         remove = { hasDeletedAttachment = true }
@@ -609,16 +609,16 @@ class PrivacyModuleTest : FunSpec({
             newAttachmentName shouldBe "redacted_$attachmentName"
             newAttachmentContent shouldBe "... --accessToken ###REDACTED### ..."
 
-            // Should also have sanitized user name and attachment name
-            addedComment shouldBe "@[~some-?-user], sensitive data has been removed from your attachment(s) and they have " +
+            // Should also have sanitized attachment name
+            addedComment shouldBe "[~accountid:$uploaderId], sensitive data has been removed from your attachment(s) and they have " +
                 "been re-uploaded as:\n" +
-                "- [^redacted_my-?-attachment.txt]\n"
+                "* redacted_my-?-attachment.txt [^redacted_my-?-attachment.txt]\n"
         }
 
         test("should add multiple comments when redacting attachments of multiple users") {
-            val uploader1 = "some-user"
+            val uploader1Id = "123456:d6c6b8a3-81b7-4f8d-99e5-4dc9993301f2"
             val uploader1User = mockUser(
-                name = uploader1
+                accountId = uploader1Id
             )
 
             @Suppress("LocalVariableName")
@@ -627,7 +627,7 @@ class PrivacyModuleTest : FunSpec({
             @Suppress("LocalVariableName")
             val attachmentName1_2 = "my-attachment2.txt"
 
-            val uploader2 = "some-other-user"
+            val uploader2Id = "456789:510b5b24-dc55-4660-875b-a78b20771132"
             val attachmentName2 = "other-attachment.txt"
 
             var hasSetPrivate = false
@@ -635,7 +635,7 @@ class PrivacyModuleTest : FunSpec({
             val newAttachmentNames = mutableListOf<String>()
             val addedComments = mutableListOf<String>()
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = attachmentName1_1,
@@ -651,7 +651,7 @@ class PrivacyModuleTest : FunSpec({
                     ),
                     mockAttachment(
                         name = attachmentName2,
-                        uploader = mockUser(name = uploader2),
+                        uploader = mockUser(accountId = uploader2Id),
                         getContent = { accessTokenText.toByteArray() },
                         remove = { deletedAttachmentNames.add(attachmentName2) }
                     )
@@ -674,13 +674,13 @@ class PrivacyModuleTest : FunSpec({
             newAttachmentNames shouldContainExactlyInAnyOrder expectedDeletedAttachmentNames.map { "redacted_$it" }
 
             addedComments shouldContainExactlyInAnyOrder listOf(
-                "@[~some-user], sensitive data has been removed from your attachment(s) and they " +
+                "[~accountid:$uploader1Id], sensitive data has been removed from your attachment(s) and they " +
                     "have been re-uploaded as:\n" +
-                    "- [^redacted_my-attachment.txt]\n" +
-                    "- [^redacted_my-attachment2.txt]\n",
-                "@[~some-other-user], sensitive data has been removed from your attachment(s) " +
+                    "* redacted_my-attachment.txt [^redacted_my-attachment.txt]\n" +
+                    "* redacted_my-attachment2.txt [^redacted_my-attachment2.txt]\n",
+                "[~accountid:$uploader2Id], sensitive data has been removed from your attachment(s) " +
                     "and they have been re-uploaded as:\n" +
-                    "- [^redacted_other-attachment.txt]\n"
+                    "* redacted_other-attachment.txt [^redacted_other-attachment.txt]\n"
             )
         }
 
@@ -688,7 +688,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var hasDeletedAttachment = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         uploader = mockUser(
@@ -712,7 +712,7 @@ class PrivacyModuleTest : FunSpec({
             var hasSetPrivate = false
             var hasDeletedAttachment = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         // Redactor does not handle this; but it represents sensitive data
@@ -737,7 +737,7 @@ class PrivacyModuleTest : FunSpec({
             var privateComment: CommentOptions? = null
             var hasAddedRedactionComment = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 // Issue description cannot be redacted (would still be in history)
                 description = "some $otherSensitiveText and more text",
                 attachments = listOf(
@@ -773,7 +773,7 @@ class PrivacyModuleTest : FunSpec({
             var privateComment: CommentOptions? = null
             var hasAddedRedactionComment = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         // Other sensitive text cannot be redacted
@@ -807,7 +807,7 @@ class PrivacyModuleTest : FunSpec({
             var privateComment: CommentOptions? = null
             var hasAddedRedactionComment = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         // Malformed name
@@ -844,7 +844,7 @@ class PrivacyModuleTest : FunSpec({
             var privateComment: CommentOptions? = null
             var hasAddedRedactionComment = false
 
-            val issue = mockIssue(
+            val issue = mockCloudIssue(
                 attachments = listOf(
                     mockAttachment(
                         name = "redacted_$attachmentName"

@@ -13,51 +13,33 @@ import io.github.mojira.arisa.modules.tryRunAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.rcarz.jiraclient.Attachment
-import net.rcarz.jiraclient.Comment
+import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.apiclient.models.AttachmentBean as MojiraAttachment
+import io.github.mojira.arisa.apiclient.models.Comment as MojiraComment
 import net.rcarz.jiraclient.Field
-import net.rcarz.jiraclient.Issue
-import net.rcarz.jiraclient.IssueLink
-import net.rcarz.jiraclient.JiraClient
+import io.github.mojira.arisa.apiclient.models.IssueLink as MojiraIssueLink
 import net.rcarz.jiraclient.JiraException
-import net.rcarz.jiraclient.Resource
 import net.rcarz.jiraclient.RestException
-import net.rcarz.jiraclient.TokenCredentials
-import net.rcarz.jiraclient.User
-import net.rcarz.jiraclient.Version
-import net.sf.json.JSONObject
+import io.github.mojira.arisa.apiclient.exceptions.ClientErrorException
+import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 import org.apache.http.HttpStatus
-import org.apache.http.client.methods.HttpGet
 import java.io.File
-import java.io.IOException
 import java.io.InputStream
-import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoField
+import io.github.mojira.arisa.apiclient.JiraClient
+import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.apiclient.builders.string
+import io.github.mojira.arisa.apiclient.models.Visibility
+import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.jiraClient
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
-fun connectToJira(username: String, password: String, url: String): JiraClient {
-    val credentials = TokenCredentials(username, password)
-    val jiraClient = JiraClient(url, credentials)
-    val actualUsername = jiraClient.getCurrentUser().name
-
-    // Jira seems to allow login with different capitalization, however for checks such
-    // as whether an action was performed by Arisa itself, Arisa needs to know the correctly
-    // capitalized username
-    if (username != actualUsername) {
-        throw IncorrectlyCapitalizedUsernameException(actualUsername)
-    }
-    return jiraClient
-}
-
-class IncorrectlyCapitalizedUsernameException(expectedUsername: String) :
-    Exception("Username uses incorrect capitalization; expected: $expectedUsername")
-
-private fun JiraClient.getCurrentUser(): User {
-    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/myself-getUser
-    return object : User(
-        restClient,
-        restClient.get(Resource.getBaseUri() + "myself") as JSONObject
-    ) {}
+fun connectToJira(email: String, apiToken: String, url: String, logNetworkRequests: Boolean? = false): JiraClient {
+    return JiraClient(url, email, apiToken, logNetworkRequests)
 }
 
 /**
@@ -74,8 +56,8 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
         val searchResult = try {
             jiraClient.searchIssues(
                 jql,
-                "[]",
-                amount
+                listOf("[]"),
+                maxResults = amount
             )
         } catch (e: JiraException) {
             log.error("Error while retrieving filter results", e)
@@ -86,7 +68,7 @@ fun getIssuesFromJql(jiraClient: JiraClient, jql: String, amount: Int) = runBloc
     }
 }
 
-fun getIssue(jiraClient: JiraClient, key: String) = runBlocking {
+fun getIssue(jiraClient: MojiraClient, key: String) = runBlocking {
     Either.catch {
         jiraClient.getIssue(key, "*all", "changelog")
     }
@@ -108,43 +90,38 @@ fun updateCHK(context: Lazy<IssueUpdateContext>, chkField: String) {
 }
 
 fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasUpdates = true
-    context.value.update.field(confirmationField, jsonValue)
+    context.value.update.field(confirmationField) {
+        subField("value", value)
+    }
 }
 
 fun updatePriority(context: Lazy<IssueUpdateContext>, priorityField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["id"] = value
-
     context.value.hasUpdates = true
-    context.value.update.field(priorityField, jsonValue)
+    context.value.update.field(priorityField) {
+        subField("id", value)
+    }
 }
 
 fun updateDungeonsPlatform(context: Lazy<IssueUpdateContext>, dungeonsPlatformField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasEdits = true
-    context.value.edit.field(dungeonsPlatformField, jsonValue)
+    context.value.edit.field(dungeonsPlatformField) {
+        subField("value", value)
+    }
 }
 
 fun updateLegendsPlatform(context: Lazy<IssueUpdateContext>, legendsPlatformField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasEdits = true
-    context.value.edit.field(legendsPlatformField, jsonValue)
+    context.value.edit.field(legendsPlatformField) {
+        subField("value", value)
+    }
 }
 
 fun updatePlatform(context: Lazy<IssueUpdateContext>, platformField: String, value: String) {
-    val jsonValue = JSONObject()
-    jsonValue["value"] = value
-
     context.value.hasEdits = true
-    context.value.edit.field(platformField, jsonValue)
+    context.value.edit.field(platformField) {
+        subField("value", value)
+    }
 }
 
 fun updateLinked(context: Lazy<IssueUpdateContext>, linkedField: String, value: Double) {
@@ -157,36 +134,41 @@ fun reopen(context: Lazy<IssueUpdateContext>) {
 }
 
 fun resolveAs(context: Lazy<IssueUpdateContext>, resolution: String) {
-    val resolutionJson = JSONObject()
-    resolutionJson["name"] = resolution
-
-    context.value.resolve.field(Field.RESOLUTION, resolutionJson)
+    context.value.resolve.field(Field.RESOLUTION) {
+        subField("name", resolution)
+    }
     context.value.transitionName = "Resolve Issue"
 }
 
 fun updateSecurity(context: Lazy<IssueUpdateContext>, levelId: String) {
     context.value.hasEdits = true
-    context.value.edit.field(Field.SECURITY, Field.valueById(levelId))
+    context.value.edit.field(Field.SECURITY) {
+        subField("id", levelId)
+    }
 }
 
-fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
+fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVersion) {
     context.value.hasEdits = true
-    context.value.edit.fieldRemove("versions", version)
+    context.value.edit.remove("versions") {
+        it.string("name") == version.name
+    }
 }
 
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.fieldAdd("versions", Field.valueById(id))
+    context.value.edit.field("versions") {
+        subField("id", id)
+    }
 }
 
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.fieldRemove("versions", Field.valueById(id))
+    context.value.edit.remove("versions") { it.string("id") == id }
 }
 
-fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: Version) {
+fun addAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVersion) {
     context.value.hasEdits = true
-    context.value.edit.fieldAdd("versions", version)
+    context.value.edit.add("versions", buildJsonObject { put("name", version.name) })
 }
 
 fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
@@ -197,27 +179,44 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
 fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
     val functions = context.otherOperations.toMutableList()
     if (context.hasEdits) {
-        functions.add(0, ::applyFluentUpdate.partially1(context.edit))
+        functions.add(
+            0,
+            ::applyFluentUpdate
+                .partially1(context.jiraIssue.key)
+                .partially1(context.edit)
+        )
     }
     if (context.hasUpdates) {
         functions.add(
             0,
-            ::applyFluentTransition.partially1(context.update).partially1("Update Issue")
+            ::applyFluentTransition
+                .partially1(context.jiraIssue.key)
+                .partially1(context.resolve)
+                .partially1("Update issue")
         )
     }
     if (context.transitionName != null) {
         functions.add(
             0,
-            ::applyFluentTransition.partially1(context.resolve).partially1(context.transitionName!!)
+            ::applyFluentTransition
+                .partially1(context.jiraIssue.key)
+                .partially1(context.resolve)
+                .partially1(context.transitionName!!)
         )
     }
     return tryRunAll(functions, context)
 }
 
-private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
+private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = runBlocking {
     Either.catch {
         try {
-            edit.execute()
+            val fieldsJson = edit.toJson()
+            jiraClient.editIssue(
+                issueKey,
+                EditIssueBody(
+                    fields = fieldsJson["fields"]
+                )
+            )
         } catch (e: JiraException) {
             val cause = e.cause
             if (cause is RestException && (
@@ -233,33 +232,29 @@ private fun applyFluentUpdate(edit: Issue.FluentUpdate) = runBlocking {
     }
 }
 
-private fun applyFluentTransition(update: Issue.FluentTransition, transitionName: String) = runBlocking {
+private fun applyFluentTransition(issueKey: String, update: FluentObjectBuilder, transitionName: String) = runBlocking {
     Either.catch {
-        update.execute(transitionName)
+        val fieldsJson = update.toJson()
+        jiraClient.performTransition(
+            issueKey,
+            TransitionIssueBody(
+                fields = fieldsJson["fields"]
+            )
+        )
     }
 }
 
-fun openAttachmentStream(jiraClient: JiraClient, attachment: Attachment): InputStream {
-    val httpClient = jiraClient.restClient.httpClient
-    val request = HttpGet(attachment.contentUrl)
-
-    return runBlocking(Dispatchers.IO) {
-        val response = httpClient.execute(request)
-        val statusCode = response.statusLine.statusCode
-        if (statusCode != HttpStatus.SC_OK) {
-            throw IOException("Request for attachment ${attachment.id} content failed with status code $statusCode")
-        }
-        response.entity.content
-    }
+fun openAttachmentStream(jiraClient: JiraClient, attachment: MojiraAttachment): InputStream {
+    return jiraClient.openAttachmentStream(attachment.id)
 }
 
-fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: Attachment) {
+fun deleteAttachment(context: Lazy<IssueUpdateContext>, attachment: MojiraAttachment) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
                     try {
-                        context.value.jiraClient.restClient.delete(URI(attachment.self))
+                        context.value.jiraClient.deleteAttachment(attachment.id)
                     } catch (e: RestException) {
                         if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
                             e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
@@ -282,10 +277,12 @@ fun addAttachmentFile(context: Lazy<IssueUpdateContext>, file: File, cleanupCall
             Either.catch {
                 withContext(Dispatchers.IO) {
                     try {
-                        context.value.jiraIssue.addAttachment(file)
-                    } catch (e: RestException) {
-                        if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                            e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        val issueId = context.value.jiraIssue.id
+                        context.value.jiraClient.addAttachment(issueId, file)
+                        Unit
+                    } catch (e: ClientErrorException) {
+                        if (e.code == HttpStatus.SC_NOT_FOUND ||
+                            e.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
                         ) {
                             log.warn("Couldn't upload ${file.name}")
                         } else {
@@ -311,7 +308,10 @@ fun createComment(
 
                 when (val checkResult = CommentCache.check(key, comment)) {
                     is Either.Left -> log.error(checkResult.a.message)
-                    is Either.Right -> context.value.jiraIssue.addComment(comment)
+                    is Either.Right -> {
+                        val issueId = context.value.jiraIssue.id
+                        context.value.jiraClient.addComment(issueId, comment)
+                    }
                 }
 
                 Unit
@@ -332,7 +332,11 @@ fun addRestrictedComment(
 
                 when (val checkResult = CommentCache.check(key, comment)) {
                     is Either.Left -> log.error(checkResult.a.message)
-                    is Either.Right -> context.value.jiraIssue.addComment(comment, "group", restrictionLevel)
+                    is Either.Right -> {
+                        val issueId = context.value.jiraIssue.id
+                        val visibility = Visibility(value = restrictionLevel, type = Visibility.Type.Group.value)
+                        context.value.jiraClient.addRestrictedComment(issueId, comment, visibility)
+                    }
                 }
 
                 Unit
@@ -341,13 +345,14 @@ fun addRestrictedComment(
     }
 }
 
-fun deleteComment(context: Lazy<IssueUpdateContext>, comment: Comment) {
+fun deleteComment(context: Lazy<IssueUpdateContext>, comment: MojiraComment) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 withContext(Dispatchers.IO) {
                     try {
-                        context.value.jiraClient.restClient.delete(URI(comment.self))
+                        val issueId = context.value.jiraIssue.id
+                        context.value.jiraClient.deleteComment(issueId, comment.id)
                     } catch (e: RestException) {
                         if (e.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
                             e.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
@@ -358,7 +363,6 @@ fun deleteComment(context: Lazy<IssueUpdateContext>, comment: Comment) {
                         }
                     }
                 }
-                Unit
             }
         }
     }
@@ -368,14 +372,14 @@ fun createLink(
     context: Lazy<IssueUpdateContext>,
     getContext: (key: String) -> Lazy<IssueUpdateContext>,
     linkType: String,
-    linkKey: String,
+    linkIssueId: String,
     outwards: Boolean
 ) {
     if (outwards) {
         context.value.otherOperations.add {
             runBlocking {
                 Either.catch {
-                    context.value.jiraIssue.link(linkKey, linkType)
+                    context.value.jiraIssue.link(jiraClient, linkIssueId, linkType)
                 }
             }
         }
@@ -383,7 +387,7 @@ fun createLink(
         runBlocking {
             val either = Either.catch {
                 val key = context.value.jiraIssue.key
-                createLink(getContext(linkKey), getContext, linkType, key, true)
+                createLink(getContext(linkIssueId), getContext, linkType, key, true)
             }
             if (either.isLeft()) {
                 context.value.otherOperations.add { either }
@@ -392,22 +396,27 @@ fun createLink(
     }
 }
 
-fun deleteLink(context: Lazy<IssueUpdateContext>, link: IssueLink) {
+fun deleteLink(context: Lazy<IssueUpdateContext>, link: MojiraIssueLink) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
-                link.delete()
+                jiraClient.deleteIssueLink(link.id!!)
             }
         }
     }
 }
 
-fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body: String) {
+fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: MojiraComment, body: String) {
     context.value.otherOperations.add {
         runBlocking {
             Either.catch {
                 tryWithWarn(comment) {
-                    comment.update(body)
+                    val issueId = context.value.jiraIssue.id
+                    context.value.jiraClient.updateComment(
+                        issueId,
+                        comment.id,
+                        UpdateCommentBody(body)
+                    )
                 }
             }
         }
@@ -416,7 +425,7 @@ fun updateCommentBody(context: Lazy<IssueUpdateContext>, comment: Comment, body:
 
 fun restrictCommentToGroup(
     context: Lazy<IssueUpdateContext>,
-    comment: Comment,
+    comment: MojiraComment,
     group: String,
     body: String = comment.body
 ) {
@@ -424,24 +433,37 @@ fun restrictCommentToGroup(
         runBlocking {
             Either.catch {
                 tryWithWarn(comment) {
-                    comment.update(body, "group", group)
+                    val issueId = context.value.jiraIssue.id
+                    val payload = UpdateCommentBody(
+                        body,
+                        visibility = Visibility(
+                            identifier = group,
+                            type = Visibility.Type.Group.value,
+                            value = group
+                        )
+                    )
+                    context.value.jiraClient.updateComment(
+                        issueId,
+                        comment.id,
+                        payload
+                    )
                 }
             }
         }
     }
 }
 
-fun tryWithWarn(comment: Comment, func: () -> Unit) {
+fun tryWithWarn(comment: MojiraComment, func: () -> Unit) {
     try {
         func()
     } catch (e: JiraException) {
         val cause = e.cause
-        if (cause is RestException && (
-            cause.httpStatusCode == HttpStatus.SC_NOT_FOUND ||
-                cause.httpStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+        if (cause is ClientErrorException && (
+            cause.code == HttpStatus.SC_NOT_FOUND ||
+                cause.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
             )
         ) {
-            log.warn("Tried to update comment ${comment.url} but it was deleted")
+            log.warn("Tried to update comment ${comment.self} but it was deleted")
         } else {
             throw e
         }
@@ -449,25 +471,21 @@ fun tryWithWarn(comment: Comment, func: () -> Unit) {
 }
 
 // not included in used library
-fun getGroups(jiraClient: JiraClient, username: String) = runBlocking {
+fun getGroups(jiraClient: JiraClient, accountId: String) = runBlocking {
     Either.catch {
         withContext(Dispatchers.IO) {
-            // Mojira does not seem to provide any accountIds, hence the endpoint GET /user/groups cannot be used.
-            (
-                jiraClient.restClient.get(
-                    User.getBaseUri() + "user/",
-                    mapOf(Pair("username", username), Pair("expand", "groups"))
-                ) as JSONObject
-                )
-                .getJSONObject("groups")
-                .getJSONArray("items")
-                .map { (it as JSONObject)["name"] as String }
+            jiraClient.getUserGroups(accountId).map { group -> group.name }
         }
     }
 }
 
 fun markAsFixedWithSpecificVersion(context: Lazy<IssueUpdateContext>, fixVersionName: String) {
-    context.value.resolve.field(Field.FIX_VERSIONS, listOf(mapOf("name" to fixVersionName)))
+    context.value.resolve.field(
+        "fixVersions",
+        listOf(
+            buildJsonObject { put("name", fixVersionName) }
+        )
+    )
     context.value.transitionName = "Resolve Issue"
 }
 

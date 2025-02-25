@@ -1,0 +1,184 @@
+{
+  "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations,customfield_10010.requestTypePractice",
+  "id": "10041",
+  "self": "https://jira-connection.atlassian.net/rest/api/2/issue/10041",
+  "key": "ATP-2",
+  "fields": {
+    "statuscategorychangedate": "2025-02-19T22:27:39.487+0100",
+    "issuetype": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issuetype/10038",
+      "id": "10038",
+      "description": "A small, distinct piece of work.",
+      "iconUrl": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+      "name": "Task",
+      "subtask": false,
+      "avatarId": 10318,
+      "hierarchyLevel": 0
+    },
+    "timespent": null,
+    "customfield_10030": null,
+    "project": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/project/10034",
+      "id": "10034",
+      "key": "ATP",
+      "name": "Arisa Test Project",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "avatarUrls": {
+        "48x48": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407",
+        "24x24": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=small",
+        "16x16": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=xsmall",
+        "32x32": "https://jira-connection.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=medium"
+      }
+    },
+    "customfield_10031": null,
+    "fixVersions": [],
+    "customfield_10033": null,
+    "aggregatetimespent": null,
+    "customfield_10034": null,
+    "resolution": null,
+    "customfield_10035": null,
+    "customfield_10037": null,
+    "customfield_10027": null,
+    "customfield_10028": null,
+    "customfield_10029": null,
+    "resolutiondate": null,
+    "workratio": -1,
+    "watches": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issue/ATP-2/watchers",
+      "watchCount": 1,
+      "isWatching": true
+    },
+    "lastViewed": "2025-02-19T23:10:50.301+0100",
+    "created": "2025-02-19T22:27:39.075+0100",
+    "customfield_10020": null,
+    "customfield_10021": null,
+    "customfield_10022": null,
+    "priority": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/priority/3",
+      "iconUrl": "https://jira-connection.atlassian.net/images/icons/priorities/medium.svg",
+      "name": "Medium",
+      "id": "3"
+    },
+    "customfield_10023": null,
+    "customfield_10024": null,
+    "customfield_10025": null,
+    "labels": [],
+    "customfield_10026": null,
+    "customfield_10016": null,
+    "customfield_10017": null,
+    "customfield_10018": {
+      "hasEpicLinkFieldDependency": false,
+      "showField": false,
+      "nonEditableReason": {
+        "reason": "PLUGIN_LICENSE_ERROR",
+        "message": "The Parent Link is only available to Jira Premium users."
+      }
+    },
+    "customfield_10019": "0|i0006n:",
+    "timeestimate": null,
+    "aggregatetimeoriginalestimate": null,
+    "versions": [],
+    "issuelinks": [],
+    "assignee": null,
+    "updated": "2025-02-19T23:11:15.028+0100",
+    "status": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/status/10036",
+      "description": "",
+      "iconUrl": "https://jira-connection.atlassian.net/",
+      "name": "Backlog",
+      "id": "10036",
+      "statusCategory": {
+        "self": "https://jira-connection.atlassian.net/rest/api/2/statuscategory/2",
+        "id": 2,
+        "key": "new",
+        "colorName": "blue-gray",
+        "name": "To Do"
+      }
+    },
+    "components": [],
+    "timeoriginalestimate": null,
+    "description": null,
+    "customfield_10010": null,
+    "customfield_10014": null,
+    "customfield_10015": null,
+    "timetracking": {},
+    "customfield_10005": null,
+    "customfield_10006": null,
+    "security": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/securitylevel/10033",
+      "id": "10033",
+      "description": "Available to reporter, moderators and admins",
+      "name": "Confidential"
+    },
+    "customfield_10007": null,
+    "customfield_10008": null,
+    "customfield_10009": null,
+    "aggregatetimeestimate": null,
+    "attachment": [],
+    "summary": "An example task",
+    "creator": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/user?accountId=712020%3A33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "accountId": "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "emailAddress": "jakub.kazimierczak@eficode.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "24x24": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "16x16": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "32x32": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+      },
+      "displayName": "Jakub Kazimierczak",
+      "active": true,
+      "timeZone": "Europe/Warsaw",
+      "accountType": "atlassian"
+    },
+    "subtasks": [],
+    "reporter": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/user?accountId=712020%3A33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "accountId": "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+      "emailAddress": "jakub.kazimierczak@eficode.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "24x24": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "16x16": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png",
+        "32x32": "https://secure.gravatar.com/avatar/69c44aeb6021261d0ae89f0b12370e9e?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FJK-0.png"
+      },
+      "displayName": "Jakub Kazimierczak",
+      "active": true,
+      "timeZone": "Europe/Warsaw",
+      "accountType": "atlassian"
+    },
+    "aggregateprogress": {
+      "progress": 0,
+      "total": 0
+    },
+    "customfield_10001": null,
+    "customfield_10002": [],
+    "customfield_10003": null,
+    "customfield_10004": null,
+    "environment": null,
+    "duedate": null,
+    "progress": {
+      "progress": 0,
+      "total": 0
+    },
+    "comment": {
+      "comments": [],
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issue/10041/comment",
+      "maxResults": 0,
+      "total": 0,
+      "startAt": 0
+    },
+    "votes": {
+      "self": "https://jira-connection.atlassian.net/rest/api/2/issue/ATP-2/votes",
+      "votes": 0,
+      "hasVoted": false
+    },
+    "worklog": {
+      "startAt": 0,
+      "maxResults": 20,
+      "total": 0,
+      "worklogs": []
+    }
+  }
+}

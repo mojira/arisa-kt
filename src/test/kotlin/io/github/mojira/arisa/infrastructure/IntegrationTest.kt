@@ -15,8 +15,11 @@ class IntegrationTest : StringSpec({
             // likely contain entries completely unrelated to Arisa
             .from.enabled(Feature.FAIL_ON_UNKNOWN_PATH).map.flat(
                 mapOf(
+                    "arisa.credentials.accountId" to "test",
                     "arisa.credentials.username" to "test",
                     "arisa.credentials.password" to "test",
+                    "arisa.credentials.email" to "test",
+                    "arisa.credentials.apiToken" to "test",
                     "arisa.credentials.dandelionToken" to "test"
                 )
             )

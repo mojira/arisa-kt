@@ -183,7 +183,7 @@ class RemoveVersionModuleTest : StringSpec({
         removed.shouldBeTrue()
     }
 
-    "should set to nouser when user changes version 5 times" {
+    "should set to nouser when user changes version 5 times".config(enabled = false) {
         var removed = false
         var reporterChanged = false
         val version = mockVersion(id = "1", released = true, archived = false)

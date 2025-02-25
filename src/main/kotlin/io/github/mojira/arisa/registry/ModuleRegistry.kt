@@ -5,47 +5,44 @@ import arrow.core.left
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.ModuleExecutor
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.infrastructure.config.Arisa.Modules.ModuleConfigSpec
 import io.github.mojira.arisa.modules.FailedModuleResponse
-import io.github.mojira.arisa.modules.Module
+import io.github.mojira.arisa.modules.ModuleBase
 import io.github.mojira.arisa.modules.ModuleError
 import io.github.mojira.arisa.modules.ModuleResponse
 
 // All defined module registries
 val getModuleRegistries = { config: Config ->
     listOf(
-        InstantModuleRegistry(config),
-        DelayedModuleRegistry(config),
-        LinkedModuleRegistry(config)
+        InstantModuleRegistry(config)
     )
 }
 
-abstract class ModuleRegistry(protected val config: Config) {
-    data class Entry(
+abstract class ModuleRegistry<TIssue>(protected val config: Config) {
+    data class Entry<TIssue>(
         val name: String,
         val config: ModuleConfigSpec,
-        val execute: (issue: Issue, timeframe: ExecutionTimeframe) -> Pair<String, Either<ModuleError, ModuleResponse>>,
+        val execute: (issue: TIssue, timeframe: ExecutionTimeframe) -> Pair<String, Either<ModuleError, ModuleResponse>>,
         val executor: ModuleExecutor
     )
 
-    private val modules = mutableListOf<Entry>()
+    private val modules = mutableListOf<Entry<TIssue>>()
 
     protected abstract fun getJql(timeframe: ExecutionTimeframe): String
 
-    fun getAllModules(): List<Entry> = modules
+    fun getAllModules(): List<Entry<TIssue>> = modules
 
-    fun getEnabledModules(): List<Entry> = modules.filter(::isModuleEnabled)
+    fun getEnabledModules(): List<Entry<TIssue>> = modules.filter(::isModuleEnabled)
 
-    private fun isModuleEnabled(module: Entry) =
+    private fun isModuleEnabled(module: Entry<TIssue>) =
         // If arisa.debug.enabledModules is defined, return whether that module is in that list.
         // If it's not defined, return whether this module is enabled in the module config.
         config[Arisa.Debug.enabledModules]?.contains(module.name) ?: config[module.config.enabled]
 
     protected fun register(
         moduleConfig: ModuleConfigSpec,
-        module: Module
+        module: ModuleBase<TIssue>
     ) {
         val moduleName = moduleConfig::class.simpleName!!
 
@@ -59,9 +56,10 @@ abstract class ModuleRegistry(protected val config: Config) {
         )
     }
 
-    private fun getModuleResult(moduleName: String, module: Module) = { issue: Issue, timeframe: ExecutionTimeframe ->
-        moduleName to tryExecuteModule { module(issue, timeframe) }
-    }
+    private fun getModuleResult(moduleName: String, module: ModuleBase<TIssue>) =
+        { issue: TIssue, timeframe: ExecutionTimeframe ->
+            moduleName to tryExecuteModule { module(issue, timeframe) }
+        }
 
     private fun getJqlWithDebug(timeframe: ExecutionTimeframe): String {
         val registryJql = getJql(timeframe)

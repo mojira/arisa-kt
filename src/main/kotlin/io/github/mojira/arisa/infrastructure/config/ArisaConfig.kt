@@ -3,9 +3,14 @@ package io.github.mojira.arisa.infrastructure.config
 import com.uchuhimo.konf.ConfigSpec
 
 object Arisa : ConfigSpec() {
+    @Suppress("ForbiddenComment")
     object Credentials : ConfigSpec() {
+        // TODO: Remove username and password
+        val accountId by required<String>()
         val username by required<String>()
         val password by required<String>()
+        val email by required<String>()
+        val apiToken by required<String>()
         val dandelionToken by optional<String?>(
             null,
             description = "Token for dandelion.eu"
@@ -58,6 +63,7 @@ object Arisa : ConfigSpec() {
         val logOperationNotNeeded by optional(false)
         val logReturnedIssues by optional(false)
         val logQueryJql by optional(false)
+        val logNetworkRequests by optional(false)
 
         val ticketWhitelist by optional<List<String>?>(
             null,

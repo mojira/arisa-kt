@@ -8,8 +8,8 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.IssueUpdateContext
+import io.github.mojira.arisa.apiclient.models.IssueTransition
 import io.github.mojira.arisa.log
-import net.rcarz.jiraclient.Transition
 import org.apache.commons.lang.reflect.FieldUtils
 import java.io.IOException
 import java.io.InputStream
@@ -111,10 +111,10 @@ fun contextForException(context: IssueUpdateContext?): String {
         (
             FieldUtils.readField(
                 context.resolve,
-                "transitions",
+                "fields",
                 true
-            ) as List<Transition>
-            ).joinToString(", ") { transitionToString(it) }
+            ) as Map<String, IssueTransition>
+            ).entries.joinToString(", ") { transitionToString(it.value) }
         }\n" +
         "update.fields: ${
         mapMapFieldToString(context.update, "fields")
@@ -123,17 +123,14 @@ fun contextForException(context: IssueUpdateContext?): String {
         (
             FieldUtils.readField(
                 context.update,
-                "transitions",
+                "fields",
                 true
-            ) as List<Transition>
-            ).joinToString(", ") { transitionToString(it) }
+            ) as Map<String, IssueTransition>
+            ).entries.joinToString(", ") { transitionToString(it.value) }
         }\n" +
         "edit.fields: ${
         mapMapFieldToString(context.edit, "fields")
-        }\n" +
-        "edit.fieldOpers: ${
-        mapMapFieldToString(context.edit, "fieldOpers")
-        }"
+        }\n"
 }
 
 fun mapMapFieldToString(obj: Any, fieldName: String): String = mapToString(
@@ -144,7 +141,7 @@ fun mapMapFieldToString(obj: Any, fieldName: String): String = mapToString(
     ) as Map<String, Any>
 )
 
-fun transitionToString(it: Transition): String {
+fun transitionToString(it: IssueTransition): String {
     return "Transition: {${it.name},  ${it.toStatus}}"
 }
 

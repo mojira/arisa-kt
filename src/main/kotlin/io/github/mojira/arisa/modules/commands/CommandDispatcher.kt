@@ -1,7 +1,5 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.core.Either
-import arrow.core.right
 import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType.integer
@@ -11,7 +9,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
-import io.github.mojira.arisa.infrastructure.jira.getIssue
 import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
 import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
@@ -39,16 +36,16 @@ fun getCommandDispatcher(
     val makePrivateCommand = MakePrivateCommand()
     val purgeAttachmentCommand = PurgeAttachmentCommand()
     val reopenCommand = ReopenCommand()
-    val removeContentCommand = RemoveContentCommand(
-        ::getIssuesFromJql.partially1(jiraClient),
-        {
-            when (val issue = getIssue(jiraClient, it)) {
-                is Either.Left -> issue
-                is Either.Right -> (it to issue.b).right()
-            }
-        },
-        { Thread(it).start() }
-    )
+//    val removeContentCommand = RemoveContentCommand(
+//        ::getIssuesFromJql.partially1(jiraClient),
+//        {
+//            when (val issue = getIssue(jiraClient, it)) {
+//                is Either.Left -> issue
+//                is Either.Right -> (it to issue.b).right()
+//            }
+//        },
+//        { Thread(it).start() }
+//    )
     val shadowbanCommand = ShadowbanCommand()
 
     return CommandDispatcher<CommandSource>().apply {
@@ -311,18 +308,18 @@ fun getCommandDispatcher(
                         )
                 )
 
-        val removeContentCommandNode =
-            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
-                .requires(::sentByModerator)
-                .then(
-                    argument<CommandSource, String>("username", greedyString())
-                        .executes {
-                            removeContentCommand(
-                                it.source.issue,
-                                it.getString("username")
-                            )
-                        }
-                )
+//        val removeContentCommandNode =
+//            literal<CommandSource>("${prefix}_REMOVE_CONTENT")
+//                .requires(::sentByModerator)
+//                .then(
+//                    argument<CommandSource, String>("username", greedyString())
+//                        .executes {
+//                            removeContentCommand(
+//                                it.source.issue,
+//                                it.getString("username")
+//                            )
+//                        }
+//                )
 
         val reopenCommandNode =
             literal<CommandSource>("${prefix}_REOPEN")
@@ -357,7 +354,7 @@ fun getCommandDispatcher(
         register(purgeAttachmentCommandNode)
         register(removeCommentsCommandNode)
         register(removeLinksCommandNode)
-        register(removeContentCommandNode)
+//        register(removeContentCommandNode)
         register(reopenCommandNode)
         register(shadowbanCommandNode)
     }

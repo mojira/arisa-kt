@@ -2,7 +2,7 @@ package io.github.mojira.arisa
 
 import arrow.core.Either
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.IssueUpdateContextCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.FailedModuleResponse
@@ -15,9 +15,9 @@ class ModuleExecutor(
     private val moduleConfig: Arisa.Modules.ModuleConfigSpec
 ) {
     fun executeModule(
-        allIssues: List<Issue>,
+        allIssues: List<CloudIssue>,
         addFailedTicket: (String) -> Unit,
-        execute: (Issue) -> Pair<String, Either<ModuleError, ModuleResponse>>
+        execute: (CloudIssue) -> Pair<String, Either<ModuleError, ModuleResponse>>
     ) {
         getIssuesForModule(allIssues)
             .map { it.key to execute(it) }
@@ -52,7 +52,7 @@ class ModuleExecutor(
         IssueUpdateContextCache.applyChanges(addFailedTicket)
     }
 
-    private fun getIssuesForModule(allIssues: List<Issue>): List<Issue> {
+    private fun getIssuesForModule(allIssues: List<CloudIssue>): List<CloudIssue> {
         val projects = config[moduleConfig.projects] ?: config[Arisa.Issues.projects]
 
         val resolutions = (config[moduleConfig.resolutions] ?: config[Arisa.Issues.resolutions])

@@ -3,14 +3,14 @@ package io.github.mojira.arisa.modules
 import arrow.core.Either
 import arrow.core.extensions.fx
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
-import io.github.mojira.arisa.domain.Link
+import io.github.mojira.arisa.domain.cloud.CloudIssue
+import io.github.mojira.arisa.domain.cloud.CloudLink
 import java.time.Instant
 
 class PrivateDuplicateModule(
     private val keepPrivateTag: String?
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : CloudModule {
+    override fun invoke(issue: CloudIssue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertNotNull(keepPrivateTag).bind()
             assertNull(securityLevel).bind()
@@ -33,7 +33,7 @@ class PrivateDuplicateModule(
         comment.visibilityValue == "staff" &&
         (comment.body?.contains(keepPrivateTag!!) ?: false)
 
-    private fun parentHasKeepPrivateTag(parent: Issue): Boolean = parent.comments.any(::isKeepPrivateTag)
+    private fun parentHasKeepPrivateTag(parent: CloudIssue): Boolean = parent.comments.any(::isKeepPrivateTag)
 
-    private fun isDuplicatesLink(link: Link): Boolean = link.type == "Duplicate" && link.outwards
+    private fun isDuplicatesLink(link: CloudLink): Boolean = link.type == "Duplicate" && link.outwards
 }

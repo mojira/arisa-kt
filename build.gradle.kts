@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.0.20"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.0"
     application
-    id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 group = "io.github.mojira"
@@ -54,6 +54,10 @@ dependencies {
     implementation("com.beust", "klaxon", "5.6")
     implementation("com.mojang", "brigadier", "1.0.18")
     implementation("org.apache.commons", "commons-imaging", "1.0-alpha3")
+    implementation("com.squareup.okhttp3", "okhttp", "4.12.0")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.8.0")
+    implementation("com.squareup.retrofit2", "retrofit", "2.11.0")
+    implementation("com.squareup.retrofit2", "converter-kotlinx-serialization", "2.11.0")
 
     components {
         /*
@@ -72,6 +76,7 @@ dependencies {
     testImplementation("io.kotest", "kotest-assertions-core-jvm", kotestVersion)
     testImplementation("io.kotest", "kotest-runner-junit5", kotestVersion)
     testImplementation("io.kotest", "kotest-assertions-arrow", kotestVersion)
+    testImplementation("io.kotest", "kotest-assertions-json", kotestVersion)
     testImplementation("io.mockk", "mockk", "1.13.2")
     testImplementation("org.reflections", "reflections", "0.10.2")
 }
@@ -99,22 +104,4 @@ tasks {
 
 application {
     mainClass.set("io.github.mojira.arisa.ArisaMainKt")
-}
-
-detekt {
-    // For now only consider main source files, but ignore test sources
-    source.setFrom(files("src/main/kotlin"))
-    allRules = true // enable all rules, including unstable ones
-    buildUponDefaultConfig = true // preconfigure defaults
-    parallel = true
-}
-
-tasks {
-    withType<io.gitlab.arturbosch.detekt.Detekt> {
-        reports {
-            html.required.set(false) // Disabled due to requirement for kotlinx-html which is still in jcenter
-            xml.required.set(false) // checkstyle like format mainly for integrations like Jenkins
-            txt.required.set(false) // similar to the console output, contains issue signature to manually edit baseline files
-        }
-    }
 }

@@ -2,7 +2,7 @@ package io.github.mojira.arisa
 
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
-import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.infrastructure.config.Arisa
@@ -12,8 +12,8 @@ import io.github.mojira.arisa.registry.getModuleRegistries
 
 class Executor(
     private val config: Config,
-    private val registries: List<ModuleRegistry> = getModuleRegistries(config),
-    private val searchIssues: (String, Int, () -> Unit) -> List<Issue> =
+    private val registries: List<ModuleRegistry<CloudIssue>> = getModuleRegistries(config),
+    private val searchIssues: (String, Int, () -> Unit) -> List<CloudIssue> =
         ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
 ) {
     companion object {
@@ -55,7 +55,7 @@ class Executor(
     }
 
     private fun executeRegistry(
-        registry: ModuleRegistry,
+        registry: ModuleRegistry<CloudIssue>,
         rerunTickets: Collection<String>,
         timeframe: ExecutionTimeframe,
         addFailedTicket: (String) -> Unit
@@ -70,11 +70,11 @@ class Executor(
     }
 
     private fun getIssuesForRegistry(
-        registry: ModuleRegistry,
+        registry: ModuleRegistry<CloudIssue>,
         rerunTickets: Collection<String>,
         timeframe: ExecutionTimeframe
-    ): List<Issue> {
-        val issues = mutableListOf<Issue>()
+    ): List<CloudIssue> {
+        val issues = mutableListOf<CloudIssue>()
 
         val jql = registry.getFullJql(timeframe, rerunTickets)
 
@@ -117,16 +117,16 @@ private fun getSearchResultsFromJira(
     jql: String,
     startAt: Int,
     finishedCallback: () -> Unit
-): List<Issue> {
+): List<CloudIssue> {
     val searchResult = jiraClient.searchIssues(
         jql,
-        "*all",
-        "changelog",
+        listOf("*all"),
+        listOf("changelog"),
         maxResults,
         startAt
     ) ?: return emptyList()
 
-    if (startAt + searchResult.max >= searchResult.total) finishedCallback()
+    if (startAt + searchResult.maxResults >= searchResult.total) finishedCallback()
 
     return searchResult
         .issues

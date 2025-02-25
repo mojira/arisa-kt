@@ -2,26 +2,26 @@ package io.github.mojira.arisa.modules
 
 import arrow.core.right
 import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockCloudIssue
+import io.github.mojira.arisa.utils.mockCloudLink
+import io.github.mojira.arisa.utils.mockCloudLinkedIssue
 import io.github.mojira.arisa.utils.mockComment
-import io.github.mojira.arisa.utils.mockIssue
-import io.github.mojira.arisa.utils.mockLink
-import io.github.mojira.arisa.utils.mockLinkedIssue
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-private val duplicatesLinkPrivate = mockLink(
+private val duplicatesLinkPrivate = mockCloudLink(
     type = "Duplicate",
-    issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(securityLevel = "private").right() }
+    issue = mockCloudLinkedIssue(
+        getFullIssue = { mockCloudIssue(securityLevel = "private").right() }
     )
 )
-private val duplicatesLinkPrivateComment = mockLink(
+private val duplicatesLinkPrivateComment = mockCloudLink(
     type = "Duplicate",
-    issue = mockLinkedIssue(
+    issue = mockCloudLinkedIssue(
         getFullIssue = {
-            mockIssue(
+            mockCloudIssue(
                 securityLevel = "private",
                 comments = listOf(
                     mockComment(
@@ -34,23 +34,23 @@ private val duplicatesLinkPrivateComment = mockLink(
         }
     )
 )
-private val duplicatesLinkPublic = mockLink(
+private val duplicatesLinkPublic = mockCloudLink(
     type = "Duplicate",
-    issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(securityLevel = null).right() }
+    issue = mockCloudLinkedIssue(
+        getFullIssue = { mockCloudIssue(securityLevel = null).right() }
     )
 )
-private val relatesLink = mockLink(
+private val relatesLink = mockCloudLink(
     type = "Relates",
-    issue = mockLinkedIssue(
-        getFullIssue = { mockIssue(securityLevel = "private").right() }
+    issue = mockCloudLinkedIssue(
+        getFullIssue = { mockCloudIssue(securityLevel = "private").right() }
     )
 )
 
 class PrivateDuplicateModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when keep private tag is null" {
         val module = PrivateDuplicateModule(null)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             links = listOf(duplicatesLinkPrivateComment)
         )
 
@@ -61,7 +61,7 @@ class PrivateDuplicateModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when security level is set to private" {
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             securityLevel = "private",
             links = listOf(duplicatesLinkPrivate)
         )
@@ -76,7 +76,7 @@ class PrivateDuplicateModuleTest : StringSpec({
         var didComment = false
 
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             links = listOf(duplicatesLinkPrivateComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
             addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
@@ -94,7 +94,7 @@ class PrivateDuplicateModuleTest : StringSpec({
         var didComment = false
 
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             securityLevel = null,
             links = listOf(duplicatesLinkPrivateComment),
             setPrivate = { didSetToPrivate = true; Unit.right() },
@@ -113,7 +113,7 @@ class PrivateDuplicateModuleTest : StringSpec({
         var didComment = false
 
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             links = listOf(duplicatesLinkPrivate),
             setPrivate = { didSetToPrivate = true; Unit.right() },
             addRawRestrictedComment = { _, _ -> didComment = true; Unit.right() }
@@ -128,7 +128,7 @@ class PrivateDuplicateModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when link is not duplicates" {
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             links = listOf(relatesLink)
         )
 
@@ -139,7 +139,7 @@ class PrivateDuplicateModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when parent is not private" {
         val module = PrivateDuplicateModule("MEQS_KEEP_PRIVATE")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             links = listOf(duplicatesLinkPublic)
         )
 

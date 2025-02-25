@@ -1,18 +1,19 @@
 package io.github.mojira.arisa.domain
 
 import arrow.core.Either
-import net.rcarz.jiraclient.JiraClient
-import net.rcarz.jiraclient.Issue as JiraIssue
+import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.apiclient.models.IssueBean as MojiraIssue
 
 /**
  * Terminology: `edit`, `update`, and `resolve` are the same terms used on the Mojira interface.
  */
 data class IssueUpdateContext(
-    val jiraClient: JiraClient,
-    val jiraIssue: JiraIssue,
-    val edit: JiraIssue.FluentUpdate,
-    val update: JiraIssue.FluentTransition,
-    val resolve: JiraIssue.FluentTransition,
+    val jiraClient: MojiraClient,
+    val jiraIssue: MojiraIssue,
+    val edit: FluentObjectBuilder,
+    val update: FluentObjectBuilder,
+    val resolve: FluentObjectBuilder,
     var hasEdits: Boolean = false,
     var hasUpdates: Boolean = false,
     var transitionName: String? = null,

@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "2.0.20"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.0"
     application
-    id("io.gitlab.arturbosch.detekt") version "1.23.0"
     kotlin("plugin.serialization") version "2.1.0"
 }
 
@@ -105,22 +104,4 @@ tasks {
 
 application {
     mainClass.set("io.github.mojira.arisa.ArisaMainKt")
-}
-
-detekt {
-    // For now only consider main source files, but ignore test sources
-    source.setFrom(files("src/main/kotlin"))
-    allRules = true // enable all rules, including unstable ones
-    buildUponDefaultConfig = true // preconfigure defaults
-    parallel = true
-}
-
-tasks {
-    withType<io.gitlab.arturbosch.detekt.Detekt> {
-        reports {
-            html.required.set(false) // Disabled due to requirement for kotlinx-html which is still in jcenter
-            xml.required.set(false) // checkstyle like format mainly for integrations like Jenkins
-            txt.required.set(false) // similar to the console output, contains issue signature to manually edit baseline files
-        }
-    }
 }

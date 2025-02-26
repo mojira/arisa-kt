@@ -30,6 +30,8 @@ import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
 import net.rcarz.jiraclient.JiraException
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import io.github.mojira.arisa.apiclient.models.AttachmentBean as MojiraAttachment
 import io.github.mojira.arisa.apiclient.models.Changelog as MojiraChangeLogEntry
 import io.github.mojira.arisa.apiclient.models.ChangeDetails as MojiraChangeLogItem
@@ -60,12 +62,16 @@ fun getCreationDate(issue: MojiraIssue, id: String, default: Instant) = (issue.c
 
 fun MojiraProject.getSecurityLevelId(config: Config) = config[Arisa.PrivateSecurityLevel.default]
 
+fun localDateToInstant(date: LocalDate): Instant {
+    return date.atStartOfDay(ZoneId.systemDefault()).toInstant()
+}
+
 fun MojiraVersion.toDomain() = Version(
     id,
     name,
     isReleased,
     isArchived,
-    releaseDate?.toInstant()
+    releaseDate?.let { localDateToInstant(it) }
 )
 
 fun MojiraIssue.getUpdateContext(jiraClient: MojiraClient): Lazy<IssueUpdateContext> =

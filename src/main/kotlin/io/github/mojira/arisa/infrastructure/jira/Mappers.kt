@@ -232,7 +232,7 @@ fun MojiraComment.toDomain(
         getUpdateAuthorGroups = { if (updateAuthor == null) emptyList() else getGroups(jiraClient, updateAuthor.accountId).fold({ null }, { it }) },
         created = created!!.toInstant(),
         updated = updated!!.toInstant(),
-        visibilityType = visibility?.type.toString(),
+        visibilityType = visibility?.type,
         visibilityValue = visibility?.value,
         restrict = ::restrictCommentToGroup.partially1(context).partially1(this).partially1("staff"),
         update = ::updateCommentBody.partially1(context).partially1(this),

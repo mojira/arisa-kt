@@ -437,9 +437,8 @@ fun restrictCommentToGroup(
                     val payload = UpdateCommentBody(
                         body,
                         visibility = Visibility(
-                            identifier = group,
-                            type = Visibility.Type.Group.value,
-                            value = group
+                            value = group,
+                            type = Visibility.Type.Group.value
                         )
                     )
                     context.value.jiraClient.updateComment(

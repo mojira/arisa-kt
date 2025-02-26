@@ -34,7 +34,7 @@ arisa:
     platformField: customfield_10402
 
   privateSecurityLevel:
-    default: '10318'
+    default: '10000'
 
   modules:
     affectedVersionMessage:

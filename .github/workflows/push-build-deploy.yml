@@ -50,4 +50,5 @@ jobs:
           /usr/bin/screen -ls | /bin/egrep 'Detached|Attached' | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
           sleep 1
           cd arisa-kt
+          mv -f /home/arisakt/arisa-kt/config.yml /home/arisakt/arisa-kt/config/config.yml
           /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'

@@ -172,6 +172,7 @@ arisa:
 
     privacy:
       message: panel-mark-private
+      commentMessage: panel-mark-private-comment
       commentNote: |-
 
         ----

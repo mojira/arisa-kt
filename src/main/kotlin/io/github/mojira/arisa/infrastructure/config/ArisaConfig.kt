@@ -164,6 +164,10 @@ object Arisa : ConfigSpec() {
             val message by required<String>(
                 description = "The key of the message that is posted when this module succeeds."
             )
+            val commentMessage by required<String>(
+                description = "The key of the message that is posted when this module detects sensitive data within" +
+                    "the comment."
+            )
             val commentNote by optional(
                 "",
                 description = "The text which will be appended at the comments that are restricted by this module."

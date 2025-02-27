@@ -17,6 +17,7 @@ import io.github.mojira.arisa.apiclient.models.IssueLink
 import io.github.mojira.arisa.apiclient.models.User
 import io.github.mojira.arisa.apiclient.models.Visibility
 import io.github.mojira.arisa.apiclient.requestModels.*
+import io.github.mojira.arisa.log
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -151,6 +152,7 @@ private inline fun <reified T> Call<T>.executeOrThrow(): T {
 
     if (!response.isSuccessful) {
         if (response.code() in 400..499) {
+            response.errorBody()?.let { log.error(it.string()) }
             throw ClientErrorException(
                 response.code(),
                 "Request failed - [${response.code()}] ${originalRequest.method} ${originalRequest.url}",

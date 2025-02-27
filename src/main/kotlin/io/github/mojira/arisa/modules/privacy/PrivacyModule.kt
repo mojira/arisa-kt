@@ -24,6 +24,7 @@ private val log = LoggerFactory.getLogger("PrivacyModule")
 
 class PrivacyModule(
     private val message: String,
+    private val commentMessage: String,
     private val commentNote: String,
     private val allowedEmailRegexes: List<Regex>,
     private val sensitiveTextRegexes: List<Regex>,
@@ -58,6 +59,9 @@ class PrivacyModule(
             }
 
             restrictCommentActions.forEach { it.invoke() }
+            if (restrictCommentActions.isNotEmpty()) {
+                addComment(CommentOptions(commentMessage))
+            }
         }
     }
 

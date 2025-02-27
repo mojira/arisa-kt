@@ -332,7 +332,7 @@ class PrivacyModuleTest : FunSpec({
                                 restrict = {
                                     hasRestrictedComment = true
                                     it shouldBe "${testData.sensitiveText}$COMMENT_NOTE"
-                                },
+                                }
                             )
                         ),
                         setPrivate = { hasSetPrivate = true },

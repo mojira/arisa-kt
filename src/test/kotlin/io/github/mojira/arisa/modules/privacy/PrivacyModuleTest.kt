@@ -20,6 +20,7 @@ private val TWO_SECONDS_AGO = RIGHT_NOW.minusSeconds(2)
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 
 private const val MADE_PRIVATE_MESSAGE = "made-private"
+private const val MADE_PRIVATE_COMMENTS_MESSAGE = "made-private-comments"
 private const val COMMENT_NOTE = "\n----\nRestricted by PrivacyModule ??[~arisabot]??"
 
 private val NOOP_REDACTOR = object : AttachmentRedactor {
@@ -30,6 +31,7 @@ private val NOOP_REDACTOR = object : AttachmentRedactor {
 
 private fun createModule(
     message: String = MADE_PRIVATE_MESSAGE,
+    commentMessage: String = MADE_PRIVATE_COMMENTS_MESSAGE,
     commentNote: String = COMMENT_NOTE,
     allowedEmailRegexes: List<Regex> = emptyList(),
     sensitiveTextRegexes: List<Regex> = emptyList(),
@@ -37,6 +39,7 @@ private fun createModule(
     sensitiveFileNameRegexes: List<Regex> = emptyList()
 ) = PrivacyModule(
     message,
+    commentMessage,
     commentNote,
     allowedEmailRegexes,
     sensitiveTextRegexes,
@@ -320,6 +323,7 @@ class PrivacyModuleTest : FunSpec({
                 test("should restrict to staff when the comment contains sensitive data") {
                     var hasSetPrivate = false
                     var hasRestrictedComment = false
+                    var addedComment: CommentOptions? = null
 
                     val issue = mockCloudIssue(
                         comments = listOf(
@@ -328,10 +332,11 @@ class PrivacyModuleTest : FunSpec({
                                 restrict = {
                                     hasRestrictedComment = true
                                     it shouldBe "${testData.sensitiveText}$COMMENT_NOTE"
-                                }
+                                },
                             )
                         ),
-                        setPrivate = { hasSetPrivate = true }
+                        setPrivate = { hasSetPrivate = true },
+                        addComment = { addedComment = it }
                     )
 
                     val result = testData.module(issue, TWO_SECONDS_AGO)
@@ -339,6 +344,7 @@ class PrivacyModuleTest : FunSpec({
                     result.shouldBeRight(ModuleResponse)
                     hasSetPrivate shouldBe false
                     hasRestrictedComment shouldBe true
+                    addedComment shouldBe CommentOptions(MADE_PRIVATE_COMMENTS_MESSAGE)
                 }
             }
         }

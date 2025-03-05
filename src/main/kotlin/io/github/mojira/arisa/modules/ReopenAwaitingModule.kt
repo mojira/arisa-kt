@@ -39,7 +39,7 @@ class ReopenAwaitingModule(
             if (shouldReopen) {
                 reopen()
             } else {
-                assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
+                assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.isBotUser?.invoke(), true)
                 if (comments.none { isKeepARMessage(it) }) {
                     addRawBotComment(message)
                 }
@@ -78,7 +78,7 @@ class ReopenAwaitingModule(
         (comment.body?.contains(keepARTag) ?: false)
 
     private fun isKeepARMessage(comment: Comment) =
-        comment.author?.name == "arisabot" && comment.body?.contains(message) ?: false
+        comment.author?.isBotUser?.invoke() == true && comment.body?.contains(message) ?: false
 
     private fun getValidComments(
         comments: List<Comment>,

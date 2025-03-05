@@ -6,8 +6,8 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -20,8 +20,8 @@ class ReopenAwaitingModule(
     private val keepARTag: String,
     private val onlyOPTag: String,
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : CloudModule {
+    override fun invoke(issue: CloudIssue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(resolution, "Awaiting Response").bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()

@@ -7,6 +7,7 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Project
+import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.domain.cloud.CloudLink
 import io.github.mojira.arisa.domain.cloud.CloudLinkedIssue
@@ -20,37 +21,43 @@ fun mockCloudIssue(
     description: String? = null,
     environment: String? = null,
     securityLevel: String? = null,
+    reporter: User? = null,
     resolution: String? = null,
     created: Instant = RIGHT_NOW,
+    updated: Instant = RIGHT_NOW,
     project: Project = mockProject(),
     attachments: List<Attachment> = emptyList(),
     comments: List<Comment> = emptyList(),
     links: List<CloudLink> = emptyList(),
     changeLog: List<ChangeLogItem> = emptyList(),
+    reopen: () -> Unit = { },
     setPrivate: () -> Unit = { },
     addComment: (options: CommentOptions) -> Unit = { },
     addRawRestrictedComment: (body: String, restriction: String) -> Unit = { _, _ -> },
     addRawBotComment: (rawMessage: String) -> Unit = { },
     addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
 ) = CloudIssue(
-    key,
-    summary,
-    status,
-    description,
-    environment,
-    securityLevel,
-    resolution,
-    created,
-    project,
-    attachments,
-    comments,
-    links,
-    changeLog,
-    setPrivate,
-    addComment,
-    addRawRestrictedComment,
-    addRawBotComment,
-    addAttachmentFromFile
+    key = key,
+    summary = summary,
+    status = status,
+    description = description,
+    environment = environment,
+    securityLevel = securityLevel,
+    resolution = resolution,
+    reporter = reporter,
+    created = created,
+    updated = updated,
+    project = project,
+    attachments = attachments,
+    comments = comments,
+    links = links,
+    changeLog = changeLog,
+    reopen = reopen,
+    setPrivate = setPrivate,
+    addComment = addComment,
+    addRawRestrictedComment = addRawRestrictedComment,
+    addRawBotComment = addRawBotComment,
+    addAttachmentFromFile = addAttachmentFromFile
 )
 
 fun mockCloudLinkedIssue(

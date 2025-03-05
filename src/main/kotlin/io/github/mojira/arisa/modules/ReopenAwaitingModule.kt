@@ -66,7 +66,7 @@ class ReopenAwaitingModule(
             // regular users can reopen and have commented OR
             (!onlyOp && isSoftAR) ||
             // reporter has commented
-            validComments.any { it.author?.name == reporter?.name }
+            validComments.any { it.author?.accountId == reporter?.accountId }
     }
 
     private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
@@ -87,7 +87,7 @@ class ReopenAwaitingModule(
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
-        .filter { it.author != null && (!it.author.isNewUser() || it.author.name == reporter?.name) }
+        .filter { it.author != null && (!it.author.isNewUser() || it.author.accountId == reporter?.accountId) }
         .filter {
             val roles = it.getAuthorGroups()
             roles == null || roles.intersect(blacklistedRoles).isEmpty()
@@ -100,7 +100,7 @@ class ReopenAwaitingModule(
         resolveTime: Instant
     ): List<ChangeLogItem> = changeLog
         .filter { it.created.isAfter(resolveTime) }
-        .filter { it.author.name == reporter?.name }
+        .filter { it.author.accountId == reporter?.accountId }
         .filter { it.field != "Comment" }
 
     private fun isAwaitingResolve(change: ChangeLogItem) =

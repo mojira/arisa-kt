@@ -23,10 +23,7 @@ import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
 import io.github.mojira.arisa.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.escapeIssueFunction
-import net.rcarz.jiraclient.JiraClient
 import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
-import net.rcarz.jiraclient.JiraException
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -244,7 +241,7 @@ fun MojiraUserDetails.toDomain(jiraClient: MojiraClient, config: Config) = User(
     accountId = accountId,
     name = displayName,
     displayName = displayName,
-    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId),
+    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId)
 ) {
     accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
 }
@@ -253,7 +250,7 @@ fun MojiraUser.toDomain(jiraClient: MojiraClient, config: Config) = User(
     accountId = accountId,
     name = displayName,
     displayName = displayName,
-    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId),
+    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId)
 ) {
     accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
 }

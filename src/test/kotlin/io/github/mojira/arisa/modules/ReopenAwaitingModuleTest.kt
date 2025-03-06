@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit
 private val REPORTER = getUser(name = "reporter")
 private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
-private val NEWBIE = getUser(name = "newbieUser", newUser = true)
+private val NEWBIE = getUser(name = "newbieUser")
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
@@ -913,5 +913,5 @@ private fun getComment(
     visibilityValue = visibilityValue
 )
 
-private fun getUser(name: String, newUser: Boolean = false) =
-    mockUser(name = name, displayName = "User", isNewUser = { newUser })
+private fun getUser(name: String) =
+    mockUser(name = name, displayName = "User")

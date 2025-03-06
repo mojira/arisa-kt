@@ -245,7 +245,6 @@ fun MojiraUserDetails.toDomain(jiraClient: MojiraClient, config: Config) = User(
     name = displayName,
     displayName = displayName,
     getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId),
-    isNewUser = { false }
 ) {
     accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
 }
@@ -255,7 +254,6 @@ fun MojiraUser.toDomain(jiraClient: MojiraClient, config: Config) = User(
     name = displayName,
     displayName = displayName,
     getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId),
-    isNewUser = { false }
 ) {
     accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
 }
@@ -264,28 +262,6 @@ private fun getUserGroups(jiraClient: MojiraClient, accountId: String) = getGrou
     jiraClient,
     accountId
 ).fold({ null }, { it })
-
-private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
-    val commentJql = "issueFunction IN commented(${escapeIssueFunction(username) { "by $it before -24h" }})"
-
-    val oldCommentsExist = try {
-        jiraClient.countIssues(commentJql) > 0
-    } catch (_: JiraException) {
-        false
-    }
-
-    if (oldCommentsExist) return false
-
-    val reportJql = """project != TRASH AND reporter = '${username.replace("'", "\\'")}' AND created < -24h"""
-
-    val oldReportsExist = try {
-        jiraClient.countIssues(reportJql) > 0
-    } catch (_: JiraException) {
-        true
-    }
-
-    return !oldReportsExist
-}
 
 @Suppress("LongParameterList")
 fun MojiraIssue.toLinkedIssue(

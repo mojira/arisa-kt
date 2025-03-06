@@ -256,7 +256,6 @@ fun mockUser(
     name,
     displayName,
     getGroups,
-    isNewUser,
     isBotUser
 )
 

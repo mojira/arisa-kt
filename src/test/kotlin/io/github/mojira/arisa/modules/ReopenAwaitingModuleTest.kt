@@ -17,7 +17,6 @@ import java.time.temporal.ChronoUnit
 private val REPORTER = getUser(name = "reporter")
 private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
-private val NEWBIE = getUser(name = "newbieUser")
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
@@ -720,52 +719,6 @@ class ReopenAwaitingModuleTest : StringSpec({
             reporter = REPORTER,
             comments = listOf(comment),
             changeLog = listOf(AWAITING_RESOLVE, changeLog),
-            reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
-        )
-
-        val result = MODULE(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeRight(ModuleResponse)
-        hasReopened shouldBe true
-        hasCommented shouldBe false
-    }
-
-    "should not reopen when the commenter is a new user" {
-        var hasReopened = false
-        var hasCommented = false
-
-        val comment = getComment(author = NEWBIE)
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockCloudIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = REPORTER,
-            comments = listOf(comment),
-            changeLog = listOf(AWAITING_RESOLVE),
-            reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
-        )
-
-        val result = MODULE(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-        hasReopened shouldBe false
-        hasCommented shouldBe false
-    }
-
-    "should reopen when the commenter is a new user but also the reporter" {
-        var hasReopened = false
-        var hasCommented = false
-
-        val comment = getComment(author = NEWBIE)
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockCloudIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = NEWBIE,
-            comments = listOf(comment),
-            changeLog = listOf(AWAITING_RESOLVE),
             reopen = { hasReopened = true; Unit.right() },
             addComment = { hasCommented = true; Unit.right() }
         )

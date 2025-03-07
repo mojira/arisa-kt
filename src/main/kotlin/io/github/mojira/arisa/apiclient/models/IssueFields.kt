@@ -35,7 +35,8 @@ data class IssueFields(
     val versions: List<JsonElement> = emptyList(),
     val timeoriginalestimate: JsonElement? = null,
     val timespent: Long? = null,
-    val updated: String? = null,
+    @Serializable(with = OffsetDateTimeSerializer::class)
+    val updated: OffsetDateTime? = null,
     val workratio: Int? = null,
     @Transient
     private val additionalProperties: Map<String, JsonElement> = emptyMap()

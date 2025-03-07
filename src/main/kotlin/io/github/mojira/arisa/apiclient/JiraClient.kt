@@ -2,41 +2,48 @@
 
 package io.github.mojira.arisa.apiclient
 
-import io.github.mojira.arisa.apiclient.exceptions.JiraClientException
 import io.github.mojira.arisa.apiclient.exceptions.ClientErrorException
+import io.github.mojira.arisa.apiclient.exceptions.JiraClientException
 import io.github.mojira.arisa.apiclient.interceptors.BasicAuthInterceptor
 import io.github.mojira.arisa.apiclient.interceptors.LoggingInterceptor
-import io.github.mojira.arisa.apiclient.models.IssueBean
-import io.github.mojira.arisa.apiclient.models.Project
-import io.github.mojira.arisa.apiclient.models.SearchResults
 import io.github.mojira.arisa.apiclient.models.AttachmentBean
 import io.github.mojira.arisa.apiclient.models.BodyType
 import io.github.mojira.arisa.apiclient.models.Comment
 import io.github.mojira.arisa.apiclient.models.GroupName
+import io.github.mojira.arisa.apiclient.models.IssueBean
 import io.github.mojira.arisa.apiclient.models.IssueLink
+import io.github.mojira.arisa.apiclient.models.Project
+import io.github.mojira.arisa.apiclient.models.SearchResults
+import io.github.mojira.arisa.apiclient.models.Transitions
 import io.github.mojira.arisa.apiclient.models.User
 import io.github.mojira.arisa.apiclient.models.Visibility
-import io.github.mojira.arisa.apiclient.requestModels.*
+import io.github.mojira.arisa.apiclient.requestModels.AddCommentBody
+import io.github.mojira.arisa.apiclient.requestModels.CreateIssueLinkBody
+import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.JiraSearchRequest
+import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentQueryParams
 import io.github.mojira.arisa.log
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
-import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Part
 import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
+import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Query
 import retrofit2.http.QueryMap
 import java.io.File
 import java.io.InputStream
@@ -134,7 +141,7 @@ interface JiraApi {
     @GET("issue/{issueIdOrKey}/transitions")
     fun getTransition(
         @Path("issueIdOrKey") issueIdOrKey: String,
-    ): Call<Unit>
+    ): Call<Transitions>
 
     @POST("issue/{issueIdOrKey}/transitions")
     fun performTransition(
@@ -317,8 +324,8 @@ class JiraClient(
         jiraApi.deleteIssueLink(linkId).executeOrThrow()
     }
 
-    fun getTransition(issueIdOrKey: String) {
-        jiraApi.deleteIssueLink(issueIdOrKey).executeOrThrow()
+    fun getTransitions(issueIdOrKey: String): Transitions {
+        return jiraApi.getTransition(issueIdOrKey).executeOrThrow()
     }
 
     fun performTransition(issueIdOrKey: String, body: TransitionIssueBody) {

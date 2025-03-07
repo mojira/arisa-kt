@@ -30,6 +30,8 @@ import java.time.temporal.ChronoField
 import io.github.mojira.arisa.apiclient.JiraClient
 import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
 import io.github.mojira.arisa.apiclient.builders.string
+import io.github.mojira.arisa.apiclient.exceptions.JiraClientException
+import io.github.mojira.arisa.apiclient.models.IssueTransition
 import io.github.mojira.arisa.apiclient.models.Visibility
 import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
@@ -232,13 +234,30 @@ private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = run
     }
 }
 
+private fun getIssueTransition(issueKey: String, transitionName: String): IssueTransition = runBlocking {
+    val allTransitions = jiraClient.getTransitions(issueKey)
+    val transition = allTransitions.transitions?.firstOrNull { it.name == transitionName }
+
+    if (transition == null) {
+        val availableTransitions = allTransitions.transitions?.joinToString(",\n") { "${it.name} (${it.id})" }
+        throw JiraClientException("Transition $transitionName not found. Available transitions:\n$availableTransitions")
+    }
+
+    return@runBlocking transition
+}
+
 private fun applyFluentTransition(issueKey: String, update: FluentObjectBuilder, transitionName: String) = runBlocking {
     Either.catch {
+        val transition = getIssueTransition(issueKey, transitionName)
+
         val fieldsJson = update.toJson()
         jiraClient.performTransition(
             issueKey,
             TransitionIssueBody(
-                fields = fieldsJson["fields"]
+                fields = fieldsJson["fields"],
+                transition = IssueTransition(
+                    id = transition.id
+                )
             )
         )
     }

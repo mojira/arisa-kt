@@ -8,7 +8,6 @@ import arrow.core.right
 import arrow.syntax.function.partially1
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.domain.Attachment
-// import io.github.mojira.arisa.domain.Attachment
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.IssueUpdateContext
@@ -24,10 +23,7 @@ import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
 import io.github.mojira.arisa.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.escapeIssueFunction
-import net.rcarz.jiraclient.JiraClient
 import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
-import net.rcarz.jiraclient.JiraException
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -39,6 +35,7 @@ import io.github.mojira.arisa.apiclient.models.Comment as MojiraComment
 import io.github.mojira.arisa.apiclient.models.IssueBean as MojiraIssue
 import io.github.mojira.arisa.apiclient.models.IssueLink as MojiraIssueLink
 import io.github.mojira.arisa.apiclient.models.Project as MojiraProject
+import io.github.mojira.arisa.apiclient.models.User as MojiraUser
 import io.github.mojira.arisa.apiclient.models.UserDetails as MojiraUserDetails
 import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 
@@ -100,10 +97,10 @@ fun MojiraIssue.toDomain(
         description = fields.description,
         environment = fields.environment,
         securityLevel = fields.security?.id,
-//        reporter?.toDomain(jiraClient, config),
+        reporter = fields.reporter?.toDomain(jiraClient, config),
         resolution = fields.resolution?.name,
         created = fields.created?.toInstant() ?: Instant.now(),
-//        updatedDate.toInstant(),
+        updated = fields.updated?.toInstant() ?: Instant.now(),
 //        resolutionDate?.toInstant(),
 //        getCHK(config),
 //        getConfirmation(config),
@@ -120,7 +117,7 @@ fun MojiraIssue.toDomain(
         comments = mapComments(jiraClient, config),
         links = mapLinks(jiraClient, config),
         changeLog = getChangeLogEntries(jiraClient, config),
-//        ::reopen.partially1(context),
+        reopen = ::reopen.partially1(context),
 //        ::resolveAs.partially1(context).partially1("Awaiting Response"),
 //        ::resolveAs.partially1(context).partially1("Invalid"),
 //        ::resolveAs.partially1(context).partially1("Duplicate"),
@@ -244,8 +241,16 @@ fun MojiraUserDetails.toDomain(jiraClient: MojiraClient, config: Config) = User(
     accountId = accountId,
     name = displayName,
     displayName = displayName,
-    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId),
-    isNewUser = { false }
+    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId)
+) {
+    accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
+}
+
+fun MojiraUser.toDomain(jiraClient: MojiraClient, config: Config) = User(
+    accountId = accountId,
+    name = displayName,
+    displayName = displayName,
+    getGroups = ::getUserGroups.partially1(jiraClient).partially1(accountId)
 ) {
     accountId.equals(config[Arisa.Credentials.accountId], ignoreCase = true)
 }
@@ -254,28 +259,6 @@ private fun getUserGroups(jiraClient: MojiraClient, accountId: String) = getGrou
     jiraClient,
     accountId
 ).fold({ null }, { it })
-
-private fun isNewUser(jiraClient: JiraClient, username: String): Boolean {
-    val commentJql = "issueFunction IN commented(${escapeIssueFunction(username) { "by $it before -24h" }})"
-
-    val oldCommentsExist = try {
-        jiraClient.countIssues(commentJql) > 0
-    } catch (_: JiraException) {
-        false
-    }
-
-    if (oldCommentsExist) return false
-
-    val reportJql = """project != TRASH AND reporter = '${username.replace("'", "\\'")}' AND created < -24h"""
-
-    val oldReportsExist = try {
-        jiraClient.countIssues(reportJql) > 0
-    } catch (_: JiraException) {
-        true
-    }
-
-    return !oldReportsExist
-}
 
 @Suppress("LongParameterList")
 fun MojiraIssue.toLinkedIssue(

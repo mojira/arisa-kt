@@ -6,8 +6,8 @@ import arrow.core.left
 import arrow.core.right
 import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -20,14 +20,14 @@ class ReopenAwaitingModule(
     private val keepARTag: String,
     private val onlyOPTag: String,
     private val message: String
-) : Module {
-    override fun invoke(issue: Issue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
+) : CloudModule {
+    override fun invoke(issue: CloudIssue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
         Either.fx {
             assertEquals(resolution, "Awaiting Response").bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
 
             val resolveTime = changeLog.last(::isAwaitingResolve).created
-            val validComments = getValidComments(comments, reporter, resolveTime, lastRun)
+            val validComments = getValidComments(comments, resolveTime, lastRun)
             val validChangeLog = getValidChangeLog(changeLog, reporter, resolveTime)
 
             assertAny(
@@ -39,7 +39,7 @@ class ReopenAwaitingModule(
             if (shouldReopen) {
                 reopen()
             } else {
-                assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.name, "arisabot")
+                assertNotEquals(changeLog.maxByOrNull { it.created }?.author?.isBotUser?.invoke(), true)
                 if (comments.none { isKeepARMessage(it) }) {
                     addRawBotComment(message)
                 }
@@ -66,7 +66,7 @@ class ReopenAwaitingModule(
             // regular users can reopen and have commented OR
             (!onlyOp && isSoftAR) ||
             // reporter has commented
-            validComments.any { it.author?.name == reporter?.name }
+            validComments.any { it.author?.accountId == reporter?.accountId }
     }
 
     private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&
@@ -78,16 +78,15 @@ class ReopenAwaitingModule(
         (comment.body?.contains(keepARTag) ?: false)
 
     private fun isKeepARMessage(comment: Comment) =
-        comment.author?.name == "arisabot" && comment.body?.contains(message) ?: false
+        comment.author?.isBotUser?.invoke() == true && comment.body?.contains(message) ?: false
 
     private fun getValidComments(
         comments: List<Comment>,
-        reporter: User?,
         resolveTime: Instant,
         lastRun: Instant
     ): List<Comment> = comments
         .filter { it.created.isAfter(resolveTime) && it.created.isAfter(lastRun) }
-        .filter { it.author != null && (!it.author.isNewUser() || it.author.name == reporter?.name) }
+        .filter { it.author != null }
         .filter {
             val roles = it.getAuthorGroups()
             roles == null || roles.intersect(blacklistedRoles).isEmpty()
@@ -100,7 +99,7 @@ class ReopenAwaitingModule(
         resolveTime: Instant
     ): List<ChangeLogItem> = changeLog
         .filter { it.created.isAfter(resolveTime) }
-        .filter { it.author.name == reporter?.name }
+        .filter { it.author.accountId == reporter?.accountId }
         .filter { it.field != "Comment" }
 
     private fun isAwaitingResolve(change: ChangeLogItem) =

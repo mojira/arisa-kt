@@ -5,7 +5,7 @@ import io.github.mojira.arisa.domain.User
 import io.github.mojira.arisa.utils.RIGHT_NOW
 import io.github.mojira.arisa.utils.mockChangeLogItem
 import io.github.mojira.arisa.utils.mockComment
-import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockCloudIssue
 import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -17,7 +17,6 @@ import java.time.temporal.ChronoUnit
 private val REPORTER = getUser(name = "reporter")
 private val ARISA = getUser(name = "arisabot")
 private val RANDOM_USER = getUser(name = "randomUser")
-private val NEWBIE = getUser(name = "newbieUser", newUser = true)
 
 private val TEN_SECONDS_AGO = RIGHT_NOW.minusSeconds(10)
 private val TWO_YEARS_AGO = RIGHT_NOW.minus(730, ChronoUnit.DAYS)
@@ -47,7 +46,7 @@ private val OLD_AWAITING_RESOLVE = mockChangeLogItem(
 class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when there is no resolution" {
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             updated = updated,
             reporter = REPORTER,
             comments = listOf(getComment()),
@@ -61,7 +60,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Test",
             updated = updated,
             reporter = REPORTER,
@@ -76,7 +75,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when ticket is less than 2 seconds old" {
         val updated = RIGHT_NOW.plusSeconds(1)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -91,7 +90,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
     "should return OperationNotNeededModuleResponse when there are no comments" {
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -109,7 +108,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             RIGHT_NOW.minusSeconds(20),
             RIGHT_NOW.minusSeconds(20)
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -133,7 +132,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             RIGHT_NOW.minusSeconds(20),
             RIGHT_NOW.minusSeconds(20)
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -158,7 +157,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             field = "customfield_00042",
             changedToString = "Confirmed"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -173,7 +172,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when just the comment was updated" {
         val comment = getComment(RIGHT_NOW.plusSeconds(3), RIGHT_NOW.minusSeconds(20))
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             comments = listOf(comment),
             updated = updated,
@@ -189,7 +188,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when comment is restricted" {
         val comment = getComment(visibilityType = "group", visibilityValue = "helper")
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             comments = listOf(comment),
             updated = updated,
@@ -205,7 +204,7 @@ class ReopenAwaitingModuleTest : StringSpec({
     "should return OperationNotNeededModuleResponse when comment author is staff" {
         val comment = getComment(authorGroups = listOf("staff"))
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             comments = listOf(comment),
             updated = updated,
@@ -226,7 +225,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             author = REPORTER
         )
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -245,7 +244,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             changedToString = "1.15.2"
         )
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -264,7 +263,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             changedToString = "1.15.2"
         )
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = ARISA,
@@ -285,7 +284,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             author = REPORTER
         ) { emptyList() }
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -302,7 +301,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         var hasCommented = false
 
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -326,7 +325,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = RIGHT_NOW.plusSeconds(3)
         val commentFail = getComment(visibilityType = "group", visibilityValue = "staff")
         val commentSuccess = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -350,7 +349,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = RIGHT_NOW.plusSeconds(3)
         val commentFail = getComment(visibilityType = "group", visibilityValue = "staff")
         val commentSuccess = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -378,7 +377,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             changedFromString = "",
             changedToString = "Confirmed"
         ) { emptyList() }
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -401,7 +400,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -423,7 +422,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment()
         val keep = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -444,7 +443,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(author = REPORTER)
         val keep = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -472,7 +471,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         )
         val reopenOpComment = getComment(body = "ARISA_REOPEN_OP", visibilityType = "group", visibilityValue = "staff")
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -495,7 +494,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -520,7 +519,7 @@ class ReopenAwaitingModuleTest : StringSpec({
         val comment = getComment(
             author = REPORTER
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -543,7 +542,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(body = "MEQS_KEEP_AR")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -566,7 +565,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val comment = getComment(RIGHT_NOW.plusSeconds(3), RIGHT_NOW.minusSeconds(5))
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -589,7 +588,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "not-a-group", visibilityValue = "helper")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -612,7 +611,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(visibilityType = "group", visibilityValue = "users")
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -635,7 +634,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(authorGroups = emptyList())
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -658,7 +657,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment(authorGroups = listOf("Users"))
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -686,7 +685,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             author = REPORTER
         )
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -714,58 +713,12 @@ class ReopenAwaitingModuleTest : StringSpec({
         )
         val comment = getComment()
         val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
             comments = listOf(comment),
             changeLog = listOf(AWAITING_RESOLVE, changeLog),
-            reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
-        )
-
-        val result = MODULE(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeRight(ModuleResponse)
-        hasReopened shouldBe true
-        hasCommented shouldBe false
-    }
-
-    "should not reopen when the commenter is a new user" {
-        var hasReopened = false
-        var hasCommented = false
-
-        val comment = getComment(author = NEWBIE)
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = REPORTER,
-            comments = listOf(comment),
-            changeLog = listOf(AWAITING_RESOLVE),
-            reopen = { hasReopened = true; Unit.right() },
-            addComment = { hasCommented = true; Unit.right() }
-        )
-
-        val result = MODULE(issue, TEN_SECONDS_AGO)
-
-        result.shouldBeLeft(OperationNotNeededModuleResponse)
-        hasReopened shouldBe false
-        hasCommented shouldBe false
-    }
-
-    "should reopen when the commenter is a new user but also the reporter" {
-        var hasReopened = false
-        var hasCommented = false
-
-        val comment = getComment(author = NEWBIE)
-        val updated = RIGHT_NOW.plusSeconds(3)
-        val issue = mockIssue(
-            resolution = "Awaiting Response",
-            updated = updated,
-            reporter = NEWBIE,
-            comments = listOf(comment),
-            changeLog = listOf(AWAITING_RESOLVE),
             reopen = { hasReopened = true; Unit.right() },
             addComment = { hasCommented = true; Unit.right() }
         )
@@ -788,7 +741,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             visibilityValue = "staff"
         )
         val normalComment = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -812,7 +765,7 @@ class ReopenAwaitingModuleTest : StringSpec({
 
         val updated = RIGHT_NOW.plusSeconds(3)
         val comment = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -845,7 +798,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             author = ARISA
         )
         val normalComment = getComment()
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -876,7 +829,7 @@ class ReopenAwaitingModuleTest : StringSpec({
             body = NOT_REOPEN_AR_MESSAGE,
             author = RANDOM_USER
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             resolution = "Awaiting Response",
             updated = updated,
             reporter = REPORTER,
@@ -913,5 +866,5 @@ private fun getComment(
     visibilityValue = visibilityValue
 )
 
-private fun getUser(name: String, newUser: Boolean = false) =
-    mockUser(name = name, displayName = "User", isNewUser = { newUser })
+private fun getUser(name: String) =
+    mockUser(name = name, displayName = "User")

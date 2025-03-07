@@ -3,8 +3,10 @@ package io.github.mojira.arisa.registry
 import com.uchuhimo.konf.Config
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.domain.cloud.CloudIssue
+import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.config.Arisa
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
+import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
 import io.github.mojira.arisa.modules.privacy.PrivacyModule
 
@@ -34,6 +36,18 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry<CloudIssue>(config)
                 config[Arisa.Modules.Privacy.sensitiveTextRegexes].map(String::toRegex),
                 AccessTokenRedactor,
                 config[Arisa.Modules.Privacy.sensitiveFileNameRegexes].map(String::toRegex)
+            )
+        )
+
+        register(
+            Arisa.Modules.ReopenAwaiting,
+            ReopenAwaitingModule(
+                config[Arisa.Modules.ReopenAwaiting.blacklistedRoles].toSetNoDuplicates(),
+                config[Arisa.Modules.ReopenAwaiting.blacklistedVisibilities].toSetNoDuplicates(),
+                config[Arisa.Modules.ReopenAwaiting.softARDays],
+                config[Arisa.Modules.ReopenAwaiting.keepARTag],
+                config[Arisa.Modules.ReopenAwaiting.onlyOPTag],
+                HelperMessageService.getMessage("MC", keys = listOf(config[Arisa.Modules.ReopenAwaiting.message]))
             )
         )
     }

@@ -26,6 +26,7 @@ class ReopenAwaitingModule(
             assertEquals(resolution, "Awaiting Response").bind()
             assertCreationIsNotRecent(updated.toEpochMilli(), created.toEpochMilli()).bind()
 
+            assertNotEmpty(changeLog.filter(::isAwaitingResolve)).bind()
             val resolveTime = changeLog.last(::isAwaitingResolve).created
             val validComments = getValidComments(comments, resolveTime, lastRun)
             val validChangeLog = getValidChangeLog(changeLog, reporter, resolveTime)

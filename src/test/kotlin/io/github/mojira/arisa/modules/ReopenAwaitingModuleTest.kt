@@ -58,6 +58,21 @@ class ReopenAwaitingModuleTest : StringSpec({
         result.shouldBeLeft(OperationNotNeededModuleResponse)
     }
 
+    "should return OperationNotNeededModuleResponse when changelog is empty" {
+        val updated = RIGHT_NOW.plusSeconds(3)
+        val issue = mockCloudIssue(
+            resolution = "Awaiting Response",
+            updated = updated,
+            reporter = REPORTER,
+            comments = listOf(getComment()),
+            changeLog = listOf()
+        )
+
+        val result = MODULE(issue, TEN_SECONDS_AGO)
+
+        result.shouldBeLeft(OperationNotNeededModuleResponse)
+    }
+
     "should return OperationNotNeededModuleResponse when ticket is not in awaiting response" {
         val updated = RIGHT_NOW.plusSeconds(3)
         val issue = mockCloudIssue(

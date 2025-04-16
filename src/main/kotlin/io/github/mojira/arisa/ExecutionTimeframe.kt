@@ -49,7 +49,7 @@ class ExecutionTimeframe(
      * Creates a JQL query for freshly updated issues.
      */
     fun getFreshlyUpdatedJql() =
-        "created > ${lastRunTime.toEpochMilli()}${capIfNotOpenEnded()}"
+        "updated > ${lastRunTime.toEpochMilli()}${capIfNotOpenEnded()}"
 
     /**
      * Creates a JQL query for issues which have been updated in the execution timeframe, shifted to the past
@@ -59,7 +59,7 @@ class ExecutionTimeframe(
         require(!offset.isNegative)
         val checkStart = lastRunTime.minus(offset)
         val checkEnd = currentRunTime.minus(offset)
-        return "created > ${checkStart.toEpochMilli()} AND created <= ${checkEnd.toEpochMilli()}"
+        return "updated > ${checkStart.toEpochMilli()} AND updated <= ${checkEnd.toEpochMilli()}"
     }
 
     fun contains(instant: Instant): Boolean = instant in lastRunTime..currentRunTime
@@ -70,7 +70,7 @@ class ExecutionTimeframe(
      * @return If open ended: empty string. Otherwise: ` AND updated <= [currentRunTime]`
      */
     private fun capIfNotOpenEnded(): String =
-        if (openEnded) "" else " AND created <= ${currentRunTime.toEpochMilli()}"
+        if (openEnded) "" else " AND updated <= ${currentRunTime.toEpochMilli()}"
 
     override fun toString(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

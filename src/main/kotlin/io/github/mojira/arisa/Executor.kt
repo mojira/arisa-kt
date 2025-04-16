@@ -17,7 +17,7 @@ class Executor(
         ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
 ) {
     companion object {
-        private const val MAX_RESULTS = 100
+        private const val MAX_RESULTS = 50
     }
 
     data class ExecutionResults(

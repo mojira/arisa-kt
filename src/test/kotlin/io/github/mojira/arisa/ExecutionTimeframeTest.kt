@@ -25,7 +25,7 @@ class ExecutionTimeframeTest : StringSpec({
         timeframe.lastRunTime shouldBe lastRunTime
         timeframe.currentRunTime.isAfter(Instant.now()) shouldBe false
         // Should not be capped
-        timeframe.getFreshlyUpdatedJql() shouldNotContain " AND created <= "
+        timeframe.getFreshlyUpdatedJql() shouldNotContain " AND updated <= "
 
         val delayedStart = LocalDateTime.of(2021, 1, 1, 12, 0, 0)
             .atZone(ZoneOffset.UTC)
@@ -35,7 +35,7 @@ class ExecutionTimeframeTest : StringSpec({
         // Shift timeframe to start at `offsetBaseInstant`
         // Note: Cannot hardcode `delayedEnd` value in string because it depends on how fast
         // `ExecutionTimeframe.getTimeframeFromLastRun` executes
-        timeframe.getDelayedUpdatedJql(offset) shouldBe "created > 1609502400000 AND created <= ${delayedEnd.toEpochMilli()}"
+        timeframe.getDelayedUpdatedJql(offset) shouldBe "updated > 1609502400000 AND updated <= ${delayedEnd.toEpochMilli()}"
     }
 
     "getTimeframeFromLastRun should return the correct timeframe if last run was a while ago" {
@@ -56,7 +56,7 @@ class ExecutionTimeframeTest : StringSpec({
 
         timeframe.lastRunTime shouldBe lastRunTime
         timeframe.currentRunTime shouldBe timeframeEnd
-        timeframe.getFreshlyUpdatedJql() shouldBe "created > 1609502400000 AND created <= 1609503000000"
-        timeframe.getDelayedUpdatedJql(Duration.ofHours(1)) shouldBe "created > 1609498800000 AND created <= 1609499400000"
+        timeframe.getFreshlyUpdatedJql() shouldBe "updated > 1609502400000 AND updated <= 1609503000000"
+        timeframe.getDelayedUpdatedJql(Duration.ofHours(1)) shouldBe "updated > 1609498800000 AND updated <= 1609499400000"
     }
 })

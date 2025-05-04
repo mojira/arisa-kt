@@ -15,6 +15,7 @@ import io.github.mojira.arisa.domain.Version
 import java.io.File
 import java.io.InputStream
 import java.time.Instant
+import java.util.UUID
 
 val RIGHT_NOW: Instant = Instant.now()
 const val PRIVATE_SECURITY_LEVEL = "private"
@@ -239,8 +240,12 @@ fun mockProject(
     privateSecurity
 )
 
+fun generateUUID(): String {
+    return UUID.randomUUID().toString()
+}
+
 fun mockUser(
-    accountId: String = "712020:33043866-64fe-4184-b28e-32ae8e3bd15f",
+    accountId: String = generateUUID(),
     name: String = "user",
     displayName: String = "User",
     getGroups: () -> List<String>? = { null },
@@ -251,7 +256,6 @@ fun mockUser(
     name,
     displayName,
     getGroups,
-    isNewUser,
     isBotUser
 )
 

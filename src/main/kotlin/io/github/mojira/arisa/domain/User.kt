@@ -6,6 +6,5 @@ data class User(
     val name: String?,
     val displayName: String?,
     val getGroups: () -> List<String>?,
-    val isNewUser: () -> Boolean,
     val isBotUser: () -> Boolean
 )

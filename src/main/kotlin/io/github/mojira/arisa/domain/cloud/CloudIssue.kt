@@ -5,6 +5,7 @@ import io.github.mojira.arisa.domain.ChangeLogItem
 import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Project
+import io.github.mojira.arisa.domain.User
 import java.io.File
 import java.time.Instant
 
@@ -15,10 +16,10 @@ data class CloudIssue(
     val description: String?,
     val environment: String?,
     val securityLevel: String?,
-//    val reporter: User?,
+    val reporter: User?,
     val resolution: String?,
     val created: Instant,
-//    val updated: Instant,
+    val updated: Instant,
 //    val resolved: Instant?,
 //    val chk: String?,
 //    val confirmationStatus: String?,
@@ -35,7 +36,7 @@ data class CloudIssue(
     val comments: List<Comment>,
     val links: List<CloudLink>,
     val changeLog: List<ChangeLogItem>,
-//    val reopen: () -> Unit,
+    val reopen: () -> Unit,
 //    val resolveAsAwaitingResponse: () -> Unit,
 //    val resolveAsInvalid: () -> Unit,
 //    val resolveAsDuplicate: () -> Unit,

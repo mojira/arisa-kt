@@ -21,8 +21,7 @@ arisa:
       - Unresolved
       - Won't Fix
       - Works As Intended
-    # End with trailing slash
-    url: https://api.atlassian.com/ex/jira/
+    url: https://api.atlassian.com/ex/jira
 
   customFields:
     linked: customfield_11100

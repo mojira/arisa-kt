@@ -185,6 +185,7 @@ class JiraClient(
     private val jiraUrl: String,
     private val email: String,
     private val apiToken: String,
+    private val cloudId: String,
     private val logHttpRequests: Boolean?
 ) {
     private val jiraApi: JiraApi
@@ -202,7 +203,7 @@ class JiraClient(
                 }
                 .build()
 
-        val apiBaseUrl = jiraUrl.plus("rest/api/2/")
+        val apiBaseUrl = jiraUrl.plus(cloudId).plus("/rest/api/2/")
         val mediaType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 

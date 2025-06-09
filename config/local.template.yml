@@ -6,6 +6,8 @@ arisa:
     password: <plain text password>
     email: <JIRA email>
     apiToken: <JIRA api token for the user with above email>
+    # Get your cloud ID by visiting https://<your-site-name>.atlassian.net/_edge/tenant_info
+    cloudId: <JIRA cloud ID>
 
     # These configs are optional and can be omitted
     dandelionToken: <Dandelion token>

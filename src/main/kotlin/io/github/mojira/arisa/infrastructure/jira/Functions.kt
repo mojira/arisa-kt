@@ -40,10 +40,6 @@ import io.github.mojira.arisa.jiraClient
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-fun connectToJira(email: String, apiToken: String, url: String, logNetworkRequests: Boolean? = false): JiraClient {
-    return JiraClient(url, email, apiToken, logNetworkRequests)
-}
-
 /**
  * Get a list of tickets matching a JQL query.
  * TODO: Actually return the tickets themselves instead of only ticket IDs.

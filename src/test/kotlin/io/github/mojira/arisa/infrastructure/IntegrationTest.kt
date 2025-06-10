@@ -20,7 +20,8 @@ class IntegrationTest : StringSpec({
                     "arisa.credentials.password" to "test",
                     "arisa.credentials.email" to "test",
                     "arisa.credentials.apiToken" to "test",
-                    "arisa.credentials.dandelionToken" to "test"
+                    "arisa.credentials.dandelionToken" to "test",
+                    "arisa.credentials.cloudId" to "test"
                 )
             )
             .from.enabled(Feature.FAIL_ON_UNKNOWN_PATH).yaml.watchFile("config/config.yml")

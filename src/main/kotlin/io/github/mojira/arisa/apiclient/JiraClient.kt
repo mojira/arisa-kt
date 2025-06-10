@@ -26,6 +26,7 @@ import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentQueryParams
 import io.github.mojira.arisa.log
 import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -185,6 +186,7 @@ class JiraClient(
     private val jiraUrl: String,
     private val email: String,
     private val apiToken: String,
+    private val cloudId: String,
     private val logHttpRequests: Boolean?
 ) {
     private val jiraApi: JiraApi
@@ -202,7 +204,9 @@ class JiraClient(
                 }
                 .build()
 
-        val apiBaseUrl = jiraUrl.plus("rest/api/2/")
+        val apiBaseUrl = jiraUrl.toHttpUrl().newBuilder()
+            .addPathSegments("${cloudId}/rest/api/2/")
+            .build()
         val mediaType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 

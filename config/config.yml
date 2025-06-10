@@ -21,7 +21,7 @@ arisa:
       - Unresolved
       - Won't Fix
       - Works As Intended
-    url: https://mojira.atlassian.net/
+    url: https://api.atlassian.com/ex/jira
 
   customFields:
     linked: customfield_11100

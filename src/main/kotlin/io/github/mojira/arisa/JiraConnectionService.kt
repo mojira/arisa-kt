@@ -1,8 +1,8 @@
 package io.github.mojira.arisa
 
 import com.uchuhimo.konf.Config
+import io.github.mojira.arisa.apiclient.JiraClient
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import io.github.mojira.arisa.infrastructure.jira.connectToJira
 import java.lang.Long.max
 import java.time.Duration
 import java.time.Instant
@@ -39,11 +39,12 @@ class JiraConnectionService(
     @Suppress("TooGenericExceptionCaught")
     private fun establishConnection(): Exception? {
         return try {
-            val client = connectToJira(
-                config[Arisa.Credentials.email],
-                config[Arisa.Credentials.apiToken],
-                config[Arisa.Issues.url],
-                config[Arisa.Debug.logNetworkRequests]
+            val client = JiraClient(
+                jiraUrl = config[Arisa.Issues.url],
+                email = config[Arisa.Credentials.email],
+                apiToken = config[Arisa.Credentials.apiToken],
+                cloudId = config[Arisa.Credentials.cloudId],
+                logHttpRequests = config[Arisa.Debug.logNetworkRequests]
             )
 
             log.info("Successfully connected to jira")

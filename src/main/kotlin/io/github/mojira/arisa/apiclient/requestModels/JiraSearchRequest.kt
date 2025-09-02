@@ -9,5 +9,5 @@ data class JiraSearchRequest(
     val fieldsByKeys: Boolean? = null,
     val jql: String,
     val maxResults: Int,
-    val startAt: Int
+    val nextPageToken: String? = null
 )

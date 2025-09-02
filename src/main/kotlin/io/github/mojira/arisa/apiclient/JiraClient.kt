@@ -80,7 +80,7 @@ interface JiraApi {
         @Query("key") key: String?
     ): Call<List<GroupName>>
 
-    @POST("search")
+    @POST("search/jql")
     fun searchIssues(
         @Body request: JiraSearchRequest,
     ): Call<SearchResults>
@@ -226,7 +226,7 @@ class JiraClient(
         fields: List<String> = emptyList(),
         expand: List<String> = emptyList(),
         maxResults: Int = 100,
-        startAt: Int = 0,
+        nextPageToken: String? = null,
     ): SearchResults {
         val payload =
             JiraSearchRequest(
@@ -234,7 +234,7 @@ class JiraClient(
                 fields = fields,
                 jql = jql,
                 maxResults = maxResults,
-                startAt = startAt,
+                nextPageToken = nextPageToken,
             )
 
         return jiraApi.searchIssues(payload).executeOrThrow()

@@ -66,7 +66,7 @@ class ExecutorTest : StringSpec({
             searchIssues = { _, _, finishedCallback ->
                 run {
                     finishedCallback()
-                    listOf(mockCloudIssue("MC-1"))
+                    null to listOf(mockCloudIssue("MC-1"))
                 }
             }
         )
@@ -102,10 +102,10 @@ class ExecutorTest : StringSpec({
 
 fun getMockExecutor(
     registries: List<ModuleRegistry<CloudIssue>>,
-    searchIssues: (String, Int, () -> Unit) -> List<CloudIssue> =
+    searchIssues: (String, String?, () -> Unit) -> Pair<String?, List<CloudIssue>> =
         { _, _, finishedCallback ->
             finishedCallback()
-            listOf(mockCloudIssue())
+            null to listOf(mockCloudIssue())
         }
 ): Executor = Executor(
     getConfig(),

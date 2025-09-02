@@ -13,7 +13,7 @@ import io.github.mojira.arisa.registry.getModuleRegistries
 class Executor(
     private val config: Config,
     private val registries: List<ModuleRegistry<CloudIssue>> = getModuleRegistries(config),
-    private val searchIssues: (String, Int, () -> Unit) -> List<CloudIssue> =
+    private val searchIssues: (String, String?, () -> Unit) -> Pair<String?, List<CloudIssue>> =
         ::getSearchResultsFromJira.partially1(config).partially1(MAX_RESULTS)
 ) {
     companion object {
@@ -83,17 +83,17 @@ class Executor(
         }
 
         var continueSearching = true
-        var startAt = 0
+        var nextPageToken: String? = null
 
         while (continueSearching) {
-            val searchResult = searchIssues(
+            val (next, searchResult) = searchIssues(
                 jql,
-                startAt
+                nextPageToken
             ) { continueSearching = false }
 
             issues.addAll(searchResult)
 
-            startAt += MAX_RESULTS
+            nextPageToken = next
         }
 
         if (config[Arisa.Debug.logReturnedIssues]) {
@@ -115,20 +115,20 @@ private fun getSearchResultsFromJira(
     config: Config,
     maxResults: Int,
     jql: String,
-    startAt: Int,
+    nextPageToken: String?,
     finishedCallback: () -> Unit
-): List<CloudIssue> {
+): Pair<String?, List<CloudIssue>> {
     val searchResult = jiraClient.searchIssues(
         jql,
         listOf("*all"),
         listOf("changelog"),
         maxResults,
-        startAt
-    ) ?: return emptyList()
+        nextPageToken
+    ) ?: return (null to emptyList())
 
-    if (startAt + searchResult.maxResults >= searchResult.total) finishedCallback()
+    if (searchResult.isLast) finishedCallback()
 
-    return searchResult
+    return searchResult.nextPageToken to searchResult
         .issues
         .mapNotNull {
             @Suppress("TooGenericExceptionCaught")

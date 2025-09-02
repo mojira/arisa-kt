@@ -230,7 +230,7 @@ class JiraClient(
     ): SearchResults {
         val payload =
             JiraSearchRequest(
-                expand = expand,
+                expand = expand.joinToString(","),
                 fields = fields,
                 jql = jql,
                 maxResults = maxResults,

@@ -316,10 +316,10 @@ private fun MojiraIssue.mapLinks(
 }
 
 private fun MojiraIssue.mapComments(jiraClient: MojiraClient, config: Config) =
-    fields.comment?.comments?.map { it.toDomain(jiraClient, this, config) } ?: emptyList()
+    fields.comment?.comments?.map { it.toDomain(jiraClient, this, config) }?.sortedBy { it.created } ?: emptyList()
 
 private fun MojiraIssue.mapAttachments(jiraClient: MojiraClient, config: Config) =
-    fields.attachment.map { it.toDomain(jiraClient, this, config) }
+    fields.attachment.map { it.toDomain(jiraClient, this, config) }.sortedBy { it.created }
 
 // private fun MojiraIssue.mapVersions() =
 //    fields.versions.map { it.toDomain() }
@@ -332,7 +332,7 @@ private fun MojiraIssue.getChangeLogEntries(jiraClient: MojiraClient, config: Co
         e.items.mapIndexed { index, item ->
             item.toDomain(jiraClient, e, index, config)
         }
-    }
+    }.sortedBy { it.created }
 
 // private fun MojiraIssue.getFieldAsString(field: String) = this.getField(field) as? String?
 //

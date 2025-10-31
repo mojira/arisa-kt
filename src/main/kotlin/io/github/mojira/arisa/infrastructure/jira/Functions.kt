@@ -442,7 +442,7 @@ fun restrictCommentToGroup(
     context: Lazy<IssueUpdateContext>,
     comment: MojiraComment,
     group: String,
-    body: String = comment.body
+    body: String? = comment.body
 ) {
     context.value.otherOperations.add {
         runBlocking {

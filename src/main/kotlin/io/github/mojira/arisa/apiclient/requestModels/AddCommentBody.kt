@@ -14,7 +14,7 @@ data class AddCommentBody(
 
 @Serializable
 data class UpdateCommentBody(
-    val body: BodyType,
+    val body: BodyType?,
     val properties: List<EntityProperty>? = null,
     val visibility: Visibility? = null
 ) : HashMap<String, String>()

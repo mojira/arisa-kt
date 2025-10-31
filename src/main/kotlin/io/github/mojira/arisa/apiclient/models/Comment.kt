@@ -27,7 +27,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Comment(
     val author: UserDetails? = null,
-    val body: BodyType,
+    val body: BodyType? = null,
     @Serializable(with = OffsetDateTimeSerializer::class)
     val created: java.time.OffsetDateTime? = null,
     val id: String,

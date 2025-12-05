@@ -1,28 +1,20 @@
 package io.github.mojira.arisa.modules.commands
 
-import arrow.syntax.function.partially1
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.arguments.IntegerArgumentType.integer
 import com.mojang.brigadier.arguments.StringArgumentType.greedyString
-import com.mojang.brigadier.arguments.StringArgumentType.string
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
-import io.github.mojira.arisa.infrastructure.jira.getIssuesFromJql
-import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.modules.commands.arguments.LinkList
-import io.github.mojira.arisa.modules.commands.arguments.LinkListArgumentType
 import io.github.mojira.arisa.modules.commands.arguments.StringWithFlag
-import io.github.mojira.arisa.modules.commands.arguments.enumArgumentType
-import io.github.mojira.arisa.modules.commands.arguments.greedyStringWithFlag
 
 @Suppress("LongMethod")
 fun getCommandDispatcher(
     prefix: String,
     attachmentUtils: AttachmentUtils
 ): CommandDispatcher<CommandSource> {
-    //val addLinksCommand = AddLinksCommand()
+    // val addLinksCommand = AddLinksCommand()
     val addVersionCommand = AddVersionCommand()
 //    val clearProjectCacheCommand = ClearProjectCacheCommand()
 //    val deleteCommentsCommand = DeleteCommentsCommand()
@@ -366,4 +358,5 @@ private fun sentByModerator(source: CommandSource) =
 private fun CommandContext<*>.getInt(name: String) = getArgument(name, Int::class.java)
 private fun CommandContext<*>.getLinkList(name: String) = getArgument(name, LinkList::class.java)
 private fun CommandContext<*>.getString(name: String) = getArgument(name, String::class.java)
-private fun CommandContext<*>.getStringWithFlag(name: String) = getArgument(name, StringWithFlag::class.java)
+private fun CommandContext<*>.getStringWithFlag(name: String) =
+    getArgument(name, StringWithFlag::class.java)

@@ -23,7 +23,6 @@ import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
 import io.github.mojira.arisa.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
-import kotlinx.serialization.json.JsonObject
 import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -40,23 +39,25 @@ import io.github.mojira.arisa.apiclient.models.User as MojiraUser
 import io.github.mojira.arisa.apiclient.models.UserDetails as MojiraUserDetails
 import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 
-fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) = Attachment(
-    id = id,
-    name = filename,
-    created = getCreationDate(issue, id, issue.fields.created?.toInstant() ?: Instant.now()),
-    mimeType = mimeType,
-    remove = ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
-    openContentStream = { openAttachmentStream(jiraClient, this) },
-    // Cache attachment content once it has been downloaded
-    getContent = lazy { jiraClient.downloadAttachment(id) }::value,
-    uploader = author?.toDomain(jiraClient, config)
-)
+fun MojiraAttachment.toDomain(jiraClient: MojiraClient, issue: MojiraIssue, config: Config) =
+    Attachment(
+        id = id,
+        name = filename,
+        created = getCreationDate(issue, id, issue.fields.created?.toInstant() ?: Instant.now()),
+        mimeType = mimeType,
+        remove = ::deleteAttachment.partially1(issue.getUpdateContext(jiraClient)).partially1(this),
+        openContentStream = { openAttachmentStream(jiraClient, this) },
+        // Cache attachment content once it has been downloaded
+        getContent = lazy { jiraClient.downloadAttachment(id) }::value,
+        uploader = author?.toDomain(jiraClient, config)
+    )
 
-fun getCreationDate(issue: MojiraIssue, id: String, default: Instant) = (issue.changelog.histories as List<Changelog>)
-    .filter { changeLogEntry -> changeLogEntry.items.any { it.field == "Attachment" && it.to == id } }
-    .maxByOrNull { it.created }
-    ?.created
-    ?.toInstant() ?: default
+fun getCreationDate(issue: MojiraIssue, id: String, default: Instant) =
+    (issue.changelog.histories as List<Changelog>)
+        .filter { changeLogEntry -> changeLogEntry.items.any { it.field == "Attachment" && it.to == id } }
+        .maxByOrNull { it.created }
+        ?.created
+        ?.toInstant() ?: default
 
 fun MojiraProject.getSecurityLevelId(config: Config) = config[Arisa.PrivateSecurityLevel.default]
 
@@ -131,7 +132,8 @@ fun MojiraIssue.toDomain(
 //        ::updateDungeonsPlatform.partially1(context).partially1(config[Arisa.CustomFields.dungeonsPlatformField]),
 //        ::updateLegendsPlatform.partially1(context).partially1(config[Arisa.CustomFields.legendsPlatformField]),
 //        ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
-        setPrivate = ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
+        setPrivate = ::updateSecurity.partially1(context)
+            .partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
 //        { version -> addAffectedVersionById(context, version.id) },
 //        { version -> removeAffectedVersionById(context, version.id) },
@@ -227,12 +229,22 @@ fun MojiraComment.toDomain(
         author = author?.toDomain(jiraClient, config),
         updateAuthor = updateAuthor?.toDomain(jiraClient, config),
         getAuthorGroups = { getGroups(jiraClient, author!!.accountId).fold({ null }, { it }) },
-        getUpdateAuthorGroups = { if (updateAuthor == null) emptyList() else getGroups(jiraClient, updateAuthor.accountId).fold({ null }, { it }) },
+        getUpdateAuthorGroups = {
+            if (updateAuthor == null) {
+                emptyList()
+            } else {
+                getGroups(
+                    jiraClient,
+                    updateAuthor.accountId
+                ).fold({ null }, { it })
+            }
+        },
         created = created!!.toInstant(),
         updated = updated!!.toInstant(),
         visibilityType = visibility?.type,
         visibilityValue = visibility?.value,
-        restrict = ::restrictCommentToGroup.partially1(context).partially1(this).partially1("staff"),
+        restrict = ::restrictCommentToGroup.partially1(context).partially1(this)
+            .partially1("staff"),
         update = ::updateCommentBody.partially1(context).partially1(this),
         remove = ::deleteComment.partially1(issue.getUpdateContext(jiraClient)).partially1(this)
     )
@@ -317,12 +329,13 @@ private fun MojiraIssue.mapLinks(
 }
 
 private fun MojiraIssue.mapComments(jiraClient: MojiraClient, config: Config) =
-    fields.comment?.comments?.map { it.toDomain(jiraClient, this, config) }?.sortedBy { it.created } ?: emptyList()
+    fields.comment?.comments?.map { it.toDomain(jiraClient, this, config) }?.sortedBy { it.created }
+        ?: emptyList()
 
 private fun MojiraIssue.mapAttachments(jiraClient: MojiraClient, config: Config) =
     fields.attachment.map { it.toDomain(jiraClient, this, config) }.sortedBy { it.created }
 
- private fun MojiraIssue.mapVersions() =
+private fun MojiraIssue.mapVersions() =
     fields.versions.map { it.toDomain() }
 
 // private fun MojiraIssue.mapFixVersions() =

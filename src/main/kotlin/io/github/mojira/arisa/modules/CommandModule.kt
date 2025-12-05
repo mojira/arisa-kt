@@ -7,7 +7,6 @@ import arrow.syntax.function.partially1
 import arrow.syntax.function.partially2
 import com.mojang.brigadier.CommandDispatcher
 import io.github.mojira.arisa.domain.Comment
-import io.github.mojira.arisa.domain.Issue
 import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.modules.commands.CommandSource
@@ -38,37 +37,38 @@ class CommandModule(
      */
     private lateinit var commandDispatcher: CommandDispatcher<CommandSource>
 
-    override fun invoke(issue: CloudIssue, lastRun: Instant): Either<ModuleError, ModuleResponse> = Either.fx {
-        if (!::commandDispatcher.isInitialized) {
-            commandDispatcher = getDispatcher(prefix)
-        }
+    override fun invoke(issue: CloudIssue, lastRun: Instant): Either<ModuleError, ModuleResponse> =
+        Either.fx {
+            if (!::commandDispatcher.isInitialized) {
+                commandDispatcher = getDispatcher(prefix)
+            }
 
-        with(issue) {
-            val staffComments = comments
-                .filter(::isUpdatedAfterLastRun.partially1(lastRun))
-                .filter(::isStaffRestricted)
-                .filter(::userIsVolunteer)
-            assertNotEmpty(staffComments).bind()
+            with(issue) {
+                val staffComments = comments
+                    .filter(::isUpdatedAfterLastRun.partially1(lastRun))
+                    .filter(::isStaffRestricted)
+                    .filter(::userIsVolunteer)
+                assertNotEmpty(staffComments).bind()
 
-            val commands = staffComments
-                .map { comment ->
-                    comment to extractCommands(issue, comment)
-                }
-                .filter { it.second.isNotEmpty() }
-                .onEach { invocation ->
-                    val commandResults = invocation.second.associate { command ->
-                        val result = executeCommand(command)
-                        logCommandExecutionResult(issue, invocation.first, command, result)
-                        command.source.line to result
+                val commands = staffComments
+                    .map { comment ->
+                        comment to extractCommands(issue, comment)
                     }
+                    .filter { it.second.isNotEmpty() }
+                    .onEach { invocation ->
+                        val commandResults = invocation.second.associate { command ->
+                            val result = executeCommand(command)
+                            logCommandExecutionResult(issue, invocation.first, command, result)
+                            command.source.line to result
+                        }
 
-                    editInvocationComment(invocation.first, commandResults)
-                }
-            assertNotEmpty(commands).bind()
+                        editInvocationComment(invocation.first, commandResults)
+                    }
+                assertNotEmpty(commands).bind()
 
-            ModuleResponse.right().bind()
+                ModuleResponse.right().bind()
+            }
         }
-    }
 
     private fun executeCommand(command: Command): CommandResult {
         return runBlocking {
@@ -78,7 +78,8 @@ class CommandModule(
         }
     }
 
-    private fun isUpdatedAfterLastRun(lastRun: Instant, comment: Comment) = comment.updated.isAfter(lastRun)
+    private fun isUpdatedAfterLastRun(lastRun: Instant, comment: Comment) =
+        comment.updated.isAfter(lastRun)
 
     /**
      * Extracts all commands from a comment.
@@ -167,7 +168,8 @@ class CommandModule(
             return false
         }
 
-        return comment.getAuthorGroups()?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
+        return comment.getAuthorGroups()
+            ?.any { it == "helper" || it == "global-moderators" || it == "staff" } ?: false
     }
 
     private fun isStaffRestricted(comment: Comment) =

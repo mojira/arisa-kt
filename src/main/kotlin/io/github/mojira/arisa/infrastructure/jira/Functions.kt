@@ -4,8 +4,19 @@ package io.github.mojira.arisa.infrastructure.jira
 
 import arrow.core.Either
 import arrow.syntax.function.partially1
+import io.github.mojira.arisa.apiclient.JiraClient
+import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
+import io.github.mojira.arisa.apiclient.builders.string
+import io.github.mojira.arisa.apiclient.exceptions.ClientErrorException
+import io.github.mojira.arisa.apiclient.exceptions.JiraClientException
+import io.github.mojira.arisa.apiclient.models.IssueTransition
+import io.github.mojira.arisa.apiclient.models.Visibility
+import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
+import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.CommentCache
+import io.github.mojira.arisa.jiraClient
 import io.github.mojira.arisa.log
 import io.github.mojira.arisa.modules.FailedModuleResponse
 import io.github.mojira.arisa.modules.ModuleResponse
@@ -13,33 +24,21 @@ import io.github.mojira.arisa.modules.tryRunAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
-import io.github.mojira.arisa.apiclient.models.AttachmentBean as MojiraAttachment
-import io.github.mojira.arisa.apiclient.models.Comment as MojiraComment
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import net.rcarz.jiraclient.Field
-import io.github.mojira.arisa.apiclient.models.IssueLink as MojiraIssueLink
 import net.rcarz.jiraclient.JiraException
 import net.rcarz.jiraclient.RestException
-import io.github.mojira.arisa.apiclient.exceptions.ClientErrorException
-import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 import org.apache.http.HttpStatus
 import java.io.File
 import java.io.InputStream
 import java.time.Instant
 import java.time.temporal.ChronoField
-import io.github.mojira.arisa.apiclient.JiraClient
-import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
-import io.github.mojira.arisa.apiclient.builders.string
-import io.github.mojira.arisa.apiclient.exceptions.JiraClientException
-import io.github.mojira.arisa.apiclient.models.IssueTransition
-import io.github.mojira.arisa.apiclient.models.Visibility
-import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
-import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
-import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
-import io.github.mojira.arisa.jiraClient
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
+import io.github.mojira.arisa.apiclient.models.AttachmentBean as MojiraAttachment
+import io.github.mojira.arisa.apiclient.models.Comment as MojiraComment
+import io.github.mojira.arisa.apiclient.models.IssueLink as MojiraIssueLink
+import io.github.mojira.arisa.apiclient.models.Version as MojiraVersion
 
 /**
  * Get a list of tickets matching a JQL query.
@@ -88,7 +87,11 @@ fun updateCHK(context: Lazy<IssueUpdateContext>, chkField: String) {
     )
 }
 
-fun updateConfirmation(context: Lazy<IssueUpdateContext>, confirmationField: String, value: String) {
+fun updateConfirmation(
+    context: Lazy<IssueUpdateContext>,
+    confirmationField: String,
+    value: String
+) {
     context.value.hasUpdates = true
     context.value.update.field(confirmationField) {
         subField("value", value)
@@ -102,14 +105,22 @@ fun updatePriority(context: Lazy<IssueUpdateContext>, priorityField: String, val
     }
 }
 
-fun updateDungeonsPlatform(context: Lazy<IssueUpdateContext>, dungeonsPlatformField: String, value: String) {
+fun updateDungeonsPlatform(
+    context: Lazy<IssueUpdateContext>,
+    dungeonsPlatformField: String,
+    value: String
+) {
     context.value.hasEdits = true
     context.value.edit.field(dungeonsPlatformField) {
         subField("value", value)
     }
 }
 
-fun updateLegendsPlatform(context: Lazy<IssueUpdateContext>, legendsPlatformField: String, value: String) {
+fun updateLegendsPlatform(
+    context: Lazy<IssueUpdateContext>,
+    legendsPlatformField: String,
+    value: String
+) {
     context.value.hasEdits = true
     context.value.edit.field(legendsPlatformField) {
         subField("value", value)
@@ -155,7 +166,7 @@ fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVers
 
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.add("versions",  buildJsonObject { put("id", id) })
+    context.value.edit.add("versions", buildJsonObject { put("id", id) })
 }
 
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
@@ -229,19 +240,25 @@ private fun applyFluentUpdate(issueKey: String, edit: FluentObjectBuilder) = run
     }
 }
 
-private fun getIssueTransition(issueKey: String, transitionName: String): IssueTransition = runBlocking {
-    val allTransitions = jiraClient.getTransitions(issueKey)
-    val transition = allTransitions.transitions?.firstOrNull { it.name == transitionName }
+private fun getIssueTransition(issueKey: String, transitionName: String): IssueTransition =
+    runBlocking {
+        val allTransitions = jiraClient.getTransitions(issueKey)
+        val transition = allTransitions.transitions?.firstOrNull { it.name == transitionName }
 
-    if (transition == null) {
-        val availableTransitions = allTransitions.transitions?.joinToString(",\n") { "${it.name} (${it.id})" }
-        throw JiraClientException("Transition $transitionName not found. Available transitions:\n$availableTransitions")
+        if (transition == null) {
+            val availableTransitions =
+                allTransitions.transitions?.joinToString(",\n") { "${it.name} (${it.id})" }
+            throw JiraClientException("Transition $transitionName not found. Available transitions:\n$availableTransitions")
+        }
+
+        return@runBlocking transition
     }
 
-    return@runBlocking transition
-}
-
-private fun applyFluentTransition(issueKey: String, update: FluentObjectBuilder, transitionName: String) = runBlocking {
+private fun applyFluentTransition(
+    issueKey: String,
+    update: FluentObjectBuilder,
+    transitionName: String
+) = runBlocking {
     Either.catch {
         val transition = getIssueTransition(issueKey, transitionName)
 
@@ -348,7 +365,8 @@ fun addRestrictedComment(
                     is Either.Left -> log.error(checkResult.a.message)
                     is Either.Right -> {
                         val issueId = context.value.jiraIssue.id
-                        val visibility = Visibility(value = restrictionLevel, type = Visibility.Type.Group.value)
+                        val visibility =
+                            Visibility(value = restrictionLevel, type = Visibility.Type.Group.value)
                         context.value.jiraClient.addRestrictedComment(issueId, comment, visibility)
                     }
                 }

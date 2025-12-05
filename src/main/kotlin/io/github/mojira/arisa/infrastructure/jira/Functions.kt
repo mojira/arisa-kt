@@ -155,7 +155,7 @@ fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVers
 
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.field("versions", buildJsonArray { add(buildJsonObject { put("id", id) }) })
+    context.value.edit.add("versions",  buildJsonObject { put("id", id) })
 }
 
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {

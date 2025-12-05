@@ -52,6 +52,8 @@ data class CloudIssue(
 //    val updateLinked: (Double) -> Unit,
     val setPrivate: () -> Unit,
     val addAffectedVersionById: (id: String) -> Unit,
+    val unarchiveVersion: (id: String) -> Unit,
+    val archiveVersion: (id: String) -> Unit,
 //    val addAffectedVersion: (version: Version) -> Unit,
 //    val removeAffectedVersion: (version: Version) -> Unit,
 //    val createLink: (type: String, key: String, outwards: Boolean) -> Unit,

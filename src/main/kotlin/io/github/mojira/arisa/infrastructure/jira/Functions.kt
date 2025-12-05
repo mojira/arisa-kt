@@ -14,6 +14,7 @@ import io.github.mojira.arisa.apiclient.models.Visibility
 import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
+import io.github.mojira.arisa.apiclient.requestModels.UpdateVersionBody
 import io.github.mojira.arisa.domain.IssueUpdateContext
 import io.github.mojira.arisa.infrastructure.CommentCache
 import io.github.mojira.arisa.jiraClient
@@ -185,7 +186,18 @@ fun updateDescription(context: Lazy<IssueUpdateContext>, description: String) {
 }
 
 fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse, ModuleResponse> {
-    val functions = context.otherOperations.toMutableList()
+    val functions = mutableListOf<() -> Either<Throwable, Unit>>()
+
+    // Build execution list in reverse order for transitions/updates/edits
+    // since they're added at index 0
+
+    // Step 6: Add postOperations last (will run after everything)
+    functions.addAll(context.postOperations)
+
+    // Step 5: Add otherOperations (will run after edits)
+    functions.addAll(0, context.otherOperations)
+
+    // Step 4: Add edits (will run after updates)
     if (context.hasEdits) {
         functions.add(
             0,
@@ -194,6 +206,8 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
                 .partially1(context.edit)
         )
     }
+
+    // Step 3: Add updates (will run after transitions)
     if (context.hasUpdates) {
         functions.add(
             0,
@@ -203,6 +217,8 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
                 .partially1("Update issue")
         )
     }
+
+    // Step 2: Add transitions (will run after preOperations)
     if (context.transitionName != null) {
         functions.add(
             0,
@@ -212,6 +228,10 @@ fun applyIssueChanges(context: IssueUpdateContext): Either<FailedModuleResponse,
                 .partially1(context.transitionName!!)
         )
     }
+
+    // Step 1: Add preOperations first (will run FIRST)
+    functions.addAll(0, context.preOperations)
+
     return tryRunAll(functions, context)
 }
 
@@ -433,6 +453,58 @@ fun deleteLink(context: Lazy<IssueUpdateContext>, link: MojiraIssueLink) {
         runBlocking {
             Either.catch {
                 jiraClient.deleteIssueLink(link.id!!)
+            }
+        }
+    }
+}
+
+fun unarchiveVersion(context: Lazy<IssueUpdateContext>, versionId: String) {
+    context.value.preOperations.add {
+        runBlocking {
+            Either.catch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        context.value.jiraClient.updateVersion(
+                            versionId,
+                            UpdateVersionBody(archived = false)
+                        )
+                    } catch (e: ClientErrorException) {
+                        if (e.code == HttpStatus.SC_NOT_FOUND ||
+                            e.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Failed to unarchive version $versionId")
+                        } else {
+                            throw e
+                        }
+                    }
+                }
+                Unit
+            }
+        }
+    }
+}
+
+fun archiveVersion(context: Lazy<IssueUpdateContext>, versionId: String) {
+    context.value.postOperations.add {
+        runBlocking {
+            Either.catch {
+                withContext(Dispatchers.IO) {
+                    try {
+                        context.value.jiraClient.updateVersion(
+                            versionId,
+                            UpdateVersionBody(archived = true)
+                        )
+                    } catch (e: ClientErrorException) {
+                        if (e.code == HttpStatus.SC_NOT_FOUND ||
+                            e.code >= HttpStatus.SC_INTERNAL_SERVER_ERROR
+                        ) {
+                            log.warn("Failed to archive version $versionId")
+                        } else {
+                            throw e
+                        }
+                    }
+                }
+                Unit
             }
         }
     }

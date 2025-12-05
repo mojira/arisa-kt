@@ -135,6 +135,8 @@ fun MojiraIssue.toDomain(
         setPrivate = ::updateSecurity.partially1(context)
             .partially1(project.getSecurityLevelId(config)),
         ::addAffectedVersionById.partially1(context),
+        ::unarchiveVersion.partially1(context),
+        ::archiveVersion.partially1(context),
 //        { version -> addAffectedVersionById(context, version.id) },
 //        { version -> removeAffectedVersionById(context, version.id) },
 //        ::createLink.partially1(context).partially1(::getOtherUpdateContext.partially1(jiraClient)),

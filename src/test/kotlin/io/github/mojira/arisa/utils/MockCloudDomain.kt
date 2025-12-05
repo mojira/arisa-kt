@@ -39,6 +39,8 @@ fun mockCloudIssue(
     addRawRestrictedComment: (body: String, restriction: String) -> Unit = { _, _ -> },
     addRawBotComment: (rawMessage: String) -> Unit = { },
     addAffectedVersionById: (id: String) -> Unit = { },
+    unarchiveVersion: (id: String) -> Unit = { },
+    archiveVersion: (id: String) -> Unit = { },
     addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
 ) = CloudIssue(
     key = key,
@@ -63,6 +65,8 @@ fun mockCloudIssue(
     addRawRestrictedComment = addRawRestrictedComment,
     addRawBotComment = addRawBotComment,
     addAffectedVersionById = addAffectedVersionById,
+    unarchiveVersion = unarchiveVersion,
+    archiveVersion = archiveVersion,
     addAttachmentFromFile = addAttachmentFromFile
 )
 

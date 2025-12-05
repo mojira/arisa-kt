@@ -23,6 +23,7 @@ import io.github.mojira.arisa.infrastructure.ProjectCache
 import io.github.mojira.arisa.apiclient.builders.FluentObjectBuilder
 import io.github.mojira.arisa.apiclient.models.Changelog
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import kotlinx.serialization.json.JsonObject
 import io.github.mojira.arisa.apiclient.JiraClient as MojiraClient
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -111,7 +112,7 @@ fun MojiraIssue.toDomain(
 //        getPlatform(config),
 //        getDungeonsPlatform(config),
 //        getLegendsPlatform(config),
-//        mapVersions(),
+        mapVersions(),
 //        mapFixVersions(),
         attachments = mapAttachments(jiraClient, config),
         comments = mapComments(jiraClient, config),
@@ -131,7 +132,7 @@ fun MojiraIssue.toDomain(
 //        ::updateLegendsPlatform.partially1(context).partially1(config[Arisa.CustomFields.legendsPlatformField]),
 //        ::updateLinked.partially1(context).partially1(config[Arisa.CustomFields.linked]),
         setPrivate = ::updateSecurity.partially1(context).partially1(project.getSecurityLevelId(config)),
-//        ::addAffectedVersionById.partially1(context),
+        ::addAffectedVersionById.partially1(context),
 //        { version -> addAffectedVersionById(context, version.id) },
 //        { version -> removeAffectedVersionById(context, version.id) },
 //        ::createLink.partially1(context).partially1(::getOtherUpdateContext.partially1(jiraClient)),
@@ -321,9 +322,9 @@ private fun MojiraIssue.mapComments(jiraClient: MojiraClient, config: Config) =
 private fun MojiraIssue.mapAttachments(jiraClient: MojiraClient, config: Config) =
     fields.attachment.map { it.toDomain(jiraClient, this, config) }.sortedBy { it.created }
 
-// private fun MojiraIssue.mapVersions() =
-//    fields.versions.map { it.toDomain() }
-//
+ private fun MojiraIssue.mapVersions() =
+    fields.versions.map { it.toDomain() }
+
 // private fun MojiraIssue.mapFixVersions() =
 //    fixVersions.map { it.toDomain() }
 

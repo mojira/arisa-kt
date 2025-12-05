@@ -1,9 +1,10 @@
 package io.github.mojira.arisa.modules.commands
 
 import io.github.mojira.arisa.domain.Issue
+import io.github.mojira.arisa.domain.cloud.CloudIssue
 
 class AddVersionCommand {
-    operator fun invoke(issue: Issue, version: String): Int {
+    operator fun invoke(issue: CloudIssue, version: String): Int {
         if (issue.affectedVersions.any { it.name == version }) {
             throw CommandExceptions.VERSION_ALREADY_AFFECTED.create(version)
         }

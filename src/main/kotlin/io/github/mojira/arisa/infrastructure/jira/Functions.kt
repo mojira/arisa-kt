@@ -37,6 +37,7 @@ import io.github.mojira.arisa.apiclient.requestModels.EditIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.jiraClient
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -154,9 +155,7 @@ fun removeAffectedVersion(context: Lazy<IssueUpdateContext>, version: MojiraVers
 
 fun addAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {
     context.value.hasEdits = true
-    context.value.edit.field("versions") {
-        subField("id", id)
-    }
+    context.value.edit.field("versions", buildJsonArray { add(buildJsonObject { put("id", id) }) })
 }
 
 fun removeAffectedVersionById(context: Lazy<IssueUpdateContext>, id: String) {

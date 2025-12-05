@@ -6,6 +6,7 @@ import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.domain.Version
 import java.io.File
 import java.time.Instant
 
@@ -30,7 +31,7 @@ data class CloudIssue(
 //    val platform: String?,
 //    val dungeonsPlatform: String?,
 //    val legendsPlatform: String?,
-//    val affectedVersions: List<Version>,
+    val affectedVersions: List<Version>,
 //    val fixVersions: List<Version>,
     val attachments: List<Attachment>,
     val comments: List<Comment>,
@@ -50,7 +51,7 @@ data class CloudIssue(
 //    val updateLegendsPlatform: (String) -> Unit,
 //    val updateLinked: (Double) -> Unit,
     val setPrivate: () -> Unit,
-//    val addAffectedVersionById: (id: String) -> Unit,
+    val addAffectedVersionById: (id: String) -> Unit,
 //    val addAffectedVersion: (version: Version) -> Unit,
 //    val removeAffectedVersion: (version: Version) -> Unit,
 //    val createLink: (type: String, key: String, outwards: Boolean) -> Unit,

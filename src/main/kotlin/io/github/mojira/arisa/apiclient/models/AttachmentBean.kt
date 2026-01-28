@@ -7,7 +7,7 @@ data class AttachmentBean(
     val id: String,
     val filename: String,
     val created: String,
-    val mimeType: String,
+    val mimeType: String? = null,
     val content: String,
     val author: UserDetails? = null,
     val size: Int

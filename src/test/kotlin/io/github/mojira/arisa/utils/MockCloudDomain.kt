@@ -8,9 +8,11 @@ import io.github.mojira.arisa.domain.Comment
 import io.github.mojira.arisa.domain.CommentOptions
 import io.github.mojira.arisa.domain.Project
 import io.github.mojira.arisa.domain.User
+import io.github.mojira.arisa.domain.Version
 import io.github.mojira.arisa.domain.cloud.CloudIssue
 import io.github.mojira.arisa.domain.cloud.CloudLink
 import io.github.mojira.arisa.domain.cloud.CloudLinkedIssue
+import io.github.mojira.arisa.infrastructure.jira.addAffectedVersionById
 import java.io.File
 import java.time.Instant
 
@@ -26,6 +28,7 @@ fun mockCloudIssue(
     created: Instant = RIGHT_NOW,
     updated: Instant = RIGHT_NOW,
     project: Project = mockProject(),
+    affectedVersions: List<Version> = emptyList(),
     attachments: List<Attachment> = emptyList(),
     comments: List<Comment> = emptyList(),
     links: List<CloudLink> = emptyList(),
@@ -35,6 +38,9 @@ fun mockCloudIssue(
     addComment: (options: CommentOptions) -> Unit = { },
     addRawRestrictedComment: (body: String, restriction: String) -> Unit = { _, _ -> },
     addRawBotComment: (rawMessage: String) -> Unit = { },
+    addAffectedVersionById: (id: String) -> Unit = { },
+    unarchiveVersion: (id: String) -> Unit = { },
+    archiveVersion: (id: String) -> Unit = { },
     addAttachmentFromFile: (file: File, cleanupCallback: () -> Unit) -> Unit = { _, cleanupCallback -> cleanupCallback() }
 ) = CloudIssue(
     key = key,
@@ -48,6 +54,7 @@ fun mockCloudIssue(
     created = created,
     updated = updated,
     project = project,
+    affectedVersions = affectedVersions,
     attachments = attachments,
     comments = comments,
     links = links,
@@ -57,6 +64,9 @@ fun mockCloudIssue(
     addComment = addComment,
     addRawRestrictedComment = addRawRestrictedComment,
     addRawBotComment = addRawBotComment,
+    addAffectedVersionById = addAffectedVersionById,
+    unarchiveVersion = unarchiveVersion,
+    archiveVersion = archiveVersion,
     addAttachmentFromFile = addAttachmentFromFile
 )
 

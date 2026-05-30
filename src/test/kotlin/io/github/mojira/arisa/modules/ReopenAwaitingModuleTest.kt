@@ -30,6 +30,7 @@ private val MODULE = ReopenAwaitingModule(
     365,
     "MEQS_KEEP_AR",
     "ARISA_REOPEN_OP",
+    "635bb63159c794184bcabbdb",
     NOT_REOPEN_AR_MESSAGE
 )
 private val AWAITING_RESOLVE = mockChangeLogItem(

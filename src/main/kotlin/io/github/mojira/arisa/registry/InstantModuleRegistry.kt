@@ -47,6 +47,7 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry<CloudIssue>(config)
                 config[Arisa.Modules.ReopenAwaiting.softARDays],
                 config[Arisa.Modules.ReopenAwaiting.keepARTag],
                 config[Arisa.Modules.ReopenAwaiting.onlyOPTag],
+                config[Arisa.Modules.ReopenAwaiting.jiraActionsUser],
                 HelperMessageService.getMessage("MC", keys = listOf(config[Arisa.Modules.ReopenAwaiting.message]))
             )
         )

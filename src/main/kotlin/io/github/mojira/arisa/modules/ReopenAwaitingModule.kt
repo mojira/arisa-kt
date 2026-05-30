@@ -19,6 +19,7 @@ class ReopenAwaitingModule(
     private val softArPeriod: Long,
     private val keepARTag: String,
     private val onlyOPTag: String,
+    private val jiraActionsUser: String,
     private val message: String
 ) : CloudModule {
     override fun invoke(issue: CloudIssue, lastRun: Instant): Either<ModuleError, ModuleResponse> = with(issue) {
@@ -67,7 +68,7 @@ class ReopenAwaitingModule(
             // regular users can reopen and have commented OR
             (!onlyOp && isSoftAR) ||
             // reporter has commented
-            validComments.any { it.author?.accountId == reporter?.accountId }
+            validComments.any { it.author?.accountId == reporter?.accountId || it.author?.accountId == jiraActionsUser }
     }
 
     private fun isOPTag(comment: Comment) = comment.visibilityType == "group" &&

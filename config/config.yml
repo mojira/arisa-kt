@@ -301,6 +301,7 @@ arisa:
       softARDays: 365
       keepARTag: MEQS_KEEP_AR
       onlyOPTag: ARISA_REOPEN_OP
+      jiraActionsUser: "635bb63159c794184bcabbdb"
       message: not-reopen-ar
 
     removeBotComment:

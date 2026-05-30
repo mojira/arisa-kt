@@ -293,6 +293,9 @@ object Arisa : ConfigSpec() {
             val onlyOPTag by required<String>(
                 description = "a tag used to indicate that only the reporter should be allowed to reopen the ticket"
             )
+            val jiraActionsUser by required<String>(
+                description = "User that performs automated actions as part of Jira Cloud"
+            )
             val message by required<String>(
                 description = "The key of the message that is posted when the ticket is updated but will not be " +
                     "reopened by Arisa, e.g. the ticket has a keep AR tag, or the ticket is too old and is not " +

@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.21"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.0"
     application
-    kotlin("plugin.serialization") version "2.2.10"
+    kotlin("plugin.serialization") version "2.3.21"
 }
 
 group = "io.github.mojira"
@@ -89,7 +89,13 @@ class ClearDependencies : ComponentMetadataRule {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(25)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
 }
 
 tasks {

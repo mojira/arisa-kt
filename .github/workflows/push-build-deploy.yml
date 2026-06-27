@@ -33,22 +33,11 @@ jobs:
     - name: Deploy
       uses: mojira/deploy@main
       with:
-        azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
-        azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-        azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        bastion_name: ${{ secrets.BASTION_NAME }}
-        resource_group: ${{ secrets.RESOURCE_GROUP }}
-        resource_id: ${{ secrets.RESOURCE_ID }}
-        ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-        username: arisakt
+        vps_host: ${{ secrets.VPS_HOST }}
+        vps_ssh_key: ${{ secrets.VPS_SSH_KEY }}
+        vps_known_hosts: ${{ secrets.VPS_KNOWN_HOSTS }}
+        project_folder: arisa
         artifact_paths: |
           build/install/arisa-kt/lib
           build/install/arisa-kt/bin
-          config/config.*
-        artifact_destination: /home/arisakt/arisa-kt
-        script: |
-          /usr/bin/screen -ls | /bin/egrep 'Detached|Attached' | /usr/bin/cut -d. -f1 | /usr/bin/awk '{print $1}' | /usr/bin/xargs /bin/kill
-          sleep 1
-          cd arisa-kt
-          mv -f /home/arisakt/arisa-kt/config.yml /home/arisakt/arisa-kt/config/config.yml
-          /usr/bin/screen -d -m bash -c '/home/arisakt/arisa-kt/bin/arisa-kt; exec sh'
+        script: ./restart.sh

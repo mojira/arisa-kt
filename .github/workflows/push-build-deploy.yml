@@ -28,7 +28,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v5
 
     - name: Build with Gradle
-      run: ./gradlew clean installDist
+      run: ./gradlew clean installDist build
 
     - name: Deploy
       uses: mojira/deploy@main
@@ -37,7 +37,6 @@ jobs:
         vps_ssh_key: ${{ secrets.VPS_SSH_KEY }}
         vps_known_hosts: ${{ secrets.VPS_KNOWN_HOSTS }}
         project_folder: arisa
-        artifact_paths: |
-          build/install/arisa-kt/lib
-          build/install/arisa-kt/bin
-        script: ./restart.sh
+        script: |
+          ./gradlew clean installDist build
+          ./restart.sh

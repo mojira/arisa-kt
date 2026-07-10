@@ -11,8 +11,8 @@ import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.modules.commands.CommandExceptions
 import io.github.mojira.arisa.modules.commands.CommandSource
 import io.github.mojira.arisa.utils.RIGHT_NOW
+import io.github.mojira.arisa.utils.mockCloudIssue
 import io.github.mojira.arisa.utils.mockComment
-import io.github.mojira.arisa.utils.mockIssue
 import io.github.mojira.arisa.utils.mockUser
 import io.kotest.assertions.arrow.either.shouldBeLeft
 import io.kotest.assertions.arrow.either.shouldBeRight
@@ -29,7 +29,7 @@ class CommandModuleTest : StringSpec({
     val module = CommandModule(PREFIX, BOT_USER_NAME, true, attachmentUtils, ::getDispatcher)
 
     "should return OperationNotNeededModuleResponse when no comments" {
-        val issue = mockIssue()
+        val issue = mockCloudIssue()
 
         val result = module(issue, RIGHT_NOW)
 
@@ -40,7 +40,7 @@ class CommandModuleTest : StringSpec({
         val comment = getComment(
             getAuthorGroups = { emptyList() }
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -54,7 +54,7 @@ class CommandModuleTest : StringSpec({
             visibilityType = "group",
             visibilityValue = "users"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -67,7 +67,7 @@ class CommandModuleTest : StringSpec({
         val comment = getComment(
             visibilityType = "notagroup"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -80,7 +80,7 @@ class CommandModuleTest : StringSpec({
         val comment = getComment(
             visibilityValue = "notagroup"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -94,7 +94,7 @@ class CommandModuleTest : StringSpec({
             visibilityType = null,
             visibilityValue = null
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -108,7 +108,7 @@ class CommandModuleTest : StringSpec({
             // No underscore ('_') after prefix
             body = PREFIX
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -123,7 +123,7 @@ class CommandModuleTest : StringSpec({
                 name = BOT_USER_NAME
             )
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -140,7 +140,7 @@ class CommandModuleTest : StringSpec({
             ),
             update = { updatedComment = it }
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -162,7 +162,7 @@ class CommandModuleTest : StringSpec({
             update = { updatedComment = it },
             body = "ARISA_VALUE 42"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -184,7 +184,7 @@ class CommandModuleTest : StringSpec({
             update = { updatedComment = it },
             body = "ARISA_FAIL arg"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -209,7 +209,7 @@ class CommandModuleTest : StringSpec({
             update = { updatedComment = it },
             body = "TESTING_COMMAND_SUCCESS arg"
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 
@@ -238,7 +238,7 @@ class CommandModuleTest : StringSpec({
                 |Thank you!
             """.trimMargin()
         )
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             comments = listOf(comment)
         )
 

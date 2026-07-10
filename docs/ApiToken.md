@@ -9,6 +9,7 @@ Classic scopes:
 - `read:jira-work`
 - `write:jira-work`
 - `read:jira-user`
+- `manage:jira-project`
 
 ## Cloud ID
 
@@ -104,3 +105,8 @@ Scopes (classic): `read:jira-work`
 ### [POST /issue/{issueIdOrKey}/transitions](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issues/#api-rest-api-2-issue-issueidorkey-transitions-post)
 
 Scopes (classic): `write:jira-work`
+
+
+### [PUT /version/{id}](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-project-versions/#api-rest-api-2-version-id-put)
+
+Scopes (classic): `manage:jira-project`

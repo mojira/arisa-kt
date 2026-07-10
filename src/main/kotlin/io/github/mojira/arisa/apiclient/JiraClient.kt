@@ -16,6 +16,7 @@ import io.github.mojira.arisa.apiclient.models.Project
 import io.github.mojira.arisa.apiclient.models.SearchResults
 import io.github.mojira.arisa.apiclient.models.Transitions
 import io.github.mojira.arisa.apiclient.models.User
+import io.github.mojira.arisa.apiclient.models.Version
 import io.github.mojira.arisa.apiclient.models.Visibility
 import io.github.mojira.arisa.apiclient.requestModels.AddCommentBody
 import io.github.mojira.arisa.apiclient.requestModels.CreateIssueLinkBody
@@ -24,6 +25,7 @@ import io.github.mojira.arisa.apiclient.requestModels.JiraSearchRequest
 import io.github.mojira.arisa.apiclient.requestModels.TransitionIssueBody
 import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentBody
 import io.github.mojira.arisa.apiclient.requestModels.UpdateCommentQueryParams
+import io.github.mojira.arisa.apiclient.requestModels.UpdateVersionBody
 import io.github.mojira.arisa.log
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -149,6 +151,12 @@ interface JiraApi {
         @Path("issueIdOrKey") issueIdOrKey: String,
         @Body body: TransitionIssueBody
     ): Call<Unit>
+
+    @PUT("version/{id}")
+    fun updateVersion(
+        @Path("id") versionId: String,
+        @Body body: UpdateVersionBody
+    ): Call<Version>
 }
 
 /**
@@ -334,5 +342,9 @@ class JiraClient(
 
     fun performTransition(issueIdOrKey: String, body: TransitionIssueBody) {
         jiraApi.performTransition(issueIdOrKey, body).executeOrThrow()
+    }
+
+    fun updateVersion(versionId: String, body: UpdateVersionBody): Version {
+        return jiraApi.updateVersion(versionId, body).executeOrThrow()
     }
 }

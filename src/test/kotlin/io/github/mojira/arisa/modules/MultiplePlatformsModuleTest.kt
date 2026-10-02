@@ -89,13 +89,13 @@ private val duplicatesLink = mockLink()
 
 class MultiplePlatformsModuleTest : StringSpec({
     val module = MultiplePlatformsModule(
-    dungeonsPlatformWhitelist = listOf("Xbox One", "Amazon", "Arch-Illager OS"),
-    dungeons2PlatformWhitelist = listOf("Cloud", "Windows", "Xbox Series X|S", "Piglin OS"),
-    legendsPlatformWhitelist = listOf("Xbox One", "Amazon", "Piglin OS"),
-    platformWhitelist = listOf("Xbox One", "Amazon"),
-    targetPlatform = "Multiple",
-    transferredPlatformBlacklist = listOf("None"),
-    keepPlatformTag = "MEQS_KEEP_PLATFORM"
+        dungeonsPlatformWhitelist = listOf("Xbox One", "Amazon", "Arch-Illager OS"),
+        dungeons2PlatformWhitelist = listOf("Cloud", "Windows", "Xbox Series X|S", "Piglin OS"),
+        legendsPlatformWhitelist = listOf("Xbox One", "Amazon", "Piglin OS"),
+        platformWhitelist = listOf("Xbox One", "Amazon"),
+        targetPlatform = "Multiple",
+        transferredPlatformBlacklist = listOf("None"),
+        keepPlatformTag = "MEQS_KEEP_PLATFORM"
     )
 
     "should return OperationNotNeededModuleResponse when there are no links" {

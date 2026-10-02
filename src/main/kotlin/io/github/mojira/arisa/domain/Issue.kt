@@ -23,6 +23,7 @@ data class Issue(
     val project: Project,
     val platform: String?,
     val dungeonsPlatform: String?,
+    val dungeons2Platfor: String?,
     val legendsPlatform: String?,
     val affectedVersions: List<Version>,
     val fixVersions: List<Version>,

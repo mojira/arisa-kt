@@ -190,6 +190,7 @@ fun mockIssue(
     updatePriority,
     updatePlatform,
     updateDungeonsPlatform,
+    updateDungeons2Platform,
     updateLegendsPlatform,
     updateLinked,
     setPrivate,

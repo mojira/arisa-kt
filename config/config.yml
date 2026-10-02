@@ -258,6 +258,15 @@ arisa:
         - Xbox One
         - Xbox Series S
         - Xbox Series X
+      dungeons2PlatformWhitelist:
+        - Xbox Series X|S
+        - Windows
+        - Steam
+        - Nintendo Switch
+        - Nintendo Switch 2
+        - PlayStation 5
+        - Cloud
+        - Multiple
       legendsPlatformWhitelist:
         - Nintendo Switch
         - PlayStation 4

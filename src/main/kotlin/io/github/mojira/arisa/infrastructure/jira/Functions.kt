@@ -108,6 +108,13 @@ fun updateDungeonsPlatform(context: Lazy<IssueUpdateContext>, dungeonsPlatformFi
     }
 }
 
+fun updateDungeons2Platform(context: Lazy<IssueUpdateContext>, dungeonsPlatformField: String, value: String) {
+    context.values.hasEdits = true
+    context.value.edit.field(dungeons2PlatformField) {
+        subField("value", value)
+    }
+}
+
 fun updateLegendsPlatform(context: Lazy<IssueUpdateContext>, legendsPlatformField: String, value: String) {
     context.value.hasEdits = true
     context.value.edit.field(legendsPlatformField) {

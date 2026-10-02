@@ -89,12 +89,13 @@ private val duplicatesLink = mockLink()
 
 class MultiplePlatformsModuleTest : StringSpec({
     val module = MultiplePlatformsModule(
-        listOf("Xbox One", "Amazon", "Arch-Illager OS"),
-        listOf("Xbox One", "Amazon", "Piglin OS"),
-        listOf("Xbox One", "Amazon"),
-        "Multiple",
-        listOf("None"),
-        "MEQS_KEEP_PLATFORM"
+    dungeonsPlatformWhitelist = listOf("Xbox One", "Amazon", "Arch-Illager OS"),
+    dungeons2PlatformWhitelist = listOf("Cloud", "Windows", "Xbox Series X|S", "Piglin OS"),
+    legendsPlatformWhitelist = listOf("Xbox One", "Amazon", "Piglin OS"),
+    platformWhitelist = listOf("Xbox One", "Amazon"),
+    targetPlatform = "Multiple",
+    transferredPlatformBlacklist = listOf("None"),
+    keepPlatformTag = "MEQS_KEEP_PLATFORM"
     )
 
     "should return OperationNotNeededModuleResponse when there are no links" {
@@ -303,6 +304,24 @@ class MultiplePlatformsModuleTest : StringSpec({
             legendsPlatform = "Piglin OS",
             links = listOf(duplicatedLink2),
             updateLegendsPlatform = { changedPlatform = it }
+        )
+
+        val result = module(issue, TWO_SECONDS_AGO)
+
+        result.shouldBeRight(ModuleResponse)
+        changedPlatform.shouldBe("Multiple")
+    }
+
+    "should set to Multiple when Platform is Piglin OS and there is a duplicate for MCD2" {
+        var changedPlatform = ""
+
+        val issue = mockIssue(
+            project = mockProject(
+                key = "MCD2"
+            ),
+            dungeons2Platform = "Piglin OS",
+            links = listOf(duplicatedLink2),
+            updateDungeons2Platform = { changedPlatform = it }
         )
 
         val result = module(issue, TWO_SECONDS_AGO)

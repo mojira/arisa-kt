@@ -6,6 +6,7 @@ arisa:
       - MCPE
       - MCL
       - MCD
+      - MCD2
       - MCLG
       - BDS
       - REALMS
@@ -28,6 +29,7 @@ arisa:
     chkField: customfield_10701
     confirmationField: customfield_10500
     dungeonsPlatformField: customfield_12400
+    dungeons2PlatformField: customfield_10062
     legendsPlatformField: customfield_12900
     mojangPriorityField: customfield_12200
     triagedTimeField: customfield_12201
@@ -242,6 +244,7 @@ arisa:
     multiplePlatforms:
       projects:
         - MCD
+        - MCD2
         - MCPE
         - MCLG
       resolutions:
@@ -282,6 +285,7 @@ arisa:
     keepPlatform:
       projects:
         - MCD
+        - MCD2
         - MCPE
       resolutions:
         - Unresolved
@@ -380,6 +384,7 @@ arisa:
         - MCPE
         - BDS
         - MCD
+        - MCD2
         - MCLG
       resolutions:
         - Unresolved
@@ -431,6 +436,7 @@ arisa:
         - MCL
         - MCLG
         - MCD
+        - MCD2
         - BDS
         - REALMS
         - WEB

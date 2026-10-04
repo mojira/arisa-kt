@@ -32,7 +32,7 @@ data class IssueFields(
     val statuscategorychangedate: String? = null,
     val subtasks: List<IssueBean>? = null,
     val summary: String? = null,
-    val versions: List<JsonElement> = emptyList(),
+    val versions: List<Version> = emptyList(),
     val timeoriginalestimate: JsonElement? = null,
     val timespent: Long? = null,
     @Serializable(with = OffsetDateTimeSerializer::class)

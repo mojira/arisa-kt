@@ -1,7 +1,7 @@
 package io.github.mojira.arisa.modules.commands
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import io.github.mojira.arisa.utils.mockIssue
+import io.github.mojira.arisa.utils.mockCloudIssue
 import io.github.mojira.arisa.utils.mockProject
 import io.github.mojira.arisa.utils.mockVersion
 import io.kotest.assertions.throwables.shouldThrow
@@ -12,7 +12,7 @@ class AddVersionCommandTest : StringSpec({
     "should throw VERSION_ALREADY_AFFECTED when version is already added" {
         val command = AddVersionCommand()
 
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             project = mockProject(
                 versions = listOf(getVersion(released = true, archived = false))
             ),
@@ -28,7 +28,7 @@ class AddVersionCommandTest : StringSpec({
     "should throw NO_SUCH_VERSION when version doesn't exist" {
         val command = AddVersionCommand()
 
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             project = mockProject(
                 versions = listOf(getVersion(released = true, archived = false))
             ),
@@ -44,7 +44,7 @@ class AddVersionCommandTest : StringSpec({
     "should add version" {
         val command = AddVersionCommand()
 
-        val issue = mockIssue(
+        val issue = mockCloudIssue(
             project = mockProject(
                 versions = listOf(
                     getVersion(released = true, archived = false),

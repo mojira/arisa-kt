@@ -19,5 +19,9 @@ data class IssueUpdateContext(
     var transitionName: String? = null,
     val otherOperations: MutableList<() -> Either<Throwable, Unit>> =
         emptyList<() -> Either<Throwable, Unit>>().toMutableList(),
+    val preOperations: MutableList<() -> Either<Throwable, Unit>> =
+        emptyList<() -> Either<Throwable, Unit>>().toMutableList(),
+    val postOperations: MutableList<() -> Either<Throwable, Unit>> =
+        emptyList<() -> Either<Throwable, Unit>>().toMutableList(),
     var triggeredBy: String? = null
 )

@@ -1,10 +1,13 @@
 package io.github.mojira.arisa.registry
 
 import com.uchuhimo.konf.Config
+import com.urielsalis.mccrashlib.CrashReader
 import io.github.mojira.arisa.ExecutionTimeframe
 import io.github.mojira.arisa.domain.cloud.CloudIssue
+import io.github.mojira.arisa.infrastructure.AttachmentUtils
 import io.github.mojira.arisa.infrastructure.HelperMessageService
 import io.github.mojira.arisa.infrastructure.config.Arisa
+import io.github.mojira.arisa.modules.CommandModule
 import io.github.mojira.arisa.modules.PrivateDuplicateModule
 import io.github.mojira.arisa.modules.ReopenAwaitingModule
 import io.github.mojira.arisa.modules.privacy.AccessTokenRedactor
@@ -48,6 +51,21 @@ class InstantModuleRegistry(config: Config) : ModuleRegistry<CloudIssue>(config)
                 config[Arisa.Modules.ReopenAwaiting.keepARTag],
                 config[Arisa.Modules.ReopenAwaiting.onlyOPTag],
                 HelperMessageService.getMessage("MC", keys = listOf(config[Arisa.Modules.ReopenAwaiting.message]))
+            )
+        )
+
+        val attachmentUtils = AttachmentUtils(
+            config[Arisa.Modules.Crash.crashExtensions],
+            CrashReader()
+        )
+
+        register(
+            Arisa.Modules.Command,
+            CommandModule(
+                config[Arisa.Modules.Command.commandPrefix],
+                config[Arisa.Credentials.username],
+                config[Arisa.Debug.ignoreOwnCommands],
+                attachmentUtils
             )
         )
     }

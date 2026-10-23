@@ -13,6 +13,7 @@ import java.time.Instant
 @Suppress("TooManyFunctions")
 class MultiplePlatformsModule(
     private val dungeonsPlatformWhitelist: List<String>,
+    private val dungeons2PlatformWhitelist: List<String>,
     private val legendsPlatformWhitelist: List<String>,
     private val platformWhitelist: List<String>,
     private val targetPlatform: String,
@@ -34,6 +35,8 @@ class MultiplePlatformsModule(
             assertNotKeepPlatformTag(comments).bind()
             if (project.key == "MCD") {
                 updateDungeonsPlatform(targetPlatform)
+            } else if (project.key == "MCD2") {
+                updateDungeons2Platform(targetPlatform)
             } else if (project.key == "MCLG") {
                 updateLegendsPlatform(targetPlatform)
             } else {
@@ -47,6 +50,8 @@ class MultiplePlatformsModule(
             dungeonsPlatformWhitelist
         } else if (project == "MCLG") {
             legendsPlatformWhitelist
+        } else if (project == "MCD2") {
+            dungeons2PlatformWhitelist
         } else {
             platformWhitelist
         }
@@ -54,6 +59,8 @@ class MultiplePlatformsModule(
     private fun Issue.getPlatformValue() =
         if (project.key == "MCD") {
             dungeonsPlatform
+        } else if (project.key == "MCD2") {
+            dungeons2Platform
         } else if (project.key == "MCLG") {
             legendsPlatform
         } else {
